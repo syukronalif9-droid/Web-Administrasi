@@ -3,7 +3,46 @@ console.log("Loading Attendance Override...");
 
 window.uploadedData = window.uploadedData || { ZMM_LTO: [], mb51: [], stock: [] };
 
-document.addEventListener('DOMContentLoaded', () => {
+// IndexedDB Helper
+const DB_NAME = 'OfflineAttendanceDB';
+const STORE_NAME = 'files';
+
+function saveToDB(key, data) {
+    const req = indexedDB.open(DB_NAME, 1);
+    req.onupgradeneeded = (e) => e.target.result.createObjectStore(STORE_NAME);
+    req.onsuccess = (e) => {
+        const db = e.target.result;
+        const tx = db.transaction(STORE_NAME, 'readwrite');
+        tx.objectStore(STORE_NAME).put(data, key);
+    };
+}
+
+function loadFromDB(key) {
+    return new Promise((resolve) => {
+        const req = indexedDB.open(DB_NAME, 1);
+        req.onupgradeneeded = (e) => e.target.result.createObjectStore(STORE_NAME);
+        req.onsuccess = (e) => {
+            const tx = e.target.result.transaction(STORE_NAME, 'readonly');
+            const getReq = tx.objectStore(STORE_NAME).get(key);
+            getReq.onsuccess = () => resolve(getReq.result);
+            getReq.onerror = () => resolve(null);
+        };
+        req.onerror = () => resolve(null);
+    });
+}
+
+document.addEventListener('DOMContentLoaded', async () => {
+    // Muat data dari IndexedDB saat pertama kali buka web
+    const savedZmm = await loadFromDB('ZMM_LTO');
+    const savedMb51 = await loadFromDB('mb51');
+    const savedStock = await loadFromDB('stock');
+    if (savedZmm) window.uploadedData['ZMM_LTO'] = savedZmm;
+    if (savedMb51) window.uploadedData['mb51'] = savedMb51;
+    if (savedStock) window.uploadedData['stock'] = savedStock;
+    if (typeof init === 'function' && (savedZmm || savedMb51 || savedStock)) {
+        init();
+    }
+
     // Intercept tombol "Hapus Data" agar berfungsi untuk file lokal
     document.querySelectorAll('.reset-db-btn').forEach(btn => {
         btn.addEventListener('click', (e) => {
@@ -11,9 +50,18 @@ document.addEventListener('DOMContentLoaded', () => {
             e.stopPropagation(); // Stop Supabase logic
             
             const id = btn.id;
-            if (id === 'btn-reset-framsys') window.uploadedData['ZMM_LTO'] = [];
-            else if (id === 'btn-reset-mb51') window.uploadedData['mb51'] = [];
-            else if (id === 'btn-reset-zmmlto') window.uploadedData['stock'] = [];
+            if (id === 'btn-reset-framsys') {
+                window.uploadedData['ZMM_LTO'] = [];
+                saveToDB('ZMM_LTO', []);
+            }
+            else if (id === 'btn-reset-mb51') {
+                window.uploadedData['mb51'] = [];
+                saveToDB('mb51', []);
+            }
+            else if (id === 'btn-reset-zmmlto') {
+                window.uploadedData['stock'] = [];
+                saveToDB('stock', []);
+            }
             
             alert('Data berhasil dihapus dari memori (Mode Lokal).');
             if (typeof init === 'function') init();
@@ -183,11 +231,20 @@ document.addEventListener('DOMContentLoaded', () => {
                 // upload-zmmlto adalah master emplye (stock), header di baris ke-1 (index 0)
                 const dataMaster = await parseCSVFile(fileZmmlto, 0);
 
-                if (dataFramsys) window.uploadedData['ZMM_LTO'] = dataFramsys;
-                if (dataWorkdays) window.uploadedData['mb51'] = dataWorkdays;
-                if (dataMaster) window.uploadedData['stock'] = dataMaster;
+                if (dataFramsys) {
+                    window.uploadedData['ZMM_LTO'] = dataFramsys;
+                    saveToDB('ZMM_LTO', dataFramsys);
+                }
+                if (dataWorkdays) {
+                    window.uploadedData['mb51'] = dataWorkdays;
+                    saveToDB('mb51', dataWorkdays);
+                }
+                if (dataMaster) {
+                    window.uploadedData['stock'] = dataMaster;
+                    saveToDB('stock', dataMaster);
+                }
 
-                alert("Data berhasil diproses secara offline (tersimpan di memori). Silakan klik menu di sebelah kiri untuk melihat tabelnya.");
+                alert("Data berhasil diproses dan disimpan secara permanen di browser Anda (tanpa server). Silakan klik menu di sebelah kiri untuk melihat tabelnya.");
                 
                 // Panggil init() dari script.js untuk memuat ulang tabel dengan data baru
                 if (typeof init === 'function') {
