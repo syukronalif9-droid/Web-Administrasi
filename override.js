@@ -13,6 +13,28 @@ async function fetchData(tableName) {
     return window.uploadedData[tableName] || [];
 }
 
+// Override fungsi render yang lama (karena mereka mencari kolom 'Posting Date' dsb yang tidak ada di CSV baru)
+function renderMb51() {
+    const data = window.globalMb51Data || window.uploadedData['mb51'] || [];
+    if(typeof renderTable === 'function') renderTable('mb51-table', data);
+    const span = document.getElementById('mb51-dynamic-total-line');
+    if (span) span.textContent = data.length;
+}
+
+function renderZmmLto() {
+    const data = window.globalZmmLtoData || window.uploadedData['ZMM_LTO'] || [];
+    if(typeof renderTable === 'function') renderTable('zmmlto-table', data);
+    const span = document.getElementById('zmmlto-dynamic-total-line');
+    if (span) span.textContent = data.length;
+}
+
+function renderStock() {
+    const data = window.globalStockData || window.uploadedData['stock'] || [];
+    if(typeof renderTable === 'function') renderTable('stock-table', data);
+    const span = document.getElementById('stock-dynamic-total-line');
+    if (span) span.textContent = data.length;
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     const newBtn = document.getElementById('btn-process-upload-offline');
     if (newBtn) {
