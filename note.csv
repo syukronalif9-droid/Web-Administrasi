@@ -1,0 +1,27 @@
+Task list;;;;
+;;;;
+WH Area;Description;PIC;Remarks;Status
+;;;;
+All WH;"Kolekting IP mesin absen all WH (Central, PG1, PG2, PG3 & PG4) agar account framsys ""warehouse"" bisa akses report";Gilang Ramadhan (IT);;Close
+Central;- Absensi periode Jan-Apr 2025 tidak terbaca a.n Edoardus, Jellycia, Aliifah, Anggi satriawan, Oktomi;- Ybs & Mei Ida;A.n Jellycia, Aliifah, Anggi sudah registrasi ulang;Close
+Central;Yusman tidak terbaca absensi di mesin Juni;Gilang Ramadhan (IT);"Registrasi ke account framsys ""warehouse""";Close
+WL ;Belum ada mesin absensi;;Menggunakan report absensi manual;Close
+Tang;Belum ada mesin absensi;;Menggunakan report absensi manual;Close
+OP1;Belum ada mesin absensi;;Menggunakan report absensi manual;Close
+PG1 & PG2;TKBM hanya sekali absen, upah berdasarkan hasil kerja;;Wajib absen ;Close
+PG2;A.n Feri Irawan & Putra Sanopa masih ikut absen kantor PG;Retno Evani S;Perlu dipindah absen ke WH PG2 agar report absen bisa di download;Close
+PG3;Mesin absen AGR2 rusak/tidak te-record (Apr 2026 below), per May sudah di instal mesin absen yang baru ;Suwardi;Khusus PKWTT periode Apr 2026 kebawah tidak terbaca absensinya;Close
+PG4;TK bisa absensi di 2 lokasi berbeda (absen masuk diWH04, absen pulang diWH08);Purwanto;Sosialiasi ke TK agar absen masuk&pulang diarahkan di satu lokasi;Close
+;;;;
+;;;;
+;;;;
+;;;;
+;;;;
+;;;;
+;;;;
+;;;;
+;;;;
+;;;;
+;;;;
+;;;;
+;;;;
