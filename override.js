@@ -1,7 +1,25 @@
 // Override for Attendance Dashboard
 console.log("Loading Attendance Override...");
 
-window.uploadedData = window.offlineData || window.uploadedData || { ZMM_LTO: [], mb51: [], stock: [] };
+window.uploadedData = window.uploadedData || { ZMM_LTO: [], mb51: [], stock: [] };
+
+document.addEventListener('DOMContentLoaded', () => {
+    // Intercept tombol "Hapus Data" agar berfungsi untuk file lokal
+    document.querySelectorAll('.reset-db-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation(); // Stop Supabase logic
+            
+            const id = btn.id;
+            if (id === 'btn-reset-framsys') window.uploadedData['ZMM_LTO'] = [];
+            else if (id === 'btn-reset-mb51') window.uploadedData['mb51'] = [];
+            else if (id === 'btn-reset-zmmlto') window.uploadedData['stock'] = [];
+            
+            alert('Data berhasil dihapus dari memori (Mode Lokal).');
+            if (typeof init === 'function') init();
+        }, true); // use capture phase to intercept before old scripts
+    });
+});
 
 // Overwrite the original function declaration globally
 window.fetchData = async function(tableName) {
