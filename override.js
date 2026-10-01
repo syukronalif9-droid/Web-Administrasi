@@ -29,7 +29,31 @@ function renderZmmLto() {
 }
 
 function renderStock() {
-    const data = window.globalStockData || window.uploadedData['stock'] || [];
+    let data = window.globalStockData || window.uploadedData['stock'] || [];
+    
+    // OTOMATISASI RUMUS EXCEL: Double Check & >1 Name
+    const workDaysData = window.uploadedData['mb51'] || [];
+    const nameCounts = {};
+    
+    // Hitung kemunculan tiap nama di file work days (kolom 'Nama')
+    workDaysData.forEach(row => {
+        const nama = row['Nama'];
+        if (nama) {
+            nameCounts[nama] = (nameCounts[nama] || 0) + 1;
+        }
+    });
+    
+    // Terapkan rumus ke master emplye
+    data = data.map(row => {
+        const fullName = row['Full Name'];
+        const count = nameCounts[fullName] || 0;
+        return {
+            ...row,
+            'Double Check': count > 0 ? fullName : '#N/A',
+            '>1 Name': count
+        };
+    });
+
     if(typeof renderTable === 'function') renderTable('stock-table', data);
     const span = document.getElementById('stock-dynamic-total-line');
     if (span) span.textContent = data.length;
