@@ -55,20 +55,23 @@ function renderStock() {
     
     // Hitung kemunculan tiap nama di file work days (kolom 'Nama')
     workDaysData.forEach(row => {
-        const nama = row['Nama'];
+        let nama = row['Nama'];
         if (nama) {
+            nama = nama.toString().trim().toLowerCase();
             nameCounts[nama] = (nameCounts[nama] || 0) + 1;
         }
     });
     
     // Terapkan rumus ke master emplye
     data = data.map(row => {
-        const fullName = row['Full Name'];
-        const count = nameCounts[fullName] || 0;
+        const fullName = row['Full Name'] || '';
+        const searchName = fullName.toString().trim().toLowerCase();
+        const count = nameCounts[searchName] || 0;
         return {
             ...row,
             'Double Check': count > 0 ? fullName : '#N/A',
-            '>1 Name': count
+            // Kita jadikan string agar tidak terhapus (karena 0 || '' di renderTable jadinya kosong)
+            '>1 Name': count === 0 ? '0' : count.toString()
         };
     });
 
