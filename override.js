@@ -115,30 +115,46 @@ document.addEventListener('DOMContentLoaded', () => {
             const fileMb51 = document.getElementById('upload-mb51').files[0];
             const fileZmmlto = document.getElementById('upload-zmmlto').files[0];
 
-            function parseCSVFile(file) {
+            function parseCSVFile(file, headerOffset) {
                 return new Promise((resolve, reject) => {
                     if (!file) return resolve(null);
-                    Papa.parse(file, {
-                        header: true,
-                        skipEmptyLines: true,
-                        complete: function(results) {
-                            resolve(results.data);
-                        },
-                        error: function(err) {
-                            reject(err);
-                        }
-                    });
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const content = e.target.result;
+                        const lines = content.split(/\r?\n/);
+                        if (lines.length <= headerOffset) return resolve([]);
+                        
+                        // Buang baris sebelum header
+                        const validContent = lines.slice(headerOffset).join('\n');
+                        
+                        Papa.parse(validContent, {
+                            header: true,
+                            skipEmptyLines: true,
+                            delimiter: ";", // Pastikan delimiter semicolon
+                            complete: function(results) {
+                                resolve(results.data);
+                            },
+                            error: function(err) {
+                                reject(err);
+                            }
+                        });
+                    };
+                    reader.onerror = () => reject(new Error("Gagal membaca file"));
+                    reader.readAsText(file);
                 });
             }
 
             try {
-                const dataStock = await parseCSVFile(fileStock);
-                const dataMb51 = await parseCSVFile(fileMb51);
-                const dataZmmlto = await parseCSVFile(fileZmmlto);
+                // upload-stock di HTML sebenarnya adalah framsys (ZMM_LTO), header di baris ke-2 (index 1)
+                const dataFramsys = await parseCSVFile(fileStock, 1);
+                // upload-mb51 adalah work days (mb51), header di baris ke-3 (index 2)
+                const dataWorkdays = await parseCSVFile(fileMb51, 2);
+                // upload-zmmlto adalah master emplye (stock), header di baris ke-1 (index 0)
+                const dataMaster = await parseCSVFile(fileZmmlto, 0);
 
-                if (dataStock) window.uploadedData['stock'] = dataStock;
-                if (dataMb51) window.uploadedData['mb51'] = dataMb51;
-                if (dataZmmlto) window.uploadedData['ZMM_LTO'] = dataZmmlto;
+                if (dataFramsys) window.uploadedData['ZMM_LTO'] = dataFramsys;
+                if (dataWorkdays) window.uploadedData['mb51'] = dataWorkdays;
+                if (dataMaster) window.uploadedData['stock'] = dataMaster;
 
                 alert("Data berhasil diproses secara offline (tersimpan di memori). Silakan klik menu di sebelah kiri untuk melihat tabelnya.");
                 
