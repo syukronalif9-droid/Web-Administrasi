@@ -33,7 +33,35 @@ async function fetchData(tableName) {
 
 // Override fungsi render yang lama (karena mereka mencari kolom 'Posting Date' dsb yang tidak ada di CSV baru)
 function renderMb51() {
-    const data = window.globalMb51Data || window.uploadedData['mb51'] || [];
+    let data = window.globalMb51Data || window.uploadedData['mb51'] || [];
+    
+    // OTOMATISASI RUMUS VLOOKUP: Area & Bagian berdasarkan master emplye
+    const masterData = window.uploadedData['stock'] || [];
+    const masterMap = {};
+    
+    masterData.forEach(row => {
+        const persNo = row['Pers.No.'];
+        if (persNo) {
+            masterMap[persNo.toString().trim()] = {
+                area: row['Area'] || '',
+                bagian: row['Bagian'] || ''
+            };
+        }
+    });
+    
+    data = data.map(row => {
+        const indexValue = row['Index'] ? row['Index'].toString().trim() : '';
+        const match = masterMap[indexValue];
+        if (match) {
+            return {
+                ...row,
+                'Area': match.area || '#N/A',
+                'Bagian': match.bagian || '#N/A'
+            };
+        }
+        return row;
+    });
+
     if(typeof renderTable === 'function') renderTable('mb51-table', data);
     const span = document.getElementById('mb51-dynamic-total-line');
     if (span) span.textContent = data.length;
