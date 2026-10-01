@@ -35,6 +35,33 @@ function renderStock() {
     if (span) span.textContent = data.length;
 }
 
+// Override renderTable agar tidak bikin lag karena meload puluhan ribu baris!
+window.renderTable = function(tableId, data) {
+    const table = document.getElementById(tableId);
+    if (!table) return;
+    
+    if (!data || data.length === 0) {
+        table.innerHTML = '<thead><tr><th>Informasi</th></tr></thead><tbody><tr><td style="text-align: center; padding: 20px; font-weight: 500; color: #888;">Data Tidak Ditemukan / Kosong</td></tr></tbody>';
+        return;
+    }
+
+    const headers = Object.keys(data[0]);
+    const thead = `<thead><tr>${headers.map(h => `<th>${h}</th>`).join('')}</tr></thead>`;
+    
+    // Batasi hanya 100 baris pertama supaya super cepat (no lag)
+    const displayData = data.slice(0, 100);
+    
+    const tbody = `<tbody>${displayData.map(row => {
+        return `<tr>${headers.map(h => `<td>${row[h] || ''}</td>`).join('')}</tr>`;
+    }).join('')}</tbody>`;
+    
+    table.innerHTML = thead + tbody;
+};
+
+function renderTable(tableId, data) {
+    window.renderTable(tableId, data);
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     const newBtn = document.getElementById('btn-process-upload-offline');
     if (newBtn) {
