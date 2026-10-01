@@ -14,13 +14,8 @@ async function fetchData(tableName) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    // 1. Remove old process button listener to disable Supabase upload
-    const oldBtn = document.getElementById('btn-process-upload');
-    if (oldBtn) {
-        const newBtn = oldBtn.cloneNode(true);
-        oldBtn.parentNode.replaceChild(newBtn, oldBtn);
-        
-        // 2. Add new offline processing logic
+    const newBtn = document.getElementById('btn-process-upload-offline');
+    if (newBtn) {
         newBtn.addEventListener('click', async () => {
             newBtn.textContent = 'Memproses...';
             newBtn.disabled = true;
