@@ -1,0 +1,24 @@
+PANDUAN UPLOAD DATA APLIKASI WEB ADMINISTRASI HRD
+=================================================
+Agar sistem automasi bekerja sempurna, User/Admin HRD hanya perlu men-download 3 file mentah dari sistem dan langsung meng-upload-nya. Tidak perlu memasukkan rumus Excel secara manual!
+
+1. File "master emplye.csv" (Sumber Data Utama / Biodata)
+-----------------------------------------------------------
+* Kolom Wajib Ada: "Pers.No." & "Full Name" (Kunci utama pencocokan data).
+* Kolom Wajib Ada: "Area" & "Bagian" (Web akan menyedot data ini otomatis untuk tabel Work Days).
+* Kolom Otomatis (Boleh Kosong): "Double Check" dan ">1 Name". Web akan menghitung isinya secara otomatis.
+
+2. File "work days PKWTT-T.csv" (Laporan Absen Bulanan)
+-----------------------------------------------------------
+* Kolom Wajib Ada: "Index" (nomor Pers.No) & "Nama". (Untuk mengecek nama ganda pada master emplye).
+* Kolom Wajib Ada: Semua Kolom Keterangan Absen ("Hari Kerja", "Sakit", "Izin", "Alpa", "CT", dll).
+* Kolom Otomatis (Boleh Kosong): "Area" dan "Bagian". Sistem akan melakukan VLOOKUP secara otomatis dari data master.
+
+3. File "framsys.csv" (Data Mesin Absen Harian)
+-----------------------------------------------------------
+* Kolom Wajib Ada: "KIT TK", "Nama TK", "Date Shift", "Time In", "Time Out", dan "Durasi (Jam)".
+* Kolom-kolom ini wajib ada apa adanya karena sistem web (halaman Summary) membutuhkannya untuk merekap jam kedatangan secara detail.
+
+=================================================
+KESIMPULAN:
+Tugas Admin sangat mudah. Cukup Download 3 file ini -> Simpan sebagai .csv -> Upload di web. Selesai! Web akan menghitung semuanya (VLOOKUP & COUNTIF) secara otomatis dan aman (tersimpan permanen di memori browser).
