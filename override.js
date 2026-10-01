@@ -1,7 +1,7 @@
 // Override for Attendance Dashboard
 console.log("Loading Attendance Override...");
 
-window.uploadedData = window.uploadedData || { ZMM_LTO: [], mb51: [], stock: [] };
+window.uploadedData = window.offlineData || window.uploadedData || { ZMM_LTO: [], mb51: [], stock: [] };
 
 // Overwrite the original function declaration globally
 window.fetchData = async function(tableName) {
