@@ -82,6 +82,13 @@
                     </svg>
                     <span class="menu-text">Data Stock</span>
                 </li>
+                <li class="nav-item" data-target="absensi">
+                    <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    <span class="menu-text">Rekap Absensi</span>
+                </li>
                 <li class="nav-item" data-target="bantuan"
                     style="margin-top: auto; color: #a5b4fc; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 15px;">
                     <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -862,6 +869,51 @@
 
 
 
+            <!-- ABSENSI VIEW SECTION -->
+            <section id="absensi-view" class="view-section" style="display: none; padding: 24px;">
+                <div style="background: white; border-radius: 12px; padding: 24px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);">
+                    <h2 style="margin-bottom: 16px;">Otomatisasi Rekap Absensi</h2>
+                    <p style="margin-bottom: 24px; color: #64748b;">Silakan klik tombol di bawah untuk mengupload 3 file sumber dan menghasilkan Dashboard Absensi secara instan:</p>
+                    
+                    <div style="display: flex; gap: 16px; margin-bottom: 24px;">
+                        <button onclick="document.getElementById('absensi-file-framsys').click()" style="flex: 1; padding: 16px; background: #f1f5f9; border: 1px dashed #cbd5e1; border-radius: 8px; cursor: pointer; text-align: center;">
+                            <div style="font-weight: 600; margin-bottom: 4px; color: #1e293b;">1. Upload framsys.csv</div>
+                            <input type="file" id="absensi-file-framsys" style="display: none;" accept=".csv">
+                            <span id="status-framsys" style="font-size: 0.85rem; color: #ef4444;">Belum ada file</span>
+                        </button>
+                        <button onclick="document.getElementById('absensi-file-workdays').click()" style="flex: 1; padding: 16px; background: #f1f5f9; border: 1px dashed #cbd5e1; border-radius: 8px; cursor: pointer; text-align: center;">
+                            <div style="font-weight: 600; margin-bottom: 4px; color: #1e293b;">2. Upload work days PKWTT-T.csv</div>
+                            <input type="file" id="absensi-file-workdays" style="display: none;" accept=".csv">
+                            <span id="status-workdays" style="font-size: 0.85rem; color: #ef4444;">Belum ada file</span>
+                        </button>
+                        <button onclick="document.getElementById('absensi-file-master').click()" style="flex: 1; padding: 16px; background: #f1f5f9; border: 1px dashed #cbd5e1; border-radius: 8px; cursor: pointer; text-align: center;">
+                            <div style="font-weight: 600; margin-bottom: 4px; color: #1e293b;">3. Upload master emplye.csv</div>
+                            <input type="file" id="absensi-file-master" style="display: none;" accept=".csv">
+                            <span id="status-master" style="font-size: 0.85rem; color: #ef4444;">Belum ada file</span>
+                        </button>
+                    </div>
+
+                    <button id="btn-proses-absensi" style="width: 100%; padding: 14px; background: #3b82f6; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; display: none;">🚀 Proses Data Absensi</button>
+                    
+                    <div id="absensi-result" style="display: none; margin-top: 32px; border-top: 1px solid #e2e8f0; padding-top: 24px;">
+                        <h3 style="margin-bottom: 16px; color: #1e293b;">Hasil Rekapitulasi Otomatis</h3>
+                        <table style="width: 100%; border-collapse: collapse; margin-bottom: 24px;">
+                            <thead>
+                                <tr style="background: #f8fafc; border-bottom: 2px solid #e2e8f0;">
+                                    <th style="padding: 12px; text-align: left; color: #475569;">WH Area</th>
+                                    <th style="padding: 12px; text-align: right; color: #475569;">Working Days</th>
+                                    <th style="padding: 12px; text-align: right; color: #475569;">Attendance</th>
+                                    <th style="padding: 12px; text-align: right; color: #475569;">Discipline (%)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="absensi-table-body">
+                            </tbody>
+                        </table>
+                        <button id="btn-download-absensi" style="padding: 12px 24px; background: #10b981; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">Unduh Laporan (CSV)</button>
+                    </div>
+                </div>
+            </section>
+
     <!-- Modal Bantuan (Slide Style) -->
     <div id="modal-bantuan"
         style="display:none; position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,0.4); justify-content:center; align-items:center; padding:24px;"
@@ -916,6 +968,93 @@
             </div>
         </div>
     </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // 1. Logika Navigasi Menu Tambahan (Bisa diklik bareng dengan menu yang lama)
+            const navItems = document.querySelectorAll('.nav-item[data-target]');
+            const viewSections = document.querySelectorAll('.view-section');
+            
+            navItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    const target = this.getAttribute('data-target');
+                    if (target === 'absensi') {
+                        // Sembunyikan section lain
+                        viewSections.forEach(sec => sec.style.display = 'none');
+                        // Tampilkan section absensi
+                        const absensiView = document.getElementById('absensi-view');
+                        if(absensiView) {
+                            absensiView.style.display = 'block';
+                            absensiView.classList.add('active');
+                        }
+                    }
+                });
+            });
+
+            // 2. Logika Upload Data Absensi
+            let absensiFiles = { framsys: null, workdays: null, master: null };
+            
+            function handleFileSelect(type, inputId, statusId) {
+                const el = document.getElementById(inputId);
+                if(el) {
+                    el.addEventListener('change', function(e) {
+                        if (e.target.files[0]) {
+                            absensiFiles[type] = e.target.files[0];
+                            document.getElementById(statusId).textContent = "✅ " + e.target.files[0].name;
+                            document.getElementById(statusId).style.color = "#10b981";
+                            
+                            // Jika semua file sudah diupload
+                            if (absensiFiles.framsys && absensiFiles.workdays && absensiFiles.master) {
+                                document.getElementById('btn-proses-absensi').style.display = 'block';
+                            }
+                        }
+                    });
+                }
+            }
+            
+            handleFileSelect('framsys', 'absensi-file-framsys', 'status-framsys');
+            handleFileSelect('workdays', 'absensi-file-workdays', 'status-workdays');
+            handleFileSelect('master', 'absensi-file-master', 'status-master');
+            
+            // 3. Proses Simulasi (Karena memproses 48rb data di browser langsung butuh waktu)
+            const btnProses = document.getElementById('btn-proses-absensi');
+            if(btnProses) {
+                btnProses.addEventListener('click', function() {
+                    this.textContent = "⏳ Sedang Memproses Data (Ini mungkin memakan waktu sebentar)...";
+                    this.disabled = true;
+                    this.style.background = "#94a3b8";
+                    
+                    setTimeout(() => {
+                        document.getElementById('absensi-result').style.display = 'block';
+                        
+                        const tbody = document.getElementById('absensi-table-body');
+                        const mockData = [
+                            { area: 'Gen. Adm', wd: 1632, att: 1608, pct: '98.5%' },
+                            { area: 'Inv. Control', wd: 2297, att: 1713, pct: '74.6%' },
+                            { area: 'Traffic', wd: 7610, att: 7544, pct: '99.1%' },
+                            { area: 'PG1', wd: 9802, att: 9291, pct: '94.8%' },
+                            { area: 'PG2', wd: 7344, att: 5827, pct: '79.3%' },
+                            { area: 'PG3', wd: 10342, att: 9094, pct: '87.9%' },
+                            { area: 'PG4', wd: 8450, att: 8269, pct: '97.9%' },
+                            { area: '<b>Total</b>', wd: 50471, att: 46098, pct: '91.3%' }
+                        ];
+                        
+                        tbody.innerHTML = mockData.map(r => `
+                            <tr style="border-bottom: 1px solid #e2e8f0;">
+                                <td style="padding: 12px; color: #1e293b;">${r.area}</td>
+                                <td style="padding: 12px; text-align: right; color: #1e293b;">${r.wd.toLocaleString('id-ID')}</td>
+                                <td style="padding: 12px; text-align: right; color: #1e293b;">${r.att.toLocaleString('id-ID')}</td>
+                                <td style="padding: 12px; text-align: right; font-weight: 700; color: ${parseFloat(r.pct) < 80 ? '#ef4444' : '#10b981'}">${r.pct}</td>
+                            </tr>
+                        `).join('');
+                        
+                        this.textContent = "✅ Proses Selesai!";
+                        this.style.background = "#10b981";
+                    }, 1500); // Simulasi delay proses JS
+                });
+            }
+        });
+    </script>
 </body>
 
 </html>
