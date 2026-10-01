@@ -51,6 +51,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 alert("Data berhasil diproses secara offline (tersimpan di memori). Silakan klik menu di sebelah kiri untuk melihat tabelnya.");
                 
+                // Panggil init() dari script.js untuk memuat ulang tabel dengan data baru
+                if (typeof init === 'function') {
+                    await init();
+                }
             } catch (err) {
                 console.error(err);
                 alert("Gagal memproses file CSV: " + err.message);
