@@ -82,13 +82,7 @@
                     </svg>
                     <span class="menu-text">master emplye</span>
                 </li>
-                <li class="nav-item" data-target="absensi">
-                    <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                    </svg>
-                    <span class="menu-text">Rekap Absensi</span>
-                </li>
+
                 <li class="nav-item" data-target="bantuan"
                     style="margin-top: auto; color: #a5b4fc; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 15px;">
                     <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -468,49 +462,49 @@
                             <h2
                                 style="color: var(--text-heading); font-size: 1.2rem; font-weight: 700; margin-bottom: 4px;">
                                 Upload File Data</h2>
-                            <p style="color: var(--text-muted); font-size: 0.85rem;">Pilih file Excel (.xlsx) untuk
-                                memperbarui data secara otomatis.</p>
+                            <p style="color: var(--text-muted); font-size: 0.85rem;">Pilih file (.csv) untuk
+                                memperbarui data absensi secara otomatis.</p>
                         </div>
                         <div>
                             <div
                                 style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
                                 <label style="font-weight: 600; color: var(--text-heading); font-size: 0.9rem;">File
-                                    Stock (.xlsx)</label>
+                                    framsys (.csv)</label>
                                 <button id="btn-reset-stock" class="reset-db-btn" data-table="stock"
                                     style="background: #ef4444; color: white; border: none; padding: 4px 12px; font-size: 12px; font-weight: 600; border-radius: 4px; cursor: pointer;">Hapus
                                     Data</button>
                             </div>
                             <div class="drop-zone" id="drop-zone-stock">
-                                <span class="drop-zone__prompt">Drag & Drop file Stock atau klik di sini</span>
-                                <input type="file" id="upload-stock" accept=".xlsx, .xls" class="drop-zone__input">
+                                <span class="drop-zone__prompt">Drag & Drop file framsys atau klik di sini</span>
+                                <input type="file" id="upload-stock" accept=".csv" class="drop-zone__input">
                             </div>
                         </div>
                         <div>
                             <div
                                 style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
                                 <label style="font-weight: 600; color: var(--text-heading); font-size: 0.9rem;">File
-                                    MB51 (.xlsx)</label>
+                                    work days PKWTT-T (.csv)</label>
                                 <button id="btn-reset-mb51" class="reset-db-btn" data-table="mb51"
                                     style="background: #ef4444; color: white; border: none; padding: 4px 12px; font-size: 12px; font-weight: 600; border-radius: 4px; cursor: pointer;">Hapus
                                     Data</button>
                             </div>
                             <div class="drop-zone" id="drop-zone-mb51">
-                                <span class="drop-zone__prompt">Drag & Drop file mb51 atau klik di sini</span>
-                                <input type="file" id="upload-mb51" accept=".xlsx, .xls" class="drop-zone__input">
+                                <span class="drop-zone__prompt">Drag & Drop file work days PKWTT-T atau klik di sini</span>
+                                <input type="file" id="upload-mb51" accept=".csv" class="drop-zone__input">
                             </div>
                         </div>
                         <div>
                             <div
                                 style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
                                 <label style="font-weight: 600; color: var(--text-heading); font-size: 0.9rem;">File
-                                    ZMM_LTO (.xlsx)</label>
+                                    master emplye (.csv)</label>
                                 <button id="btn-reset-zmmlto" class="reset-db-btn" data-table="ZMM_LTO"
                                     style="background: #ef4444; color: white; border: none; padding: 4px 12px; font-size: 12px; font-weight: 600; border-radius: 4px; cursor: pointer;">Hapus
                                     Data</button>
                             </div>
                             <div class="drop-zone" id="drop-zone-zmmlto">
-                                <span class="drop-zone__prompt">Drag & Drop file ZMM_LTO atau klik di sini</span>
-                                <input type="file" id="upload-zmmlto" accept=".xlsx, .xls" class="drop-zone__input">
+                                <span class="drop-zone__prompt">Drag & Drop file master emplye atau klik di sini</span>
+                                <input type="file" id="upload-zmmlto" accept=".csv" class="drop-zone__input">
                             </div>
                         </div>
                         <button id="btn-process-upload"
@@ -798,50 +792,7 @@
                         4. Cara Menginput File Stock dari SAP</h3>
             </section>
 
-            <!-- ABSENSI VIEW SECTION -->
-            <section id="absensi-view" class="view-section" style="display: none; padding: 24px;">
-                <div style="background: white; border-radius: 12px; padding: 24px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);">
-                    <h2 style="margin-bottom: 16px;">Otomatisasi Rekap Absensi</h2>
-                    <p style="margin-bottom: 24px; color: #64748b;">Silakan klik tombol di bawah untuk mengupload 3 file sumber dan menghasilkan Dashboard Absensi secara instan:</p>
-                    
-                    <div style="display: flex; gap: 16px; margin-bottom: 24px;">
-                        <button onclick="document.getElementById('absensi-file-framsys').click()" style="flex: 1; padding: 16px; background: #f1f5f9; border: 1px dashed #cbd5e1; border-radius: 8px; cursor: pointer; text-align: center;">
-                            <div style="font-weight: 600; margin-bottom: 4px; color: #1e293b;">1. Upload framsys.csv</div>
-                            <input type="file" id="absensi-file-framsys" style="display: none;" accept=".csv">
-                            <span id="status-framsys" style="font-size: 0.85rem; color: #ef4444;">Belum ada file</span>
-                        </button>
-                        <button onclick="document.getElementById('absensi-file-workdays').click()" style="flex: 1; padding: 16px; background: #f1f5f9; border: 1px dashed #cbd5e1; border-radius: 8px; cursor: pointer; text-align: center;">
-                            <div style="font-weight: 600; margin-bottom: 4px; color: #1e293b;">2. Upload work days PKWTT-T.csv</div>
-                            <input type="file" id="absensi-file-workdays" style="display: none;" accept=".csv">
-                            <span id="status-workdays" style="font-size: 0.85rem; color: #ef4444;">Belum ada file</span>
-                        </button>
-                        <button onclick="document.getElementById('absensi-file-master').click()" style="flex: 1; padding: 16px; background: #f1f5f9; border: 1px dashed #cbd5e1; border-radius: 8px; cursor: pointer; text-align: center;">
-                            <div style="font-weight: 600; margin-bottom: 4px; color: #1e293b;">3. Upload master emplye.csv</div>
-                            <input type="file" id="absensi-file-master" style="display: none;" accept=".csv">
-                            <span id="status-master" style="font-size: 0.85rem; color: #ef4444;">Belum ada file</span>
-                        </button>
-                    </div>
 
-                    <button id="btn-proses-absensi" style="width: 100%; padding: 14px; background: #3b82f6; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; display: none;">🚀 Proses Data Absensi</button>
-                    
-                    <div id="absensi-result" style="display: none; margin-top: 32px; border-top: 1px solid #e2e8f0; padding-top: 24px;">
-                        <h3 style="margin-bottom: 16px; color: #1e293b;">Hasil Rekapitulasi Otomatis</h3>
-                        <table style="width: 100%; border-collapse: collapse; margin-bottom: 24px;">
-                            <thead>
-                                <tr style="background: #f8fafc; border-bottom: 2px solid #e2e8f0;">
-                                    <th style="padding: 12px; text-align: left; color: #475569;">WH Area</th>
-                                    <th style="padding: 12px; text-align: right; color: #475569;">Working Days</th>
-                                    <th style="padding: 12px; text-align: right; color: #475569;">Attendance</th>
-                                    <th style="padding: 12px; text-align: right; color: #475569;">Discipline (%)</th>
-                                </tr>
-                            </thead>
-                            <tbody id="absensi-table-body">
-                            </tbody>
-                        </table>
-                        <button id="btn-download-absensi" style="padding: 12px 24px; background: #10b981; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">Unduh Laporan (CSV)</button>
-                    </div>
-                </div>
-            </section>
 
         </main>
     </div>
