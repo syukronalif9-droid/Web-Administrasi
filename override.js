@@ -135,7 +135,65 @@ function renderMb51() {
 }
 
 function renderZmmLto() {
-    const data = window.globalZmmLtoData || window.uploadedData['ZMM_LTO'] || [];
+    let data = window.globalZmmLtoData || window.uploadedData['ZMM_LTO'] || [];
+    
+    // OTOMATISASI VLOOKUP: WH Area dari master emplye menggunakan KIT TK
+    const masterData = window.uploadedData['stock'] || [];
+    const masterMap = {};
+    
+    masterData.forEach(row => {
+        const persNo = row['Pers.No.'] || '';
+        if (persNo) {
+            masterMap[persNo.toString().trim()] = {
+                area: row['Area'] || row['WH Area'] || ''
+            };
+        }
+    });
+
+    const targetOrder = [
+        'WH Area', 'KIT TK', 'Nama TK', 'Hari', 'Date Shift', 'Time In', 'Time Out', 'Durasi (Jam)'
+    ];
+
+    data = data.map(row => {
+        const kitTk = row['KIT TK'] ? row['KIT TK'].toString().trim() : '';
+        const match = masterMap[kitTk];
+        
+        let tempRow = { ...row };
+        
+        // 1. VLOOKUP WH Area
+        tempRow['WH Area'] = match ? match.area : '#N/A';
+        
+        // 2. Buat otomatis Hari dari Date Shift
+        let hari = '';
+        if (tempRow['Date Shift']) {
+            const dateStr = tempRow['Date Shift'].toString().trim();
+            // Mendukung format DD/MM/YYYY atau DD.MM.YYYY atau YYYY-MM-DD
+            const parts = dateStr.split(/[-/.]/);
+            let d;
+            if (parts.length === 3) {
+                 if (parts[2].length === 4) { 
+                      // Format Indonesia (DD/MM/YYYY) menjadi YYYY-MM-DD (Standar JS)
+                      d = new Date(`${parts[2]}-${parts[1]}-${parts[0]}`);
+                 } else {
+                      d = new Date(dateStr);
+                 }
+                 if (!isNaN(d.getTime())) {
+                     const days = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+                     hari = days[d.getDay()];
+                 }
+            }
+        }
+        tempRow['Hari'] = hari;
+
+        // 3. Susun urutan kolom persis seperti targetOrder
+        const orderedRow = {};
+        targetOrder.forEach(key => {
+            orderedRow[key] = tempRow[key] !== undefined ? tempRow[key] : '';
+        });
+        
+        return orderedRow;
+    });
+
     if(typeof renderTable === 'function') renderTable('zmmlto-table', data);
     const span = document.getElementById('zmmlto-dynamic-total-line');
     if (span) span.textContent = data.length;
