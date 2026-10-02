@@ -195,6 +195,10 @@ function renderZmmLto() {
                  if (!isNaN(d.getTime())) {
                      const days = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', "Jum'at", 'Sabtu'];
                      hari = days[d.getDay()];
+                     
+                     // Ubah format tanggal menjadi 11 Des 2025
+                     const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agt', 'Sep', 'Okt', 'Nov', 'Des'];
+                     tempRow['Date Shift'] = `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
                  }
             }
         }
