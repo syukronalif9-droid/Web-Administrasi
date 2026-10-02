@@ -211,19 +211,19 @@ function renderZmmLto() {
         const thead = `
         <thead>
           <tr>
-            <th rowspan="2" style="vertical-align: middle; text-align: center; border-left: 2px solid #ccc; border-right: 2px solid #ccc; background-color: #f8f9fa;">WH Area</th>
-            <th colspan="7" style="text-align: center;">Data Karyawan</th>
+            <th rowspan="2" style="vertical-align: middle; text-align: center; background-color: #f8f9fa; border-left: 2px solid #ccc;">KIT TK</th>
+            <th rowspan="2" style="vertical-align: middle; text-align: center; background-color: #f8f9fa;">Nama TK</th>
+            <th rowspan="2" style="vertical-align: middle; text-align: center; background-color: #f8f9fa;">WH Area</th>
+            <th rowspan="2" style="vertical-align: middle; text-align: center; background-color: #f8f9fa;">Hari</th>
+            <th rowspan="2" style="vertical-align: middle; text-align: center; background-color: #f8f9fa;">Date Shift</th>
+            <th rowspan="2" style="vertical-align: middle; text-align: center; background-color: #f8f9fa;">Time In</th>
+            <th rowspan="2" style="vertical-align: middle; text-align: center; background-color: #f8f9fa;">Time Out</th>
+            <th rowspan="2" style="vertical-align: middle; text-align: center; background-color: #f8f9fa; border-right: 2px solid #ccc;">Durasi (Jam)</th>
+            
             <th colspan="3" style="text-align: center; background-color: #92d050; color: #000; border-left: 2px solid #ccc;">Working Days</th>
             <th colspan="3" style="text-align: center; background-color: #ffc000; color: #000; border-left: 2px solid #ccc;">Attendance</th>
           </tr>
           <tr>
-            <th style="background-color: #f8f9fa;">KIT TK</th>
-            <th style="background-color: #f8f9fa;">Nama TK</th>
-            <th style="background-color: #f8f9fa;">Hari</th>
-            <th style="background-color: #f8f9fa;">Date Shift</th>
-            <th style="background-color: #f8f9fa;">Time In</th>
-            <th style="background-color: #f8f9fa;">Time Out</th>
-            <th style="background-color: #f8f9fa;">Durasi (Jam)</th>
             <th style="background-color: #92d050; color: #000;">In</th>
             <th style="background-color: #92d050; color: #000;">Out</th>
             <th style="background-color: #92d050; color: #000;">Total</th>
@@ -237,14 +237,14 @@ function renderZmmLto() {
         const displayData = data.slice(0, 100);
         const tbody = `<tbody>${displayData.map(row => {
             return `<tr>
-                <td style="border-left: 2px solid #ccc; border-right: 2px solid #ccc; font-weight: 500;">${row['WH Area'] || ''}</td>
-                <td>${row['KIT TK'] || ''}</td>
+                <td style="border-left: 2px solid #ccc;">${row['KIT TK'] || ''}</td>
                 <td>${row['Nama TK'] || ''}</td>
+                <td style="background-color: #fff2cc; font-weight: 500;">${row['WH Area'] || ''}</td>
                 <td>${row['Hari'] || ''}</td>
                 <td>${row['Date Shift'] || ''}</td>
                 <td>${row['Time In'] || ''}</td>
                 <td>${row['Time Out'] || ''}</td>
-                <td>${row['Durasi (Jam)'] || ''}</td>
+                <td style="border-right: 2px solid #ccc;">${row['Durasi (Jam)'] || ''}</td>
                 <td style="background-color: #eaf1e3; border-left: 2px solid #ccc;"></td>
                 <td style="background-color: #eaf1e3;"></td>
                 <td style="background-color: #eaf1e3;"></td>
