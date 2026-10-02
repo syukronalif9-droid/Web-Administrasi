@@ -83,31 +83,50 @@ async function fetchData(tableName) {
 function renderMb51() {
     let data = window.globalMb51Data || window.uploadedData['mb51'] || [];
     
-    // OTOMATISASI RUMUS VLOOKUP: Area & Bagian berdasarkan master emplye
+    // OTOMATISASI RUMUS VLOOKUP: Ambil Area, Bagian, dsb dari master emplye
     const masterData = window.uploadedData['stock'] || [];
     const masterMap = {};
     
     masterData.forEach(row => {
-        const persNo = row['Pers.No.'];
+        const persNo = row['Pers.No.'] || '';
         if (persNo) {
             masterMap[persNo.toString().trim()] = {
-                area: row['Area'] || '',
-                bagian: row['Bagian'] || ''
+                area: row['Area'] || row['WH Area'] || '',
+                bagian: row['Bagian'] || '',
+                workContract: row['Work Contract'] || '',
+                employeeSubgroup: row['Employee Subgroup'] || '',
+                costCenter: row['Cost Ctr'] || row['Cost Center'] || ''
             };
         }
     });
     
+    // Urutan presisi sesuai permintaan (screenshot)
+    const targetOrder = [
+        'Month', 'Area', 'Index', 'Nama', 'Work Contract', 'Employee Subgroup', 
+        'Bagian', 'Hari Kerja', 'Sakit', 'Izin', 'CT', 'CH', 'CK', 
+        'Libur Bersama', 'Dispens.', 'Alpa', 'Cost Center', 'Keterangan'
+    ];
+    
     data = data.map(row => {
         const indexValue = row['Index'] ? row['Index'].toString().trim() : '';
         const match = masterMap[indexValue];
+        
+        let tempRow = { ...row };
         if (match) {
-            return {
-                ...row,
-                'Area': match.area || '#N/A',
-                'Bagian': match.bagian || '#N/A'
-            };
+            tempRow['Area'] = match.area || '#N/A';
+            tempRow['Bagian'] = match.bagian || '#N/A';
+            tempRow['Work Contract'] = match.workContract || '#N/A';
+            tempRow['Employee Subgroup'] = match.employeeSubgroup || '#N/A';
+            tempRow['Cost Center'] = match.costCenter || '#N/A';
         }
-        return row;
+
+        // Menyusun ulang kunci object agar urutan kolom dari kiri ke kanan 100% pas
+        const orderedRow = {};
+        targetOrder.forEach(key => {
+            orderedRow[key] = tempRow[key] !== undefined ? tempRow[key] : '';
+        });
+        
+        return orderedRow;
     });
 
     if(typeof renderTable === 'function') renderTable('mb51-table', data);
@@ -232,7 +251,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Daftar kolom yang diizinkan untuk masing-masing tabel (agar tidak ditolak Supabase)
                 const validColumns = {
                     'master_employee': ['Pers.No.', 'Full Name', 'Area', 'Bagian', 'Double Check', '>1 Name'],
-                    'work_days': ['Index', 'Nama', 'Hari Kerja', 'Sakit', 'Izin', 'Alpa', 'CT', 'Area', 'Bagian'],
+                    'work_days': [
+                        'Month', 'Area', 'Index', 'Nama', 'Work Contract', 'Employee Subgroup', 
+                        'Bagian', 'Hari Kerja', 'Sakit', 'Izin', 'CT', 'CH', 'CK', 
+                        'Libur Bersama', 'Dispens.', 'Alpa', 'Cost Center', 'Keterangan'
+                    ],
                     'framsys': ['KIT TK', 'Nama TK', 'Date Shift', 'Time In', 'Time Out', 'Durasi (Jam)']
                 };
 
