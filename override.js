@@ -215,9 +215,9 @@ function renderZmmLto() {
         const thead = `
         <thead>
           <tr>
-            <th rowspan="2" style="position: sticky; left: 0; z-index: 3; min-width: 100px; vertical-align: middle; text-align: center; background-color: #f8f9fa; border-left: 2px solid #ccc; border-right: 1px solid #ccc;">KIT TK</th>
-            <th rowspan="2" style="position: sticky; left: 100px; z-index: 3; min-width: 200px; vertical-align: middle; text-align: center; background-color: #f8f9fa; border-right: 1px solid #ccc;">Nama TK</th>
-            <th rowspan="2" style="position: sticky; left: 300px; z-index: 3; min-width: 120px; vertical-align: middle; text-align: center; background-color: #f8f9fa; border-right: 2px solid #9ca3af;">WH Area</th>
+            <th rowspan="2" style="position: sticky; left: 0; z-index: 3; min-width: 100px; vertical-align: middle; text-align: center; background-color: #f8f9fa;">KIT TK</th>
+            <th rowspan="2" style="position: sticky; left: 100px; z-index: 3; min-width: 200px; vertical-align: middle; text-align: center; background-color: #f8f9fa;">Nama TK</th>
+            <th rowspan="2" style="position: sticky; left: 300px; z-index: 3; min-width: 120px; vertical-align: middle; text-align: center; background-color: #f8f9fa; box-shadow: 4px 0 6px -2px rgba(0,0,0,0.1);">WH Area</th>
             <th rowspan="2" style="vertical-align: middle; text-align: center; background-color: #f8f9fa;">Date Shift</th>
             <th rowspan="2" style="vertical-align: middle; text-align: center; background-color: #f8f9fa;">Hari</th>
             <th rowspan="2" style="vertical-align: middle; text-align: center; background-color: #f8f9fa;">Time In</th>
@@ -258,9 +258,9 @@ function renderZmmLto() {
             const attTotal = attIn + attOut;
 
             return `<tr>
-                <td style="position: sticky; left: 0; z-index: 2; background-color: #fff; border-left: 2px solid #ccc; border-right: 1px solid #ccc;">${row['KIT TK'] || ''}</td>
-                <td style="position: sticky; left: 100px; z-index: 2; background-color: #fff; border-right: 1px solid #ccc;">${row['Nama TK'] || ''}</td>
-                <td style="position: sticky; left: 300px; z-index: 2; background-color: #fff; font-weight: 500; border-right: 2px solid #9ca3af;">${row['WH Area'] || ''}</td>
+                <td style="position: sticky; left: 0; z-index: 2; background-color: #fff;">${row['KIT TK'] || ''}</td>
+                <td style="position: sticky; left: 100px; z-index: 2; background-color: #fff;">${row['Nama TK'] || ''}</td>
+                <td style="position: sticky; left: 300px; z-index: 2; background-color: #fff; font-weight: 500; box-shadow: 4px 0 6px -2px rgba(0,0,0,0.1);">${row['WH Area'] || ''}</td>
                 <td>${row['Date Shift'] || ''}</td>
                 <td>${row['Hari'] || ''}</td>
                 <td>${row['Time In'] || ''}</td>
