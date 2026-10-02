@@ -397,6 +397,7 @@ th, td {
 }
 
 th {
+    text-align: center;
     background-color: #F1F5F9;
     font-weight: 700;
     color: #1E293B;
