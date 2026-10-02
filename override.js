@@ -207,20 +207,16 @@ function renderZmmLto() {
     // 4. Render tabel framsys secara KUSTOM dengan header bertingkat
     const table = document.getElementById('zmmlto-table');
     if (table && data.length > 0) {
-        // Desain Header Tabel yang Digabung (Merged)
+        // Desain Header Tabel yang Digabung (Merged) tanpa In/Out/Total di sebelah kiri
         const thead = `
         <thead>
           <tr>
-            <th colspan="3" style="background-color: #ffc000; text-align: center;"></th>
             <th rowspan="2" style="vertical-align: middle; text-align: center; border-left: 2px solid #ccc; border-right: 2px solid #ccc; background-color: #f8f9fa;">WH Area</th>
-            <th colspan="7" style="text-align: center;">-</th>
+            <th colspan="7" style="text-align: center;">Data Karyawan</th>
             <th colspan="3" style="text-align: center; background-color: #92d050; color: #000; border-left: 2px solid #ccc;">Working Days</th>
             <th colspan="3" style="text-align: center; background-color: #ffc000; color: #000; border-left: 2px solid #ccc;">Attendance</th>
           </tr>
           <tr>
-            <th style="background-color: #ffc000; color: #000;">In</th>
-            <th style="background-color: #ffc000; color: #000;">Out</th>
-            <th style="background-color: #ffc000; color: #000;">Total</th>
             <th style="background-color: #f8f9fa;">KIT TK</th>
             <th style="background-color: #f8f9fa;">Nama TK</th>
             <th style="background-color: #f8f9fa;">Hari</th>
@@ -241,9 +237,6 @@ function renderZmmLto() {
         const displayData = data.slice(0, 100);
         const tbody = `<tbody>${displayData.map(row => {
             return `<tr>
-                <td style="background-color: #fff9e6;"></td>
-                <td style="background-color: #fff9e6;"></td>
-                <td style="background-color: #fff9e6;"></td>
                 <td style="border-left: 2px solid #ccc; border-right: 2px solid #ccc; font-weight: 500;">${row['WH Area'] || ''}</td>
                 <td>${row['KIT TK'] || ''}</td>
                 <td>${row['Nama TK'] || ''}</td>
