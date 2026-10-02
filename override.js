@@ -237,7 +237,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     // Supabase membatasi maksimal insert biasanya sekitar 1000 row per request, jadi kita pecah (chunking) per 500 baris
                     for (let i = 0; i < data.length; i += 500) {
                         const chunk = data.slice(i, i + 500);
-                        const { error } = await window.supabase.from(tableName).insert(chunk);
+                        const { error } = await window.supabaseClient.from(tableName).insert(chunk);
                         if (error) throw new Error(`Gagal upload ke ${tableName}: ` + error.message);
                     }
                 }
