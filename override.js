@@ -236,6 +236,18 @@ function renderZmmLto() {
         // Batasi 100 baris agar tidak lag
         const displayData = data.slice(0, 100);
         const tbody = `<tbody>${displayData.map(row => {
+            // Rumus Working Days
+            const tIn = (row['Time In'] || '').toString().trim();
+            const tOut = (row['Time Out'] || '').toString().trim();
+            
+            const wdIn = (tIn === '' || tIn === '-') ? '' : 1;
+            const wdOut = (tOut === '' || tOut === '-') ? '' : 1;
+            
+            let wdTotal = '';
+            if (wdIn !== '' && wdOut !== '') wdTotal = 1; // Average dari 1 dan 1
+            else if (wdIn !== '') wdTotal = 1;
+            else if (wdOut !== '') wdTotal = 1;
+
             return `<tr>
                 <td style="border-left: 2px solid #ccc;">${row['KIT TK'] || ''}</td>
                 <td>${row['Nama TK'] || ''}</td>
@@ -245,9 +257,9 @@ function renderZmmLto() {
                 <td>${row['Time In'] || ''}</td>
                 <td>${row['Time Out'] || ''}</td>
                 <td style="border-right: 2px solid #ccc;">${row['Durasi (Jam)'] || ''}</td>
-                <td style="border-left: 2px solid #ccc;"></td>
-                <td></td>
-                <td></td>
+                <td style="border-left: 2px solid #ccc; text-align: center;">${wdIn}</td>
+                <td style="text-align: center;">${wdOut}</td>
+                <td style="font-weight: 600; text-align: center;">${wdTotal}</td>
                 <td style="border-left: 2px solid #ccc;"></td>
                 <td></td>
                 <td></td>
