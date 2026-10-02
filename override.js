@@ -50,20 +50,35 @@ document.addEventListener('DOMContentLoaded', async () => {
             e.stopPropagation(); // Stop Supabase logic
             
             const id = btn.id;
-            if (id === 'btn-reset-framsys') {
+            // Di HTML: btn-reset-stock = tombol hapus framsys (ZMM_LTO)
+            if (id === 'btn-reset-stock') {
                 window.uploadedData['ZMM_LTO'] = [];
                 saveToDB('ZMM_LTO', []);
+                alert('Data Framsys berhasil dihapus dari memori lokal.');
             }
+            // Di HTML: btn-reset-mb51 = tombol hapus work days (mb51)
             else if (id === 'btn-reset-mb51') {
                 window.uploadedData['mb51'] = [];
                 saveToDB('mb51', []);
+                alert('Data Work Days berhasil dihapus dari memori lokal.');
             }
+            // Di HTML: btn-reset-zmmlto = tombol hapus master employee (stock)
             else if (id === 'btn-reset-zmmlto') {
                 window.uploadedData['stock'] = [];
                 saveToDB('stock', []);
+                alert('Data Master Employee berhasil dihapus dari memori lokal.');
+            }
+            // Tombol hapus semua data
+            else if (id === 'btn-reset-all') {
+                window.uploadedData['ZMM_LTO'] = [];
+                window.uploadedData['mb51'] = [];
+                window.uploadedData['stock'] = [];
+                saveToDB('ZMM_LTO', []);
+                saveToDB('mb51', []);
+                saveToDB('stock', []);
+                alert('Semua data berhasil dihapus dari memori lokal.');
             }
             
-            alert('Data berhasil dihapus dari memori (Mode Lokal).');
             if (typeof init === 'function') init();
         }, true); // use capture phase to intercept before old scripts
     });
