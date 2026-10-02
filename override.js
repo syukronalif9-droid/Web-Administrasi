@@ -231,14 +231,24 @@ document.addEventListener('DOMContentLoaded', () => {
                 // upload-zmmlto adalah master emplye (stock), header di baris ke-1 (index 0)
                 const dataMaster = await parseCSVFile(fileZmmlto, 0);
 
+                // Daftar kolom yang diizinkan untuk masing-masing tabel (agar tidak ditolak Supabase)
+                const validColumns = {
+                    'master_employee': ['Pers.No.', 'Full Name', 'Area', 'Bagian', 'Double Check', '>1 Name'],
+                    'work_days': ['Index', 'Nama', 'Hari Kerja', 'Sakit', 'Izin', 'Alpa', 'CT', 'Area', 'Bagian'],
+                    'framsys': ['KIT TK', 'Nama TK', 'Date Shift', 'Time In', 'Time Out', 'Durasi (Jam)']
+                };
+
                 async function uploadToSupabase(tableName, data) {
                     if (!data || data.length === 0) return;
                     
-                    // Bersihkan kolom-kolom kosong (seperti "") yang sering terbawa dari file Excel/CSV
+                    const allowedKeys = validColumns[tableName] || [];
+                    
+                    // Bersihkan data: hanya kirim kolom yang Dikenali oleh Supabase
                     const cleanedData = data.map(row => {
                         const cleanRow = {};
                         for (let key in row) {
-                            if (key && key.trim() !== '') {
+                            // Jika key ada di daftar validColumns, baru dimasukkan
+                            if (allowedKeys.includes(key)) {
                                 cleanRow[key] = row[key];
                             }
                         }
