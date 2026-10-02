@@ -247,6 +247,11 @@ function renderZmmLto() {
             if (wdIn !== '' && wdOut !== '') wdTotal = 1; // Average dari 1 dan 1
             else if (wdIn !== '') wdTotal = 1;
             else if (wdOut !== '') wdTotal = 1;
+            
+            // Rumus Attendance
+            const attIn = (tIn === '' || tIn === '-') ? 0 : 0.5;
+            const attOut = (tOut === '' || tOut === '-') ? 0 : 0.5;
+            const attTotal = attIn + attOut;
 
             return `<tr>
                 <td style="border-left: 2px solid #ccc;">${row['KIT TK'] || ''}</td>
@@ -260,9 +265,9 @@ function renderZmmLto() {
                 <td style="border-left: 2px solid #ccc; text-align: center;">${wdIn}</td>
                 <td style="text-align: center;">${wdOut}</td>
                 <td style="font-weight: 600; text-align: center;">${wdTotal}</td>
-                <td style="border-left: 2px solid #ccc;"></td>
-                <td></td>
-                <td></td>
+                <td style="border-left: 2px solid #ccc; text-align: center;">${attIn}</td>
+                <td style="text-align: center;">${attOut}</td>
+                <td style="font-weight: 600; text-align: center;">${attTotal}</td>
             </tr>`;
         }).join('')}</tbody>`;
         
