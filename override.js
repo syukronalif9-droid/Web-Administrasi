@@ -214,8 +214,8 @@ function renderZmmLto() {
             <th rowspan="2" style="vertical-align: middle; text-align: center; background-color: #f8f9fa; border-left: 2px solid #ccc;">KIT TK</th>
             <th rowspan="2" style="vertical-align: middle; text-align: center; background-color: #f8f9fa;">Nama TK</th>
             <th rowspan="2" style="vertical-align: middle; text-align: center; background-color: #f8f9fa;">WH Area</th>
-            <th rowspan="2" style="vertical-align: middle; text-align: center; background-color: #f8f9fa;">Hari</th>
             <th rowspan="2" style="vertical-align: middle; text-align: center; background-color: #f8f9fa;">Date Shift</th>
+            <th rowspan="2" style="vertical-align: middle; text-align: center; background-color: #f8f9fa;">Hari</th>
             <th rowspan="2" style="vertical-align: middle; text-align: center; background-color: #f8f9fa;">Time In</th>
             <th rowspan="2" style="vertical-align: middle; text-align: center; background-color: #f8f9fa;">Time Out</th>
             <th rowspan="2" style="vertical-align: middle; text-align: center; background-color: #f8f9fa; border-right: 2px solid #ccc;">Durasi (Jam)</th>
@@ -257,8 +257,8 @@ function renderZmmLto() {
                 <td style="border-left: 2px solid #ccc;">${row['KIT TK'] || ''}</td>
                 <td>${row['Nama TK'] || ''}</td>
                 <td style="font-weight: 500;">${row['WH Area'] || ''}</td>
-                <td>${row['Hari'] || ''}</td>
                 <td>${row['Date Shift'] || ''}</td>
+                <td>${row['Hari'] || ''}</td>
                 <td>${row['Time In'] || ''}</td>
                 <td>${row['Time Out'] || ''}</td>
                 <td style="border-right: 2px solid #ccc;">${row['Durasi (Jam)'] || ''}</td>
