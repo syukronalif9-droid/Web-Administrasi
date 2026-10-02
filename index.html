@@ -155,7 +155,14 @@
     </form>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
+    // Inisialisasi koneksi Supabase
+    const supabaseUrl = 'https://bavacuaqbbwnqbrcldsj.supabase.co';
+    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJhdmFjdWFxYmJ3bnFicmNsZHNqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA4ODc2MjMsImV4cCI6MjEwNjQ2MzYyM30.2KTBo_y89dexhQUq70VECQvl03iho2_Bx06qDu3IETc';
+    const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+    console.log("Supabase Client Berhasil Diinisialisasi");
+
     window.onload = function() {
         if (localStorage.getItem('isLoggedIn') === 'true') {
             window.location.href = 'dashboard.html';
