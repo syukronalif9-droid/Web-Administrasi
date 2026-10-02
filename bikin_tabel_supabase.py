@@ -1,7 +1,7 @@
 import psycopg2
 
-# --- GANTI BAGIAN [YOUR-PASSWORD] DENGAN PASSWORD DATABASE ANDA ---
-DB_URL = "postgresql://postgres.bavacuaqbbwnqbrcldsj:Supa077342%3F%21@aws-0-ap-south-1.pooler.supabase.com:6543/postgres"
+# --- GANTI BAGIAN [PASSWORD_BARU_ANDA] DENGAN PASSWORD DATABASE ANDA (JANGAN DI-COMMIT KE GIT) ---
+DB_URL = "postgresql://postgres.bavacuaqbbwnqbrcldsj:[PASSWORD_BARU_ANDA]@aws-0-ap-south-1.pooler.supabase.com:6543/postgres"
 
 def create_tables():
     commands = (

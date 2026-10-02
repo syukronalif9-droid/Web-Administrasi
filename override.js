@@ -193,7 +193,7 @@ function renderZmmLto() {
                       d = new Date(dateStr);
                  }
                  if (!isNaN(d.getTime())) {
-                     const days = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+                     const days = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', "Jum'at", 'Sabtu'];
                      hari = days[d.getDay()];
                  }
             }
