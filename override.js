@@ -224,12 +224,12 @@ function renderZmmLto() {
             <th colspan="3" style="text-align: center; background-color: #ffc000; color: #000; border-left: 2px solid #ccc;">Attendance</th>
           </tr>
           <tr>
-            <th style="background-color: #92d050; color: #000;">In</th>
-            <th style="background-color: #92d050; color: #000;">Out</th>
-            <th style="background-color: #92d050; color: #000;">Total</th>
-            <th style="background-color: #ffc000; color: #000;">In</th>
-            <th style="background-color: #ffc000; color: #000;">Out</th>
-            <th style="background-color: #ffc000; color: #000;">Total</th>
+            <th style="background-color: #92d050; color: #000; top: 58px;">In</th>
+            <th style="background-color: #92d050; color: #000; top: 58px;">Out</th>
+            <th style="background-color: #92d050; color: #000; top: 58px;">Total</th>
+            <th style="background-color: #ffc000; color: #000; top: 58px;">In</th>
+            <th style="background-color: #ffc000; color: #000; top: 58px;">Out</th>
+            <th style="background-color: #ffc000; color: #000; top: 58px;">Total</th>
           </tr>
         </thead>`;
         
