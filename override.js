@@ -453,10 +453,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 alert("Hebat! Data berhasil diproses dan diupload LANGSUNG ke Database Supabase!");
                 
-                // Panggil init() dari script.js untuk memuat ulang tabel dengan data baru
-                if (typeof init === 'function') {
-                    await init();
-                }
+                // Refresh halaman agar form bersih, tombol Batal hilang, dan data terbaru termuat ulang
+                window.location.reload();
             } catch (err) {
                 console.error(err);
                 alert("Gagal memproses file CSV: " + err.message);
