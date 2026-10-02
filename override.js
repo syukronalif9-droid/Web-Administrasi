@@ -329,13 +329,36 @@ window.renderTable = function(tableId, data) {
     }
 
     const headers = Object.keys(data[0]);
-    const thead = `<thead><tr>${headers.map(h => `<th>${h}</th>`).join('')}</tr></thead>`;
+    
+    // Logika kustom untuk freeze kolom di slide Hari Kerja (mb51-table) sampai kolom Nama (index ke-3)
+    const isMb51 = tableId === 'mb51-table';
+    const mb51Widths = [100, 120, 100, 250]; // Lebar kolom: Month, Area, Index, Nama
+    
+    const getFreezeStyle = (idx) => {
+        if (!isMb51 || idx >= mb51Widths.length) return '';
+        let left = 0;
+        for (let i = 0; i < idx; i++) left += mb51Widths[i];
+        
+        let style = `position: sticky; left: ${left}px; min-width: ${mb51Widths[idx]}px;`;
+        if (idx === mb51Widths.length - 1) {
+            style += ' box-shadow: 4px 0 6px -2px rgba(0,0,0,0.1); font-weight: 500;';
+        }
+        return style;
+    };
+
+    const thead = `<thead><tr>${headers.map((h, idx) => {
+        const style = getFreezeStyle(idx);
+        return `<th style="${style ? style + ' z-index: 3;' : ''}">${h}</th>`;
+    }).join('')}</tr></thead>`;
     
     // Batasi hanya 100 baris pertama supaya super cepat (no lag)
     const displayData = data.slice(0, 100);
     
     const tbody = `<tbody>${displayData.map(row => {
-        return `<tr>${headers.map(h => `<td>${row[h] || ''}</td>`).join('')}</tr>`;
+        return `<tr>${headers.map((h, idx) => {
+            const style = getFreezeStyle(idx);
+            return `<td style="${style ? style + ' z-index: 2; background-color: #fff;' : ''}">${row[h] || ''}</td>`;
+        }).join('')}</tr>`;
     }).join('')}</tbody>`;
     
     table.innerHTML = thead + tbody;
