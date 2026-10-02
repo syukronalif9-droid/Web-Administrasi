@@ -234,9 +234,20 @@ document.addEventListener('DOMContentLoaded', () => {
                 async function uploadToSupabase(tableName, data) {
                     if (!data || data.length === 0) return;
                     
+                    // Bersihkan kolom-kolom kosong (seperti "") yang sering terbawa dari file Excel/CSV
+                    const cleanedData = data.map(row => {
+                        const cleanRow = {};
+                        for (let key in row) {
+                            if (key && key.trim() !== '') {
+                                cleanRow[key] = row[key];
+                            }
+                        }
+                        return cleanRow;
+                    });
+                    
                     // Supabase membatasi maksimal insert biasanya sekitar 1000 row per request, jadi kita pecah (chunking) per 500 baris
-                    for (let i = 0; i < data.length; i += 500) {
-                        const chunk = data.slice(i, i + 500);
+                    for (let i = 0; i < cleanedData.length; i += 500) {
+                        const chunk = cleanedData.slice(i, i + 500);
                         const { error } = await window.supabaseClient.from(tableName).insert(chunk);
                         if (error) throw new Error(`Gagal upload ke ${tableName}: ` + error.message);
                     }
