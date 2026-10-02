@@ -373,7 +373,20 @@ document.addEventListener('DOMContentLoaded', () => {
                             skipEmptyLines: true,
                             delimiter: ";", // Pastikan delimiter semicolon
                             complete: function(results) {
-                                resolve(results.data);
+                                // Bersihkan semua nilai #N/A bawaan dari CSV user
+                                const cleanData = results.data.map(row => {
+                                    const newRow = {};
+                                    for (let key in row) {
+                                        let val = row[key];
+                                        if (typeof val === 'string' && (val.trim() === '#N/A' || val.trim() === '#N/A!')) {
+                                            newRow[key] = '';
+                                        } else {
+                                            newRow[key] = val;
+                                        }
+                                    }
+                                    return newRow;
+                                });
+                                resolve(cleanData);
                             },
                             error: function(err) {
                                 reject(err);
