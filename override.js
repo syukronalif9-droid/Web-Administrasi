@@ -239,18 +239,18 @@ function renderZmmLto() {
             return `<tr>
                 <td style="border-left: 2px solid #ccc;">${row['KIT TK'] || ''}</td>
                 <td>${row['Nama TK'] || ''}</td>
-                <td style="background-color: #fff2cc; font-weight: 500;">${row['WH Area'] || ''}</td>
+                <td style="font-weight: 500;">${row['WH Area'] || ''}</td>
                 <td>${row['Hari'] || ''}</td>
                 <td>${row['Date Shift'] || ''}</td>
                 <td>${row['Time In'] || ''}</td>
                 <td>${row['Time Out'] || ''}</td>
                 <td style="border-right: 2px solid #ccc;">${row['Durasi (Jam)'] || ''}</td>
-                <td style="background-color: #eaf1e3; border-left: 2px solid #ccc;"></td>
-                <td style="background-color: #eaf1e3;"></td>
-                <td style="background-color: #eaf1e3;"></td>
-                <td style="background-color: #fff9e6; border-left: 2px solid #ccc;"></td>
-                <td style="background-color: #fff9e6;"></td>
-                <td style="background-color: #fff9e6;"></td>
+                <td style="border-left: 2px solid #ccc;"></td>
+                <td></td>
+                <td></td>
+                <td style="border-left: 2px solid #ccc;"></td>
+                <td></td>
+                <td></td>
             </tr>`;
         }).join('')}</tbody>`;
         
