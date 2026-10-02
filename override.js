@@ -304,7 +304,8 @@ function renderStock() {
             ...row,
             'Double Check': count > 0 ? fullName : '#N/A',
             // Kita jadikan string agar tidak terhapus (karena 0 || '' di renderTable jadinya kosong)
-            '>1 Name': count === 0 ? '0' : count.toString()
+            '>1 Name': count === 0 ? '0' : count.toString(),
+            'Remarks': row['Remarks'] || ''
         };
     });
 
@@ -388,7 +389,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 // Daftar kolom yang diizinkan untuk masing-masing tabel (agar tidak ditolak Supabase)
                 const validColumns = {
-                    'master_employee': ['Pers.No.', 'Full Name', 'Area', 'Bagian', 'Double Check', '>1 Name'],
+                    'master_employee': ['Pers.No.', 'Full Name', 'Area', 'Bagian', 'Remarks', 'Double Check', '>1 Name'],
                     'work_days': [
                         'Month', 'Area', 'Index', 'Nama', 'Work Contract', 'Employee Subgroup', 
                         'Bagian', 'Hari Kerja', 'Sakit', 'Izin', 'CT', 'CH', 'CK', 
