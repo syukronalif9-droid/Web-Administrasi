@@ -341,7 +341,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     const cleanedData = data.map(row => {
                         const cleanRow = {};
                         for (let key in row) {
-                            // Jika key ada di daftar validColumns, baru dimasukkan
                             if (allowedKeys.includes(key)) {
                                 cleanRow[key] = row[key];
                             }
@@ -349,38 +348,39 @@ document.addEventListener('DOMContentLoaded', () => {
                         return cleanRow;
                     });
                     
-                    // OPTIMASI SUPER CEPAT:
-                    // Kita pecah per 3000 baris, dan kita tembakkan 3 request sekaligus secara paralel
-                    const chunkSize = 3000;
-                    const chunks = [];
-                    for (let i = 0; i < cleanedData.length; i += chunkSize) {
-                        chunks.push(cleanedData.slice(i, i + chunkSize));
-                    }
+                    // Kita kembalikan ke 1000 agar aman dari limit database gratisan Supabase,
+                    // Tapi kali ini kita pasang INDIKATOR PERSENTASE agar Anda tahu prosesnya berjalan!
+                    const chunkSize = 1000;
+                    const totalRows = cleanedData.length;
                     
-                    for (let i = 0; i < chunks.length; i += 3) {
-                        const batch = chunks.slice(i, i + 3).map(async (chunk) => {
-                            const { error } = await window.supabaseClient.from(tableName).insert(chunk);
-                            if (error) throw new Error(`Gagal upload ke ${tableName}: ` + error.message);
-                        });
-                        // Tunggu 3 request selesai berbarengan sebelum lanjut ke 3 request berikutnya
-                        await Promise.all(batch);
+                    for (let i = 0; i < totalRows; i += chunkSize) {
+                        const chunk = cleanedData.slice(i, i + chunkSize);
+                        const { error } = await window.supabaseClient.from(tableName).insert(chunk);
+                        if (error) throw new Error(`Gagal upload ke ${tableName}: ` + error.message);
+                        
+                        // Update tulisan di tombol agar user tahu progresnya
+                        const percent = Math.round(((i + chunk.length) / totalRows) * 100);
+                        newBtn.textContent = `Mengupload ${tableName}: ${percent}%...`;
                     }
                 }
 
-                newBtn.textContent = 'Mengupload ke Supabase...';
+                newBtn.textContent = 'Memulai Upload ke Supabase...';
                 
                 // Upload data satu per satu ke Supabase jika ada file yang dipilih
                 if (dataMaster && dataMaster.length > 0) {
+                    newBtn.textContent = 'Menyiapkan master_employee...';
                     await uploadToSupabase('master_employee', dataMaster);
                     window.uploadedData['stock'] = dataMaster;
-                    saveToDB('stock', dataMaster); // Tetap simpan di memori lokal agar tampilan web langsung berubah
+                    saveToDB('stock', dataMaster);
                 }
                 if (dataWorkdays && dataWorkdays.length > 0) {
+                    newBtn.textContent = 'Menyiapkan work_days...';
                     await uploadToSupabase('work_days', dataWorkdays);
                     window.uploadedData['mb51'] = dataWorkdays;
                     saveToDB('mb51', dataWorkdays);
                 }
                 if (dataFramsys && dataFramsys.length > 0) {
+                    newBtn.textContent = 'Menyiapkan framsys...';
                     await uploadToSupabase('framsys', dataFramsys);
                     window.uploadedData['ZMM_LTO'] = dataFramsys;
                     saveToDB('ZMM_LTO', dataFramsys);
