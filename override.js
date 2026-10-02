@@ -231,20 +231,37 @@ document.addEventListener('DOMContentLoaded', () => {
                 // upload-zmmlto adalah master emplye (stock), header di baris ke-1 (index 0)
                 const dataMaster = await parseCSVFile(fileZmmlto, 0);
 
-                if (dataFramsys) {
-                    window.uploadedData['ZMM_LTO'] = dataFramsys;
-                    saveToDB('ZMM_LTO', dataFramsys);
+                async function uploadToSupabase(tableName, data) {
+                    if (!data || data.length === 0) return;
+                    
+                    // Supabase membatasi maksimal insert biasanya sekitar 1000 row per request, jadi kita pecah (chunking) per 500 baris
+                    for (let i = 0; i < data.length; i += 500) {
+                        const chunk = data.slice(i, i + 500);
+                        const { error } = await window.supabase.from(tableName).insert(chunk);
+                        if (error) throw new Error(`Gagal upload ke ${tableName}: ` + error.message);
+                    }
                 }
-                if (dataWorkdays) {
+
+                newBtn.textContent = 'Mengupload ke Supabase...';
+                
+                // Upload data satu per satu ke Supabase jika ada file yang dipilih
+                if (dataMaster && dataMaster.length > 0) {
+                    await uploadToSupabase('master_employee', dataMaster);
+                    window.uploadedData['stock'] = dataMaster;
+                    saveToDB('stock', dataMaster); // Tetap simpan di memori lokal agar tampilan web langsung berubah
+                }
+                if (dataWorkdays && dataWorkdays.length > 0) {
+                    await uploadToSupabase('work_days', dataWorkdays);
                     window.uploadedData['mb51'] = dataWorkdays;
                     saveToDB('mb51', dataWorkdays);
                 }
-                if (dataMaster) {
-                    window.uploadedData['stock'] = dataMaster;
-                    saveToDB('stock', dataMaster);
+                if (dataFramsys && dataFramsys.length > 0) {
+                    await uploadToSupabase('framsys', dataFramsys);
+                    window.uploadedData['ZMM_LTO'] = dataFramsys;
+                    saveToDB('ZMM_LTO', dataFramsys);
                 }
 
-                alert("Data berhasil diproses dan disimpan secara permanen di browser Anda (tanpa server). Silakan klik menu di sebelah kiri untuk melihat tabelnya.");
+                alert("Hebat! Data berhasil diproses dan diupload LANGSUNG ke Database Supabase!");
                 
                 // Panggil init() dari script.js untuk memuat ulang tabel dengan data baru
                 if (typeof init === 'function') {
