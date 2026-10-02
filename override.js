@@ -199,17 +199,72 @@ function renderZmmLto() {
             }
         }
         tempRow['Hari'] = hari;
-
-        // 3. Susun urutan kolom persis seperti targetOrder
-        const orderedRow = {};
-        targetOrder.forEach(key => {
-            orderedRow[key] = tempRow[key] !== undefined ? tempRow[key] : '';
-        });
         
-        return orderedRow;
+        // 3. Biarkan tempRow tetap utuh, kita mapping manual di HTML
+        return tempRow;
     });
 
-    if(typeof renderTable === 'function') renderTable('zmmlto-table', data);
+    // 4. Render tabel framsys secara KUSTOM dengan header bertingkat
+    const table = document.getElementById('zmmlto-table');
+    if (table && data.length > 0) {
+        // Desain Header Tabel yang Digabung (Merged)
+        const thead = `
+        <thead>
+          <tr>
+            <th colspan="3" style="background-color: #ffc000; text-align: center;"></th>
+            <th rowspan="2" style="vertical-align: middle; text-align: center; border-left: 2px solid #ccc; border-right: 2px solid #ccc; background-color: #f8f9fa;">WH Area</th>
+            <th colspan="7" style="text-align: center;">-</th>
+            <th colspan="3" style="text-align: center; background-color: #92d050; color: #000; border-left: 2px solid #ccc;">Working Days</th>
+            <th colspan="3" style="text-align: center; background-color: #ffc000; color: #000; border-left: 2px solid #ccc;">Attendance</th>
+          </tr>
+          <tr>
+            <th style="background-color: #ffc000; color: #000;">In</th>
+            <th style="background-color: #ffc000; color: #000;">Out</th>
+            <th style="background-color: #ffc000; color: #000;">Total</th>
+            <th style="background-color: #f8f9fa;">KIT TK</th>
+            <th style="background-color: #f8f9fa;">Nama TK</th>
+            <th style="background-color: #f8f9fa;">Hari</th>
+            <th style="background-color: #f8f9fa;">Date Shift</th>
+            <th style="background-color: #f8f9fa;">Time In</th>
+            <th style="background-color: #f8f9fa;">Time Out</th>
+            <th style="background-color: #f8f9fa;">Durasi (Jam)</th>
+            <th style="background-color: #92d050; color: #000;">In</th>
+            <th style="background-color: #92d050; color: #000;">Out</th>
+            <th style="background-color: #92d050; color: #000;">Total</th>
+            <th style="background-color: #ffc000; color: #000;">In</th>
+            <th style="background-color: #ffc000; color: #000;">Out</th>
+            <th style="background-color: #ffc000; color: #000;">Total</th>
+          </tr>
+        </thead>`;
+        
+        // Batasi 100 baris agar tidak lag
+        const displayData = data.slice(0, 100);
+        const tbody = `<tbody>${displayData.map(row => {
+            return `<tr>
+                <td style="background-color: #fff9e6;"></td>
+                <td style="background-color: #fff9e6;"></td>
+                <td style="background-color: #fff9e6;"></td>
+                <td style="border-left: 2px solid #ccc; border-right: 2px solid #ccc; font-weight: 500;">${row['WH Area'] || ''}</td>
+                <td>${row['KIT TK'] || ''}</td>
+                <td>${row['Nama TK'] || ''}</td>
+                <td>${row['Hari'] || ''}</td>
+                <td>${row['Date Shift'] || ''}</td>
+                <td>${row['Time In'] || ''}</td>
+                <td>${row['Time Out'] || ''}</td>
+                <td>${row['Durasi (Jam)'] || ''}</td>
+                <td style="background-color: #eaf1e3; border-left: 2px solid #ccc;"></td>
+                <td style="background-color: #eaf1e3;"></td>
+                <td style="background-color: #eaf1e3;"></td>
+                <td style="background-color: #fff9e6; border-left: 2px solid #ccc;"></td>
+                <td style="background-color: #fff9e6;"></td>
+                <td style="background-color: #fff9e6;"></td>
+            </tr>`;
+        }).join('')}</tbody>`;
+        
+        table.innerHTML = thead + tbody;
+    } else if (table) {
+        table.innerHTML = '<thead><tr><th>Informasi</th></tr></thead><tbody><tr><td style="text-align: center; padding: 20px;">Data Tidak Ditemukan / Kosong</td></tr></tbody>';
+    }
     const span = document.getElementById('zmmlto-dynamic-total-line');
     if (span) span.textContent = data.length;
 }
