@@ -349,11 +349,21 @@ document.addEventListener('DOMContentLoaded', () => {
                         return cleanRow;
                     });
                     
-                    // Supabase membatasi maksimal insert biasanya sekitar 1000 row per request, jadi kita pecah (chunking) per 500 baris
-                    for (let i = 0; i < cleanedData.length; i += 500) {
-                        const chunk = cleanedData.slice(i, i + 500);
-                        const { error } = await window.supabaseClient.from(tableName).insert(chunk);
-                        if (error) throw new Error(`Gagal upload ke ${tableName}: ` + error.message);
+                    // OPTIMASI SUPER CEPAT:
+                    // Kita pecah per 3000 baris, dan kita tembakkan 3 request sekaligus secara paralel
+                    const chunkSize = 3000;
+                    const chunks = [];
+                    for (let i = 0; i < cleanedData.length; i += chunkSize) {
+                        chunks.push(cleanedData.slice(i, i + chunkSize));
+                    }
+                    
+                    for (let i = 0; i < chunks.length; i += 3) {
+                        const batch = chunks.slice(i, i + 3).map(async (chunk) => {
+                            const { error } = await window.supabaseClient.from(tableName).insert(chunk);
+                            if (error) throw new Error(`Gagal upload ke ${tableName}: ` + error.message);
+                        });
+                        // Tunggu 3 request selesai berbarengan sebelum lanjut ke 3 request berikutnya
+                        await Promise.all(batch);
                     }
                 }
 
