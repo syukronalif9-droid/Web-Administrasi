@@ -97,6 +97,23 @@
         .btn-login:hover {
             background-color: #1565C0;
         }
+        .btn-login-guest {
+            width: 100%;
+            padding: 12px;
+            background-color: #f1f3f4;
+            color: #5f6368;
+            border: 1px solid #dadce0;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            margin-top: 10px;
+            transition: background-color 0.2s, color 0.2s;
+        }
+        .btn-login-guest:hover {
+            background-color: #e8eaed;
+            color: #202124;
+        }
     </style>
 </head>
 <body>
@@ -133,6 +150,7 @@
         </div>
         
         <button type="submit" class="btn-login">Masuk</button>
+        <button type="button" class="btn-login-guest" onclick="loginGuest()">Login Tanpa Akun</button>
         
     </form>
 </div>
@@ -151,6 +169,11 @@
         } else {
             passwordInput.type = 'password';
         }
+    }
+
+    function loginGuest() {
+        localStorage.setItem('isLoggedIn', 'true');
+        window.location.href = 'dashboard.html';
     }
 
     document.getElementById('loginForm').addEventListener('submit', function(e) {
