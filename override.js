@@ -151,7 +151,7 @@ function renderZmmLto() {
     });
 
     const targetOrder = [
-        'WH Area', 'KIT TK', 'Nama TK', 'Hari', 'Date Shift', 'Time In', 'Time Out', 'Durasi (Jam)'
+        'KIT TK', 'Nama TK', 'WH Area', 'Hari', 'Date Shift', 'Time In', 'Time Out', 'Durasi (Jam)'
     ];
 
     data = data.map(row => {
