@@ -224,11 +224,9 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             try {
-                // upload-stock di HTML sebenarnya adalah framsys (ZMM_LTO), header di baris ke-2 (index 1)
-                const dataFramsys = await parseCSVFile(fileStock, 1);
-                // upload-mb51 adalah work days (mb51), header di baris ke-3 (index 2)
-                const dataWorkdays = await parseCSVFile(fileMb51, 2);
-                // upload-zmmlto adalah master emplye (stock), header di baris ke-1 (index 0)
+                // Sekarang semua file diasumsikan header/judul kolomnya ada di baris pertama (paling atas)
+                const dataFramsys = await parseCSVFile(fileStock, 0);
+                const dataWorkdays = await parseCSVFile(fileMb51, 0);
                 const dataMaster = await parseCSVFile(fileZmmlto, 0);
 
                 // Daftar kolom yang diizinkan untuk masing-masing tabel (agar tidak ditolak Supabase)
