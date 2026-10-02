@@ -128,11 +128,11 @@ function renderMb51() {
         
         let tempRow = { ...row };
         if (match) {
-            tempRow['Area'] = match.area || '#N/A';
-            tempRow['Bagian'] = match.bagian || '#N/A';
-            tempRow['Work Contract'] = match.workContract || '#N/A';
-            tempRow['Employee Subgroup'] = match.employeeSubgroup || '#N/A';
-            tempRow['Cost Center'] = match.costCenter || '#N/A';
+            tempRow['Area'] = match.area || '';
+            tempRow['Bagian'] = match.bagian || '';
+            tempRow['Work Contract'] = match.workContract || '';
+            tempRow['Employee Subgroup'] = match.employeeSubgroup || '';
+            tempRow['Cost Center'] = match.costCenter || '';
         }
 
         // Menyusun ulang kunci object agar urutan kolom dari kiri ke kanan 100% pas
@@ -176,7 +176,7 @@ function renderZmmLto() {
         let tempRow = { ...row };
         
         // 1. VLOOKUP WH Area
-        tempRow['WH Area'] = match ? match.area : '#N/A';
+        tempRow['WH Area'] = match ? match.area : '';
         
         // 2. Buat otomatis Hari dari Date Shift
         let hari = '';
@@ -302,7 +302,7 @@ function renderStock() {
         const count = nameCounts[searchName] || 0;
         return {
             ...row,
-            'Double Check': count > 0 ? fullName : '#N/A',
+            'Double Check': count > 0 ? fullName : '',
             // Kita jadikan string agar tidak terhapus (karena 0 || '' di renderTable jadinya kosong)
             '>1 Name': count === 0 ? '0' : count.toString(),
             'Remarks': row['Remarks'] || ''
