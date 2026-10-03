@@ -323,12 +323,36 @@ window.renderTable = function(tableId, data) {
     const table = document.getElementById(tableId);
     if (!table) return;
     
-    if (!data || data.length === 0) {
+    let searchInputId = '';
+    if (tableId === 'zmmlto-table') searchInputId = 'zmmlto-search';
+    else if (tableId === 'mb51-table') searchInputId = 'mb51-search';
+    else if (tableId === 'stock-table') searchInputId = 'stock-search';
+    else if (tableId === 'summary-table') searchInputId = 'summary-search';
+    
+    let filteredData = [];
+    let originalIndices = [];
+    
+    const searchInput = document.getElementById(searchInputId);
+    const query = (searchInput && searchInput.value) ? searchInput.value.toLowerCase() : '';
+    
+    if (query) {
+        data.forEach((row, i) => {
+            if (Object.values(row).some(val => val && val.toString().toLowerCase().includes(query))) {
+                filteredData.push(row);
+                originalIndices.push(i);
+            }
+        });
+    } else {
+        filteredData = data;
+        originalIndices = data.map((_, i) => i);
+    }
+
+    if (filteredData.length === 0) {
         table.innerHTML = '<thead><tr><th>Informasi</th></tr></thead><tbody><tr><td style="text-align: center; padding: 20px; font-weight: 500; color: #888;">Data Tidak Ditemukan / Kosong</td></tr></tbody>';
         return;
     }
 
-    const headers = Object.keys(data[0]);
+    const headers = Object.keys(filteredData[0]);
     
     // Logika kustom untuk freeze kolom di slide Hari Kerja (mb51-table) sampai kolom Nama (index ke-3)
     const isMb51 = tableId === 'mb51-table';
@@ -383,10 +407,11 @@ window.renderTable = function(tableId, data) {
     }).join('')}</tr></thead>`;
     
     // Batasi hanya 100 baris pertama supaya super cepat (no lag)
-    const displayData = data.slice(0, 100);
+    const displayData = filteredData.slice(0, 100);
     
     const tbody = `<tbody>${displayData.map((row, rIdx) => {
-        return `<tr data-rowindex="${rIdx}">${headers.map((h, idx) => {
+        const originalIndex = originalIndices[rIdx];
+        return `<tr data-rowindex="${originalIndex}">${headers.map((h, idx) => {
             const freezeObj = getFreezeStyle(idx, h);
             const style = freezeObj.style;
             const isSticky = freezeObj.isSticky;
@@ -421,10 +446,20 @@ window.renderTable = function(tableId, data) {
             // Simpan teks baru ke array data agar tidak hilang
             const tr = this.closest('tr');
             if (tr) {
-                const rIdx = parseInt(tr.getAttribute('data-rowindex'));
+                const globalIdx = parseInt(tr.getAttribute('data-rowindex'));
                 const field = this.getAttribute('data-field');
-                if (!isNaN(rIdx) && data[rIdx]) {
-                    data[rIdx][field] = this.innerText.trim();
+                if (!isNaN(globalIdx)) {
+                    // Update array lokal
+                    if (data[globalIdx]) data[globalIdx][field] = this.innerText.trim();
+                    
+                    // Update array global agar tersimpan
+                    let globalData;
+                    if (isMb51) globalData = window.globalMb51Data || window.uploadedData['mb51'];
+                    else if (isStock) globalData = window.globalStockData || window.uploadedData['stock'];
+                    
+                    if (globalData && globalData[globalIdx]) {
+                        globalData[globalIdx][field] = this.innerText.trim();
+                    }
                 }
             }
         });
@@ -442,6 +477,22 @@ window.renderTable = function(tableId, data) {
 function renderTable(tableId, data) {
     window.renderTable(tableId, data);
 }
+
+// Pasang event listener untuk semua kolom pencarian
+document.addEventListener('DOMContentLoaded', () => {
+    const setupSearch = (inputId, renderFunc) => {
+        const input = document.getElementById(inputId);
+        if (input && typeof renderFunc === 'function') {
+            input.addEventListener('input', () => {
+                renderFunc();
+            });
+        }
+    };
+    
+    setupSearch('zmmlto-search', () => typeof renderZmmLto === 'function' && renderZmmLto());
+    setupSearch('mb51-search', () => typeof renderMb51 === 'function' && renderMb51());
+    setupSearch('stock-search', () => typeof renderStock === 'function' && renderStock());
+});
 
 document.addEventListener('DOMContentLoaded', () => {
     const newBtn = document.getElementById('btn-process-upload-offline');
