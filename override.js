@@ -208,6 +208,15 @@ function renderZmmLto() {
         return tempRow;
     });
 
+    // SEARCH FILTER
+    const searchInput = document.getElementById('zmmlto-search');
+    if (searchInput && searchInput.value) {
+        const query = searchInput.value.toLowerCase();
+        data = data.filter(row => {
+            return Object.values(row).some(val => val && val.toString().toLowerCase().includes(query));
+        });
+    }
+
     // 4. Render tabel framsys secara KUSTOM dengan header bertingkat
     const table = document.getElementById('zmmlto-table');
     if (table && data.length > 0) {
