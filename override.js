@@ -224,16 +224,16 @@ function renderZmmLto() {
             <th rowspan="2" style="vertical-align: middle; text-align: center; background-color: #f8f9fa;">Time Out</th>
             <th rowspan="2" style="vertical-align: middle; text-align: center; background-color: #f8f9fa; border-right: 2px solid #ccc;">Durasi (Jam)</th>
             
-            <th colspan="3" style="text-align: center; background-color: #92d050; color: #000; border-left: 2px solid #ccc; padding: 6px; font-size: 13px;">Working Days</th>
-            <th colspan="3" style="text-align: center; background-color: #ffc000; color: #000; border-left: 2px solid #ccc; padding: 6px; font-size: 13px;">Attendance</th>
+            <th colspan="3" style="text-align: center; background-color: #92d050; color: #000; border-left: 2px solid #ccc; padding: 6px; font-size: 13px; height: 32px; box-sizing: border-box;">Working Days</th>
+            <th colspan="3" style="text-align: center; background-color: #ffc000; color: #000; border-left: 2px solid #ccc; padding: 6px; font-size: 13px; height: 32px; box-sizing: border-box;">Attendance</th>
           </tr>
           <tr>
-            <th style="background-color: #92d050; color: #000; top: 58px; width: 45px; min-width: 45px; padding: 4px; font-size: 12px; text-align: center;">In</th>
-            <th style="background-color: #92d050; color: #000; top: 58px; width: 45px; min-width: 45px; padding: 4px; font-size: 12px; text-align: center;">Out</th>
-            <th style="background-color: #92d050; color: #000; top: 58px; width: 55px; min-width: 55px; padding: 4px; font-size: 12px; text-align: center; font-weight: bold;">Total</th>
-            <th style="background-color: #ffc000; color: #000; top: 58px; width: 45px; min-width: 45px; padding: 4px; font-size: 12px; text-align: center; border-left: 2px solid #ccc;">In</th>
-            <th style="background-color: #ffc000; color: #000; top: 58px; width: 45px; min-width: 45px; padding: 4px; font-size: 12px; text-align: center;">Out</th>
-            <th style="background-color: #ffc000; color: #000; top: 58px; width: 55px; min-width: 55px; padding: 4px; font-size: 12px; text-align: center; font-weight: bold;">Total</th>
+            <th style="background-color: #92d050; color: #000; top: 32px; width: 45px; min-width: 45px; padding: 4px; font-size: 12px; text-align: center; box-sizing: border-box;">In</th>
+            <th style="background-color: #92d050; color: #000; top: 32px; width: 45px; min-width: 45px; padding: 4px; font-size: 12px; text-align: center; box-sizing: border-box;">Out</th>
+            <th style="background-color: #92d050; color: #000; top: 32px; width: 55px; min-width: 55px; padding: 4px; font-size: 12px; text-align: center; font-weight: bold; box-sizing: border-box;">Total</th>
+            <th style="background-color: #ffc000; color: #000; top: 32px; width: 45px; min-width: 45px; padding: 4px; font-size: 12px; text-align: center; border-left: 2px solid #ccc; box-sizing: border-box;">In</th>
+            <th style="background-color: #ffc000; color: #000; top: 32px; width: 45px; min-width: 45px; padding: 4px; font-size: 12px; text-align: center; box-sizing: border-box;">Out</th>
+            <th style="background-color: #ffc000; color: #000; top: 32px; width: 55px; min-width: 55px; padding: 4px; font-size: 12px; text-align: center; font-weight: bold; box-sizing: border-box;">Total</th>
           </tr>
         </thead>`;
         
