@@ -258,9 +258,9 @@ function renderZmmLto() {
             const attTotal = attIn + attOut;
 
             return `<tr>
-                <td style="position: sticky; left: 0; z-index: 2; width: 100px; min-width: 100px; max-width: 100px; box-sizing: border-box; background-color: #fff;">${row['KIT TK'] || ''}</td>
-                <td style="position: sticky; left: 100px; z-index: 2; width: 200px; min-width: 200px; max-width: 200px; box-sizing: border-box; background-color: #fff;">${row['Nama TK'] || ''}</td>
-                <td style="position: sticky; left: 300px; z-index: 2; width: 120px; min-width: 120px; max-width: 120px; box-sizing: border-box; background-color: #fff; font-weight: 500; box-shadow: 4px 0 6px -2px rgba(0,0,0,0.1);">${row['WH Area'] || ''}</td>
+                <td style="position: sticky; left: 0; z-index: 2; width: 100px; min-width: 100px; max-width: 100px; box-sizing: border-box; background-color: #fff; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;">${row['KIT TK'] || ''}</td>
+                <td style="position: sticky; left: 100px; z-index: 2; width: 200px; min-width: 200px; max-width: 200px; box-sizing: border-box; background-color: #fff; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;">${row['Nama TK'] || ''}</td>
+                <td style="position: sticky; left: 300px; z-index: 2; width: 120px; min-width: 120px; max-width: 120px; box-sizing: border-box; background-color: #fff; font-weight: 500; box-shadow: 4px 0 6px -2px rgba(0,0,0,0.1); overflow: hidden; white-space: nowrap; text-overflow: ellipsis;">${row['WH Area'] || ''}</td>
                 <td>${row['Date Shift'] || ''}</td>
                 <td>${row['Hari'] || ''}</td>
                 <td>${row['Time In'] || ''}</td>
@@ -339,7 +339,7 @@ window.renderTable = function(tableId, data) {
         let left = 0;
         for (let i = 0; i < idx; i++) left += mb51Widths[i];
         
-        let style = `position: sticky; left: ${left}px; min-width: ${mb51Widths[idx]}px; max-width: ${mb51Widths[idx]}px; width: ${mb51Widths[idx]}px; box-sizing: border-box;`;
+        let style = `position: sticky; left: ${left}px; min-width: ${mb51Widths[idx]}px; max-width: ${mb51Widths[idx]}px; width: ${mb51Widths[idx]}px; box-sizing: border-box; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;`;
         if (idx === mb51Widths.length - 1) {
             style += ' box-shadow: 4px 0 6px -2px rgba(0,0,0,0.1); font-weight: 500;';
         }
