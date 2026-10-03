@@ -339,7 +339,7 @@ window.renderTable = function(tableId, data) {
         let left = 0;
         for (let i = 0; i < idx; i++) left += mb51Widths[i];
         
-        let style = `position: sticky; left: ${left}px; min-width: ${mb51Widths[idx]}px;`;
+        let style = `position: sticky; left: ${left}px; min-width: ${mb51Widths[idx]}px; max-width: ${mb51Widths[idx]}px; width: ${mb51Widths[idx]}px; box-sizing: border-box;`;
         if (idx === mb51Widths.length - 1) {
             style += ' box-shadow: 4px 0 6px -2px rgba(0,0,0,0.1); font-weight: 500;';
         }
@@ -348,7 +348,7 @@ window.renderTable = function(tableId, data) {
 
     const thead = `<thead><tr>${headers.map((h, idx) => {
         const style = getFreezeStyle(idx);
-        return `<th style="${style ? style + ' z-index: 3;' : ''}">${h}</th>`;
+        return `<th style="${style ? style + ' z-index: 3; background-color: #f4f6f8;' : ''}">${h}</th>`;
     }).join('')}</tr></thead>`;
     
     // Batasi hanya 100 baris pertama supaya super cepat (no lag)
