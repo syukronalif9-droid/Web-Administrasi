@@ -345,7 +345,7 @@ window.renderTable = function(tableId, data) {
             if (idx === mb51Widths.length - 1) {
                 style += ' box-shadow: 4px 0 6px -2px rgba(0,0,0,0.1); font-weight: 500;';
             }
-            return style;
+            return { style, isSticky: true };
         }
         
         if (isStock) {
@@ -367,18 +367,19 @@ window.renderTable = function(tableId, data) {
                 let left = (idx === 0) ? 0 : 130; // Pers.No is 130px
                 let style = `position: sticky; left: ${left}px; min-width: ${width}px; max-width: ${width}px; width: ${width}px; box-sizing: border-box; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;`;
                 if (idx === 1) style += ' box-shadow: 4px 0 6px -2px rgba(0,0,0,0.1); font-weight: 500;';
-                return style;
+                return { style, isSticky: true };
             } else {
-                return `min-width: ${width}px; max-width: ${width}px; width: ${width}px; box-sizing: border-box; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;`;
+                return { style: `min-width: ${width}px; max-width: ${width}px; width: ${width}px; box-sizing: border-box; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;`, isSticky: false };
             }
         }
         
-        return '';
+        return { style: '', isSticky: false };
     };
 
     const thead = `<thead><tr>${headers.map((h, idx) => {
-        const style = getFreezeStyle(idx, h);
-        return `<th style="${style ? style + ' z-index: 3; background-color: #f4f6f8;' : ''}">${h}</th>`;
+        const freezeObj = getFreezeStyle(idx, h);
+        const style = freezeObj.style;
+        return `<th style="${style ? style + (freezeObj.isSticky ? ' z-index: 3; background-color: #f4f6f8;' : '') : ''}">${h}</th>`;
     }).join('')}</tr></thead>`;
     
     // Batasi hanya 100 baris pertama supaya super cepat (no lag)
@@ -386,11 +387,14 @@ window.renderTable = function(tableId, data) {
     
     const tbody = `<tbody>${displayData.map((row, rIdx) => {
         return `<tr data-rowindex="${rIdx}">${headers.map((h, idx) => {
-            const style = getFreezeStyle(idx, h);
+            const freezeObj = getFreezeStyle(idx, h);
+            const style = freezeObj.style;
+            const isSticky = freezeObj.isSticky;
+            
             const isEditable = (isMb51 && h === 'Keterangan');
             const editAttr = isEditable ? ` class="editable-cell" data-field="${h}" title="Klik 2 kali untuk mengedit (Enter untuk simpan)"` : '';
             
-            let finalStyle = style ? style + ' z-index: 2; background-color: #fff;' : '';
+            let finalStyle = style ? style + (isSticky ? ' z-index: 2; background-color: #fff;' : '') : '';
             if (isEditable) finalStyle += ' cursor: pointer;'; // Beri tanda bisa diklik
             
             return `<td${editAttr} style="${finalStyle}">${row[h] || ''}</td>`;
