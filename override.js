@@ -145,8 +145,6 @@ function renderMb51() {
     });
 
     if(typeof renderTable === 'function') renderTable('mb51-table', data);
-    const span = document.getElementById('mb51-dynamic-total-line');
-    if (span) span.textContent = data.length;
 }
 
 function renderZmmLto() {
@@ -323,8 +321,6 @@ function renderStock() {
     });
 
     if(typeof renderTable === 'function') renderTable('stock-table', data);
-    const span = document.getElementById('stock-dynamic-total-line');
-    if (span) span.textContent = data.length;
 }
 
 // Override renderTable agar tidak bikin lag karena meload puluhan ribu baris!
@@ -369,6 +365,17 @@ window.renderTable = function(tableId, data) {
             originalIndices.push(i);
         }
     });
+
+    // Update the total line counter dynamically based on filteredData length
+    let prefix = '';
+    if (tableId === 'stock-table') prefix = 'stock';
+    else if (tableId === 'mb51-table') prefix = 'mb51';
+    else if (tableId === 'summary-table') prefix = 'summary';
+    
+    if (prefix) {
+        const span = document.getElementById(`${prefix}-dynamic-total-line`);
+        if (span) span.textContent = filteredData.length;
+    }
 
     if (filteredData.length === 0) {
         table.innerHTML = '<thead><tr><th>Informasi</th></tr></thead><tbody><tr><td style="text-align: center; padding: 20px; font-weight: 500; color: #888;">Data Tidak Ditemukan / Kosong</td></tr></tbody>';
