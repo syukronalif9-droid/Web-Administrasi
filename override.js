@@ -344,17 +344,31 @@ window.renderTable = function(tableId, data) {
     const searchInput = document.getElementById(searchInputId);
     const query = (searchInput && searchInput.value) ? searchInput.value.toLowerCase() : '';
     
-    if (query) {
-        data.forEach((row, i) => {
-            if (Object.values(row).some(val => val && val.toString().toLowerCase().includes(query))) {
-                filteredData.push(row);
-                originalIndices.push(i);
-            }
-        });
-    } else {
-        filteredData = data;
-        originalIndices = data.map((_, i) => i);
+    let doubleCheckFilter = 'all';
+    if (tableId === 'stock-table') {
+        const dcFilter = document.getElementById('stock-doublecheck-filter');
+        if (dcFilter) doubleCheckFilter = dcFilter.value;
     }
+    
+    data.forEach((row, i) => {
+        let matchSearch = true;
+        let matchDC = true;
+
+        if (query) {
+            matchSearch = Object.values(row).some(val => val && val.toString().toLowerCase().includes(query));
+        }
+        
+        if (tableId === 'stock-table' && doubleCheckFilter !== 'all') {
+            const dcVal = (row['Double Check'] || '').toString().trim();
+            if (doubleCheckFilter === 'filled') matchDC = dcVal !== '';
+            else if (doubleCheckFilter === 'empty') matchDC = dcVal === '';
+        }
+        
+        if (matchSearch && matchDC) {
+            filteredData.push(row);
+            originalIndices.push(i);
+        }
+    });
 
     if (filteredData.length === 0) {
         table.innerHTML = '<thead><tr><th>Informasi</th></tr></thead><tbody><tr><td style="text-align: center; padding: 20px; font-weight: 500; color: #888;">Data Tidak Ditemukan / Kosong</td></tr></tbody>';
@@ -501,6 +515,12 @@ document.addEventListener('DOMContentLoaded', () => {
     setupSearch('zmmlto-search', () => typeof renderZmmLto === 'function' && renderZmmLto());
     setupSearch('mb51-search', () => typeof renderMb51 === 'function' && renderMb51());
     setupSearch('stock-search', () => typeof renderStock === 'function' && renderStock());
+    
+    // Pasang listener untuk dropdown filter Double Check
+    const dcFilter = document.getElementById('stock-doublecheck-filter');
+    if (dcFilter) {
+        dcFilter.addEventListener('change', () => typeof renderStock === 'function' && renderStock());
+    }
 });
 
 document.addEventListener('DOMContentLoaded', () => {
