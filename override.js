@@ -350,20 +350,21 @@ window.renderTable = function(tableId, data) {
         
         if (isStock) {
             const stockCols = {
-                'Pers.No.': 100,
-                'Full Name': 250,
-                'Employee Subgroup': 180,
-                'Work Contract': 150,
-                'Cost Ctr': 120,
-                'WH Area': 120,
-                'Double Check': 150,
-                '>1 Name': 100,
-                'Remarks': 200
+                'Pers.No.': 130,
+                'Full Name': 300,
+                'Employee Subgroup': 220,
+                'Work Contract': 200,
+                'Cost Ctr': 150,
+                'WH Area': 150,
+                'Location': 180,
+                'Double Check': 200,
+                '>1 Name': 120,
+                'Remarks': 250
             };
-            const width = stockCols[headerName] || 150;
+            const width = stockCols[headerName] || 200;
             
             if (idx < 2) { // Freeze Pers.No dan Full Name
-                let left = (idx === 0) ? 0 : 100;
+                let left = (idx === 0) ? 0 : 130; // Pers.No is 130px
                 let style = `position: sticky; left: ${left}px; min-width: ${width}px; max-width: ${width}px; width: ${width}px; box-sizing: border-box; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;`;
                 if (idx === 1) style += ' box-shadow: 4px 0 6px -2px rgba(0,0,0,0.1); font-weight: 500;';
                 return style;
