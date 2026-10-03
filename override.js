@@ -334,20 +334,49 @@ window.renderTable = function(tableId, data) {
     const isMb51 = tableId === 'mb51-table';
     const mb51Widths = [100, 200, 100, 250]; // Lebar kolom: Month, Area, Index, Nama
     
-    const getFreezeStyle = (idx) => {
-        if (!isMb51 || idx >= mb51Widths.length) return '';
-        let left = 0;
-        for (let i = 0; i < idx; i++) left += mb51Widths[i];
-        
-        let style = `position: sticky; left: ${left}px; min-width: ${mb51Widths[idx]}px; max-width: ${mb51Widths[idx]}px; width: ${mb51Widths[idx]}px; box-sizing: border-box; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;`;
-        if (idx === mb51Widths.length - 1) {
-            style += ' box-shadow: 4px 0 6px -2px rgba(0,0,0,0.1); font-weight: 500;';
+    const isStock = tableId === 'stock-table';
+    
+    const getFreezeStyle = (idx, headerName) => {
+        if (isMb51 && idx < mb51Widths.length) {
+            let left = 0;
+            for (let i = 0; i < idx; i++) left += mb51Widths[i];
+            
+            let style = `position: sticky; left: ${left}px; min-width: ${mb51Widths[idx]}px; max-width: ${mb51Widths[idx]}px; width: ${mb51Widths[idx]}px; box-sizing: border-box; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;`;
+            if (idx === mb51Widths.length - 1) {
+                style += ' box-shadow: 4px 0 6px -2px rgba(0,0,0,0.1); font-weight: 500;';
+            }
+            return style;
         }
-        return style;
+        
+        if (isStock) {
+            const stockCols = {
+                'Pers.No.': 100,
+                'Full Name': 250,
+                'Employee Subgroup': 180,
+                'Work Contract': 150,
+                'Cost Ctr': 120,
+                'WH Area': 120,
+                'Double Check': 150,
+                '>1 Name': 100,
+                'Remarks': 200
+            };
+            const width = stockCols[headerName] || 150;
+            
+            if (idx < 2) { // Freeze Pers.No dan Full Name
+                let left = (idx === 0) ? 0 : 100;
+                let style = `position: sticky; left: ${left}px; min-width: ${width}px; max-width: ${width}px; width: ${width}px; box-sizing: border-box; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;`;
+                if (idx === 1) style += ' box-shadow: 4px 0 6px -2px rgba(0,0,0,0.1); font-weight: 500;';
+                return style;
+            } else {
+                return `min-width: ${width}px; max-width: ${width}px; width: ${width}px; box-sizing: border-box; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;`;
+            }
+        }
+        
+        return '';
     };
 
     const thead = `<thead><tr>${headers.map((h, idx) => {
-        const style = getFreezeStyle(idx);
+        const style = getFreezeStyle(idx, h);
         return `<th style="${style ? style + ' z-index: 3; background-color: #f4f6f8;' : ''}">${h}</th>`;
     }).join('')}</tr></thead>`;
     
@@ -356,7 +385,7 @@ window.renderTable = function(tableId, data) {
     
     const tbody = `<tbody>${displayData.map((row, rIdx) => {
         return `<tr data-rowindex="${rIdx}">${headers.map((h, idx) => {
-            const style = getFreezeStyle(idx);
+            const style = getFreezeStyle(idx, h);
             const isEditable = (isMb51 && h === 'Keterangan');
             const editAttr = isEditable ? ` class="editable-cell" data-field="${h}" title="Klik 2 kali untuk mengedit (Enter untuk simpan)"` : '';
             
