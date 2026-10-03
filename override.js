@@ -365,7 +365,7 @@ window.renderTable = function(tableId, data) {
     
     // Logika kustom untuk freeze kolom di slide Hari Kerja (mb51-table) sampai kolom Nama (index ke-3)
     const isMb51 = tableId === 'mb51-table';
-    const mb51Widths = [100, 200, 100, 250]; // Lebar kolom: Month, Area, Index, Nama
+    const mb51Widths = [120, 200, 150, 250]; // Lebar kolom: Month, Area, Index, Nama
     
     const isStock = tableId === 'stock-table';
     
