@@ -354,14 +354,55 @@ window.renderTable = function(tableId, data) {
     // Batasi hanya 100 baris pertama supaya super cepat (no lag)
     const displayData = data.slice(0, 100);
     
-    const tbody = `<tbody>${displayData.map(row => {
-        return `<tr>${headers.map((h, idx) => {
+    const tbody = `<tbody>${displayData.map((row, rIdx) => {
+        return `<tr data-rowindex="${rIdx}">${headers.map((h, idx) => {
             const style = getFreezeStyle(idx);
-            return `<td style="${style ? style + ' z-index: 2; background-color: #fff;' : ''}">${row[h] || ''}</td>`;
+            const isEditable = (isMb51 && h === 'Keterangan');
+            const editAttr = isEditable ? ` class="editable-cell" data-field="${h}" title="Klik 2 kali untuk mengedit (Enter untuk simpan)"` : '';
+            
+            let finalStyle = style ? style + ' z-index: 2; background-color: #fff;' : '';
+            if (isEditable) finalStyle += ' cursor: pointer;'; // Beri tanda bisa diklik
+            
+            return `<td${editAttr} style="${finalStyle}">${row[h] || ''}</td>`;
         }).join('')}</tr>`;
     }).join('')}</tbody>`;
     
     table.innerHTML = thead + tbody;
+
+    // Pasang Event Listener untuk Kolom yang Bisa Diedit
+    const editableCells = table.querySelectorAll('.editable-cell');
+    editableCells.forEach(cell => {
+        cell.addEventListener('dblclick', function() {
+            this.contentEditable = true;
+            this.focus();
+            this.style.backgroundColor = '#fef08a'; // Warna kuning terang saat diedit
+            this.style.outline = '2px solid #eab308';
+        });
+        
+        cell.addEventListener('blur', function() {
+            this.contentEditable = false;
+            this.style.backgroundColor = '';
+            this.style.outline = '';
+            
+            // Simpan teks baru ke array data agar tidak hilang
+            const tr = this.closest('tr');
+            if (tr) {
+                const rIdx = parseInt(tr.getAttribute('data-rowindex'));
+                const field = this.getAttribute('data-field');
+                if (!isNaN(rIdx) && data[rIdx]) {
+                    data[rIdx][field] = this.innerText.trim();
+                }
+            }
+        });
+        
+        cell.addEventListener('keydown', function(e) {
+            // Jika ditekan Enter, simpan & keluar dari mode edit
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                this.blur();
+            }
+        });
+    });
 };
 
 function renderTable(tableId, data) {
