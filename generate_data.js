@@ -8,7 +8,7 @@ function parseCSV(filePath) {
     }
     const content = fs.readFileSync(filePath, 'utf8');
     const result = Papa.parse(content, { header: true, skipEmptyLines: true });
-    return result.data;
+    return result.data; 
 }
 
 console.log("Membaca file CSV...");
