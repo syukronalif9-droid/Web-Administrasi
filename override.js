@@ -369,7 +369,7 @@ window.renderTable = function(tableId, data) {
                 if (idx === 1) style += ' box-shadow: 4px 0 6px -2px rgba(0,0,0,0.1); font-weight: 500;';
                 return { style, isSticky: true };
             } else {
-                return { style: `min-width: ${width}px; max-width: ${width}px; width: ${width}px; box-sizing: border-box; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;`, isSticky: false };
+                return { style: `min-width: ${width}px; white-space: nowrap;`, isSticky: false };
             }
         }
         
