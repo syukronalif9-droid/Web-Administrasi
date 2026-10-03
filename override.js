@@ -391,7 +391,7 @@ window.renderTable = function(tableId, data) {
             const style = freezeObj.style;
             const isSticky = freezeObj.isSticky;
             
-            const isEditable = (isMb51 && h === 'Keterangan');
+            const isEditable = (isMb51 && h === 'Keterangan') || (isStock && h === 'Remarks');
             const editAttr = isEditable ? ` class="editable-cell" data-field="${h}" title="Klik 2 kali untuk mengedit (Enter untuk simpan)"` : '';
             
             let finalStyle = style ? style + (isSticky ? ' z-index: 2; background-color: #fff;' : '') : '';
