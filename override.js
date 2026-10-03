@@ -216,8 +216,8 @@ function renderZmmLto() {
         <thead>
           <tr>
             <th rowspan="2" style="position: sticky; left: 0; z-index: 3; width: 100px; min-width: 100px; max-width: 100px; box-sizing: border-box; vertical-align: middle; text-align: center; background-color: #f8f9fa;">KIT TK</th>
-            <th rowspan="2" style="position: sticky; left: 100px; z-index: 3; width: 200px; min-width: 200px; max-width: 200px; box-sizing: border-box; vertical-align: middle; text-align: center; background-color: #f8f9fa;">Nama TK</th>
-            <th rowspan="2" style="position: sticky; left: 300px; z-index: 3; width: 120px; min-width: 120px; max-width: 120px; box-sizing: border-box; vertical-align: middle; text-align: center; background-color: #f8f9fa; box-shadow: 4px 0 6px -2px rgba(0,0,0,0.1);">WH Area</th>
+            <th rowspan="2" style="position: sticky; left: 100px; z-index: 3; width: 220px; min-width: 220px; max-width: 220px; box-sizing: border-box; vertical-align: middle; text-align: center; background-color: #f8f9fa;">Nama TK</th>
+            <th rowspan="2" style="position: sticky; left: 320px; z-index: 3; width: 200px; min-width: 200px; max-width: 200px; box-sizing: border-box; vertical-align: middle; text-align: center; background-color: #f8f9fa; box-shadow: 4px 0 6px -2px rgba(0,0,0,0.1);">WH Area</th>
             <th rowspan="2" style="vertical-align: middle; text-align: center; background-color: #f8f9fa;">Date Shift</th>
             <th rowspan="2" style="vertical-align: middle; text-align: center; background-color: #f8f9fa;">Hari</th>
             <th rowspan="2" style="vertical-align: middle; text-align: center; background-color: #f8f9fa;">Time In</th>
@@ -259,8 +259,8 @@ function renderZmmLto() {
 
             return `<tr>
                 <td style="position: sticky; left: 0; z-index: 2; width: 100px; min-width: 100px; max-width: 100px; box-sizing: border-box; background-color: #fff; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;">${row['KIT TK'] || ''}</td>
-                <td style="position: sticky; left: 100px; z-index: 2; width: 200px; min-width: 200px; max-width: 200px; box-sizing: border-box; background-color: #fff; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;">${row['Nama TK'] || ''}</td>
-                <td style="position: sticky; left: 300px; z-index: 2; width: 120px; min-width: 120px; max-width: 120px; box-sizing: border-box; background-color: #fff; font-weight: 500; box-shadow: 4px 0 6px -2px rgba(0,0,0,0.1); overflow: hidden; white-space: nowrap; text-overflow: ellipsis;">${row['WH Area'] || ''}</td>
+                <td style="position: sticky; left: 100px; z-index: 2; width: 220px; min-width: 220px; max-width: 220px; box-sizing: border-box; background-color: #fff; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;">${row['Nama TK'] || ''}</td>
+                <td style="position: sticky; left: 320px; z-index: 2; width: 200px; min-width: 200px; max-width: 200px; box-sizing: border-box; background-color: #fff; font-weight: 500; box-shadow: 4px 0 6px -2px rgba(0,0,0,0.1); overflow: hidden; white-space: nowrap; text-overflow: ellipsis;">${row['WH Area'] || ''}</td>
                 <td>${row['Date Shift'] || ''}</td>
                 <td>${row['Hari'] || ''}</td>
                 <td>${row['Time In'] || ''}</td>
@@ -332,7 +332,7 @@ window.renderTable = function(tableId, data) {
     
     // Logika kustom untuk freeze kolom di slide Hari Kerja (mb51-table) sampai kolom Nama (index ke-3)
     const isMb51 = tableId === 'mb51-table';
-    const mb51Widths = [100, 120, 100, 250]; // Lebar kolom: Month, Area, Index, Nama
+    const mb51Widths = [100, 200, 100, 250]; // Lebar kolom: Month, Area, Index, Nama
     
     const getFreezeStyle = (idx) => {
         if (!isMb51 || idx >= mb51Widths.length) return '';
