@@ -154,9 +154,9 @@ document.addEventListener('DOMContentLoaded', async () => {
             const id = btn.id;
             // Di HTML: btn-reset-stock = tombol hapus framsys (ZMM_LTO)
             if (id === 'btn-reset-stock') {
-                window.uploadedData['ZMM_LTO'] = [];
-                saveToDB('ZMM_LTO', []);
-                alert('Data Framsys berhasil dihapus dari memori lokal.');
+                window.uploadedData['stock'] = [];
+                saveToDB('stock', []);
+                alert('Data Master Employee berhasil dihapus dari memori lokal.');
             }
             // Di HTML: btn-reset-mb51 = tombol hapus work days (mb51)
             else if (id === 'btn-reset-mb51') {
@@ -166,9 +166,9 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
             // Di HTML: btn-reset-zmmlto = tombol hapus master employee (stock)
             else if (id === 'btn-reset-zmmlto') {
-                window.uploadedData['stock'] = [];
-                saveToDB('stock', []);
-                alert('Data Master Employee berhasil dihapus dari memori lokal.');
+                window.uploadedData['ZMM_LTO'] = [];
+                saveToDB('ZMM_LTO', []);
+                alert('Data Framsys berhasil dihapus dari memori lokal.');
             }
             // Tombol hapus semua data
             else if (id === 'btn-reset-all') {
