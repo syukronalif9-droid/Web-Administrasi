@@ -589,9 +589,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 const dataWorkdays = await parseCSVFile(fileMb51, 0);
                 const dataMaster = await parseCSVFile(fileZmmlto, 0);
 
+                // Mapping header baru (Work Contract, WH Area) ke header lama (Bagian, Double Check) agar diterima Supabase
+                dataMaster.forEach(row => {
+                    if (row['Work Contract'] !== undefined) row['Bagian'] = row['Work Contract'];
+                    if (row['WH Area'] !== undefined) row['Double Check'] = row['WH Area'];
+                });
+
                 // Daftar kolom yang diizinkan untuk masing-masing tabel (agar tidak ditolak Supabase)
                 const validColumns = {
-                    'master_employee': ['Pers.No.', 'Full Name', 'Area', 'Bagian', 'Remarks', 'Double Check', '>1 Name', 'Employee Subgroup', 'Work Contract', 'Cost Ctr', 'WH Area', 'Location'],
+                    'master_employee': ['Pers.No.', 'Full Name', 'Area', 'Bagian', 'Remarks', 'Double Check', '>1 Name'],
                     'work_days': [
                         'Month', 'Area', 'Index', 'Nama', 'Work Contract', 'Employee Subgroup', 
                         'Bagian', 'Hari Kerja', 'Sakit', 'Izin', 'CT', 'CH', 'CK', 
