@@ -1,7 +1,8 @@
 // Masukkan URL dan Anon Key Supabase Anda di sini
-const SUPABASE_URL = 'https://rjjuriaxhbmtawgofljt.supabase.co';
-const SUPABASE_ANON_KEY = 'sb_publishable_qkmIVHOFFNnPMydnb_Q7nw_aJ4jQDXI';
-const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+// (Harus SAMA dengan project yang dipakai untuk upload di dashboard.html)
+const SUPABASE_URL = 'https://bavacuaqbbwnqbrcldsj.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJhdmFjdWFxYmJ3bnFicmNsZHNqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA4ODc2MjMsImV4cCI6MjEwNjQ2MzYyM30.2KTBo_y89dexhQUq70VECQvl03iho2_Bx06qDu3IETc';
+const supabaseClient = window.supabaseClient || window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 // Navigation Logic
 const navItems = document.querySelectorAll('.nav-item');
@@ -1959,7 +1960,8 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // Start
-init();
+// init() sekarang dipanggil oleh override.js setelah data (lokal / Supabase) selesai dimuat,
+// supaya tidak jalan dua kali dan tidak memakai fungsi fetchData versi lama.
 
 function handleExportExcel() {
     const activeNav = document.querySelector('.nav-item.active');
