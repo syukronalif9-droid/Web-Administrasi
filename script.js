@@ -1593,10 +1593,10 @@ function renderSummary() {
         let attendanceFormatted = attendance.toString().replace('.', ',');
 
         return {
-            'Work Contract': workContract,
-            'WH Area': whArea,
             'Employee ID': empId,
             'Employee Name': mb51Row['Nama'] || mb51Row['Full Name'] || '',
+            'Work Contract': workContract,
+            'WH Area': whArea,
             'Working Days': workingDays || '',
             'Attendance': attendanceFormatted || '0',
             'Discipline (%)': discipline

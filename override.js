@@ -527,7 +527,29 @@ window.renderTable = function(tableId, data) {
             }
         }
         
-        // Default styling and width for other tables (Worksheet, ZMM_LTO)
+        if (tableId === 'summary-table') {
+            const summaryCols = {
+                'Employee ID': 120,
+                'Employee Name': 250,
+                'Work Contract': 180,
+                'WH Area': 180,
+                'Working Days': 140,
+                'Attendance': 140,
+                'Discipline (%)': 150
+            };
+            const width = summaryCols[headerName] || 150;
+            
+            if (idx < 2) { // Freeze Employee ID and Name
+                let left = (idx === 0) ? 0 : 120; // Employee ID is 120px
+                let style = `position: sticky; left: ${left}px; min-width: ${width}px; max-width: ${width}px; width: ${width}px; box-sizing: border-box; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;`;
+                if (idx === 1) style += ' box-shadow: 4px 0 6px -2px rgba(0,0,0,0.1); font-weight: 500;';
+                return { style, isSticky: true };
+            } else {
+                return { style: `min-width: ${width}px; white-space: nowrap;`, isSticky: false };
+            }
+        }
+        
+        // Default styling and width for other tables (ZMM_LTO)
         const defaultWidths = {
             'Employee Name': 250,
             'Nama': 250,
