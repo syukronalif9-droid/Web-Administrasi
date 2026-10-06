@@ -1421,19 +1421,28 @@ function renderSummary() {
             }
         }
         
-        // MENGHITUNG ATTENDANCE (Setara SUMIFS framsys)
-        // Kriteria: KIT TK = Employee ID
+        // MENGHITUNG ATTENDANCE (Berdasarkan rumus SUMIFS)
+        // Rumus Excel: =SUMIFS(framsys!$O:$O; framsys!$D:$D; worksheet!F$3; framsys!$B:$B; worksheet!$D6)
+        // Karena di data web framsys hanya ada 6 kolom, kita asumsikan:
+        // - Kolom O (Sum Range) = "Durasi (Jam)"
+        // - Kolom B (Kriteria 2) = "KIT TK" (Employee ID)
+        // - Kriteria Bulan kita abaikan sementara atau kita cocokkan jika memungkinkan, tapi untuk saat ini
+        // kita akan menjumlahkan semua Durasi (Jam) yang KIT TK-nya cocok.
         let attendance = 0;
         if (empId) {
-            const framsysMatches = globalZmmLtoProcessed.filter(fRow => {
+            globalZmmLtoProcessed.forEach(fRow => {
                 const kitTk = String(fRow['KIT TK'] || '').trim();
-                return kitTk === empId;
+                // Jika ingin filter bulan (Kriteria D:D = F3), bisa ditambahkan di sini,
+                // tapi karena ini data upload bulanan, kita jumlahkan yang ID-nya cocok.
+                if (kitTk === empId) {
+                    // Ambil nilai Durasi (Jam) dan konversi dari format koma ke titik
+                    let durasiStr = String(fRow['Durasi (Jam)'] || fRow['O'] || '0').replace(',', '.');
+                    let durasi = parseFloat(durasiStr);
+                    if (!isNaN(durasi)) {
+                        attendance += durasi;
+                    }
+                }
             });
-            
-            // Karena di web kita hanya punya 6 kolom framsys dan tidak ada Kolom O, 
-            // asumsi yang paling masuk akal untuk Attendance (Kehadiran) adalah menghitung jumlah hari (baris) 
-            // karyawan tersebut tap-in di data framsys.
-            attendance = framsysMatches.length;
         }
 
         const workingDays = Number(mb51Row['Hari Kerja']) || 0;
@@ -1444,13 +1453,16 @@ function renderSummary() {
             discipline = discVal.toFixed(1) + '%';
         }
 
+        // Format angka desimal Attendance kembali menggunakan koma untuk tampilan Indonesia
+        let attendanceFormatted = attendance.toString().replace('.', ',');
+
         return {
             'Work Contract': workContract,
             'WH Area': whArea,
             'Employee ID': empId,
             'Employee Name': mb51Row['Nama'] || mb51Row['Full Name'] || '',
             'Working Days': workingDays || '',
-            'Attendance': attendance || 0,
+            'Attendance': attendanceFormatted || '0',
             'Discipline (%)': discipline
         };
     });
