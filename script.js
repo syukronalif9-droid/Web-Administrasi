@@ -1135,14 +1135,21 @@ document.addEventListener('DOMContentLoaded', () => {
         const btnConfirm = document.getElementById('btn-hapus-confirm');
         const originalText = btnConfirm.textContent;
         btnConfirm.textContent = 'Menghapus...';
-        btnConfirm.disabled = true;
-
         if (tableName === 'all') {
             try {
-                const tables = ['master_employee', 'work_days', 'framsys', 'summary_upload'];
-                for (let tbl of tables) {
-                    await supabaseClient.from(tbl).delete().neq('id', -1);
-                }
+                await supabaseClient.from('master_employee').delete().neq('Pers.No.', 'DUMMY_NEVER_MATCH');
+                await supabaseClient.from('master_employee').delete().is('Pers.No.', null);
+                
+                await supabaseClient.from('work_days').delete().neq('Index', 'DUMMY_NEVER_MATCH');
+                await supabaseClient.from('work_days').delete().is('Index', null);
+                
+                await supabaseClient.from('framsys').delete().neq('KIT TK', 'DUMMY_NEVER_MATCH');
+                await supabaseClient.from('framsys').delete().is('KIT TK', null);
+                
+                // summary_upload actually doesn't exist yet but we keep it
+                await supabaseClient.from('summary_upload').delete().neq('Tanggal', 'DUMMY_NEVER_MATCH');
+                await supabaseClient.from('summary_upload').delete().is('Tanggal', null);
+
                 alert(`Data ${displayTableName} berhasil dihapus.`);
                 document.getElementById('modal-hapus').style.display = 'none';
                 init();
@@ -1180,8 +1187,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 query = query.gte(dateColumn, dateFrom).lte(dateColumn, dateTo);
             }
         } else {
-            // Hapus semua data
-            query = query.neq('id', -1);
+            // Hapus semua data (hack by deleting not null and null)
+            let dummyCol = 'Index';
+            if (actualTable === 'master_employee') dummyCol = 'Pers.No.';
+            if (actualTable === 'framsys') dummyCol = 'KIT TK';
+            if (actualTable === 'summary_upload') dummyCol = 'Tanggal';
+            
+            query = query.or(`${dummyCol}.is.null,${dummyCol}.neq.DUMMY_NEVER_MATCH`);
         }
         
         try {
