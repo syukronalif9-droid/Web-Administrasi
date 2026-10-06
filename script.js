@@ -1454,8 +1454,8 @@ function renderSummary() {
                 // Jika header Excel-nya sudah "Work Contract" (kolom ke-4) atau "Bagian"
                 workContract = masterMatch['Work Contract'] || masterMatch['Bagian'] || workContract;
                 
-                // WH Area = VLOOKUP(..., 6) kolom ke-6 adalah "WH Area" atau "Double Check"
-                whArea = masterMatch['WH Area'] || masterMatch['Double Check'] || whArea;
+                // WH Area = VLOOKUP(..., 6) kolom ke-6 adalah "WH Area" atau "Area" atau "Double Check"
+                whArea = masterMatch['WH Area'] || masterMatch['Area'] || masterMatch['Double Check'] || whArea;
             }
         }
         
