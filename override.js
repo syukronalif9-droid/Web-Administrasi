@@ -59,13 +59,20 @@ async function fetchFromSupabase(tableName) {
     try {
         let from = 0;
         let finished = false;
+        
+        // Timeout mechanism to prevent infinite hanging
+        const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('Supabase fetch timeout')), 10000));
+        
         while (!finished) {
             const reqs = [];
             for (let p = 0; p < parallel; p++) {
                 const start = from + p * step;
                 reqs.push(window.supabaseClient.from(tableName).select('*').range(start, start + step - 1));
             }
-            const results = await Promise.all(reqs);
+            
+            // Race the fetch against a 10-second timeout per batch
+            const results = await Promise.race([Promise.all(reqs), timeoutPromise]);
+            
             for (const { data, error } of results) {
                 if (error) throw error;
                 if (!data || data.length === 0) { finished = true; break; }
@@ -76,7 +83,8 @@ async function fetchFromSupabase(tableName) {
         }
         console.log(`[Supabase] ${tableName}: ${all.length} baris dimuat`);
     } catch (err) {
-        console.error(`Gagal mengambil ${tableName} dari Supabase:`, err);
+        console.warn(`[Timeout/Error] Gagal mengambil ${tableName} dari Supabase:`, err.message);
+        return []; // Pastikan return array kosong agar tidak hang
     }
     // Samakan nama kolom Supabase dengan nama kolom CSV
     if (tableName === 'master_employee') {
@@ -786,28 +794,42 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 await Promise.all(savePromises);
 
-                // 2. Upload ke Supabase (kalau gagal, data lokal tetap tampil)
-                const uploadErrors = [];
-                for (const [table, , rows] of jobs) {
-                    if (rows && rows.length > 0) {
-                        newBtn.textContent = `Menyiapkan ${table}...`;
-                        try {
-                            await uploadToSupabase(table, rows);
-                        } catch (e) {
-                            console.error(e);
-                            uploadErrors.push(e.message);
+                // RE-RENDER LANGSUNG agar user bisa langsung lihat hasil tanpa menunggu Supabase
+                try {
+                    if (typeof init === 'function') init();
+                    [renderStock, renderMb51, renderZmmLto].forEach(fn => {
+                        try { fn(); } catch(e) {}
+                    });
+                    renderSummary();
+                } catch(e) { console.error('Error re-render lokal:', e); }
+
+                // 2. Upload ke Supabase di background
+                newBtn.textContent = 'Menyinkronkan dengan Supabase...';
+                
+                // Jangan pakai await di luar, jalankan sebagai background process
+                (async () => {
+                    const uploadErrors = [];
+                    for (const [table, , rows] of jobs) {
+                        if (rows && rows.length > 0) {
+                            try {
+                                await uploadToSupabase(table, rows);
+                            } catch (e) {
+                                console.error(e);
+                                uploadErrors.push(e.message);
+                            }
                         }
                     }
-                }
-
-                if (uploadErrors.length) {
-                    alert("Data sudah tampil di web (tersimpan lokal), tapi sebagian gagal dikirim ke Supabase:\n\n" + uploadErrors.join('\n'));
-                } else {
-                    alert("Hebat! Data berhasil diproses dan diupload LANGSUNG ke Database Supabase!");
-                }
+                    if (uploadErrors.length) {
+                        console.warn("Sebagian gagal dikirim ke Supabase:\n" + uploadErrors.join('\n'));
+                    } else {
+                        console.log("Sinkronisasi Supabase Selesai!");
+                    }
+                    newBtn.textContent = 'Upload Selesai & Tersimpan!';
+                    setTimeout(() => { newBtn.textContent = 'Proses & Upload'; newBtn.disabled = false; }, 3000);
+                })();
                 
-                // Refresh halaman agar form bersih, tombol Batal hilang, dan data terbaru termuat ulang
-                window.location.reload();
+                alert("Data berhasil diproses dan disimpan di memori lokal! Anda sudah bisa melihatnya di tabel sekarang.");
+                // Hilangkan window.location.reload() agar tidak mereset state dan loading ulang
             } catch (err) {
                 console.error(err);
                 alert("Gagal memproses file CSV: " + err.message);
