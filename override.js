@@ -31,15 +31,59 @@ function loadFromDB(key) {
     });
 }
 
+// Mapping nama tabel Supabase -> key data lokal
+const TABLE_TO_LOCAL = { master_employee: 'stock', work_days: 'mb51', framsys: 'ZMM_LTO' };
+
+// Ambil SEMUA data dari Supabase (per 1000 baris)
+async function fetchFromSupabase(tableName) {
+    if (!window.supabaseClient) return [];
+    let all = [];
+    let from = 0;
+    const step = 1000;
+    try {
+        while (true) {
+            const { data, error } = await window.supabaseClient
+                .from(tableName).select('*').range(from, from + step - 1);
+            if (error) throw error;
+            if (!data || data.length === 0) break;
+            all = all.concat(data);
+            if (data.length < step) break;
+            from += step;
+        }
+    } catch (err) {
+        console.error(`Gagal mengambil ${tableName} dari Supabase:`, err);
+    }
+    // Samakan nama kolom Supabase dengan nama kolom CSV
+    if (tableName === 'master_employee') {
+        all.forEach(row => {
+            if (row['WH Area'] === undefined) row['WH Area'] = row['Area'] || '';
+            if (row['Work Contract'] === undefined) row['Work Contract'] = row['Bagian'] || '';
+        });
+    }
+    return all;
+}
+
 document.addEventListener('DOMContentLoaded', async () => {
-    // Muat data dari IndexedDB saat pertama kali buka web
+    // 1. Muat data dari IndexedDB (memori lokal browser)
     const savedZmm = await loadFromDB('ZMM_LTO');
     const savedMb51 = await loadFromDB('mb51');
     const savedStock = await loadFromDB('stock');
-    if (savedZmm) window.uploadedData['ZMM_LTO'] = savedZmm;
-    if (savedMb51) window.uploadedData['mb51'] = savedMb51;
-    if (savedStock) window.uploadedData['stock'] = savedStock;
-    if (typeof init === 'function' && (savedZmm || savedMb51 || savedStock)) {
+    if (savedZmm && savedZmm.length) window.uploadedData['ZMM_LTO'] = savedZmm;
+    if (savedMb51 && savedMb51.length) window.uploadedData['mb51'] = savedMb51;
+    if (savedStock && savedStock.length) window.uploadedData['stock'] = savedStock;
+
+    // 2. Kalau memori lokal kosong, ambil langsung dari Supabase
+    for (const [table, key] of Object.entries(TABLE_TO_LOCAL)) {
+        if (!window.uploadedData[key] || window.uploadedData[key].length === 0) {
+            const remote = await fetchFromSupabase(table);
+            if (remote.length) {
+                window.uploadedData[key] = remote;
+                saveToDB(key, remote);
+            }
+        }
+    }
+
+    if (typeof init === 'function') {
         init();
     }
 
@@ -85,14 +129,20 @@ document.addEventListener('DOMContentLoaded', async () => {
 });
 
 // Overwrite the original function declaration globally
-window.fetchData = async function(tableName) {
-    return window.uploadedData[tableName] || [];
-};
-
-// Just to be absolutely sure
+// script.js memanggil fetchData('master_employee'/'work_days'/'framsys'),
+// jadi nama tabel harus dipetakan ke key lokal ('stock'/'mb51'/'ZMM_LTO').
 async function fetchData(tableName) {
-    return window.uploadedData[tableName] || [];
+    const key = TABLE_TO_LOCAL[tableName] || tableName;
+    const local = window.uploadedData[key];
+    if (local && local.length) return local;
+    if (TABLE_TO_LOCAL[tableName]) {
+        const remote = await fetchFromSupabase(tableName);
+        if (remote.length) window.uploadedData[key] = remote;
+        return remote;
+    }
+    return [];
 }
+window.fetchData = fetchData;
 
 // Override fungsi render yang lama (karena mereka mencari kolom 'Posting Date' dsb yang tidak ada di CSV baru)
 function renderMb51() {
@@ -596,14 +646,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 const dataFramsys = await parseCSVFile(fileZmmlto, 0);
 
                 // Mapping header baru (Work Contract, WH Area) ke header lama (Bagian, Area) agar diterima Supabase
-                dataMaster.forEach(row => {
+                (dataMaster || []).forEach(row => {
                     if (row['Work Contract'] !== undefined) row['Bagian'] = row['Work Contract'];
                     if (row['WH Area'] !== undefined) row['Area'] = row['WH Area'];
                 });
 
                 // Daftar kolom yang diizinkan untuk masing-masing tabel (agar tidak ditolak Supabase)
                 const validColumns = {
-                    'master_employee': ['Pers.No.', 'Full Name', 'Area', 'Bagian', 'Remarks', 'Double Check', '>1 Name'],
+                    // Catatan: kolom 'Remarks' belum ada di tabel Supabase, jadi tidak dikirim
+                    'master_employee': ['Pers.No.', 'Full Name', 'Area', 'Bagian', 'Double Check', '>1 Name'],
                     'work_days': [
                         'Month', 'Area', 'Index', 'Nama', 'Work Contract', 'Employee Subgroup', 
                         'Bagian', 'Hari Kerja', 'Sakit', 'Izin', 'CT', 'CH', 'CK', 
@@ -666,27 +717,50 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 newBtn.textContent = 'Memulai Upload ke Supabase...';
                 
-                // Upload data satu per satu ke Supabase jika ada file yang dipilih
-                if (dataMaster && dataMaster.length > 0) {
-                    newBtn.textContent = 'Menyiapkan master_employee...';
-                    await uploadToSupabase('master_employee', dataMaster);
-                    window.uploadedData['stock'] = dataMaster;
-                    saveToDB('stock', dataMaster);
+                // 1. SIMPAN KE MEMORI LOKAL DULU agar web langsung terisi walau Supabase error
+                const jobs = [
+                    ['master_employee', 'stock', dataMaster],
+                    ['work_days', 'mb51', dataWorkdays],
+                    ['framsys', 'ZMM_LTO', dataFramsys]
+                ];
+                const savePromises = [];
+                for (const [, key, rows] of jobs) {
+                    if (rows && rows.length > 0) {
+                        window.uploadedData[key] = rows;
+                        savePromises.push(new Promise(res => {
+                            const req = indexedDB.open(DB_NAME, 1);
+                            req.onupgradeneeded = (e) => e.target.result.createObjectStore(STORE_NAME);
+                            req.onsuccess = (e) => {
+                                const tx = e.target.result.transaction(STORE_NAME, 'readwrite');
+                                tx.objectStore(STORE_NAME).put(rows, key);
+                                tx.oncomplete = res;
+                                tx.onerror = res;
+                            };
+                            req.onerror = res;
+                        }));
+                    }
                 }
-                if (dataWorkdays && dataWorkdays.length > 0) {
-                    newBtn.textContent = 'Menyiapkan work_days...';
-                    await uploadToSupabase('work_days', dataWorkdays);
-                    window.uploadedData['mb51'] = dataWorkdays;
-                    saveToDB('mb51', dataWorkdays);
-                }
-                if (dataFramsys && dataFramsys.length > 0) {
-                    newBtn.textContent = 'Menyiapkan framsys...';
-                    await uploadToSupabase('framsys', dataFramsys);
-                    window.uploadedData['ZMM_LTO'] = dataFramsys;
-                    saveToDB('ZMM_LTO', dataFramsys);
+                await Promise.all(savePromises);
+
+                // 2. Upload ke Supabase (kalau gagal, data lokal tetap tampil)
+                const uploadErrors = [];
+                for (const [table, , rows] of jobs) {
+                    if (rows && rows.length > 0) {
+                        newBtn.textContent = `Menyiapkan ${table}...`;
+                        try {
+                            await uploadToSupabase(table, rows);
+                        } catch (e) {
+                            console.error(e);
+                            uploadErrors.push(e.message);
+                        }
+                    }
                 }
 
-                alert("Hebat! Data berhasil diproses dan diupload LANGSUNG ke Database Supabase!");
+                if (uploadErrors.length) {
+                    alert("Data sudah tampil di web (tersimpan lokal), tapi sebagian gagal dikirim ke Supabase:\n\n" + uploadErrors.join('\n'));
+                } else {
+                    alert("Hebat! Data berhasil diproses dan diupload LANGSUNG ke Database Supabase!");
+                }
                 
                 // Refresh halaman agar form bersih, tombol Batal hilang, dan data terbaru termuat ulang
                 window.location.reload();
