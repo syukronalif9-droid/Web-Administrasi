@@ -1499,42 +1499,63 @@ function renderSummary() {
             }
         }
         
-        // MENGHITUNG ATTENDANCE (Berdasarkan rumus SUMIFS)
+        // MENGHITUNG ATTENDANCE (Berdasarkan rumus SUMIFS atau fallback ke mb51)
         let attendance = 0;
+        let sumO = 0;
         if (empId) {
             globalZmmLtoProcessed.forEach(fRow => {
                 const kitTk = String(fRow['KIT TK'] || '').trim();
                 if (kitTk === empId) {
-                    // Match month from Date Shift (e.g. 11/12/2025)
-                    // But since we just want to SUMIFS we check if it falls in selectedMonth
                     const dateShift = String(fRow['Date Shift'] || '').trim();
                     let matchMonth = true;
                     
                     if (selectedMonth !== 'all' && dateShift) {
-                        // dateShift format DD/MM/YYYY or YYYY-MM-DD
                         let fDate = new Date(dateShift.includes('/') ? dateShift.split('/').reverse().join('-') : dateShift);
                         if (!isNaN(fDate.getTime())) {
                             const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
                             const mStr = `${months[fDate.getMonth()]}-${String(fDate.getFullYear()).slice(2)}`;
-                            // Cek jika bulan cocok (misal: "Mei-26")
-                            if (mStr.toLowerCase() !== selectedMonth.toLowerCase()) {
-                                matchMonth = false; // tidak cocok dengan filter bulan
+                            const isNumericMonth = !isNaN(selectedMonth) && parseInt(selectedMonth) > 0 && parseInt(selectedMonth) <= 12;
+                            
+                            if (isNumericMonth) {
+                                if (fDate.getMonth() + 1 !== parseInt(selectedMonth)) { matchMonth = false; }
+                            } else {
+                                if (mStr.toLowerCase() !== selectedMonth.toLowerCase()) { matchMonth = false; }
                             }
                         }
                     }
 
                     if (matchMonth) {
-                        let durasiStr = String(fRow['Durasi (Jam)'] || fRow['O'] || '0').replace(',', '.');
-                        let durasi = parseFloat(durasiStr);
-                        if (!isNaN(durasi)) {
-                            attendance += durasi;
+                        if (fRow['O'] !== undefined) {
+                            let valOStr = String(fRow['O']).replace(',', '.');
+                            let valO = parseFloat(valOStr);
+                            if (!isNaN(valO)) sumO += valO;
                         }
+                        
+                        let durasiStr = String(fRow['Durasi (Jam)'] || '0').replace(',', '.');
+                        let durasi = parseFloat(durasiStr);
+                        if (!isNaN(durasi)) attendance += durasi;
                     }
                 }
             });
         }
 
         const workingDays = Number(mb51Row['Hari Kerja']) || 0;
+        
+        // JIKA file framsys tidak memiliki kolom 'O', maka perhitungan 'attendance' (Durasi jam) 
+        // akan menghasilkan angka ratusan (misal 180 jam). 
+        // Sedangkan format absensi yang diharapkan user adalah dalam hari (misal 25 hari).
+        // Maka kita gunakan fallback rumus absensi standar: Hari Kerja - Sakit - Izin - Alpa
+        if (sumO > 0) {
+            attendance = sumO; // Gunakan sum dari kolom O jika ada
+        } else if (attendance > workingDays && attendance > 31) {
+            // Fallback: hitung dari absensi MB51
+            const sakit = Number(String(mb51Row['Sakit'] || '').replace(/[^\d]/g, '')) || 0;
+            const izin = Number(String(mb51Row['Izin'] || '').replace(/[^\d]/g, '')) || 0;
+            const alpa = Number(String(mb51Row['Alpa'] || '').replace(/[^\d]/g, '')) || 0;
+            attendance = workingDays - sakit - izin - alpa;
+            if (attendance < 0) attendance = 0;
+        }
+
         let discipline = '';
         if (workingDays > 0) {
             // Hitung persentase kedisiplinan
