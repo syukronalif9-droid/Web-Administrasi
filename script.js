@@ -1464,7 +1464,7 @@ function renderSummary() {
             'Work Contract': workContract,
             'WH Area': whArea,
             'Employee ID': empId,
-            'Employee Name': mb51Row['Nama'] || mb51Row['Full Name'] || '',
+            'Employee Name': emp['Employee Name'],
             'Working Days': workingDays || '',
             'Attendance': attendanceFormatted || '0',
             'Discipline (%)': discipline
