@@ -551,12 +551,18 @@ document.addEventListener('DOMContentLoaded', () => {
                         if (lines.length <= headerOffset) return resolve([]);
                         
                         // Buang baris sebelum header
-                        const validContent = lines.slice(headerOffset).join('\n');
+                        let validContent = lines.slice(headerOffset).join('\n');
+                        
+                        // Hapus karakter BOM (Byte Order Mark) jika ada di awal teks
+                        if (validContent.charCodeAt(0) === 0xFEFF) {
+                            validContent = validContent.slice(1);
+                        }
+                        // Kadang-kadang karakter BOM tersembunyi sebagai string literal
+                        validContent = validContent.replace(/^\uFEFF/g, '');
                         
                         Papa.parse(validContent, {
                             header: true,
                             skipEmptyLines: true,
-                            delimiter: ";", // Pastikan delimiter semicolon
                             complete: function(results) {
                                 // Bersihkan semua nilai #N/A bawaan dari CSV user
                                 const cleanData = results.data.map(row => {
@@ -615,20 +621,39 @@ document.addEventListener('DOMContentLoaded', () => {
                     const cleanedData = data.map(row => {
                         const cleanRow = {};
                         for (let key in row) {
-                            if (allowedKeys.includes(key)) {
-                                cleanRow[key] = row[key];
+                            const trimmedKey = key.trim();
+                            if (allowedKeys.includes(trimmedKey)) {
+                                cleanRow[trimmedKey] = row[key];
                             }
                         }
                         return cleanRow;
                     });
+
+                    // Hapus baris yang hanya berisi null/undefined/string kosong pada field utamanya
+                    const filteredData = cleanedData.filter(row => {
+                        if (Object.keys(row).length === 0) return false;
+                        
+                        // Periksa apakah baris ini memiliki key utama
+                        let hasData = false;
+                        if (tableName === 'master_employee' && row['Pers.No.']) hasData = true;
+                        if (tableName === 'work_days' && row['Index']) hasData = true;
+                        if (tableName === 'framsys' && row['KIT TK']) hasData = true;
+                        
+                        return hasData;
+                    });
                     
+                    if (filteredData.length === 0) {
+                        console.warn(`[WARNING] No valid data found for ${tableName}. Skipping upload.`);
+                        return;
+                    }
+
                     // Kita kembalikan ke 1000 agar aman dari limit database gratisan Supabase,
                     // Tapi kali ini kita pasang INDIKATOR PERSENTASE agar Anda tahu prosesnya berjalan!
                     const chunkSize = 1000;
-                    const totalRows = cleanedData.length;
+                    const totalRows = filteredData.length;
                     
                     for (let i = 0; i < totalRows; i += chunkSize) {
-                        const chunk = cleanedData.slice(i, i + chunkSize);
+                        const chunk = filteredData.slice(i, i + chunkSize);
                         if (i === 0) console.log(`[DEBUG] Uploading to ${tableName}. First row in chunk:`, chunk[0]);
                         const { error } = await window.supabaseClient.from(tableName).upsert(chunk);
                         if (error) throw new Error(`Gagal upload ke ${tableName}: ` + error.message);
