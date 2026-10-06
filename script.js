@@ -1439,7 +1439,7 @@ function renderSummary() {
     let summaryData = filteredMb51Data.map((mb51Row, index) => {
         const empId = String(mb51Row['Index'] || mb51Row['Pers.No.'] || '').trim();
         
-        let workContract = mb51Row['Work Contract'] || '';
+        let workContract = mb51Row['Work Contract'] || mb51Row['Bagian'] || '';
         let whArea = mb51Row['Area'] || mb51Row['WH Area'] || '';
 
         // VLOOKUP Work Contract & Area dari master_employee (globalStockData)
@@ -1448,8 +1448,12 @@ function renderSummary() {
                 String(mRow['Index'] || mRow['Pers.No.'] || '').trim() === empId
             );
             if (masterMatch) {
-                workContract = masterMatch['Work Contract'] || workContract;
-                whArea = masterMatch['Area'] || masterMatch['WH Area'] || whArea;
+                // Sesuai rumus Excel: 
+                // Work Contract = VLOOKUP(..., 4) yang mana kolom ke-4 adalah "Bagian"
+                workContract = masterMatch['Bagian'] || workContract;
+                
+                // WH Area = VLOOKUP(..., 6) yang mana kolom ke-6 adalah "Double Check"
+                whArea = masterMatch['Double Check'] || whArea;
             }
         }
         
