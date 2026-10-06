@@ -291,7 +291,15 @@ function renderTable(tableId, data) {
     if (!table) return;
     
     if (!data || data.length === 0) {
-        table.innerHTML = '<thead><tr><th>Informasi</th></tr></thead><tbody><tr><td style="text-align: center; padding: 20px; font-weight: 500; color: #888;">Data Tidak Ditemukan / Kosong</td></tr></tbody>';
+        let existingThead = '';
+        const theadEl = table.querySelector('thead');
+        if (theadEl) {
+            existingThead = theadEl.outerHTML;
+            const thCount = theadEl.querySelectorAll('th').length || 1;
+            table.innerHTML = existingThead + `<tbody><tr><td colspan="${thCount}" style="text-align: center; padding: 20px; font-weight: 500; color: #888;">Data Tidak Ditemukan / Kosong</td></tr></tbody>`;
+        } else {
+            table.innerHTML = '<thead><tr><th>Informasi</th></tr></thead><tbody><tr><td style="text-align: center; padding: 20px; font-weight: 500; color: #888;">Data Tidak Ditemukan / Kosong</td></tr></tbody>';
+        }
         return;
     }
 
