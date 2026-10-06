@@ -394,7 +394,7 @@ function renderStock() {
     let data = (window.uploadedData['stock'] && window.uploadedData['stock'].length > 0) ? window.uploadedData['stock'] : (window.globalStockData || []);
     
     // OTOMATISASI RUMUS EXCEL: Double Check & >1 Name
-    const workDaysData = window.uploadedData['mb51'] || [];
+    const workDaysData = (window.uploadedData['mb51'] && window.uploadedData['mb51'].length > 0) ? window.uploadedData['mb51'] : (window.globalMb51Data || []);
     const nameCounts = {};
     
     // Hitung kemunculan tiap nama di file work days (kolom 'Nama')
