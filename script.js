@@ -1402,50 +1402,54 @@ function renderSummary() {
 
     const cleanKey = (val) => String(val).replace(/[^a-zA-Z0-9]/g, '').replace(/^0+/, '').toLowerCase();
 
-    // Map MB51 (work_days) data to Summary (Worksheet) columns
-    let summaryData = globalMb51Data.map((mb51Row, index) => {
+    // Group work_days (globalMb51Data) by Employee ID so each name only appears once
+    let empMap = {};
+
+    globalMb51Data.forEach(mb51Row => {
         const empId = String(mb51Row['Index'] || mb51Row['Pers.No.'] || '').trim();
-        const monthFilter = String(mb51Row['Month'] || '').trim();
+        if (!empId) return;
+
+        if (!empMap[empId]) {
+            empMap[empId] = {
+                'Employee ID': empId,
+                'Employee Name': mb51Row['Nama'] || mb51Row['Full Name'] || '',
+                'Work Contract': mb51Row['Work Contract'] || '',
+                'WH Area': mb51Row['Area'] || mb51Row['WH Area'] || '',
+                'Working Days': 0
+            };
+        }
+        empMap[empId]['Working Days'] += (Number(mb51Row['Hari Kerja']) || 0);
+    });
+
+    let summaryData = Object.values(empMap).map((emp, index) => {
+        const empId = emp['Employee ID'];
         
-        let workContract = mb51Row['Work Contract'] || '';
-        let whArea = mb51Row['Area'] || mb51Row['WH Area'] || '';
+        let workContract = emp['Work Contract'];
+        let whArea = emp['WH Area'];
 
         // VLOOKUP Work Contract & Area dari master_employee (globalStockData)
-        if (empId) {
-            const masterMatch = globalStockData.find(mRow => 
-                String(mRow['Index'] || mRow['Pers.No.'] || '').trim() === empId
-            );
-            if (masterMatch) {
-                workContract = masterMatch['Work Contract'] || workContract;
-                whArea = masterMatch['Area'] || masterMatch['WH Area'] || whArea;
-            }
+        const masterMatch = globalStockData.find(mRow => 
+            String(mRow['Index'] || mRow['Pers.No.'] || '').trim() === empId
+        );
+        if (masterMatch) {
+            workContract = masterMatch['Work Contract'] || workContract;
+            whArea = masterMatch['Area'] || masterMatch['WH Area'] || whArea;
         }
         
         // MENGHITUNG ATTENDANCE (Berdasarkan rumus SUMIFS)
-        // Rumus Excel: =SUMIFS(framsys!$O:$O; framsys!$D:$D; worksheet!F$3; framsys!$B:$B; worksheet!$D6)
-        // Karena di data web framsys hanya ada 6 kolom, kita asumsikan:
-        // - Kolom O (Sum Range) = "Durasi (Jam)"
-        // - Kolom B (Kriteria 2) = "KIT TK" (Employee ID)
-        // - Kriteria Bulan kita abaikan sementara atau kita cocokkan jika memungkinkan, tapi untuk saat ini
-        // kita akan menjumlahkan semua Durasi (Jam) yang KIT TK-nya cocok.
         let attendance = 0;
-        if (empId) {
-            globalZmmLtoProcessed.forEach(fRow => {
-                const kitTk = String(fRow['KIT TK'] || '').trim();
-                // Jika ingin filter bulan (Kriteria D:D = F3), bisa ditambahkan di sini,
-                // tapi karena ini data upload bulanan, kita jumlahkan yang ID-nya cocok.
-                if (kitTk === empId) {
-                    // Ambil nilai Durasi (Jam) dan konversi dari format koma ke titik
-                    let durasiStr = String(fRow['Durasi (Jam)'] || fRow['O'] || '0').replace(',', '.');
-                    let durasi = parseFloat(durasiStr);
-                    if (!isNaN(durasi)) {
-                        attendance += durasi;
-                    }
+        globalZmmLtoProcessed.forEach(fRow => {
+            const kitTk = String(fRow['KIT TK'] || '').trim();
+            if (kitTk === empId) {
+                let durasiStr = String(fRow['Durasi (Jam)'] || fRow['O'] || '0').replace(',', '.');
+                let durasi = parseFloat(durasiStr);
+                if (!isNaN(durasi)) {
+                    attendance += durasi;
                 }
-            });
-        }
+            }
+        });
 
-        const workingDays = Number(mb51Row['Hari Kerja']) || 0;
+        const workingDays = emp['Working Days'];
         let discipline = '';
         if (workingDays > 0) {
             // Hitung persentase kedisiplinan
