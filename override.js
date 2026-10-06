@@ -675,6 +675,13 @@ document.addEventListener('DOMContentLoaded', () => {
                                             newRow[key] = val;
                                         }
                                     }
+                                    // Pindahkan data dari kolom tanpa nama (string kosong) ke 'Remarks'
+                                    if (newRow[''] !== undefined) {
+                                        if (newRow[''] && String(newRow['']).trim() !== '') {
+                                            newRow['Remarks'] = newRow[''];
+                                        }
+                                        delete newRow[''];
+                                    }
                                     return newRow;
                                 });
                                 resolve(cleanData);
