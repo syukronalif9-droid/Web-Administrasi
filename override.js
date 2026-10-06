@@ -533,7 +533,11 @@ window.renderTable = function(tableId, data) {
     const thead = `<thead><tr>${headers.map((h, idx) => {
         const freezeObj = getFreezeStyle(idx, h);
         const style = freezeObj.style;
-        return `<th style="${style ? style + (freezeObj.isSticky ? ' z-index: 3; background-color: #f4f6f8;' : '') : ''}">${h}</th>`;
+        let thStyle = style ? style + (freezeObj.isSticky ? ' z-index: 3; background-color: #f4f6f8;' : '') : '';
+        if (tableId === 'summary-table') {
+            thStyle += ' text-align: left; padding-left: 12px;';
+        }
+        return `<th style="${thStyle}">${h}</th>`;
     }).join('')}</tr></thead>`;
     
     // Batasi hanya 100 baris pertama supaya super cepat (no lag)
@@ -551,6 +555,9 @@ window.renderTable = function(tableId, data) {
             
             let finalStyle = style ? style + (isSticky ? ' z-index: 2; background-color: #fff;' : '') : '';
             if (isEditable) finalStyle += ' cursor: pointer;'; // Beri tanda bisa diklik
+            if (tableId === 'summary-table') {
+                finalStyle += ' text-align: left; padding-left: 12px;';
+            }
             
             return `<td${editAttr} style="${finalStyle}">${row[h] || ''}</td>`;
         }).join('')}</tr>`;
