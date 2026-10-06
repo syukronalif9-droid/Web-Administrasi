@@ -504,21 +504,21 @@ window.renderTable = function(tableId, data) {
         
         if (isStock) {
             const stockCols = {
-                'Pers.No.': 160,
-                'Full Name': 300,
-                'Employee Subgroup': 220,
-                'Work Contract': 200,
-                'Cost Ctr': 150,
-                'WH Area': 150,
-                'Location': 180,
-                'Double Check': 200,
-                '>1 Name': 120,
-                'Remarks': 250
+                'Pers.No.': 120,
+                'Full Name': 250,
+                'Employee Subgroup': 200,
+                'Work Contract': 150,
+                'Cost Ctr': 120,
+                'WH Area': 120,
+                'Location': 150,
+                'Double Check': 150,
+                '>1 Name': 100,
+                'Remarks': 200
             };
-            const width = stockCols[headerName] || 200;
+            const width = stockCols[headerName] || 150;
             
             if (idx < 2) { // Freeze Pers.No dan Full Name
-                let left = (idx === 0) ? 0 : 160; // Pers.No is 160px
+                let left = (idx === 0) ? 0 : 120; // Pers.No is 120px
                 let style = `position: sticky; left: ${left}px; min-width: ${width}px; max-width: ${width}px; width: ${width}px; box-sizing: border-box; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;`;
                 if (idx === 1) style += ' box-shadow: 4px 0 6px -2px rgba(0,0,0,0.1); font-weight: 500;';
                 return { style, isSticky: true };
@@ -527,16 +527,31 @@ window.renderTable = function(tableId, data) {
             }
         }
         
-        return { style: '', isSticky: false };
+        // Default styling and width for other tables (Worksheet, ZMM_LTO)
+        const defaultWidths = {
+            'Employee Name': 250,
+            'Nama': 250,
+            'Employee ID': 120,
+            'Index': 120,
+            'Working Days': 120,
+            'Attendance': 120,
+            'Discipline (%)': 150,
+            'Work Contract': 150,
+            'WH Area': 150,
+            'Material': 150,
+            'Long Text': 300,
+            'PO': 120,
+            'Tanggal': 120
+        };
+        const width = defaultWidths[headerName] || 150;
+        return { style: `min-width: ${width}px; white-space: nowrap;`, isSticky: false };
     };
 
     const thead = `<thead><tr>${headers.map((h, idx) => {
         const freezeObj = getFreezeStyle(idx, h);
         const style = freezeObj.style;
         let thStyle = style ? style + (freezeObj.isSticky ? ' z-index: 3; background-color: #f4f6f8;' : '') : '';
-        if (tableId === 'summary-table') {
-            thStyle += ' text-align: left; padding-left: 12px;';
-        }
+        thStyle += ' text-align: left; padding-left: 12px;'; // Terapkan rata kiri ke SEMUA tabel
         return `<th style="${thStyle}">${h}</th>`;
     }).join('')}</tr></thead>`;
     
@@ -555,9 +570,8 @@ window.renderTable = function(tableId, data) {
             
             let finalStyle = style ? style + (isSticky ? ' z-index: 2; background-color: #fff;' : '') : '';
             if (isEditable) finalStyle += ' cursor: pointer;'; // Beri tanda bisa diklik
-            if (tableId === 'summary-table') {
-                finalStyle += ' text-align: left; padding-left: 12px;';
-            }
+            
+            finalStyle += ' text-align: left; padding-left: 12px;'; // Terapkan rata kiri ke SEMUA tabel
             
             return `<td${editAttr} style="${finalStyle}">${row[h] || ''}</td>`;
         }).join('')}</tr>`;
