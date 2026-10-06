@@ -629,7 +629,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     
                     for (let i = 0; i < totalRows; i += chunkSize) {
                         const chunk = cleanedData.slice(i, i + chunkSize);
-                        const { error } = await window.supabaseClient.from(tableName).insert(chunk);
+                        const { error } = await window.supabaseClient.from(tableName).upsert(chunk);
                         if (error) throw new Error(`Gagal upload ke ${tableName}: ` + error.message);
                         
                         // Update tulisan di tombol agar user tahu progresnya
