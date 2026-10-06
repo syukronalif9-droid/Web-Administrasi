@@ -1459,6 +1459,18 @@ function renderSummary() {
             }
         }
         
+        // DEBUGGING VISUAL: Jika whArea masih kosong, tampilkan status pencarian
+        if (!whArea || whArea.trim() === '') {
+            if (empId) {
+                const masterMatchCheck = globalStockData.find(mRow => {
+                    const mId = String(mRow['Index'] || mRow['Pers.No.'] || '').replace(/^0+/, '').trim();
+                    const eId = empId.replace(/^0+/, '').trim();
+                    return mId === eId && mId !== '';
+                });
+                whArea = masterMatchCheck ? (masterMatchCheck['Area'] ? 'Area is: ' + masterMatchCheck['Area'] : 'Area is empty in DB') : 'ID Not Found in DB';
+            }
+        }
+        
         // MENGHITUNG ATTENDANCE (Berdasarkan rumus SUMIFS)
         let attendance = 0;
         if (empId) {
