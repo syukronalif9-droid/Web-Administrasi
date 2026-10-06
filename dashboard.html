@@ -530,22 +530,27 @@
                     <div style="display: flex; align-items: center; gap: 16px; width: 100%; margin-top: -8px;">
                         <div class="card"
                             style="padding: 10px 16px; display: inline-flex; align-items: center; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); border-radius: 20px; gap: 12px;">
+                            <select id="summary-month-filter" class="glass-input"
+                                style="margin: 0; min-width: 150px; font-weight: 500; cursor: pointer; padding: 8px 12px;">
+                                <option value="all">Semua Bulan</option>
+                            </select>
+
                             <select id="summary-fill-filter" class="glass-input"
-                                style="margin: 0; min-width: 180px; font-weight: 500; cursor: pointer; padding: 8px 12px;">
+                                style="margin: 0; min-width: 150px; font-weight: 500; cursor: pointer; padding: 8px 12px; display: none;">
                                 <option value="all">Semua PO</option>
                                 <option value="po_filled">PO Sudah Terisi</option>
                                 <option value="po_empty">PO Masih Kosong</option>
                             </select>
 
                             <select id="summary-sloc-filter" class="glass-input"
-                                style="margin: 0; min-width: 180px; font-weight: 500; cursor: pointer; padding: 8px 12px;">
+                                style="margin: 0; min-width: 150px; font-weight: 500; cursor: pointer; padding: 8px 12px; display: none;">
                                 <option value="all">Semua S Loc</option>
                                 <option value="sloc_filled">S Loc Terisi</option>
                                 <option value="sloc_empty">S Loc Kosong</option>
                             </select>
 
                             <select id="summary-status-filter" class="glass-input"
-                                style="margin: 0; min-width: 180px; font-weight: 500; cursor: pointer; padding: 8px 12px;">
+                                style="margin: 0; min-width: 150px; font-weight: 500; cursor: pointer; padding: 8px 12px; display: none;">
                                 <option value="all">Semua Status</option>
                                 <option value="Ontime">Ontime</option>
                                 <option value="Late">Late</option>

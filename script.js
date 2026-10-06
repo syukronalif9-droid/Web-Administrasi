@@ -1402,54 +1402,85 @@ function renderSummary() {
 
     const cleanKey = (val) => String(val).replace(/[^a-zA-Z0-9]/g, '').replace(/^0+/, '').toLowerCase();
 
-    // Group work_days (globalMb51Data) by Employee ID so each name only appears once
-    let empMap = {};
-
-    globalMb51Data.forEach(mb51Row => {
-        const empId = String(mb51Row['Index'] || mb51Row['Pers.No.'] || '').trim();
-        if (!empId) return;
-
-        if (!empMap[empId]) {
-            empMap[empId] = {
-                'Employee ID': empId,
-                'Employee Name': mb51Row['Nama'] || mb51Row['Full Name'] || '',
-                'Work Contract': mb51Row['Work Contract'] || '',
-                'WH Area': mb51Row['Area'] || mb51Row['WH Area'] || '',
-                'Working Days': 0
-            };
-        }
-        empMap[empId]['Working Days'] += (Number(mb51Row['Hari Kerja']) || 0);
-    });
-
-    let summaryData = Object.values(empMap).map((emp, index) => {
-        const empId = emp['Employee ID'];
+    const monthFilterEl = document.getElementById('summary-month-filter');
+    
+    // Populate dropdown with unique months from work_days
+    if (monthFilterEl && monthFilterEl.options.length <= 1 && globalMb51Data.length > 0) {
+        const uniqueMonths = [...new Set(globalMb51Data.map(row => String(row['Month'] || '').trim()).filter(m => m))];
+        uniqueMonths.forEach(m => {
+            const opt = document.createElement('option');
+            opt.value = m;
+            opt.textContent = m;
+            monthFilterEl.appendChild(opt);
+        });
         
-        let workContract = emp['Work Contract'];
-        let whArea = emp['WH Area'];
+        // Default to the first month if it's currently 'all'
+        if (uniqueMonths.length > 0) {
+            monthFilterEl.value = uniqueMonths[0];
+        }
+    }
+    
+    const selectedMonth = monthFilterEl ? monthFilterEl.value : 'all';
+
+    let filteredMb51Data = globalMb51Data;
+    if (selectedMonth !== 'all') {
+        filteredMb51Data = globalMb51Data.filter(row => String(row['Month'] || '').trim() === selectedMonth);
+    }
+
+    // Map filtered work_days to Summary (Worksheet) columns
+    let summaryData = filteredMb51Data.map((mb51Row, index) => {
+        const empId = String(mb51Row['Index'] || mb51Row['Pers.No.'] || '').trim();
+        
+        let workContract = mb51Row['Work Contract'] || '';
+        let whArea = mb51Row['Area'] || mb51Row['WH Area'] || '';
 
         // VLOOKUP Work Contract & Area dari master_employee (globalStockData)
-        const masterMatch = globalStockData.find(mRow => 
-            String(mRow['Index'] || mRow['Pers.No.'] || '').trim() === empId
-        );
-        if (masterMatch) {
-            workContract = masterMatch['Work Contract'] || workContract;
-            whArea = masterMatch['Area'] || masterMatch['WH Area'] || whArea;
+        if (empId) {
+            const masterMatch = globalStockData.find(mRow => 
+                String(mRow['Index'] || mRow['Pers.No.'] || '').trim() === empId
+            );
+            if (masterMatch) {
+                workContract = masterMatch['Work Contract'] || workContract;
+                whArea = masterMatch['Area'] || masterMatch['WH Area'] || whArea;
+            }
         }
         
         // MENGHITUNG ATTENDANCE (Berdasarkan rumus SUMIFS)
         let attendance = 0;
-        globalZmmLtoProcessed.forEach(fRow => {
-            const kitTk = String(fRow['KIT TK'] || '').trim();
-            if (kitTk === empId) {
-                let durasiStr = String(fRow['Durasi (Jam)'] || fRow['O'] || '0').replace(',', '.');
-                let durasi = parseFloat(durasiStr);
-                if (!isNaN(durasi)) {
-                    attendance += durasi;
-                }
-            }
-        });
+        if (empId) {
+            globalZmmLtoProcessed.forEach(fRow => {
+                const kitTk = String(fRow['KIT TK'] || '').trim();
+                if (kitTk === empId) {
+                    // Match month from Date Shift (e.g. 11/12/2025)
+                    // But since we just want to SUMIFS we check if it falls in selectedMonth
+                    const dateShift = String(fRow['Date Shift'] || '').trim();
+                    let matchMonth = true;
+                    
+                    if (selectedMonth !== 'all' && dateShift) {
+                        // dateShift format DD/MM/YYYY or YYYY-MM-DD
+                        let fDate = new Date(dateShift.includes('/') ? dateShift.split('/').reverse().join('-') : dateShift);
+                        if (!isNaN(fDate.getTime())) {
+                            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+                            const mStr = `${months[fDate.getMonth()]}-${String(fDate.getFullYear()).slice(2)}`;
+                            // Cek jika bulan cocok (misal: "Mei-26")
+                            if (mStr.toLowerCase() !== selectedMonth.toLowerCase()) {
+                                matchMonth = false; // tidak cocok dengan filter bulan
+                            }
+                        }
+                    }
 
-        const workingDays = emp['Working Days'];
+                    if (matchMonth) {
+                        let durasiStr = String(fRow['Durasi (Jam)'] || fRow['O'] || '0').replace(',', '.');
+                        let durasi = parseFloat(durasiStr);
+                        if (!isNaN(durasi)) {
+                            attendance += durasi;
+                        }
+                    }
+                }
+            });
+        }
+
+        const workingDays = Number(mb51Row['Hari Kerja']) || 0;
         let discipline = '';
         if (workingDays > 0) {
             // Hitung persentase kedisiplinan
@@ -1464,7 +1495,7 @@ function renderSummary() {
             'Work Contract': workContract,
             'WH Area': whArea,
             'Employee ID': empId,
-            'Employee Name': emp['Employee Name'],
+            'Employee Name': mb51Row['Nama'] || mb51Row['Full Name'] || '',
             'Working Days': workingDays || '',
             'Attendance': attendanceFormatted || '0',
             'Discipline (%)': discipline
