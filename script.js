@@ -1445,7 +1445,6 @@ function renderSummary() {
         }
 
         return {
-            'No.': index + 1,
             'Work Contract': workContract,
             'WH Area': whArea,
             'Employee ID': empId,
@@ -1506,11 +1505,6 @@ function renderSummary() {
         const agingA = Number(a['Aging (Hari)']) || 0;
         const agingB = Number(b['Aging (Hari)']) || 0;
         return agingB - agingA;
-    });
-
-    summaryData = summaryData.map((row, index) => {
-        row['No'] = index + 1;
-        return row;
     });
 
     globalSummaryData = summaryData;
