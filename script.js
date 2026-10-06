@@ -597,6 +597,13 @@ async function init() {
         });
     }
 
+    const yearFilter = document.getElementById('summary-year-filter');
+    if (yearFilter) {
+        yearFilter.addEventListener('change', () => {
+            renderSummary();
+        });
+    }
+
     if (fillFilter) {
         fillFilter.addEventListener('change', () => {
             renderSummary();
@@ -1425,14 +1432,18 @@ function renderSummary() {
     const cleanKey = (val) => String(val).replace(/[^a-zA-Z0-9]/g, '').replace(/^0+/, '').toLowerCase();
 
     const monthFilterEl = document.getElementById('summary-month-filter');
+    const yearFilterEl = document.getElementById('summary-year-filter');
     
     // Populate dropdown with unique months from work_days
     if (monthFilterEl && monthFilterEl.options.length <= 1 && globalMb51Data.length > 0) {
         const uniqueMonths = [...new Set(globalMb51Data.map(row => String(row['Month'] || '').trim()).filter(m => m))];
+        const namaBulan = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+        
         uniqueMonths.forEach(m => {
             const opt = document.createElement('option');
             opt.value = m;
-            opt.textContent = m;
+            let numM = parseInt(m);
+            opt.textContent = (numM >= 1 && numM <= 12) ? namaBulan[numM - 1] : m;
             monthFilterEl.appendChild(opt);
         });
         
@@ -1443,6 +1454,7 @@ function renderSummary() {
     }
     
     const selectedMonth = monthFilterEl ? monthFilterEl.value : 'all';
+    const selectedYear = yearFilterEl ? yearFilterEl.value : 'all';
 
     let filteredMb51Data = globalMb51Data;
     if (selectedMonth !== 'all') {
@@ -1508,23 +1520,29 @@ function renderSummary() {
                 if (kitTk === empId) {
                     const dateShift = String(fRow['Date Shift'] || '').trim();
                     let matchMonth = true;
+                    let matchYear = true;
                     
-                    if (selectedMonth !== 'all' && dateShift) {
+                    if (dateShift) {
                         let fDate = new Date(dateShift.includes('/') ? dateShift.split('/').reverse().join('-') : dateShift);
                         if (!isNaN(fDate.getTime())) {
-                            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
-                            const mStr = `${months[fDate.getMonth()]}-${String(fDate.getFullYear()).slice(2)}`;
-                            const isNumericMonth = !isNaN(selectedMonth) && parseInt(selectedMonth) > 0 && parseInt(selectedMonth) <= 12;
+                            if (selectedYear !== 'all') {
+                                if (fDate.getFullYear().toString() !== selectedYear) { matchYear = false; }
+                            }
                             
-                            if (isNumericMonth) {
-                                if (fDate.getMonth() + 1 !== parseInt(selectedMonth)) { matchMonth = false; }
-                            } else {
-                                if (mStr.toLowerCase() !== selectedMonth.toLowerCase()) { matchMonth = false; }
+                            if (selectedMonth !== 'all') {
+                                const isNumericMonth = !isNaN(selectedMonth) && parseInt(selectedMonth) > 0 && parseInt(selectedMonth) <= 12;
+                                if (isNumericMonth) {
+                                    if (fDate.getMonth() + 1 !== parseInt(selectedMonth)) { matchMonth = false; }
+                                } else {
+                                    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+                                    const mStr = `${months[fDate.getMonth()]}-${String(fDate.getFullYear()).slice(2)}`;
+                                    if (mStr.toLowerCase() !== selectedMonth.toLowerCase()) { matchMonth = false; }
+                                }
                             }
                         }
                     }
 
-                    if (matchMonth) {
+                    if (matchMonth && matchYear) {
                         if (fRow['O'] !== undefined) {
                             let valOStr = String(fRow['O']).replace(',', '.');
                             let valO = parseFloat(valOStr);
