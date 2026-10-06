@@ -597,13 +597,6 @@ async function init() {
         });
     }
 
-    const yearFilter = document.getElementById('summary-year-filter');
-    if (yearFilter) {
-        yearFilter.addEventListener('change', () => {
-            renderSummary();
-        });
-    }
-
     if (fillFilter) {
         fillFilter.addEventListener('change', () => {
             renderSummary();
@@ -1432,29 +1425,31 @@ function renderSummary() {
     const cleanKey = (val) => String(val).replace(/[^a-zA-Z0-9]/g, '').replace(/^0+/, '').toLowerCase();
 
     const monthFilterEl = document.getElementById('summary-month-filter');
-    const yearFilterEl = document.getElementById('summary-year-filter');
     
-    // Populate dropdown with unique months from work_days
-    if (monthFilterEl && monthFilterEl.options.length <= 1 && globalMb51Data.length > 0) {
+    // Set default value for input type="month" based on data if empty
+    if (monthFilterEl && !monthFilterEl.value && globalMb51Data.length > 0) {
         const uniqueMonths = [...new Set(globalMb51Data.map(row => String(row['Month'] || '').trim()).filter(m => m))];
-        const namaBulan = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
-        
-        uniqueMonths.forEach(m => {
-            const opt = document.createElement('option');
-            opt.value = m;
-            let numM = parseInt(m);
-            opt.textContent = (numM >= 1 && numM <= 12) ? namaBulan[numM - 1] : m;
-            monthFilterEl.appendChild(opt);
-        });
-        
-        // Default to the first month if it's currently 'all'
         if (uniqueMonths.length > 0) {
-            monthFilterEl.value = uniqueMonths[0];
+            let numM = parseInt(uniqueMonths[0]);
+            if (!isNaN(numM) && numM >= 1 && numM <= 12) {
+                let yyyy = new Date().getFullYear();
+                let mm = numM.toString().padStart(2, '0');
+                monthFilterEl.value = `${yyyy}-${mm}`;
+            }
         }
     }
     
-    const selectedMonth = monthFilterEl ? monthFilterEl.value : 'all';
-    const selectedYear = yearFilterEl ? yearFilterEl.value : 'all';
+    let selectedMonthStr = monthFilterEl ? monthFilterEl.value : ''; // "YYYY-MM" or ""
+    let selectedYear = 'all';
+    let selectedMonth = 'all';
+
+    if (selectedMonthStr) {
+        let parts = selectedMonthStr.split('-');
+        if (parts.length === 2) {
+            selectedYear = parts[0];
+            selectedMonth = parseInt(parts[1]).toString(); // "10" or "1"
+        }
+    }
 
     let filteredMb51Data = globalMb51Data;
     if (selectedMonth !== 'all') {

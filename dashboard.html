@@ -527,19 +527,12 @@
                     <div style="display: flex; align-items: center; gap: 16px; width: 100%; margin-top: -8px;">
                         <div class="card"
                             style="padding: 10px 16px; display: inline-flex; align-items: center; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); border-radius: 20px; gap: 12px;">
-                            <select id="summary-month-filter" class="glass-input"
-                                style="margin: 0; min-width: 150px; font-weight: 500; cursor: pointer; padding: 8px 12px;">
-                                <option value="all">Semua Bulan</option>
-                            </select>
-
-                            <select id="summary-year-filter" class="glass-input"
-                                style="margin: 0; min-width: 100px; font-weight: 500; cursor: pointer; padding: 8px 12px;">
-                                <option value="all">Semua Tahun</option>
-                                <option value="2024">2024</option>
-                                <option value="2025">2025</option>
-                                <option value="2026" selected>2026</option>
-                                <option value="2027">2027</option>
-                            </select>
+                            <div style="position: relative; display: inline-flex; align-items: center;">
+                                <input type="month" id="summary-month-filter" class="blue-pill-date" style="margin: 0; padding-right: 36px; cursor: pointer; height: 38px;">
+                                <svg style="position: absolute; right: 14px; pointer-events: none; color: white;" width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7"></path>
+                                </svg>
+                            </div>
 
                             <select id="summary-fill-filter" class="glass-input"
                                 style="margin: 0; min-width: 150px; font-weight: 500; cursor: pointer; padding: 8px 12px; display: none;">
