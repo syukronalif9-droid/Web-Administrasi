@@ -497,7 +497,7 @@ window.renderTable = function(tableId, data) {
             
             let style = `position: sticky; left: ${left}px; min-width: ${mb51Widths[idx]}px; max-width: ${mb51Widths[idx]}px; width: ${mb51Widths[idx]}px; box-sizing: border-box; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;`;
             if (idx === mb51Widths.length - 1) {
-                style += ' box-shadow: 4px 0 6px -2px rgba(0,0,0,0.1); font-weight: 500;';
+                style += ' box-shadow: 4px 0 6px -2px rgba(0,0,0,0.1);';
             }
             return { style, isSticky: true };
         }
@@ -520,7 +520,7 @@ window.renderTable = function(tableId, data) {
             if (idx < 2) { // Freeze Pers.No dan Full Name
                 let left = (idx === 0) ? 0 : 120; // Pers.No is 120px
                 let style = `position: sticky; left: ${left}px; min-width: ${width}px; max-width: ${width}px; width: ${width}px; box-sizing: border-box; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;`;
-                if (idx === 1) style += ' box-shadow: 4px 0 6px -2px rgba(0,0,0,0.1); font-weight: 500;';
+                if (idx === 1) style += ' box-shadow: 4px 0 6px -2px rgba(0,0,0,0.1);';
                 return { style, isSticky: true };
             } else {
                 return { style: `min-width: ${width}px; max-width: ${width}px; width: ${width}px; box-sizing: border-box; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;`, isSticky: false };
@@ -542,7 +542,7 @@ window.renderTable = function(tableId, data) {
             if (idx < 2) { // Freeze Employee ID and Name
                 let left = (idx === 0) ? 0 : 120; // Employee ID is 120px
                 let style = `position: sticky; left: ${left}px; min-width: ${width}px; max-width: ${width}px; width: ${width}px; box-sizing: border-box; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;`;
-                if (idx === 1) style += ' box-shadow: 4px 0 6px -2px rgba(0,0,0,0.1); font-weight: 500;';
+                if (idx === 1) style += ' box-shadow: 4px 0 6px -2px rgba(0,0,0,0.1);';
                 return { style, isSticky: true };
             } else {
                 return { style: `min-width: ${width}px; max-width: ${width}px; width: ${width}px; box-sizing: border-box; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;`, isSticky: false };
@@ -572,8 +572,8 @@ window.renderTable = function(tableId, data) {
     const thead = `<thead><tr>${headers.map((h, idx) => {
         const freezeObj = getFreezeStyle(idx, h);
         const style = freezeObj.style;
-        let thStyle = style ? style + (freezeObj.isSticky ? ' z-index: 3; background-color: #f4f6f8;' : '') : '';
-        thStyle += ' text-align: left; padding-left: 12px;'; // Terapkan rata kiri ke SEMUA tabel
+        let thStyle = style ? style + (freezeObj.isSticky ? ' z-index: 3; background-color: #F1F5F9; font-weight: 700; color: #1E293B;' : '') : '';
+        thStyle += ' text-align: left; padding-left: 12px; color: #1E293B; font-weight: 700;'; // Terapkan rata kiri & hitam ke SEMUA header
         return `<th style="${thStyle}">${h}</th>`;
     }).join('')}</tr></thead>`;
     
@@ -591,6 +591,9 @@ window.renderTable = function(tableId, data) {
             const editAttr = isEditable ? ` class="editable-cell" data-field="${h}" title="Klik 2 kali untuk mengedit (Enter untuk simpan)"` : '';
             
             let finalStyle = style ? style + (isSticky ? ' z-index: 2; background-color: #fff;' : '') : '';
+            if (isSticky && (idx === 1 || (isMb51 && idx === mb51Widths.length - 1))) {
+                finalStyle += ' font-weight: 500;';
+            }
             if (isEditable) finalStyle += ' cursor: pointer;'; // Beri tanda bisa diklik
             
             finalStyle += ' text-align: left; padding-left: 12px;'; // Terapkan rata kiri ke SEMUA tabel
