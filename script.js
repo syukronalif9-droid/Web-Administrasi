@@ -1449,11 +1449,11 @@ function renderSummary() {
             );
             if (masterMatch) {
                 // Sesuai rumus Excel: 
-                // Work Contract = VLOOKUP(..., 4) yang mana kolom ke-4 adalah "Bagian"
-                workContract = masterMatch['Bagian'] || workContract;
+                // Jika header Excel-nya sudah "Work Contract" (kolom ke-4) atau "Bagian"
+                workContract = masterMatch['Work Contract'] || masterMatch['Bagian'] || workContract;
                 
-                // WH Area = VLOOKUP(..., 6) yang mana kolom ke-6 adalah "Double Check"
-                whArea = masterMatch['Double Check'] || whArea;
+                // WH Area = VLOOKUP(..., 6) kolom ke-6 adalah "WH Area" atau "Double Check"
+                whArea = masterMatch['WH Area'] || masterMatch['Double Check'] || whArea;
             }
         }
         

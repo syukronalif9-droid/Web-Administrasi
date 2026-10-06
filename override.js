@@ -591,7 +591,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 // Daftar kolom yang diizinkan untuk masing-masing tabel (agar tidak ditolak Supabase)
                 const validColumns = {
-                    'master_employee': ['Pers.No.', 'Full Name', 'Area', 'Bagian', 'Remarks', 'Double Check', '>1 Name'],
+                    'master_employee': ['Pers.No.', 'Full Name', 'Area', 'Bagian', 'Remarks', 'Double Check', '>1 Name', 'Employee Subgroup', 'Work Contract', 'Cost Ctr', 'WH Area', 'Location'],
                     'work_days': [
                         'Month', 'Area', 'Index', 'Nama', 'Work Contract', 'Employee Subgroup', 
                         'Bagian', 'Hari Kerja', 'Sakit', 'Izin', 'CT', 'CH', 'CK', 
