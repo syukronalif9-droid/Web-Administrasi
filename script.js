@@ -1553,6 +1553,13 @@ function renderSummary() {
             'Aging (Hari)': aging,
             'Status': status,
             'S Loc.': sLocResult,
+            'Work Contract': '',
+            'WH Area': '',
+            'Employee ID': '',
+            'Employee Name': '',
+            'Working Days': '',
+            'Attendance': '',
+            'Discipline (%)': '',
             'Note': ''
         };
     });
