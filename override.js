@@ -19,15 +19,31 @@ function saveToDB(key, data) {
 
 function loadFromDB(key) {
     return new Promise((resolve) => {
-        const req = indexedDB.open(DB_NAME, 1);
-        req.onupgradeneeded = (e) => e.target.result.createObjectStore(STORE_NAME);
-        req.onsuccess = (e) => {
-            const tx = e.target.result.transaction(STORE_NAME, 'readonly');
-            const getReq = tx.objectStore(STORE_NAME).get(key);
-            getReq.onsuccess = () => resolve(getReq.result);
-            getReq.onerror = () => resolve(null);
-        };
-        req.onerror = () => resolve(null);
+        // Jangan pernah menggantung: maksimal tunggu 3 detik
+        const timer = setTimeout(() => resolve(null), 3000);
+        const done = (v) => { clearTimeout(timer); resolve(v); };
+        try {
+            const req = indexedDB.open(DB_NAME, 1);
+            req.onupgradeneeded = (e) => e.target.result.createObjectStore(STORE_NAME);
+            req.onsuccess = (e) => {
+                try {
+                    const tx = e.target.result.transaction(STORE_NAME, 'readonly');
+                    const getReq = tx.objectStore(STORE_NAME).get(key);
+                    getReq.onsuccess = () => done(getReq.result);
+                    getReq.onerror = () => done(null);
+                } catch (err) { done(null); }
+            };
+            req.onerror = () => done(null);
+            req.onblocked = () => done(null);
+        } catch (err) { done(null); }
+    });
+}
+
+// Tampilkan pesan status di tabel selama data dimuat
+function showTableStatus(msg) {
+    ['stock-table', 'mb51-table', 'zmmlto-table'].forEach(id => {
+        const t = document.getElementById(id);
+        if (t) t.innerHTML = `<thead><tr><th>Informasi</th></tr></thead><tbody><tr><td style="text-align:center;padding:20px;">${msg}</td></tr></tbody>`;
     });
 }
 
@@ -38,18 +54,27 @@ const TABLE_TO_LOCAL = { master_employee: 'stock', work_days: 'mb51', framsys: '
 async function fetchFromSupabase(tableName) {
     if (!window.supabaseClient) return [];
     let all = [];
-    let from = 0;
     const step = 1000;
+    const parallel = 6; // ambil 6 halaman sekaligus agar cepat
     try {
-        while (true) {
-            const { data, error } = await window.supabaseClient
-                .from(tableName).select('*').range(from, from + step - 1);
-            if (error) throw error;
-            if (!data || data.length === 0) break;
-            all = all.concat(data);
-            if (data.length < step) break;
-            from += step;
+        let from = 0;
+        let finished = false;
+        while (!finished) {
+            const reqs = [];
+            for (let p = 0; p < parallel; p++) {
+                const start = from + p * step;
+                reqs.push(window.supabaseClient.from(tableName).select('*').range(start, start + step - 1));
+            }
+            const results = await Promise.all(reqs);
+            for (const { data, error } of results) {
+                if (error) throw error;
+                if (!data || data.length === 0) { finished = true; break; }
+                all = all.concat(data);
+                if (data.length < step) { finished = true; break; }
+            }
+            from += parallel * step;
         }
+        console.log(`[Supabase] ${tableName}: ${all.length} baris dimuat`);
     } catch (err) {
         console.error(`Gagal mengambil ${tableName} dari Supabase:`, err);
     }
@@ -72,19 +97,44 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (savedMb51 && savedMb51.length) window.uploadedData['mb51'] = savedMb51;
     if (savedStock && savedStock.length) window.uploadedData['stock'] = savedStock;
 
-    // 2. Kalau memori lokal kosong, ambil langsung dari Supabase
-    for (const [table, key] of Object.entries(TABLE_TO_LOCAL)) {
-        if (!window.uploadedData[key] || window.uploadedData[key].length === 0) {
+    const isEmpty = (key) => !window.uploadedData[key] || window.uploadedData[key].length === 0;
+
+    // 2. Ambil Master Employee + Work Days dari Supabase (paralel) kalau lokal kosong
+    if (isEmpty('stock') || isEmpty('mb51')) {
+        showTableStatus('⏳ Mengambil data dari Supabase...');
+        await Promise.all(['master_employee', 'work_days'].map(async (table) => {
+            const key = TABLE_TO_LOCAL[table];
+            if (!isEmpty(key)) return;
             const remote = await fetchFromSupabase(table);
             if (remote.length) {
                 window.uploadedData[key] = remote;
                 saveToDB(key, remote);
             }
-        }
+        }));
     }
 
-    if (typeof init === 'function') {
-        init();
+    // 3. Tampilkan dulu (tidak menunggu framsys yang datanya sangat besar)
+    try {
+        if (typeof init === 'function') await init();
+    } catch (err) {
+        console.error('init() error:', err);
+    }
+    // Render tiap tabel sendiri-sendiri, supaya kalau satu error yang lain tetap tampil
+    [renderStock, renderMb51, renderZmmLto].forEach(fn => {
+        try { fn(); } catch (err) { console.error(fn.name + ' error:', err); }
+    });
+
+    // 4. Framsys dimuat di belakang layar (tidak menahan proses lain), lalu tabelnya di-refresh
+    if (isEmpty('ZMM_LTO')) {
+        const zt = document.getElementById('zmmlto-table');
+        if (zt) zt.innerHTML = '<thead><tr><th>Informasi</th></tr></thead><tbody><tr><td style="text-align:center;padding:20px;">⏳ Mengambil data Framsys dari Supabase (data besar, mohon tunggu)...</td></tr></tbody>';
+        fetchFromSupabase('framsys').then(remote => {
+            if (remote.length) {
+                window.uploadedData['ZMM_LTO'] = remote;
+                saveToDB('ZMM_LTO', remote);
+            }
+            try { renderZmmLto(); } catch (err) { console.error('renderZmmLto error:', err); }
+        });
     }
 
     // Intercept tombol "Hapus Data" agar berfungsi untuk file lokal
@@ -131,16 +181,10 @@ document.addEventListener('DOMContentLoaded', async () => {
 // Overwrite the original function declaration globally
 // script.js memanggil fetchData('master_employee'/'work_days'/'framsys'),
 // jadi nama tabel harus dipetakan ke key lokal ('stock'/'mb51'/'ZMM_LTO').
+// (Pengambilan dari Supabase sudah dilakukan di atas saat halaman dibuka.)
 async function fetchData(tableName) {
     const key = TABLE_TO_LOCAL[tableName] || tableName;
-    const local = window.uploadedData[key];
-    if (local && local.length) return local;
-    if (TABLE_TO_LOCAL[tableName]) {
-        const remote = await fetchFromSupabase(tableName);
-        if (remote.length) window.uploadedData[key] = remote;
-        return remote;
-    }
-    return [];
+    return window.uploadedData[key] || [];
 }
 window.fetchData = fetchData;
 
