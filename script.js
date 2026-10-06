@@ -592,8 +592,21 @@ async function init() {
     
     const monthFilter = document.getElementById('summary-month-filter');
     if (monthFilter) {
-        monthFilter.addEventListener('change', () => {
-            renderSummary();
+        flatpickr(monthFilter, {
+            altInput: true,
+            altFormat: "F Y", // display format like October 2026
+            dateFormat: "Y-m", // value format like 2026-10
+            plugins: [
+                new monthSelectPlugin({
+                    shorthand: true, // displays Jan, Feb instead of full names
+                    dateFormat: "Y-m",
+                    altFormat: "F Y",
+                    theme: "light"
+                })
+            ],
+            onChange: function(selectedDates, dateStr, instance) {
+                renderSummary();
+            }
         });
     }
 
