@@ -1402,173 +1402,33 @@ function renderSummary() {
 
     const cleanKey = (val) => String(val).replace(/[^a-zA-Z0-9]/g, '').replace(/^0+/, '').toLowerCase();
 
-    // Map Stock data to Summary columns (with VLOOKUP from MB51)
-    let summaryData = globalStockData.map((stockRow, index) => {
-        const material = String(stockRow['Material'] || '');
-        const batch = String(stockRow['Batch'] || '');
-        const noBatch = material + batch;
-        const searchKey = cleanKey(material) + cleanKey(batch);
+    // Map MB51 (work_days) data to Summary (Worksheet) columns
+    let summaryData = globalMb51Data.map((mb51Row, index) => {
+        const empId = String(mb51Row['Index'] || mb51Row['Pers.No.'] || '').trim();
         
-        // VLOOKUP equivalent: find matching row in MB51 based on "No Batch"
-        const allMb51Matches = globalMb51Data.filter(mb51Row => {
-            const mMat = String(mb51Row['Material'] || '');
-            const mBat = String(mb51Row['Batch'] || '');
-            return (cleanKey(mMat) + cleanKey(mBat)) === searchKey;
-        });
+        let workContract = mb51Row['Work Contract'] || '';
+        let whArea = mb51Row['Area'] || mb51Row['WH Area'] || '';
 
-        let mb51Match = null;
-        if (allMb51Matches.length > 0) {
-            // Sort by Posting Date terbaru dulu (descending), baru cari yang punya PO
-            const sortedMatches = [...allMb51Matches].sort((a, b) => {
-                const dateA = a['Posting Date'] ? new Date(String(a['Posting Date']).includes('/') 
-                    ? String(a['Posting Date']).split('/').reverse().join('-') 
-                    : a['Posting Date'] + 'T00:00:00') : new Date(0);
-                const dateB = b['Posting Date'] ? new Date(String(b['Posting Date']).includes('/') 
-                    ? String(b['Posting Date']).split('/').reverse().join('-') 
-                    : b['Posting Date'] + 'T00:00:00') : new Date(0);
-                return dateB - dateA; // descending: terbaru dulu
-            });
-
-            // Utamakan baris terbaru yang memiliki Purchase Order
-            mb51Match = sortedMatches.find(row => {
-                const poVal = row['Purchase Order'];
-                return poVal !== undefined && poVal !== null && String(poVal).trim() !== '';
-            });
-            
-            // Jika tidak ada yang punya PO, ambil yang paling baru saja
-            if (!mb51Match) {
-                mb51Match = sortedMatches[0];
+        // VLOOKUP Work Contract & Area dari master_employee (globalStockData)
+        if (empId) {
+            const masterMatch = globalStockData.find(mRow => 
+                String(mRow['Index'] || mRow['Pers.No.'] || '').trim() === empId
+            );
+            if (masterMatch) {
+                workContract = masterMatch['Work Contract'] || workContract;
+                whArea = masterMatch['Area'] || masterMatch['WH Area'] || whArea;
             }
         }
-
-        // VLOOKUP in Uploaded Summary
-        const summaryMatch = globalSummaryUploadData.find(sumRow => {
-            // Jika kolom No. Batch di database kosong/null, kita gabungkan manual Material + Batch
-            const fallbackNoBatch = String(sumRow['Material'] || '') + String(sumRow['Batch'] || '');
-            const actualNoBatch = sumRow['No. Batch'] || sumRow['No Batch'] || fallbackNoBatch;
-            
-            return cleanKey(actualNoBatch) === searchKey;
-        });
-
-        let po = mb51Match ? (mb51Match['Purchase Order'] || '') : '';
-        if (!po && summaryMatch) po = summaryMatch['PO'] || summaryMatch['Purchase Order'] || '';
         
-        let tanggalRaw = mb51Match ? (mb51Match['Posting Date'] || mb51Match['Document Date'] || '') : '';
-        if (!tanggalRaw && summaryMatch) tanggalRaw = summaryMatch['Tanggal'] || summaryMatch['Posting Date'] || '';
-
-        let tanggalFormatted = '';
-        let aging = '';
-        let status = '';
-        
-        // Convert Excel serial date to DD/MM/YYYY if it's a number
-        if (tanggalRaw && !isNaN(tanggalRaw)) {
-            const excelEpoch = new Date(Date.UTC(1899, 11, 30));
-            const rowDateObj = new Date(excelEpoch.getTime() + Math.round(Number(tanggalRaw) * 86400000));
-            const d = rowDateObj.getUTCDate();
-            const months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
-            const mName = months[rowDateObj.getUTCMonth()];
-            const y = rowDateObj.getUTCFullYear();
-            tanggalFormatted = `${d} ${mName} ${y}`;
-
-            // Calculate Aging
-            if (targetDateStr) {
-                const tDate = new Date(targetDate.getFullYear(), targetDate.getMonth(), targetDate.getDate());
-                const rDate = new Date(y, rowDateObj.getUTCMonth(), d);
-                const diffTime = tDate.getTime() - rDate.getTime();
-                aging = Math.floor(diffTime / (1000 * 3600 * 24));
-                if (aging > 3) {
-                    status = 'Late';
-                    lateCount++;
-                } else {
-                    status = 'Ontime';
-                    ontimeCount++;
-                }
-            }
-        } else if (tanggalRaw && typeof tanggalRaw === 'string') {
-            // Tanggal dari Supabase disimpan sebagai string "YYYY-MM-DD"
-            const rowDateObj = new Date(tanggalRaw + 'T00:00:00'); // Paksa parse sebagai local time
-            if (!isNaN(rowDateObj.getTime())) {
-                const d = rowDateObj.getDate();
-                const months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
-                const mName = months[rowDateObj.getMonth()];
-                const y = rowDateObj.getFullYear();
-                tanggalFormatted = `${d} ${mName} ${y}`;
-
-                // Hitung Aging dari string date (YYYY-MM-DD)
-                if (targetDateStr) {
-                    const tDate = new Date(targetDate.getFullYear(), targetDate.getMonth(), targetDate.getDate());
-                    const rDate = new Date(y, rowDateObj.getMonth(), d);
-                    const diffTime = tDate.getTime() - rDate.getTime();
-                    aging = Math.floor(diffTime / (1000 * 3600 * 24));
-                    if (aging > 3) {
-                        status = 'Late';
-                        lateCount++;
-                    } else {
-                        status = 'Ontime';
-                        ontimeCount++;
-                    }
-                }
-            } else {
-                // Format tidak dikenali, tampilkan apa adanya
-                tanggalFormatted = tanggalRaw;
-            }
-        }
-
-        let valUnrestricted = stockRow['Value Unrestricted'] || '';
-
-        // VLOOKUP ZMM_LTO untuk S Loc. (Dengan Fallback Kosong1 -> Kosong2 -> Kosong3)
-        const lookupKey1 = (material + batch + po).toUpperCase();
-        const lookupKey2 = (material + batch).toUpperCase();
-        const lookupKey3 = (material + po).toUpperCase();
-
-        let zmmMatch = globalZmmLtoProcessed.find(zRow => zRow['Kosong1'] === lookupKey1);
-        if (!zmmMatch) {
-            zmmMatch = globalZmmLtoProcessed.find(zRow => zRow['Kosong2'] === lookupKey2);
-        }
-        if (!zmmMatch) {
-            zmmMatch = globalZmmLtoProcessed.find(zRow => zRow['Kosong3'] === lookupKey3);
-        }
-        
-        let sLocResult = zmmMatch ? (zmmMatch['Storage Location'] || '') : '';
-        if (!sLocResult && summaryMatch) {
-            sLocResult = summaryMatch['S Loc.'] || summaryMatch['S Loc'] || summaryMatch['Sloc'] || '';
-        }
-
-        // Prioritaskan status dari summaryMatch jika mb51 tidak memberikan tanggal
-        if (!tanggalRaw && summaryMatch && summaryMatch['Status']) {
-            status = summaryMatch['Status'];
-            if (status.toLowerCase() === 'late') lateCount++;
-            else if (status.toLowerCase() === 'ontime') ontimeCount++;
-            
-            aging = summaryMatch['Aging (Hari)'] || '';
-        }
         return {
-            'No': index + 1,
-            'Material': material,
-            'No. Batch': noBatch,
-            'Long Text': stockRow['Long Text'] || '',
-            'Plan': stockRow['Plant'] || '',
-            'Sloc': stockRow['Storage Location'] || '',
-            'Bin': '',
-            'Department': stockRow['Department'] || '',
-            'Batch': batch,
-            'Bun': stockRow['Base Unit of Measure'] || '',
-            'Qty': stockRow['Unrestricted'] || '',
-            'Currency': stockRow['Currency'] || '',
-            'Value Unrestricted': valUnrestricted,
-            'PO': po,
-            'Tanggal': tanggalFormatted,
-            'Aging (Hari)': aging,
-            'Status': status,
-            'S Loc.': sLocResult,
-            'Work Contract': '',
-            'WH Area': '',
-            'Employee ID': '',
-            'Employee Name': '',
-            'Working Days': '',
+            'No.': index + 1,
+            'Work Contract': workContract,
+            'WH Area': whArea,
+            'Employee ID': empId,
+            'Employee Name': mb51Row['Nama'] || mb51Row['Full Name'] || '',
+            'Working Days': mb51Row['Hari Kerja'] || '',
             'Attendance': '',
-            'Discipline (%)': '',
-            'Note': ''
+            'Discipline (%)': ''
         };
     });
 
