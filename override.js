@@ -585,9 +585,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
             try {
                 // Sekarang semua file diasumsikan header/judul kolomnya ada di baris pertama (paling atas)
-                const dataFramsys = await parseCSVFile(fileStock, 0);
+                const dataMaster = await parseCSVFile(fileStock, 0);
                 const dataWorkdays = await parseCSVFile(fileMb51, 0);
-                const dataMaster = await parseCSVFile(fileZmmlto, 0);
+                const dataFramsys = await parseCSVFile(fileZmmlto, 0);
 
                 // Mapping header baru (Work Contract, WH Area) ke header lama (Bagian, Area) agar diterima Supabase
                 dataMaster.forEach(row => {
@@ -629,6 +629,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     
                     for (let i = 0; i < totalRows; i += chunkSize) {
                         const chunk = cleanedData.slice(i, i + chunkSize);
+                        if (i === 0) console.log(`[DEBUG] Uploading to ${tableName}. First row in chunk:`, chunk[0]);
                         const { error } = await window.supabaseClient.from(tableName).upsert(chunk);
                         if (error) throw new Error(`Gagal upload ke ${tableName}: ` + error.message);
                         

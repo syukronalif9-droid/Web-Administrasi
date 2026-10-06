@@ -1139,10 +1139,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (tableName === 'all') {
             try {
-                const tables = ['stock', 'mb51', 'ZMM_LTO', 'summary_upload'];
+                const tables = ['master_employee', 'work_days', 'framsys', 'summary_upload'];
                 for (let tbl of tables) {
-                    let filterColumn = (tbl === 'ZMM_LTO') ? 'PR Material Number' : 'Material';
-                    await supabaseClient.from(tbl).delete().or(`${filterColumn}.is.null,${filterColumn}.neq.DUMMY_NEVER_MATCH`);
+                    await supabaseClient.from(tbl).delete().neq('id', -1);
                 }
                 alert(`Data ${displayTableName} berhasil dihapus.`);
                 document.getElementById('modal-hapus').style.display = 'none';
@@ -1156,7 +1155,12 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        let query = supabaseClient.from(tableName).delete();
+        let actualTable = tableName;
+        if (tableName === 'stock') actualTable = 'master_employee';
+        if (tableName === 'mb51') actualTable = 'work_days';
+        if (tableName === 'ZMM_LTO') actualTable = 'framsys';
+
+        let query = supabaseClient.from(actualTable).delete();
         
         if (mode === 'date') {
             const dateFrom = document.getElementById('hapus-date-from').value;
@@ -1177,11 +1181,8 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         } else {
             // Hapus semua data
-            let filterColumn = tableName === 'ZMM_LTO' ? 'PR Material Number' : 'Material';
-            query = query.or(`${filterColumn}.is.null,${filterColumn}.neq.DUMMY_NEVER_MATCH`);
+            query = query.neq('id', -1);
         }
-        
-
         
         try {
             const { error: delError } = await query;
