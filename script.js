@@ -1405,6 +1405,7 @@ function renderSummary() {
     // Map MB51 (work_days) data to Summary (Worksheet) columns
     let summaryData = globalMb51Data.map((mb51Row, index) => {
         const empId = String(mb51Row['Index'] || mb51Row['Pers.No.'] || '').trim();
+        const monthFilter = String(mb51Row['Month'] || '').trim();
         
         let workContract = mb51Row['Work Contract'] || '';
         let whArea = mb51Row['Area'] || mb51Row['WH Area'] || '';
@@ -1420,15 +1421,38 @@ function renderSummary() {
             }
         }
         
+        // MENGHITUNG ATTENDANCE (Setara SUMIFS framsys)
+        // Kriteria: KIT TK = Employee ID
+        let attendance = 0;
+        if (empId) {
+            const framsysMatches = globalZmmLtoProcessed.filter(fRow => {
+                const kitTk = String(fRow['KIT TK'] || '').trim();
+                return kitTk === empId;
+            });
+            
+            // Karena di web kita hanya punya 6 kolom framsys dan tidak ada Kolom O, 
+            // asumsi yang paling masuk akal untuk Attendance (Kehadiran) adalah menghitung jumlah hari (baris) 
+            // karyawan tersebut tap-in di data framsys.
+            attendance = framsysMatches.length;
+        }
+
+        const workingDays = Number(mb51Row['Hari Kerja']) || 0;
+        let discipline = '';
+        if (workingDays > 0) {
+            // Hitung persentase kedisiplinan
+            const discVal = (attendance / workingDays) * 100;
+            discipline = discVal.toFixed(1) + '%';
+        }
+
         return {
             'No.': index + 1,
             'Work Contract': workContract,
             'WH Area': whArea,
             'Employee ID': empId,
             'Employee Name': mb51Row['Nama'] || mb51Row['Full Name'] || '',
-            'Working Days': mb51Row['Hari Kerja'] || '',
-            'Attendance': '',
-            'Discipline (%)': ''
+            'Working Days': workingDays || '',
+            'Attendance': attendance || 0,
+            'Discipline (%)': discipline
         };
     });
 
