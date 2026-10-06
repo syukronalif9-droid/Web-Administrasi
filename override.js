@@ -744,6 +744,12 @@ document.addEventListener('DOMContentLoaded', () => {
                     });
                     
                     if (filteredData.length === 0) {
+                        let requiredCol = '';
+                        if (tableName === 'master_employee') requiredCol = 'Pers.No.';
+                        if (tableName === 'work_days') requiredCol = 'Index';
+                        if (tableName === 'framsys') requiredCol = 'KIT TK';
+                        
+                        alert(`❌ PERINGATAN: File yang Anda upload untuk tabel ${tableName} sepertinya SALAH.\n\nFile ini tidak memiliki kolom utama "${requiredCol}".\nMohon pastikan Anda tidak terbalik saat memasukkan file!`);
                         console.warn(`[WARNING] No valid data found for ${tableName}. Skipping upload.`);
                         return;
                     }
