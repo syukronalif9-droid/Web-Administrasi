@@ -198,7 +198,7 @@ window.fetchData = fetchData;
 
 // Override fungsi render yang lama (karena mereka mencari kolom 'Posting Date' dsb yang tidak ada di CSV baru)
 function renderMb51() {
-    let data = window.globalMb51Data || window.uploadedData['mb51'] || [];
+    let data = (window.uploadedData['mb51'] && window.uploadedData['mb51'].length > 0) ? window.uploadedData['mb51'] : (window.globalMb51Data || []);
     
     // OTOMATISASI RUMUS VLOOKUP: Ambil Area, Bagian, dsb dari master emplye
     const masterData = window.uploadedData['stock'] || [];
@@ -250,9 +250,7 @@ function renderMb51() {
 }
 
 function renderZmmLto() {
-    let data = window.globalZmmLtoData || window.uploadedData['ZMM_LTO'] || [];
-    
-    // OTOMATISASI VLOOKUP: WH Area dari master emplye menggunakan KIT TK
+    let data = (window.uploadedData['ZMM_LTO'] && window.uploadedData['ZMM_LTO'].length > 0) ? window.uploadedData['ZMM_LTO'] : (window.globalZmmLtoData || []);
     const masterData = window.uploadedData['stock'] || [];
     const masterMap = {};
     
@@ -393,7 +391,7 @@ function renderZmmLto() {
 }
 
 function renderStock() {
-    let data = window.globalStockData || window.uploadedData['stock'] || [];
+    let data = (window.uploadedData['stock'] && window.uploadedData['stock'].length > 0) ? window.uploadedData['stock'] : (window.globalStockData || []);
     
     // OTOMATISASI RUMUS EXCEL: Double Check & >1 Name
     const workDaysData = window.uploadedData['mb51'] || [];
