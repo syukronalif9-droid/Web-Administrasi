@@ -1444,9 +1444,11 @@ function renderSummary() {
 
         // VLOOKUP Work Contract & Area dari master_employee (globalStockData)
         if (empId) {
-            const masterMatch = globalStockData.find(mRow => 
-                String(mRow['Index'] || mRow['Pers.No.'] || '').trim() === empId
-            );
+            const masterMatch = globalStockData.find(mRow => {
+                const mId = String(mRow['Index'] || mRow['Pers.No.'] || '').replace(/^0+/, '').trim();
+                const eId = empId.replace(/^0+/, '').trim();
+                return mId === eId && mId !== '';
+            });
             if (masterMatch) {
                 // Sesuai rumus Excel: 
                 // Jika header Excel-nya sudah "Work Contract" (kolom ke-4) atau "Bagian"
