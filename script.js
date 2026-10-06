@@ -267,7 +267,7 @@ async function fetchData(tableName) {
         });
 
         // Khusus tabel mb51, hapus kolom Number Batch dan tambahkan No Batch
-        if (tableName === 'mb51') {
+        if (tableName === 'work_days') {
             processedData = processedData.map(row => {
                 delete row['Number Batch'];
                 const material = row['Material'] || '';
@@ -426,9 +426,9 @@ let globalPrint1Data = [];
 // Main Initialization
 async function init() {
     // Fetch all data
-    globalStockData = await fetchData('stock');
-    globalMb51Data = await fetchData('mb51');
-    globalZmmLtoData = await fetchData('ZMM_LTO');
+    globalStockData = await fetchData('master_employee');
+    globalMb51Data = await fetchData('work_days');
+    globalZmmLtoData = await fetchData('framsys');
     globalSummaryUploadData = await fetchData('summary_upload');
 
     // Helper for syncing dates
@@ -1467,7 +1467,21 @@ function renderSummary() {
                     const eId = empId.replace(/^0+/, '').trim();
                     return mId === eId && mId !== '';
                 });
-                whArea = masterMatchCheck ? (masterMatchCheck['Area'] ? 'Area is: ' + masterMatchCheck['Area'] : 'Area is empty in DB') : 'ID Not Found in DB';
+                
+                if (!masterMatchCheck) {
+                    // Coba ambil 2 ID pertama dari database untuk dilihat formatnya
+                    let sampleDB = '';
+                    if (globalStockData.length > 0) {
+                        const id1 = String(globalStockData[0]['Index'] || globalStockData[0]['Pers.No.'] || '');
+                        const id2 = globalStockData.length > 1 ? String(globalStockData[1]['Index'] || globalStockData[1]['Pers.No.'] || '') : '';
+                        sampleDB = ` (DB has: ${globalStockData.length} rows, ex: ${id1}, ${id2})`;
+                    } else {
+                        sampleDB = ' (DB is EMPTY!)';
+                    }
+                    whArea = 'Not Found in DB' + sampleDB;
+                } else {
+                    whArea = masterMatchCheck['Area'] ? 'Area is: ' + masterMatchCheck['Area'] : 'Area is empty in DB';
+                }
             }
         }
         
