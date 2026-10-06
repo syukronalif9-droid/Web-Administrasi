@@ -588,6 +588,14 @@ async function init() {
     }
 
     setupRangePicker('mb51-date-range', renderMb51);
+    
+    const monthFilter = document.getElementById('summary-month-filter');
+    if (monthFilter) {
+        monthFilter.addEventListener('change', () => {
+            renderSummary();
+        });
+    }
+
     if (fillFilter) {
         fillFilter.addEventListener('change', () => {
             renderSummary();
