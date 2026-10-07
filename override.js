@@ -329,16 +329,16 @@ function renderZmmLto() {
             <th rowspan="2" style="vertical-align: middle; text-align: left; padding-left: 12px; background-color: #f8f9fa;">Hari</th>
             <th rowspan="2" style="vertical-align: middle; text-align: left; padding-left: 12px; background-color: #f8f9fa;">Time In</th>
             <th rowspan="2" style="vertical-align: middle; text-align: left; padding-left: 12px; background-color: #f8f9fa;">Time Out</th>
-            <th rowspan="2" style="vertical-align: middle; text-align: left; padding-left: 12px; background-color: #f8f9fa; border-right: 2px solid #ccc;">Durasi (Jam)</th>
+            <th rowspan="2" style="vertical-align: middle; text-align: left; padding-left: 12px; background-color: #f8f9fa;">Durasi (Jam)</th>
             
-            <th colspan="3" style="text-align: center; background-color: #f8f9fa; color: #1E293B; border-left: 2px solid #ccc; padding: 6px; font-size: 13px; height: 32px; box-sizing: border-box; font-weight: 700;">Working Days</th>
-            <th colspan="3" style="text-align: center; background-color: #f8f9fa; color: #1E293B; border-left: 2px solid #ccc; padding: 6px; font-size: 13px; height: 32px; box-sizing: border-box; font-weight: 700;">Attendance</th>
+            <th colspan="3" style="text-align: center; background-color: #f8f9fa; color: #1E293B; padding: 6px; font-size: 13px; height: 32px; box-sizing: border-box; font-weight: 700;">Working Days</th>
+            <th colspan="3" style="text-align: center; background-color: #f8f9fa; color: #1E293B; padding: 6px; font-size: 13px; height: 32px; box-sizing: border-box; font-weight: 700;">Attendance</th>
           </tr>
           <tr>
             <th style="background-color: #f8f9fa; color: #1E293B; top: 32px; width: 45px; min-width: 45px; padding: 4px; font-size: 12px; text-align: center; box-sizing: border-box; font-weight: 700;">In</th>
             <th style="background-color: #f8f9fa; color: #1E293B; top: 32px; width: 45px; min-width: 45px; padding: 4px; font-size: 12px; text-align: center; box-sizing: border-box; font-weight: 700;">Out</th>
             <th style="background-color: #f8f9fa; color: #1E293B; top: 32px; width: 55px; min-width: 55px; padding: 4px; font-size: 12px; text-align: center; font-weight: bold; box-sizing: border-box; font-weight: 700;">Total</th>
-            <th style="background-color: #f8f9fa; color: #1E293B; top: 32px; width: 45px; min-width: 45px; padding: 4px; font-size: 12px; text-align: center; border-left: 2px solid #ccc; box-sizing: border-box; font-weight: 700;">In</th>
+            <th style="background-color: #f8f9fa; color: #1E293B; top: 32px; width: 45px; min-width: 45px; padding: 4px; font-size: 12px; text-align: center; box-sizing: border-box; font-weight: 700;">In</th>
             <th style="background-color: #f8f9fa; color: #1E293B; top: 32px; width: 45px; min-width: 45px; padding: 4px; font-size: 12px; text-align: center; box-sizing: border-box; font-weight: 700;">Out</th>
             <th style="background-color: #f8f9fa; color: #1E293B; top: 32px; width: 55px; min-width: 55px; padding: 4px; font-size: 12px; text-align: center; font-weight: bold; box-sizing: border-box; font-weight: 700;">Total</th>
           </tr>
@@ -395,11 +395,11 @@ function renderZmmLto() {
                 <td>${row['Hari'] || ''}</td>
                 <td>${tIn}</td>
                 <td>${tOut}</td>
-                <td style="border-right: 2px solid #ccc; font-weight: normal;">${durasi || ''}</td>
-                <td style="border-left: 2px solid #ccc; text-align: center; padding: 4px;">${wdIn}</td>
+                <td style="font-weight: normal;">${durasi || ''}</td>
+                <td style="text-align: center; padding: 4px;">${wdIn}</td>
                 <td style="text-align: center; padding: 4px;">${wdOut}</td>
                 <td style="font-weight: 600; text-align: center; padding: 4px;">${wdTotal}</td>
-                <td style="border-left: 2px solid #ccc; text-align: center; padding: 4px;">${attIn}</td>
+                <td style="text-align: center; padding: 4px;">${attIn}</td>
                 <td style="text-align: center; padding: 4px;">${attOut}</td>
                 <td style="font-weight: 600; text-align: center; padding: 4px;">${attTotal}</td>
             </tr>`;
