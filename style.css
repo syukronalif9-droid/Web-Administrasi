@@ -261,6 +261,6 @@ button {
 
 .table-wrapper {
     overflow: auto;
-    max-height: 500px;
+    max-height: calc(100vh - 280px);
     width: 100%;
 }
