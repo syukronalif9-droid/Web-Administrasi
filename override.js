@@ -422,6 +422,7 @@ function renderStock() {
         delete newRow['Double Check'];
         delete newRow['>1 Name'];
         delete newRow['Area'];
+        delete newRow['Bagian'];
         return newRow;
     });
 
