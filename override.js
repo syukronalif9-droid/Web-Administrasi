@@ -541,13 +541,13 @@ window.renderTable = function(tableId, data) {
             }
         } else if (tableId === 'summary-table') {
             const summaryCols = {
-                'Employee ID': 140, 'Employee Name': 300, 'Work Contract': 180,
+                'Employee ID': 180, 'Employee Name': 300, 'Work Contract': 180,
                 'WH Area': 180, 'Working Days': 140, 'Attendance': 140, 'Discipline (%)': 150
             };
             width = summaryCols[headerName] || 150;
             if (idx < 2) {
                 isSticky = true;
-                left = (idx === 0) ? 0 : 140; // Sama dengan lebar Employee ID
+                left = (idx === 0) ? 0 : 180; // Sama dengan lebar Employee ID
                 forceStrictWidth = (idx === 0);
                 if (idx === 1) hasShadow = true;
             }
