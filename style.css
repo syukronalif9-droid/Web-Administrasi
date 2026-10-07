@@ -258,3 +258,8 @@ button {
     gap: 1rem;
     justify-content: flex-end;
 }
+
+.table-wrapper {
+    overflow-x: auto;
+    width: 100%;
+}
