@@ -351,6 +351,23 @@ function renderZmmLto() {
             const tIn = (row['Time In'] || '').toString().trim();
             const tOut = (row['Time Out'] || '').toString().trim();
             
+            let durasi = row['Durasi (Jam)'];
+            let durasiVal = parseFloat(String(durasi || '0').replace(',', '.'));
+            
+            if ((durasiVal === 0 || isNaN(durasiVal)) && tIn && tOut && tIn !== '-' && tOut !== '-') {
+                const dIn = new Date(tIn);
+                const dOut = new Date(tOut);
+                if (!isNaN(dIn.getTime()) && !isNaN(dOut.getTime())) {
+                    let calc = (dOut.getTime() - dIn.getTime()) / (1000 * 60 * 60);
+                    if (calc > 0) {
+                        durasiVal = calc;
+                        // Format ke string dengan koma maksimal 2 desimal
+                        durasi = Number(durasiVal.toFixed(2)).toString().replace('.', ',');
+                    }
+                }
+            }
+
+            // Rumus Working Days
             const wdIn = (tIn === '' || tIn === '-') ? '' : 1;
             const wdOut = (tOut === '' || tOut === '-') ? '' : 1;
             
@@ -370,9 +387,9 @@ function renderZmmLto() {
                 <td style="position: sticky; left: 370px; z-index: 2; width: 200px; min-width: 200px; max-width: 200px; box-sizing: border-box; background-color: #fff; font-weight: 500; box-shadow: 4px 0 6px -2px rgba(0,0,0,0.1); overflow: hidden; white-space: nowrap; text-overflow: ellipsis;">${row['WH Area'] || ''}</td>
                 <td>${row['Date Shift'] || ''}</td>
                 <td>${row['Hari'] || ''}</td>
-                <td>${row['Time In'] || ''}</td>
-                <td>${row['Time Out'] || ''}</td>
-                <td style="border-right: 2px solid #ccc;">${row['Durasi (Jam)'] || ''}</td>
+                <td>${tIn}</td>
+                <td>${tOut}</td>
+                <td style="border-right: 2px solid #ccc; font-weight: ${durasiVal !== parseFloat(String(row['Durasi (Jam)'] || '0').replace(',', '.')) ? '700; color: #16A34A;' : 'normal;'}">${durasi || ''}</td>
                 <td style="border-left: 2px solid #ccc; text-align: center; padding: 4px;">${wdIn}</td>
                 <td style="text-align: center; padding: 4px;">${wdOut}</td>
                 <td style="font-weight: 600; text-align: center; padding: 4px;">${wdTotal}</td>
