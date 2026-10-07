@@ -1544,7 +1544,7 @@ function renderSummary() {
             });
         }
 
-        const workingDays = Number(mb51Row['Hari Kerja']) || 0;
+        const workingDays = Number(mb51Row['Hari Kerja']) || Number(mb51Row['Working Days']) || 0;
         
         // JIKA file framsys tidak memiliki kolom 'O', maka perhitungan 'attendance' (Durasi jam) 
         // akan menghasilkan angka ratusan (misal 180 jam). 
