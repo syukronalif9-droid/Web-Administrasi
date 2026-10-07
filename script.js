@@ -1493,30 +1493,9 @@ function renderSummary() {
             }
         }
         
-        // DEBUGGING VISUAL: Jika whArea masih kosong, tampilkan status pencarian
+        // Jika whArea masih kosong setelah VLOOKUP, biarkan kosong atau beri tanda strip
         if (!whArea || whArea.trim() === '') {
-            if (empId) {
-                const masterMatchCheck = globalStockData.find(mRow => {
-                    const mId = String(mRow['Index'] || mRow['Pers.No.'] || '').replace(/^0+/, '').trim();
-                    const eId = empId.replace(/^0+/, '').trim();
-                    return mId === eId && mId !== '';
-                });
-                
-                if (!masterMatchCheck) {
-                    // Coba ambil 2 ID pertama dari database untuk dilihat formatnya
-                    let sampleDB = '';
-                    if (globalStockData.length > 0) {
-                        const id1 = String(globalStockData[0]['Index'] || globalStockData[0]['Pers.No.'] || '');
-                        const id2 = globalStockData.length > 1 ? String(globalStockData[1]['Index'] || globalStockData[1]['Pers.No.'] || '') : '';
-                        sampleDB = ` (DB has: ${globalStockData.length} rows, ex: ${id1}, ${id2})`;
-                    } else {
-                        sampleDB = ' (DB is EMPTY!)';
-                    }
-                    whArea = 'Not Found in DB' + sampleDB;
-                } else {
-                    whArea = masterMatchCheck['Area'] ? 'Area is: ' + masterMatchCheck['Area'] : 'Area is empty in DB';
-                }
-            }
+            whArea = '-'; // Tampilan lebih rapi daripada "Not Found in DB"
         }
         
         // MENGHITUNG ATTENDANCE (Berdasarkan rumus SUMIFS atau fallback ke mb51)
