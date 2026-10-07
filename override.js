@@ -322,14 +322,14 @@ function renderZmmLto() {
         const thead = `
         <thead>
           <tr>
-            <th rowspan="2" style="position: sticky; left: 0; z-index: 3; width: 150px; min-width: 150px; max-width: 150px; box-sizing: border-box; vertical-align: middle; text-align: center; background-color: #f8f9fa;">KIT TK</th>
-            <th rowspan="2" style="position: sticky; left: 150px; z-index: 3; width: 220px; min-width: 220px; max-width: 220px; box-sizing: border-box; vertical-align: middle; text-align: center; background-color: #f8f9fa;">Nama TK</th>
-            <th rowspan="2" style="position: sticky; left: 370px; z-index: 3; width: 200px; min-width: 200px; max-width: 200px; box-sizing: border-box; vertical-align: middle; text-align: center; background-color: #f8f9fa; box-shadow: 4px 0 6px -2px rgba(0,0,0,0.1);">WH Area</th>
-            <th rowspan="2" style="vertical-align: middle; text-align: center; background-color: #f8f9fa;">Date Shift</th>
-            <th rowspan="2" style="vertical-align: middle; text-align: center; background-color: #f8f9fa;">Hari</th>
-            <th rowspan="2" style="vertical-align: middle; text-align: center; background-color: #f8f9fa;">Time In</th>
-            <th rowspan="2" style="vertical-align: middle; text-align: center; background-color: #f8f9fa;">Time Out</th>
-            <th rowspan="2" style="vertical-align: middle; text-align: center; background-color: #f8f9fa; border-right: 2px solid #ccc;">Durasi (Jam)</th>
+            <th rowspan="2" style="position: sticky; left: 0; z-index: 3; width: 150px; min-width: 150px; max-width: 150px; box-sizing: border-box; vertical-align: middle; text-align: left; padding-left: 12px; background-color: #f8f9fa;">KIT TK</th>
+            <th rowspan="2" style="position: sticky; left: 150px; z-index: 3; width: 220px; min-width: 220px; max-width: 220px; box-sizing: border-box; vertical-align: middle; text-align: left; padding-left: 12px; background-color: #f8f9fa;">Nama TK</th>
+            <th rowspan="2" style="position: sticky; left: 370px; z-index: 3; width: 200px; min-width: 200px; max-width: 200px; box-sizing: border-box; vertical-align: middle; text-align: left; padding-left: 12px; background-color: #f8f9fa; box-shadow: 4px 0 6px -2px rgba(0,0,0,0.1);">WH Area</th>
+            <th rowspan="2" style="vertical-align: middle; text-align: left; padding-left: 12px; background-color: #f8f9fa;">Date Shift</th>
+            <th rowspan="2" style="vertical-align: middle; text-align: left; padding-left: 12px; background-color: #f8f9fa;">Hari</th>
+            <th rowspan="2" style="vertical-align: middle; text-align: left; padding-left: 12px; background-color: #f8f9fa;">Time In</th>
+            <th rowspan="2" style="vertical-align: middle; text-align: left; padding-left: 12px; background-color: #f8f9fa;">Time Out</th>
+            <th rowspan="2" style="vertical-align: middle; text-align: left; padding-left: 12px; background-color: #f8f9fa; border-right: 2px solid #ccc;">Durasi (Jam)</th>
             
             <th colspan="3" style="text-align: center; background-color: #92d050; color: #000; border-left: 2px solid #ccc; padding: 6px; font-size: 13px; height: 32px; box-sizing: border-box;">Working Days</th>
             <th colspan="3" style="text-align: center; background-color: #ffc000; color: #000; border-left: 2px solid #ccc; padding: 6px; font-size: 13px; height: 32px; box-sizing: border-box;">Attendance</th>
