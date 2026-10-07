@@ -919,3 +919,103 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 });
+
+// Tab Navigasi Bulan untuk Summary
+document.addEventListener('DOMContentLoaded', () => {
+    const monthInput = document.getElementById('summary-month-filter');
+    if (!monthInput) return;
+    
+    // Sembunyikan input asli
+    monthInput.parentElement.style.display = 'none';
+    
+    // Buat container tab
+    const tabsContainer = document.createElement('div');
+    tabsContainer.id = 'summary-month-tabs';
+    tabsContainer.style.display = 'flex';
+    tabsContainer.style.gap = '8px';
+    tabsContainer.style.flexWrap = 'wrap';
+    tabsContainer.style.alignItems = 'center';
+    
+    monthInput.parentElement.parentNode.insertBefore(tabsContainer, monthInput.parentElement);
+    
+    const buildTabs = () => {
+        const data = window.globalMb51Data || (window.uploadedData && window.uploadedData['mb51']) || [];
+        if (!data || data.length === 0) return;
+        
+        const uniqueMonths = [...new Set(data.map(row => String(row['Month'] || '').trim()).filter(m => m))];
+        uniqueMonths.sort((a, b) => parseInt(a) - parseInt(b));
+        
+        tabsContainer.innerHTML = '';
+        
+        let activeVal = monthInput.value;
+        let currentSelected = 'all';
+        if (activeVal) {
+            let p = activeVal.split('-');
+            if (p.length === 2) currentSelected = parseInt(p[1]).toString();
+        }
+        
+        const createTab = (val, label) => {
+            const btn = document.createElement('button');
+            btn.textContent = label;
+            btn.style.padding = '8px 16px';
+            btn.style.borderRadius = '9999px';
+            btn.style.border = 'none';
+            btn.style.fontWeight = '600';
+            btn.style.cursor = 'pointer';
+            btn.style.transition = '0.2s';
+            btn.style.fontSize = '0.9rem';
+            
+            let isActive = false;
+            if (val === 'all' && currentSelected === 'all') isActive = true;
+            else if (val.toString() === currentSelected) isActive = true;
+            
+            if (isActive) {
+                btn.style.background = '#3B82F6';
+                btn.style.color = '#fff';
+                btn.style.boxShadow = '0 2px 8px rgba(59,130,246,0.3)';
+            } else {
+                btn.style.background = '#F1F5F9';
+                btn.style.color = '#64748B';
+                btn.style.boxShadow = 'none';
+            }
+            
+            btn.addEventListener('click', () => {
+                if (val === 'all') {
+                    monthInput.value = '';
+                } else {
+                    let yyyy = new Date().getFullYear();
+                    let mm = val.toString().padStart(2, '0');
+                    monthInput.value = `${yyyy}-${mm}`;
+                }
+                if (typeof window.renderSummary === 'function') window.renderSummary();
+            });
+            
+            btn.addEventListener('mouseover', () => { if(!isActive) btn.style.background = '#E2E8F0'; });
+            btn.addEventListener('mouseout', () => { if(!isActive) btn.style.background = '#F1F5F9'; });
+            
+            tabsContainer.appendChild(btn);
+        };
+        
+        createTab('all', 'Semua Bulan');
+        
+        const monthNames = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+        uniqueMonths.forEach(m => {
+            let numM = parseInt(m);
+            let label = m;
+            if (!isNaN(numM) && numM >= 1 && numM <= 12) {
+                label = `${monthNames[numM - 1]} '26`;
+            }
+            createTab(m, label);
+        });
+    };
+    
+    // Override renderSummary untuk selalu me-rebuild tab agar state 'active' terupdate
+    const originalRenderSummary = window.renderSummary;
+    if (typeof originalRenderSummary === 'function') {
+        window.renderSummary = function() {
+            const res = originalRenderSummary.apply(this, arguments);
+            buildTabs();
+            return res;
+        };
+    }
+});
