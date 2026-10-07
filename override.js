@@ -335,12 +335,12 @@ function renderZmmLto() {
             <th colspan="3" style="text-align: center; background-color: #f8f9fa; color: #1E293B; padding: 6px; font-size: 13px; height: 32px; box-sizing: border-box; font-weight: 700;">Attendance</th>
           </tr>
           <tr>
-            <th style="background-color: #f8f9fa; color: #1E293B; top: 32px; width: 45px; min-width: 45px; padding: 4px; font-size: 12px; text-align: center; box-sizing: border-box; font-weight: 700;">In</th>
-            <th style="background-color: #f8f9fa; color: #1E293B; top: 32px; width: 45px; min-width: 45px; padding: 4px; font-size: 12px; text-align: center; box-sizing: border-box; font-weight: 700;">Out</th>
-            <th style="background-color: #f8f9fa; color: #1E293B; top: 32px; width: 55px; min-width: 55px; padding: 4px; font-size: 12px; text-align: center; font-weight: bold; box-sizing: border-box; font-weight: 700;">Total</th>
-            <th style="background-color: #f8f9fa; color: #1E293B; top: 32px; width: 45px; min-width: 45px; padding: 4px; font-size: 12px; text-align: center; box-sizing: border-box; font-weight: 700;">In</th>
-            <th style="background-color: #f8f9fa; color: #1E293B; top: 32px; width: 45px; min-width: 45px; padding: 4px; font-size: 12px; text-align: center; box-sizing: border-box; font-weight: 700;">Out</th>
-            <th style="background-color: #f8f9fa; color: #1E293B; top: 32px; width: 55px; min-width: 55px; padding: 4px; font-size: 12px; text-align: center; font-weight: bold; box-sizing: border-box; font-weight: 700;">Total</th>
+            <th style="background-color: #f8f9fa; color: #1E293B; top: 32px; width: 60px; min-width: 60px; text-align: center; box-sizing: border-box; font-weight: 700;">In</th>
+            <th style="background-color: #f8f9fa; color: #1E293B; top: 32px; width: 60px; min-width: 60px; text-align: center; box-sizing: border-box; font-weight: 700;">Out</th>
+            <th style="background-color: #f8f9fa; color: #1E293B; top: 32px; width: 70px; min-width: 70px; text-align: center; font-weight: bold; box-sizing: border-box; font-weight: 700;">Total</th>
+            <th style="background-color: #f8f9fa; color: #1E293B; top: 32px; width: 60px; min-width: 60px; text-align: center; box-sizing: border-box; font-weight: 700;">In</th>
+            <th style="background-color: #f8f9fa; color: #1E293B; top: 32px; width: 60px; min-width: 60px; text-align: center; box-sizing: border-box; font-weight: 700;">Out</th>
+            <th style="background-color: #f8f9fa; color: #1E293B; top: 32px; width: 70px; min-width: 70px; text-align: center; font-weight: bold; box-sizing: border-box; font-weight: 700;">Total</th>
           </tr>
         </thead>`;
         
@@ -396,12 +396,12 @@ function renderZmmLto() {
                 <td>${tIn}</td>
                 <td>${tOut}</td>
                 <td style="font-weight: normal;">${durasi || ''}</td>
-                <td style="text-align: center; padding: 4px;">${wdIn}</td>
-                <td style="text-align: center; padding: 4px;">${wdOut}</td>
-                <td style="font-weight: 600; text-align: center; padding: 4px;">${wdTotal}</td>
-                <td style="text-align: center; padding: 4px;">${attIn}</td>
-                <td style="text-align: center; padding: 4px;">${attOut}</td>
-                <td style="font-weight: 600; text-align: center; padding: 4px;">${attTotal}</td>
+                <td style="text-align: center;">${wdIn}</td>
+                <td style="text-align: center;">${wdOut}</td>
+                <td style="font-weight: 600; text-align: center;">${wdTotal}</td>
+                <td style="text-align: center;">${attIn}</td>
+                <td style="text-align: center;">${attOut}</td>
+                <td style="font-weight: 600; text-align: center;">${attTotal}</td>
             </tr>`;
         }).join('')}</tbody>`;
         
