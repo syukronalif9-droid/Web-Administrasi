@@ -395,7 +395,7 @@ function renderZmmLto() {
                 <td>${row['Hari'] || ''}</td>
                 <td>${tIn}</td>
                 <td>${tOut}</td>
-                <td style="border-right: 2px solid #ccc; font-weight: ${durasiVal !== parseFloat(String(row['Durasi (Jam)'] || '0').replace(',', '.')) ? '700; color: #16A34A;' : 'normal;'}">${durasi || ''}</td>
+                <td style="border-right: 2px solid #ccc; font-weight: ${durasiVal !== parseFloat(String(row['Durasi (Jam)'] || '0').replace(',', '.')) ? '700; color: #1E293B;' : 'normal;'}">${durasi || ''}</td>
                 <td style="border-left: 2px solid #ccc; text-align: center; padding: 4px;">${wdIn}</td>
                 <td style="text-align: center; padding: 4px;">${wdOut}</td>
                 <td style="font-weight: 600; text-align: center; padding: 4px;">${wdTotal}</td>
