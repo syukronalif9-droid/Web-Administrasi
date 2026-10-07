@@ -519,11 +519,13 @@ window.renderTable = function(tableId, data) {
             
             if (idx < 2) { // Freeze Pers.No dan Full Name
                 let left = (idx === 0) ? 0 : 120; // Pers.No is 120px
-                let style = `position: sticky; left: ${left}px; min-width: ${width}px; max-width: ${width}px; width: ${width}px; box-sizing: border-box; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;`;
+                // Untuk Pers.No kita kunci ukurannya agar left = 120px untuk kolom berikutnya (Full Name) tidak bergeser
+                let sizeStyle = (idx === 0) ? `min-width: ${width}px; max-width: ${width}px; width: ${width}px; overflow: hidden; text-overflow: ellipsis;` : `min-width: ${width}px;`;
+                let style = `position: sticky; left: ${left}px; ${sizeStyle} box-sizing: border-box; white-space: nowrap;`;
                 if (idx === 1) style += ' box-shadow: 4px 0 6px -2px rgba(0,0,0,0.1);';
                 return { style, isSticky: true };
             } else {
-                return { style: `min-width: ${width}px; max-width: ${width}px; width: ${width}px; box-sizing: border-box; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;`, isSticky: false };
+                return { style: `min-width: ${width}px; box-sizing: border-box; white-space: nowrap;`, isSticky: false };
             }
         }
         
