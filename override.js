@@ -528,26 +528,26 @@ window.renderTable = function(tableId, data) {
             if (idx === mb51Widths.length - 1) hasShadow = true;
         } else if (tableId === 'stock-table') {
             const stockCols = {
-                'Pers.No.': 120, 'Full Name': 250, 'Employee Subgroup': 200,
+                'Pers.No.': 140, 'Full Name': 300, 'Employee Subgroup': 200,
                 'Work Contract': 150, 'Cost Ctr': 120, 'WH Area': 120,
                 'Location': 150, 'Double Check': 150, '>1 Name': 100, 'Remarks': 200
             };
             width = stockCols[headerName] || 150;
             if (idx < 2) {
                 isSticky = true;
-                left = (idx === 0) ? 0 : 120;
+                left = (idx === 0) ? 0 : 140; // Sama dengan lebar Pers.No.
                 forceStrictWidth = (idx === 0);
                 if (idx === 1) hasShadow = true;
             }
         } else if (tableId === 'summary-table') {
             const summaryCols = {
-                'Employee ID': 120, 'Employee Name': 250, 'Work Contract': 180,
+                'Employee ID': 140, 'Employee Name': 300, 'Work Contract': 180,
                 'WH Area': 180, 'Working Days': 140, 'Attendance': 140, 'Discipline (%)': 150
             };
             width = summaryCols[headerName] || 150;
             if (idx < 2) {
                 isSticky = true;
-                left = (idx === 0) ? 0 : 120;
+                left = (idx === 0) ? 0 : 140; // Sama dengan lebar Employee ID
                 forceStrictWidth = (idx === 0);
                 if (idx === 1) hasShadow = true;
             }
