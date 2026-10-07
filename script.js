@@ -1467,6 +1467,25 @@ function renderSummary() {
     let filteredMb51Data = globalMb51Data;
     if (selectedMonth !== 'all') {
         filteredMb51Data = globalMb51Data.filter(row => String(row['Month'] || '').trim() === selectedMonth);
+    } else {
+        const grouped = {};
+        filteredMb51Data.forEach(row => {
+            const empId = String(row['Index'] || row['Pers.No.'] || '').trim();
+            if (!empId) return;
+            if (!grouped[empId]) {
+                grouped[empId] = { ...row };
+                grouped[empId]['Hari Kerja'] = Number(row['Hari Kerja']) || Number(row['Working Days']) || 0;
+                grouped[empId]['Sakit'] = Number(String(row['Sakit'] || '').replace(/[^\d]/g, '')) || 0;
+                grouped[empId]['Izin'] = Number(String(row['Izin'] || '').replace(/[^\d]/g, '')) || 0;
+                grouped[empId]['Alpa'] = Number(String(row['Alpa'] || '').replace(/[^\d]/g, '')) || 0;
+            } else {
+                grouped[empId]['Hari Kerja'] += Number(row['Hari Kerja']) || Number(row['Working Days']) || 0;
+                grouped[empId]['Sakit'] += Number(String(row['Sakit'] || '').replace(/[^\d]/g, '')) || 0;
+                grouped[empId]['Izin'] += Number(String(row['Izin'] || '').replace(/[^\d]/g, '')) || 0;
+                grouped[empId]['Alpa'] += Number(String(row['Alpa'] || '').replace(/[^\d]/g, '')) || 0;
+            }
+        });
+        filteredMb51Data = Object.values(grouped);
     }
 
     // Map filtered work_days to Summary (Worksheet) columns
