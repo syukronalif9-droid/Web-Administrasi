@@ -220,7 +220,7 @@ function renderMb51() {
     // Urutan presisi sesuai permintaan (screenshot)
     const targetOrder = [
         'Month', 'Area', 'Index', 'Nama', 'Work Contract', 'Employee Subgroup', 
-        'Bagian', 'Hari Kerja', 'Sakit', 'Izin', 'CT', 'CH', 'CK', 
+        'Hari Kerja', 'Sakit', 'Izin', 'CT', 'CH', 'CK', 
         'Libur Bersama', 'Dispens.', 'Alpa', 'Cost Center', 'Keterangan'
     ];
     
