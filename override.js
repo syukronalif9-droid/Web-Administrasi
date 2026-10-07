@@ -231,7 +231,7 @@ function renderMb51() {
         let tempRow = { ...row };
         if (match) {
             tempRow['Area'] = match.area || '';
-            tempRow['Bagian'] = match.bagian || '';
+            tempRow['Bagian'] = match.area || '';
             tempRow['Work Contract'] = match.workContract || '';
             tempRow['Employee Subgroup'] = match.employeeSubgroup || '';
             tempRow['Cost Center'] = match.costCenter || '';
