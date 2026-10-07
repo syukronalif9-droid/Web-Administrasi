@@ -1589,8 +1589,8 @@ function renderSummary() {
             discipline = discVal.toFixed(1) + '%';
         }
 
-        // Format angka desimal Attendance kembali menggunakan koma untuk tampilan Indonesia
-        let attendanceFormatted = attendance.toString().replace('.', ',');
+        // Format angka desimal Attendance kembali menggunakan koma untuk tampilan Indonesia dan batasi desimal agar tidak terlalu panjang
+        let attendanceFormatted = Number(attendance.toFixed(2)).toString().replace('.', ',');
 
         return {
             'Employee ID': empId,
