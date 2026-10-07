@@ -354,18 +354,24 @@ function renderZmmLto() {
             let durasi = row['Durasi (Jam)'];
             let durasiVal = parseFloat(String(durasi || '0').replace(',', '.'));
             
-            if ((durasiVal === 0 || isNaN(durasiVal)) && tIn && tOut && tIn !== '-' && tOut !== '-') {
+            // PAKSA Hitung Ulang murni dari Time In dan Time Out (Mengabaikan nilai error dari Excel)
+            if (tIn && tOut && tIn !== '-' && tOut !== '-') {
                 const dIn = new Date(tIn);
                 const dOut = new Date(tOut);
                 if (!isNaN(dIn.getTime()) && !isNaN(dOut.getTime())) {
                     let calc = (dOut.getTime() - dIn.getTime()) / (1000 * 60 * 60);
                     if (calc > 0) {
                         durasiVal = calc;
-                        // Format ke string dengan koma maksimal 2 desimal
-                        durasi = Number(durasiVal.toFixed(2)).toString().replace('.', ',');
+                    } else {
+                        durasiVal = 0; // Misal salah input jam pulang lebih pagi dari jam masuk
                     }
+                } else {
+                    durasiVal = 0;
                 }
+            } else {
+                durasiVal = 0; // Jika salah satu tidak ada (In atau Out kosong), durasi pasti 0
             }
+            durasi = Number(durasiVal.toFixed(2)).toString().replace('.', ',');
 
             // Rumus Working Days
             const wdIn = (tIn === '' || tIn === '-') ? '' : 1;

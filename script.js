@@ -1539,14 +1539,21 @@ function renderSummary() {
                         let durasiStr = String(fRow['Durasi (Jam)'] || '0').replace(',', '.');
                         let durasi = parseFloat(durasiStr);
                         
-                        // FIX: Jika durasi 0, hitung otomatis dari Time In dan Time Out (jika ada)
-                        if ((durasi === 0 || isNaN(durasi)) && fRow['Time In'] && fRow['Time Out']) {
-                            const tIn = new Date(fRow['Time In']);
-                            const tOut = new Date(fRow['Time Out']);
+                        // PAKSA Hitung Ulang murni dari Time In dan Time Out (Mengabaikan nilai error dari Excel)
+                        const tInStr = String(fRow['Time In'] || '').trim();
+                        const tOutStr = String(fRow['Time Out'] || '').trim();
+                        
+                        if (tInStr && tOutStr && tInStr !== '-' && tOutStr !== '-') {
+                            const tIn = new Date(tInStr);
+                            const tOut = new Date(tOutStr);
                             if (!isNaN(tIn.getTime()) && !isNaN(tOut.getTime())) {
                                 durasi = (tOut.getTime() - tIn.getTime()) / (1000 * 60 * 60);
                                 if (durasi < 0) durasi = 0;
+                            } else {
+                                durasi = 0;
                             }
+                        } else {
+                            durasi = 0; // Pasti 0 jika tidak ada Time Out atau Time In
                         }
 
                         if (!isNaN(durasi)) attendance += durasi;
