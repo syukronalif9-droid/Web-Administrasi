@@ -416,31 +416,12 @@ function renderZmmLto() {
 function renderStock() {
     let data = (window.uploadedData['stock'] && window.uploadedData['stock'].length > 0) ? window.uploadedData['stock'] : (window.globalStockData || []);
     
-    // OTOMATISASI RUMUS EXCEL: Double Check & >1 Name
-    const workDaysData = (window.uploadedData['mb51'] && window.uploadedData['mb51'].length > 0) ? window.uploadedData['mb51'] : (window.globalMb51Data || []);
-    const nameCounts = {};
-    
-    // Hitung kemunculan tiap nama di file work days (kolom 'Nama')
-    workDaysData.forEach(row => {
-        let nama = row['Nama'];
-        if (nama) {
-            nama = nama.toString().trim().toLowerCase();
-            nameCounts[nama] = (nameCounts[nama] || 0) + 1;
-        }
-    });
-    
-    // Terapkan rumus ke master emplye
+    // Hapus kolom Double Check dan >1 Name jika ada dari data aslinya
     data = data.map(row => {
-        const fullName = row['Full Name'] || '';
-        const searchName = fullName.toString().trim().toLowerCase();
-        const count = nameCounts[searchName] || 0;
-        return {
-            ...row,
-            'Double Check': count > 0 ? fullName : '',
-            // Kita jadikan string agar tidak terhapus (karena 0 || '' di renderTable jadinya kosong)
-            '>1 Name': count === 0 ? '0' : count.toString(),
-            'Remarks': row['Remarks'] || ''
-        };
+        const newRow = { ...row };
+        delete newRow['Double Check'];
+        delete newRow['>1 Name'];
+        return newRow;
     });
 
     if(typeof renderTable === 'function') renderTable('stock-table', data);
@@ -530,7 +511,7 @@ window.renderTable = function(tableId, data) {
             const stockCols = {
                 'Pers.No.': 140, 'Full Name': 300, 'Employee Subgroup': 200,
                 'Work Contract': 150, 'Cost Ctr': 120, 'WH Area': 120,
-                'Location': 150, 'Double Check': 150, '>1 Name': 100, 'Remarks': 200
+                'Location': 150, 'Remarks': 200
             };
             width = stockCols[headerName] || 150;
             if (idx < 2) {
