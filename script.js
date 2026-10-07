@@ -604,6 +604,19 @@ async function init() {
                     theme: "light"
                 })
             ],
+            onReady: function(selectedDates, dateStr, instance) {
+                const clearBtn = document.createElement("button");
+                clearBtn.textContent = "Clear Filter";
+                clearBtn.style = "width: 100%; border: none; background: #EF4444; color: white; padding: 8px; cursor: pointer; border-bottom-left-radius: 4px; border-bottom-right-radius: 4px; font-weight: bold; margin-top: 4px;";
+                clearBtn.addEventListener("click", function(e) {
+                    e.preventDefault();
+                    instance.clear();
+                    instance.close();
+                });
+                if (instance.calendarContainer) {
+                    instance.calendarContainer.appendChild(clearBtn);
+                }
+            },
             onChange: function(selectedDates, dateStr, instance) {
                 renderSummary();
             }
@@ -1438,19 +1451,6 @@ function renderSummary() {
     const cleanKey = (val) => String(val).replace(/[^a-zA-Z0-9]/g, '').replace(/^0+/, '').toLowerCase();
 
     const monthFilterEl = document.getElementById('summary-month-filter');
-    
-    // Set default value for input type="month" based on data if empty
-    if (monthFilterEl && !monthFilterEl.value && globalMb51Data.length > 0) {
-        const uniqueMonths = [...new Set(globalMb51Data.map(row => String(row['Month'] || '').trim()).filter(m => m))];
-        if (uniqueMonths.length > 0) {
-            let numM = parseInt(uniqueMonths[0]);
-            if (!isNaN(numM) && numM >= 1 && numM <= 12) {
-                let yyyy = new Date().getFullYear();
-                let mm = numM.toString().padStart(2, '0');
-                monthFilterEl.value = `${yyyy}-${mm}`;
-            }
-        }
-    }
     
     let selectedMonthStr = monthFilterEl ? monthFilterEl.value : ''; // "YYYY-MM" or ""
     let selectedYear = 'all';
