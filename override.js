@@ -444,27 +444,16 @@ window.renderTable = function(tableId, data) {
     const searchInput = document.getElementById(searchInputId);
     const query = (searchInput && searchInput.value) ? searchInput.value.toLowerCase() : '';
     
-    let doubleCheckFilter = 'all';
-    if (tableId === 'stock-table') {
-        const dcFilter = document.getElementById('stock-doublecheck-filter');
-        if (dcFilter) doubleCheckFilter = dcFilter.value;
-    }
+
     
     data.forEach((row, i) => {
         let matchSearch = true;
-        let matchDC = true;
 
         if (query) {
             matchSearch = Object.values(row).some(val => val && val.toString().toLowerCase().includes(query));
         }
         
-        if (tableId === 'stock-table' && doubleCheckFilter !== 'all') {
-            const dcVal = (row['Double Check'] || '').toString().trim();
-            if (doubleCheckFilter === 'filled') matchDC = dcVal !== '';
-            else if (doubleCheckFilter === 'empty') matchDC = dcVal === '';
-        }
-        
-        if (matchSearch && matchDC) {
+        if (matchSearch) {
             filteredData.push(row);
             originalIndices.push(i);
         }
@@ -667,11 +656,7 @@ document.addEventListener('DOMContentLoaded', () => {
     setupSearch('mb51-search', () => typeof renderMb51 === 'function' && renderMb51());
     setupSearch('stock-search', () => typeof renderStock === 'function' && renderStock());
     
-    // Pasang listener untuk dropdown filter Double Check
-    const dcFilter = document.getElementById('stock-doublecheck-filter');
-    if (dcFilter) {
-        dcFilter.addEventListener('change', () => typeof renderStock === 'function' && renderStock());
-    }
+
 });
 
 document.addEventListener('DOMContentLoaded', () => {
