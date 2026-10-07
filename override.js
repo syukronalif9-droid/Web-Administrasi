@@ -491,84 +491,65 @@ window.renderTable = function(tableId, data) {
     const isStock = tableId === 'stock-table';
     
     const getFreezeStyle = (idx, headerName) => {
-        if (isMb51 && idx < mb51Widths.length) {
-            let left = 0;
+        let isSticky = false;
+        let left = 0;
+        let width = 150;
+        let forceStrictWidth = false;
+        let hasShadow = false;
+
+        if (tableId === 'mb51-table' && idx < mb51Widths.length) {
+            isSticky = true;
+            width = mb51Widths[idx];
             for (let i = 0; i < idx; i++) left += mb51Widths[i];
-            
-            let style = `position: sticky; left: ${left}px; min-width: ${mb51Widths[idx]}px; max-width: ${mb51Widths[idx]}px; width: ${mb51Widths[idx]}px; box-sizing: border-box; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;`;
-            if (idx === mb51Widths.length - 1) {
-                style += ' box-shadow: 4px 0 6px -2px rgba(0,0,0,0.1);';
-            }
-            return { style, isSticky: true };
-        }
-        
-        if (isStock) {
+            forceStrictWidth = (idx < mb51Widths.length - 1);
+            if (idx === mb51Widths.length - 1) hasShadow = true;
+        } else if (tableId === 'stock-table') {
             const stockCols = {
-                'Pers.No.': 120,
-                'Full Name': 250,
-                'Employee Subgroup': 200,
-                'Work Contract': 150,
-                'Cost Ctr': 120,
-                'WH Area': 120,
-                'Location': 150,
-                'Double Check': 150,
-                '>1 Name': 100,
-                'Remarks': 200
+                'Pers.No.': 120, 'Full Name': 250, 'Employee Subgroup': 200,
+                'Work Contract': 150, 'Cost Ctr': 120, 'WH Area': 120,
+                'Location': 150, 'Double Check': 150, '>1 Name': 100, 'Remarks': 200
             };
-            const width = stockCols[headerName] || 150;
-            
-            if (idx < 2) { // Freeze Pers.No dan Full Name
-                let left = (idx === 0) ? 0 : 120; // Pers.No is 120px
-                // Untuk Pers.No kita kunci ukurannya agar left = 120px untuk kolom berikutnya (Full Name) tidak bergeser
-                let sizeStyle = (idx === 0) ? `min-width: ${width}px; max-width: ${width}px; width: ${width}px; overflow: hidden; text-overflow: ellipsis;` : `min-width: ${width}px;`;
-                let style = `position: sticky; left: ${left}px; ${sizeStyle} box-sizing: border-box; white-space: nowrap;`;
-                if (idx === 1) style += ' box-shadow: 4px 0 6px -2px rgba(0,0,0,0.1);';
-                return { style, isSticky: true };
-            } else {
-                return { style: `min-width: ${width}px; box-sizing: border-box; white-space: nowrap;`, isSticky: false };
+            width = stockCols[headerName] || 150;
+            if (idx < 2) {
+                isSticky = true;
+                left = (idx === 0) ? 0 : 120;
+                forceStrictWidth = (idx === 0);
+                if (idx === 1) hasShadow = true;
             }
-        }
-        
-        if (tableId === 'summary-table') {
+        } else if (tableId === 'summary-table') {
             const summaryCols = {
-                'Employee ID': 120,
-                'Employee Name': 250,
-                'Work Contract': 180,
-                'WH Area': 180,
-                'Working Days': 140,
-                'Attendance': 140,
-                'Discipline (%)': 150
+                'Employee ID': 120, 'Employee Name': 250, 'Work Contract': 180,
+                'WH Area': 180, 'Working Days': 140, 'Attendance': 140, 'Discipline (%)': 150
             };
-            const width = summaryCols[headerName] || 150;
-            
-            if (idx < 2) { // Freeze Employee ID and Name
-                let left = (idx === 0) ? 0 : 120; // Employee ID is 120px
-                let style = `position: sticky; left: ${left}px; min-width: ${width}px; max-width: ${width}px; width: ${width}px; box-sizing: border-box; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;`;
-                if (idx === 1) style += ' box-shadow: 4px 0 6px -2px rgba(0,0,0,0.1);';
-                return { style, isSticky: true };
-            } else {
-                return { style: `min-width: ${width}px; max-width: ${width}px; width: ${width}px; box-sizing: border-box; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;`, isSticky: false };
+            width = summaryCols[headerName] || 150;
+            if (idx < 2) {
+                isSticky = true;
+                left = (idx === 0) ? 0 : 120;
+                forceStrictWidth = (idx === 0);
+                if (idx === 1) hasShadow = true;
             }
+        } else {
+            // Default styling and width for other tables (ZMM_LTO, etc)
+            const defaultWidths = {
+                'Employee Name': 250, 'Nama': 250, 'Employee ID': 120, 'Index': 120,
+                'Working Days': 120, 'Attendance': 120, 'Discipline (%)': 150,
+                'Work Contract': 150, 'WH Area': 150, 'Material': 150,
+                'Long Text': 300, 'PO': 120, 'Tanggal': 120
+            };
+            width = defaultWidths[headerName] || 150;
+        }
+
+        let style = `min-width: ${width}px; box-sizing: border-box; white-space: nowrap;`;
+        if (forceStrictWidth) {
+            style += ` max-width: ${width}px; width: ${width}px; overflow: hidden; text-overflow: ellipsis;`;
         }
         
-        // Default styling and width for other tables (ZMM_LTO)
-        const defaultWidths = {
-            'Employee Name': 250,
-            'Nama': 250,
-            'Employee ID': 120,
-            'Index': 120,
-            'Working Days': 120,
-            'Attendance': 120,
-            'Discipline (%)': 150,
-            'Work Contract': 150,
-            'WH Area': 150,
-            'Material': 150,
-            'Long Text': 300,
-            'PO': 120,
-            'Tanggal': 120
-        };
-        const width = defaultWidths[headerName] || 150;
-        return { style: `min-width: ${width}px; max-width: ${width}px; width: ${width}px; box-sizing: border-box; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;`, isSticky: false };
+        if (isSticky) {
+            style = `position: sticky; left: ${left}px; ` + style;
+            if (hasShadow) style += ' box-shadow: 4px 0 6px -2px rgba(0,0,0,0.1);';
+        }
+        
+        return { style, isSticky };
     };
 
     const thead = `<thead><tr>${headers.map((h, idx) => {
