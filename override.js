@@ -421,6 +421,7 @@ function renderStock() {
         const newRow = { ...row };
         delete newRow['Double Check'];
         delete newRow['>1 Name'];
+        delete newRow['Area'];
         return newRow;
     });
 
