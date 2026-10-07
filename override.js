@@ -604,7 +604,18 @@ window.renderTable = function(tableId, data) {
             
             finalStyle += ' text-align: left; padding-left: 12px;'; // Terapkan rata kiri ke SEMUA tabel
             
-            return `<td${editAttr} style="${finalStyle}">${row[h] || ''}</td>`;
+            let cellValue = row[h] || '';
+            
+            // Format angka bulan menjadi nama bulan di tabel MB51 (Hari Kerja)
+            if (isMb51 && h.toLowerCase() === 'month' && cellValue) {
+                const monthNames = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+                const mNum = parseInt(cellValue);
+                if (!isNaN(mNum) && mNum >= 1 && mNum <= 12) {
+                    cellValue = monthNames[mNum - 1];
+                }
+            }
+
+            return `<td${editAttr} style="${finalStyle}">${cellValue}</td>`;
         }).join('')}</tr>`;
     }).join('')}</tbody>`;
     
