@@ -897,3 +897,42 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 });
+
+// Drag to Scroll implementation for all table wrappers
+document.addEventListener('DOMContentLoaded', () => {
+    const sliders = document.querySelectorAll('.table-wrapper');
+    sliders.forEach(slider => {
+        let isDown = false;
+        let startX;
+        let scrollLeft;
+        let startY;
+        let scrollTop;
+
+        slider.addEventListener('mousedown', (e) => {
+            isDown = true;
+            slider.style.cursor = 'grabbing';
+            startX = e.pageX - slider.offsetLeft;
+            scrollLeft = slider.scrollLeft;
+            startY = e.pageY - slider.offsetTop;
+            scrollTop = slider.scrollTop;
+        });
+        slider.addEventListener('mouseleave', () => {
+            isDown = false;
+            slider.style.cursor = 'default';
+        });
+        slider.addEventListener('mouseup', () => {
+            isDown = false;
+            slider.style.cursor = 'default';
+        });
+        slider.addEventListener('mousemove', (e) => {
+            if (!isDown) return;
+            e.preventDefault();
+            const x = e.pageX - slider.offsetLeft;
+            const walkX = (x - startX) * 1.5;
+            slider.scrollLeft = scrollLeft - walkX;
+            const y = e.pageY - slider.offsetTop;
+            const walkY = (y - startY) * 1.5;
+            slider.scrollTop = scrollTop - walkY;
+        });
+    });
+});
