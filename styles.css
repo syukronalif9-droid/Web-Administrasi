@@ -24,7 +24,7 @@
 }
 
 body {
-    background: #E8FA36; /* Bright yellow-green from the reference image */
+    background: #E6E6E4;
     color: var(--text-body);
     overflow: hidden;
     display: flex;
