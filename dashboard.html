@@ -212,9 +212,9 @@
                         <div class="card" style="background: #18181b; border-radius: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); padding: 20px; flex: 1 1 300px; max-width: 550px; display: flex; flex-direction: column;">
                             <h2 style="font-family: 'Times New Roman', Times, serif; color: #f4f4f5; font-size: 1.25rem; margin: 0; margin-bottom: 24px; font-weight: 700; line-height: 1.2;">Discipline Rate (%) Trend - All WH</h2>
                             
-                            <!-- SVG Chart -->
+                                <!-- SVG Chart -->
                             <div style="flex-grow: 1; position: relative; width: 100%; min-height: 220px;">
-                                <svg viewBox="0 0 600 250" style="width: 100%; height: 100%; overflow: visible;">
+                                <svg viewBox="-60 0 660 250" style="width: 100%; height: 100%; overflow: visible;">
                                     <!-- Gradients -->
                                     <defs>
                                         <linearGradient id="blueGradient" x1="0" x2="0" y1="0" y2="1">
@@ -222,6 +222,36 @@
                                             <stop offset="100%" stop-color="rgba(59, 130, 246, 0.0)" />
                                         </linearGradient>
                                     </defs>
+
+                                    <!-- Y-Axis Title (Rotated) -->
+                                    <text x="-130" y="-45" fill="#71717a" font-size="12" font-weight="600" transform="rotate(-90)" text-anchor="middle">Discipline rate (%)</text>
+
+                                    <!-- Y-Axis Labels & Grid Lines -->
+                                    <g fill="#71717a" font-size="10" font-weight="600" text-anchor="end">
+                                        <!-- 120% -> Y=20 -->
+                                        <text x="-10" y="24">120,0%</text>
+                                        <line x1="0" y1="20" x2="600" y2="20" stroke="#27272a" stroke-width="1" />
+                                        
+                                        <!-- 100% -> Y=60 -->
+                                        <text x="-10" y="64">100,0%</text>
+                                        <line x1="0" y1="60" x2="600" y2="60" stroke="#27272a" stroke-width="1" />
+                                        
+                                        <!-- 80% -> Y=100 -->
+                                        <text x="-10" y="104">80,0%</text>
+                                        <line x1="0" y1="100" x2="600" y2="100" stroke="#27272a" stroke-width="1" />
+                                        
+                                        <!-- 60% -> Y=140 -->
+                                        <text x="-10" y="144">60,0%</text>
+                                        <line x1="0" y1="140" x2="600" y2="140" stroke="#27272a" stroke-width="1" />
+                                        
+                                        <!-- 40% -> Y=180 -->
+                                        <text x="-10" y="184">40,0%</text>
+                                        <line x1="0" y1="180" x2="600" y2="180" stroke="#27272a" stroke-width="1" />
+                                        
+                                        <!-- 20% -> Y=220 -->
+                                        <text x="-10" y="224">20,0%</text>
+                                        <line x1="0" y1="220" x2="600" y2="220" stroke="#27272a" stroke-width="1" />
+                                    </g>
 
                                     <!-- X-Axis Labels -->
                                     <g fill="#71717a" font-size="10" font-weight="600" text-anchor="middle">
@@ -239,32 +269,32 @@
                                         <text x="575" y="240">DEC</text>
                                     </g>
 
-                                    <!-- Solid Line Area Fill -->
-                                    <path d="M 25,152 C 50,152 50,150 75,150 C 100,150 100,153 125,153 C 150,153 150,137 175,137 C 200,137 200,81 225,81 C 250,81 250,56 275,56 C 300,56 300,39 325,39 C 350,39 350,36 375,36 L 375,210 L 25,210 Z" 
+                                    <!-- Solid Line Area Fill (Rescaled) -->
+                                    <path d="M 25,89 C 50,89 50,89 75,89 C 100,89 100,90 125,90 C 150,90 150,86 175,86 C 200,86 200,74 225,74 C 250,74 250,68 275,68 C 300,68 300,64 325,64 C 350,64 350,64 375,64 L 375,220 L 25,220 Z" 
                                           fill="url(#blueGradient)" />
 
-                                    <!-- Solid Line (Current Year) -->
-                                    <path d="M 25,152 C 50,152 50,150 75,150 C 100,150 100,153 125,153 C 150,153 150,137 175,137 C 200,137 200,81 225,81 C 250,81 250,56 275,56 C 300,56 300,39 325,39 C 350,39 350,36 375,36" 
+                                    <!-- Solid Line (Current Year - Rescaled) -->
+                                    <path d="M 25,89 C 50,89 50,89 75,89 C 100,89 100,90 125,90 C 150,90 150,86 175,86 C 200,86 200,74 225,74 C 250,74 250,68 275,68 C 300,68 300,64 325,64 C 350,64 350,64 375,64" 
                                           fill="none" stroke="#3b82f6" stroke-width="3" stroke-linecap="round" />
 
-                                    <!-- Data Points -->
+                                    <!-- Data Points (Rescaled) -->
                                     <g fill="#18181b" stroke="#3b82f6" stroke-width="2">
-                                        <!-- Jan: 85.3% -->
-                                        <circle cx="25" cy="152" r="4" />
-                                        <!-- Feb: 85.6% -->
-                                        <circle cx="75" cy="150" r="4" />
-                                        <!-- Mar: 85.2% -->
-                                        <circle cx="125" cy="153" r="4" />
-                                        <!-- Apr: 87.0% -->
-                                        <circle cx="175" cy="137" r="4" />
-                                        <!-- May: 93.2% -->
-                                        <circle cx="225" cy="81" r="4" />
-                                        <!-- Jun: 96.0% -->
-                                        <circle cx="275" cy="56" r="4" />
-                                        <!-- Jul: 97.9% -->
-                                        <circle cx="325" cy="39" r="4" />
-                                        <!-- Aug: 98.2% -->
-                                        <circle cx="375" cy="36" r="4" />
+                                        <!-- Jan: 85.3% -> 89.4 -->
+                                        <circle cx="25" cy="89" r="4" />
+                                        <!-- Feb: 85.6% -> 88.8 -->
+                                        <circle cx="75" cy="89" r="4" />
+                                        <!-- Mar: 85.2% -> 89.6 -->
+                                        <circle cx="125" cy="90" r="4" />
+                                        <!-- Apr: 87.0% -> 86.0 -->
+                                        <circle cx="175" cy="86" r="4" />
+                                        <!-- May: 93.2% -> 73.6 -->
+                                        <circle cx="225" cy="74" r="4" />
+                                        <!-- Jun: 96.0% -> 68.0 -->
+                                        <circle cx="275" cy="68" r="4" />
+                                        <!-- Jul: 97.9% -> 64.2 -->
+                                        <circle cx="325" cy="64" r="4" />
+                                        <!-- Aug: 98.2% -> 63.6 -->
+                                        <circle cx="375" cy="64" r="4" />
                                     </g>
                                     
                                     <!-- Legend pills -->
