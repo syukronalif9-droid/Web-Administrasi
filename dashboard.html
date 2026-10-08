@@ -352,15 +352,15 @@
                             
                             <div style="margin-top: auto;">
                                 <div class="list-item">
-                                    <span><span class="dot" style="background: #0f3732;"></span> Ontime</span>
+                                    <span><span class="dot" style="background: #36a2eb;"></span> Ontime</span>
                                     <span style="font-weight: 600;" id="db-stat-ontime-pct">0%</span>
                                 </div>
                                 <div class="list-item">
-                                    <span><span class="dot" style="background: #c3f56b;"></span> Late</span>
+                                    <span><span class="dot" style="background: #ff9f40;"></span> Late</span>
                                     <span style="font-weight: 600;" id="db-stat-late-pct">0%</span>
                                 </div>
                                 <div class="list-item">
-                                    <span><span class="dot" style="background: #338c61;"></span> Data Stock</span>
+                                    <span><span class="dot" style="background: #8b5cf6;"></span> Data Stock</span>
                                     <span style="font-weight: 600;" id="db-datastock-total">0</span>
                                 </div>
                                 <div class="list-item">
@@ -381,16 +381,16 @@
                                                 data: {
                                                     labels: ['Ontime', 'Late', 'Stock', 'Other'],
                                                     datasets: [{
-                                                        data: [40, 25, 15, 20],
+                                                        data: [35, 20, 20, 25],
                                                         backgroundColor: [
-                                                            '#0f3732', // Dark green (40%)
-                                                            '#c3f56b', // Neon green (25%)
-                                                            '#338c61', // Medium green (15%)
-                                                            '#a6e3b5'  // Pale green (20%)
+                                                            '#36a2eb', // Cyan/Light Blue
+                                                            '#ff9f40', // Orange
+                                                            '#8b5cf6', // Purple
+                                                            '#ff6384'  // Salmon/Pink
                                                         ],
                                                         borderWidth: 2,
                                                         borderColor: '#1A1A1A', // Matches card background
-                                                        offset: [20, 0, 0, 0] // Explodes the first slice
+                                                        offset: 0 // Solid circle, no explosion
                                                     }]
                                                 },
                                                 options: {
