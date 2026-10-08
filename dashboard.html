@@ -116,11 +116,13 @@
                 <div style="display: flex; align-items: center; gap: 12px;">
                     <button id="sidebar-toggle"
                         style="background: #2563eb; border: none; cursor: pointer; color: white; display: flex; align-items: center; justify-content: center; padding: 8px 16px; border-radius: 8px; transition: all 0.3s;">
-                        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M11 19l-7-7 7-7m8 14l-7-7 7-7"></path>
+                        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M11 19l-7-7 7-7m8 14l-7-7 7-7">
+                            </path>
                         </svg>
                     </button>
-                    
+
                     <button id="btn-export-cen5" class="upload-btn"
                         style="background: #10B981; color: white; border: none; font-weight: 600; display: none; padding: 8px 16px; border-radius: 8px; cursor: pointer; align-items: center; gap: 6px; transition: all 0.2s;"
                         onmouseover="this.style.background='#059669'" onmouseout="this.style.background='#10B981'">
@@ -171,276 +173,286 @@
 
             <!-- Dashboard View (New) -->
             <section id="dashboard-view" class="view-section active">
-                <div style="display: flex; flex-direction: column; min-height: calc(100vh - 140px);">
-                    <div style="display: flex; flex-direction: row; align-items: stretch; gap: 24px; width: 100%;">
-                        <!-- Redesigned Stats Cards for Dashboard -->
-                        <div class="engagement-container" style="flex: 2.5 1 0%; width: 100%;">
-                            <div class="engagement-text">
-                                <h3
-                                    style="font-size: 2.2rem; font-weight: 800; color: #1E1B4B; margin: 0; margin-bottom: 16px; letter-spacing: -1px; line-height: 1.1;">
-                                    CEN5 Aging Monitoring System</h3>
-                                <div style="position: relative; display: inline-flex; align-items: center;">
-                                    <input type="text" id="db-aging-date" class="blue-pill-date" placeholder="Pilih...">
-                                    <svg style="position: absolute; right: 14px; pointer-events: none; color: white;"
-                                        width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3"
-                                            d="M19 9l-7 7-7-7"></path>
-                                    </svg>
+                    <style>
+                        /* Bento Grid Layout */
+                        .bento-grid {
+                            display: grid;
+                            grid-template-columns: 1fr 1fr 1.5fr;
+                            grid-template-rows: auto auto auto;
+                            gap: 16px;
+                            background-color: #2F5948; /* Dark green background */
+                            padding: 24px;
+                            border-radius: 20px;
+                            font-family: 'Inter', sans-serif;
+                        }
+                        .bento-card {
+                            border-radius: 20px;
+                            padding: 20px;
+                            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+                            display: flex;
+                            flex-direction: column;
+                            position: relative;
+                        }
+
+                        /* Card 1: Left column */
+                        .card-left {
+                            background-color: #1A1A1A;
+                            color: white;
+                            grid-column: 1;
+                            grid-row: 1 / span 3;
+                            justify-content: flex-start;
+                        }
+                        .donut-wrapper {
+                            display: flex;
+                            justify-content: center;
+                            margin: 30px 0;
+                        }
+                        .donut-placeholder {
+                            width: 180px;
+                            height: 180px;
+                            border-radius: 50%;
+                            border: 15px solid #45c4b0;
+                            border-top-color: #A388F9;
+                            border-right-color: #D3F976;
+                            display: flex;
+                            justify-content: center;
+                            align-items: center;
+                        }
+                        .donut-text {
+                            font-size: 2.5rem;
+                            font-weight: 800;
+                        }
+                        .list-item {
+                            display: flex;
+                            justify-content: space-between;
+                            margin-bottom: 12px;
+                            font-size: 0.9rem;
+                        }
+                        .dot {
+                            width: 8px;
+                            height: 8px;
+                            border-radius: 50%;
+                            display: inline-block;
+                            margin-right: 8px;
+                        }
+
+                        /* Card 2: Middle Top */
+                        .card-mid-top {
+                            background-color: #D3F976;
+                            color: #1A1A1A;
+                            grid-column: 2;
+                            grid-row: 1;
+                        }
+
+                        /* Card 3: Middle Center */
+                        .card-mid-center {
+                            background-color: #FFFFFF;
+                            color: #1A1A1A;
+                            grid-column: 2;
+                            grid-row: 2;
+                        }
+
+                        /* Card 4: Middle Bottom */
+                        .card-mid-bottom {
+                            background-color: #A388F9;
+                            color: white;
+                            grid-column: 2;
+                            grid-row: 3;
+                        }
+
+                        /* Card 5: Right Top */
+                        .card-right-top {
+                            background-color: #1A1A1A;
+                            color: white;
+                            grid-column: 3;
+                            grid-row: 1 / span 2;
+                        }
+
+                        /* Card 6: Right Bottom */
+                        .card-right-bottom {
+                            background-color: #D3F976;
+                            color: #1A1A1A;
+                            grid-column: 3;
+                            grid-row: 3;
+                            overflow: hidden;
+                            padding-bottom: 0;
+                        }
+
+                        /* Shared styles */
+                        .bento-header {
+                            font-size: 0.75rem;
+                            font-weight: 700;
+                            text-transform: uppercase;
+                            background: rgba(255,255,255,0.2);
+                            color: inherit;
+                            padding: 4px 12px;
+                            border-radius: 20px;
+                            display: inline-block;
+                            align-self: flex-start;
+                            margin-bottom: 12px;
+                        }
+                        .card-left .bento-header, .card-right-top .bento-header {
+                            background: #D3F976;
+                            color: #1A1A1A;
+                        }
+                        .card-mid-top .bento-header, .card-mid-center .bento-header {
+                            background: transparent;
+                            padding: 0;
+                            color: #1A1A1A;
+                            margin-bottom: 4px;
+                            display: flex;
+                            align-items: center;
+                            gap: 8px;
+                        }
+                        .bento-title {
+                            font-size: 0.85rem;
+                            opacity: 0.8;
+                        }
+                        .bento-value {
+                            font-size: 2.2rem;
+                            font-weight: 800;
+                            margin: 4px 0;
+                        }
+                        
+                        .bento-flex-row {
+                            display: flex;
+                            justify-content: space-between;
+                            align-items: flex-end;
+                        }
+                        
+                        .bento-date-picker {
+                            background: rgba(255,255,255,0.1);
+                            border: none;
+                            color: white;
+                            border-radius: 8px;
+                            padding: 4px 8px;
+                            font-size: 0.8rem;
+                            outline: none;
+                        }
+                        .card-mid-top .bento-date-picker {
+                            background: rgba(0,0,0,0.1);
+                            color: #1A1A1A;
+                        }
+                    </style>
+
+                    <div class="bento-grid">
+                        <!-- Card 1: Left -->
+                        <div class="bento-card card-left">
+                            <div style="display: flex; justify-content: space-between;">
+                                <span class="bento-header">TOTAL</span>
+                                <input type="text" id="db-aging-date" class="bento-date-picker" placeholder="Pilih Tanggal...">
+                            </div>
+                            <div class="bento-title" style="margin-top: 8px;">In the past month</div>
+                            
+                            <div class="donut-wrapper">
+                                <div class="donut-placeholder">
+                                    <div class="donut-text" id="db-stat-total-line">0</div>
                                 </div>
                             </div>
-                            <div class="engagement-cards-wrapper">
-                                <!-- Ontime Card -->
-                                <div class="engagement-card">
-                                    <div class="card-icon-badge">
-                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white"
-                                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
-                                        </svg>
-                                    </div>
-                                    <h4>Ontime</h4>
-                                    <div class="card-value-row">
-                                        <span id="db-stat-ontime-line">0</span>
-                                        <span class="arrow arrow-up">↑</span>
-                                    </div>
-                                    <div style="margin-top: 8px;">
-                                        <span id="db-stat-ontime-pct"
-                                            style="font-size: 1rem; color: #16A34A; font-weight: 700; background: #DCFCE7; padding: 4px 12px; border-radius: 12px;">0%</span>
-                                    </div>
+                            
+                            <div style="margin-top: auto;">
+                                <div class="list-item">
+                                    <span><span class="dot" style="background: #A388F9;"></span> Ontime</span>
+                                    <span style="font-weight: 600;" id="db-stat-ontime-pct">0%</span>
                                 </div>
-
-                                <!-- Late Card -->
-                                <div class="engagement-card">
-                                    <div class="card-icon-badge">
-                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white"
-                                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                            <circle cx="12" cy="12" r="10"></circle>
-                                            <polyline points="12 6 12 12 16 14"></polyline>
-                                        </svg>
-                                    </div>
-                                    <h4>Late</h4>
-                                    <div class="card-value-row">
-                                        <span id="db-stat-late-line">0</span>
-                                        <span class="arrow arrow-down">↓</span>
-                                    </div>
-                                    <div style="margin-top: 8px;">
-                                        <span id="db-stat-late-pct"
-                                            style="font-size: 1rem; color: #DC2626; font-weight: 700; background: #FEE2E2; padding: 4px 12px; border-radius: 12px;">0%</span>
-                                    </div>
+                                <div class="list-item">
+                                    <span><span class="dot" style="background: #D3F976;"></span> Late</span>
+                                    <span style="font-weight: 600;" id="db-stat-late-pct">0%</span>
                                 </div>
-
-                                <!-- Total Card -->
-                                <div class="engagement-card">
-                                    <div class="card-icon-badge">
-                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white"
-                                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                            <polygon
-                                                points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2">
-                                            </polygon>
-                                        </svg>
-                                    </div>
-                                    <h4>Total</h4>
-                                    <div class="card-value-row">
-                                        <span id="db-stat-total-line">0</span>
-                                        <span class="arrow arrow-up">↑</span>
-                                    </div>
-                                    <div style="margin-top: 8px;">
-                                        <span id="db-stat-total-pct"
-                                            style="font-size: 1rem; color: #2563EB; font-weight: 700; background: #DBEAFE; padding: 4px 12px; border-radius: 12px;">0%</span>
-                                    </div>
+                                <div class="list-item">
+                                    <span><span class="dot" style="background: #45c4b0;"></span> Data Stock</span>
+                                    <span style="font-weight: 600;" id="db-datastock-total">0</span>
+                                </div>
+                                <div class="list-item">
+                                    <div style="display: none;" id="db-stat-ontime-line"></div>
+                                    <div style="display: none;" id="db-stat-late-line"></div>
+                                    <div style="display: none;" id="db-stat-total-pct"></div>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Total Volume Locked Card Wrapper -->
-                        <div style="flex: 1 1 0%; display: flex; flex-direction: column; gap: 16px; width: 100%;">
-                            <div
-                                style="flex: 1; background: linear-gradient(135deg, #C5BFF7 0%, #F1C3BE 50%, #F4D9C7 100%); border-radius: 28px; padding: 32px; position: relative; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.05); display: flex; flex-direction: column; justify-content: space-between;">
-                                <h2 id="db-total-unrestricted"
-                                    style="font-size: 3.5rem; font-weight: 800; color: #2D283E; margin: 0; position: relative; z-index: 2; letter-spacing: -1px;">
-                                    $0</h2>
-
-                                <div style="margin-top: 50px; position: relative; z-index: 2;">
-                                    <span
-                                        style="font-size: 1.25rem; font-weight: 500; color: #2D283E; line-height: 1.3; display: block;">Total
-                                        Value<br>Unrestricted</span>
-                                </div>
-
-                                <!-- Bottom right bars -->
-                                <div
-                                    style="position: absolute; bottom: 32px; right: 32px; display: flex; align-items: flex-end; gap: 8px; z-index: 1;">
-                                    <div style="width: 18px; height: 24px; background: #93C5FD; border-radius: 8px;">
-                                    </div>
-                                    <div style="width: 18px; height: 48px; background: #60A5FA; border-radius: 8px;">
-                                    </div>
-                                    <div style="width: 18px; height: 80px; background: #2563EB; border-radius: 8px;">
-                                    </div>
-                                    <div style="width: 18px; height: 40px; background: #3B82F6; border-radius: 8px;">
-                                    </div>
-                                </div>
+                        <!-- Card 2: Middle Top -->
+                        <div class="bento-card card-mid-top">
+                            <div class="bento-header">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 16 12 12 12 8"></polyline><polyline points="8 12 12 8 16 12"></polyline></svg>
+                                <span>UNRESTRICTED</span>
                             </div>
+                            <div class="bento-value" id="db-total-unrestricted">$0</div>
+                            <div class="bento-title">Total Value</div>
+                            
+                            <select id="db-unrestricted-sloc-filter" class="bento-date-picker" style="margin-top: 12px; width: fit-content; background: rgba(0,0,0,0.05); color: #1A1A1A;">
+                                <option value="all">Semua Lokasi</option>
+                            </select>
+                        </div>
 
-                            <!-- Location Filter for Total Volume -->
-                            <div class="card"
-                                style="padding: 10px 16px; display: inline-flex; align-items: center; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); border-radius: 20px; align-self: flex-end; width: 100%; box-sizing: border-box;">
-                                <select id="db-unrestricted-sloc-filter" class="glass-input"
-                                    style="margin: 0; width: 100%; font-weight: 600; cursor: pointer; padding: 8px 12px; border: none; outline: none; background: transparent; color: #1e293b;">
-                                    <option value="all">Semua Lokasi</option>
-                                </select>
+                        <!-- Card 3: Middle Center -->
+                        <div class="bento-card card-mid-center">
+                            <div class="bento-title" style="margin-bottom: 8px;">Ontime & Late</div>
+                            <div style="display: flex; align-items: baseline; gap: 8px;">
+                                <span style="font-size: 2rem; font-weight: 800; color: #16A34A;">↑</span>
+                                <span style="font-size: 2.2rem; font-weight: 800;">Status</span>
+                            </div>
+                            <div style="display: flex; gap: 8px; margin-top: 12px;">
+                                <span style="background: #DCFCE7; color: #16A34A; padding: 4px 12px; border-radius: 12px; font-weight: 700; font-size: 0.85rem;">Ontime</span>
+                                <span style="background: #FEE2E2; color: #DC2626; padding: 4px 12px; border-radius: 12px; font-weight: 700; font-size: 0.85rem;">Late</span>
                             </div>
                         </div>
-                    </div>
 
-                    <!-- Middle Section: Chart and Custom Card -->
-                    <div
-                        style="display: flex; flex-direction: row; align-items: stretch; gap: 24px; width: 100%; margin-top: 24px; flex: 1; min-height: 300px; max-height: 460px;">
-                        <!-- Area for Late Chart (Red Wave Style) -->
-                        <div id="late-chart-container"
-                            style="flex: 2.5 1 0%; width: 100%; background: white; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.04); border: 1px solid rgba(226, 232, 240, 0.8); display: flex; flex-direction: column; padding: 24px;">
-                            <div
-                                style="margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center;">
-                                <h3 id="late-chart-title"
-                                    style="margin: 0; font-size: 1.25rem; font-weight: 700; color: #1e293b; letter-spacing: -0.5px;">
-                                    Monitoring Status Aging per S Loc</h3>
-                                <div class="chart-tabs"
-                                    style="display: flex; gap: 16px; font-size: 0.95rem; font-weight: 600; color: #94a3b8; cursor: pointer;">
-                                    <div id="tab-late" class="chart-tab active" data-type="Late"
-                                        style="color: #1e293b; border-bottom: 2px solid #ef4444; padding-bottom: 4px; transition: 0.2s;">
-                                        Late</div>
-                                    <div id="tab-ontime" class="chart-tab" data-type="Ontime"
-                                        style="padding-bottom: 4px; transition: 0.2s;">Ontime</div>
+                        <!-- Card 4: Middle Bottom -->
+                        <div class="bento-card card-mid-bottom">
+                            <div class="bento-title" style="text-transform: uppercase; font-size: 0.75rem; font-weight: 700;">Masih Kosong</div>
+                            <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-top: 8px;">
+                                <div>
+                                    <div style="font-size: 0.85rem; opacity: 0.9;">PO Kosong</div>
+                                    <div style="font-size: 2rem; font-weight: 800;" id="db-datastock-po">0</div>
+                                </div>
+                                <div>
+                                    <div style="font-size: 0.85rem; opacity: 0.9;">S LOC Kosong</div>
+                                    <div style="font-size: 2rem; font-weight: 800;" id="db-datastock-sloc">0</div>
                                 </div>
                             </div>
-                            <div style="flex: 1; position: relative; min-height: 250px; width: 100%;">
+                        </div>
+
+                        <!-- Card 5: Right Top -->
+                        <div class="bento-card card-right-top" id="late-chart-container">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                                <span class="bento-header" style="background: #fca5a5;">PERFORMANCE</span>
+                                <div class="chart-tabs" style="display: flex; gap: 12px; font-size: 0.8rem; font-weight: 600; cursor: pointer;">
+                                    <div id="tab-late" class="chart-tab active" data-type="Late" style="color: #ef4444;">Late</div>
+                                    <div id="tab-ontime" class="chart-tab" data-type="Ontime" style="color: #94a3b8;">Ontime</div>
+                                </div>
+                            </div>
+                            <div id="late-chart-title" style="display: none;">Monitoring Status</div>
+                            <div style="flex: 1; position: relative; min-height: 200px; width: 100%; margin-top: 12px;">
                                 <canvas id="lateChart"></canvas>
                             </div>
                         </div>
 
-                        <!-- Area for Custom Card (Performance Style) -->
-                        <div id="custom-card-container"
-                            style="flex: 1 1 0%; width: 100%; background: #181a25; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); display: flex; flex-direction: column; padding: 28px; color: white;">
-                            <!-- Header -->
-                            <div
-                                style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 32px;">
-                                <h3
-                                    style="margin: 0; font-size: 1.25rem; font-weight: 700; color: #ffffff; letter-spacing: 0.5px;">
-                                    Line Masih Kosong</h3>
-                                <button
-                                    style="background: transparent; border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; color: #94a3b8; cursor: pointer; transition: background 0.2s;">
-                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                        <circle cx="12" cy="5" r="1"></circle>
-                                        <circle cx="12" cy="12" r="1"></circle>
-                                        <circle cx="12" cy="19" r="1"></circle>
-                                    </svg>
-                                </button>
+                        <!-- Card 6: Right Bottom -->
+                        <div class="bento-card card-right-bottom" style="padding: 16px;">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 12px;">
+                                <span style="font-weight: 700; font-size: 0.9rem;">Status Count</span>
+                                <span style="font-size: 0.8rem; background: #1A1A1A; color: white; padding: 2px 8px; border-radius: 12px;">TABLE</span>
                             </div>
-
-                            <!-- Stats Row -->
-                            <div
-                                style="display: flex; flex-direction: row; align-items: center; justify-content: center; margin-bottom: 40px; gap: 24px;">
-                                <div style="text-align: center; flex: 1;">
-                                    <div id="db-datastock-po"
-                                        style="font-size: 2.25rem; font-weight: 700; color: #ffffff; line-height: 1.1;">
-                                        0</div>
-                                    <div style="font-size: 0.8rem; color: #64748b; margin-top: 6px; font-weight: 500;">
-                                        PO</div>
-                                </div>
-
-                                <div style="width: 1px; height: 40px; background: rgba(255,255,255,0.1);"></div>
-
-                                <div style="text-align: center; flex: 1;">
-                                    <div id="db-datastock-sloc"
-                                        style="font-size: 2.25rem; font-weight: 700; color: #ffffff; line-height: 1.1;">
-                                        0</div>
-                                    <div style="font-size: 0.8rem; color: #64748b; margin-top: 6px; font-weight: 500;">S
-                                        LOC</div>
-                                </div>
-                            </div>
-
-                            <!-- Checklist -->
-                            <div
-                                style="display: flex; flex-direction: column; gap: 24px; flex: 1; justify-content: flex-end;">
-                                <!-- Item 1 -->
-                                <div style="display: flex; align-items: center; gap: 16px;">
-                                    <div
-                                        style="width: 32px; height: 32px; border-radius: 50%; background: #e85d43; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white"
-                                            stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-                                            <polyline points="20 6 9 17 4 12"></polyline>
-                                        </svg>
-                                    </div>
-                                    <div style="font-size: 0.95rem; color: #94a3b8; font-weight: 400;"><span
-                                            style="font-weight: 600; color: white;">Data Stock terupload</span> <span
-                                            id="db-datastock-total" style="color: white; font-weight: 700;">0</span>
-                                    </div>
-                                </div>
-
-                                <!-- Item 2 -->
-                                <div style="display: flex; align-items: center; gap: 16px;">
-                                    <div
-                                        style="width: 32px; height: 32px; border-radius: 50%; background: #45c4b0; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white"
-                                            stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                                            <path
-                                                d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z">
-                                            </path>
-                                            <line x1="12" y1="9" x2="12" y2="13"></line>
-                                            <line x1="12" y1="17" x2="12.01" y2="17"></line>
-                                        </svg>
-                                    </div>
-                                    <div style="font-size: 0.95rem; color: #94a3b8; font-weight: 400;"><span
-                                            style="font-weight: 600; color: white;">Segera Lengkapi PO:</span> Sulit
-                                        melacak barang</div>
-                                </div>
-
-                                <!-- Item 3 -->
-                                <div style="display: flex; align-items: center; gap: 16px;">
-                                    <div
-                                        style="width: 32px; height: 32px; border-radius: 50%; background: #d7c0a6; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white"
-                                            stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                                            <path
-                                                d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z">
-                                            </path>
-                                            <line x1="12" y1="9" x2="12" y2="13"></line>
-                                            <line x1="12" y1="17" x2="12.01" y2="17"></line>
-                                        </svg>
-                                    </div>
-                                    <div style="font-size: 0.95rem; color: #94a3b8; font-weight: 400;"><span
-                                            style="font-weight: 600; color: white;">Segera Lengkapi S LOC:</span> Stok
-                                        tak terdeteksi</div>
-                                </div>
+                            <div class="table-wrapper" style="border: none; border-radius: 12px; overflow-y: auto; max-height: 120px; background: rgba(255,255,255,0.3);">
+                                <table id="countsloc-table" style="width: 100%; font-size: 0.8rem;">
+                                    <thead>
+                                        <tr>
+                                            <th style="background: transparent; color: #1A1A1A; padding: 4px;">Loading...</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                </table>
                             </div>
                         </div>
                     </div>
-
-                    <!-- Count of Status Table (Moved from Count S.Loc) -->
-                    <div style="margin-top: 24px; width: 100%; height: auto; padding: 24px; background: white; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.04); border: 1px solid rgba(226, 232, 240, 0.8);"
-                        class="table-container">
-                        <div style="margin-bottom: 16px;">
-                            <h3
-                                style="margin: 0; font-size: 1.25rem; font-weight: 700; color: #1e293b; letter-spacing: -0.5px;">
-                                Count of Status</h3>
-                        </div>
-                        <div class="table-wrapper"
-                            style="border: none; border-radius: 12px; overflow: hidden; box-shadow: 0 0 0 1px #e2e8f0;">
-                            <table id="countsloc-table">
-                                <thead>
-                                    <tr>
-                                        <th>Loading...</th>
-                                    </tr>
-                                </thead>
-                                <tbody></tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
             </section>
 
             <!-- Upload Data View -->
             <section id="upload-view" class="view-section">
                 <div style="width: 100%; max-width: 620px; margin: 0 auto;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
                         <button onclick="document.getElementById('modal-bantuan').style.display='flex'"
                             style="background: #111827; border: none; border-radius: 8px; padding: 7px 16px; font-size: 0.82rem; font-weight: 600; color: #ffffff; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: background 0.2s;"
                             onmouseover="this.style.background='#000000'" onmouseout="this.style.background='#111827'">
@@ -458,7 +470,9 @@
                             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                 stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                                 <path d="M3 6h18"></path>
-                                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                <path
+                                    d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2">
+                                </path>
                             </svg>
                             Hapus Semua
                         </button>
@@ -475,39 +489,45 @@
                         <div>
                             <div
                                 style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                                <label style="font-weight: 600; color: var(--text-heading); font-size: 0.9rem;">Master Employee (.csv)</label>
+                                <label style="font-weight: 600; color: var(--text-heading); font-size: 0.9rem;">Master
+                                    Employee (.csv)</label>
                                 <button id="btn-reset-stock" class="reset-db-btn" data-table="stock"
                                     style="background: #ef4444; color: white; border: none; padding: 4px 12px; font-size: 12px; font-weight: 600; border-radius: 4px; cursor: pointer;">Hapus
                                     Data</button>
                             </div>
                             <div class="drop-zone" id="drop-zone-stock">
-                                <span class="drop-zone__prompt">Drag & Drop file Master Employee atau klik di sini</span>
+                                <span class="drop-zone__prompt">Drag & Drop file Master Employee atau klik di
+                                    sini</span>
                                 <input type="file" id="upload-stock" accept=".csv" class="drop-zone__input">
                             </div>
                         </div>
                         <div>
                             <div
                                 style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                                <label style="font-weight: 600; color: var(--text-heading); font-size: 0.9rem;">Work Days / MB51 (.csv)</label>
+                                <label style="font-weight: 600; color: var(--text-heading); font-size: 0.9rem;">Work
+                                    Days / MB51 (.csv)</label>
                                 <button id="btn-reset-mb51" class="reset-db-btn" data-table="mb51"
                                     style="background: #ef4444; color: white; border: none; padding: 4px 12px; font-size: 12px; font-weight: 600; border-radius: 4px; cursor: pointer;">Hapus
                                     Data</button>
                             </div>
                             <div class="drop-zone" id="drop-zone-mb51">
-                                <span class="drop-zone__prompt">Drag & Drop file Work Days / MB51 atau klik di sini</span>
+                                <span class="drop-zone__prompt">Drag & Drop file Work Days / MB51 atau klik di
+                                    sini</span>
                                 <input type="file" id="upload-mb51" accept=".csv" class="drop-zone__input">
                             </div>
                         </div>
                         <div>
                             <div
                                 style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                                <label style="font-weight: 600; color: var(--text-heading); font-size: 0.9rem;">Framsys / ZMM_LTO (.csv)</label>
+                                <label style="font-weight: 600; color: var(--text-heading); font-size: 0.9rem;">Framsys
+                                    / ZMM_LTO (.csv)</label>
                                 <button id="btn-reset-zmmlto" class="reset-db-btn" data-table="ZMM_LTO"
                                     style="background: #ef4444; color: white; border: none; padding: 4px 12px; font-size: 12px; font-weight: 600; border-radius: 4px; cursor: pointer;">Hapus
                                     Data</button>
                             </div>
                             <div class="drop-zone" id="drop-zone-zmmlto">
-                                <span class="drop-zone__prompt">Drag & Drop file Framsys / ZMM_LTO atau klik di sini</span>
+                                <span class="drop-zone__prompt">Drag & Drop file Framsys / ZMM_LTO atau klik di
+                                    sini</span>
                                 <input type="file" id="upload-zmmlto" accept=".csv" class="drop-zone__input">
                             </div>
                         </div>
@@ -530,9 +550,12 @@
                         <div class="card"
                             style="padding: 10px 16px; display: inline-flex; align-items: center; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); border-radius: 20px; gap: 12px;">
                             <div style="position: relative; display: inline-flex; align-items: center;">
-                                <input type="text" id="summary-month-filter" class="blue-pill-date" placeholder="Semua Bulan">
-                                <svg style="position: absolute; right: 14px; pointer-events: none; color: white;" width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7"></path>
+                                <input type="text" id="summary-month-filter" class="blue-pill-date"
+                                    placeholder="Semua Bulan">
+                                <svg style="position: absolute; right: 14px; pointer-events: none; color: white;"
+                                    width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3"
+                                        d="M19 9l-7 7-7-7"></path>
                                 </svg>
                             </div>
 
@@ -744,42 +767,66 @@
                         <strong style="color:#1E293B;">Late</strong> — Aging &gt; 3 hari
                     </p>
 
-                    <h3 style="font-size: 1.25rem; font-weight: 700; color: #1e293b; margin-bottom: 16px; margin-top: 32px;">
+                    <h3
+                        style="font-size: 1.25rem; font-weight: 700; color: #1e293b; margin-bottom: 16px; margin-top: 32px;">
                         2. Cara Menginput MB51 dari SAP</h3>
-                    <div style="font-size: 1rem; color: #475569; line-height: 1.7; background: #f8fafc; padding: 20px; border-radius: 12px; border: 1px solid #e2e8f0;">
-                        <p style="margin-top: 0; margin-bottom: 12px;">Pada saat Anda membuka T-Code <strong>MB51</strong> di SAP, isilah parameter pencarian berikut:</p>
-                        
+                    <div
+                        style="font-size: 1rem; color: #475569; line-height: 1.7; background: #f8fafc; padding: 20px; border-radius: 12px; border: 1px solid #e2e8f0;">
+                        <p style="margin-top: 0; margin-bottom: 12px;">Pada saat Anda membuka T-Code
+                            <strong>MB51</strong> di SAP, isilah parameter pencarian berikut:</p>
+
                         <strong style="color: #1e293b;">Type of Data Input (Bagian Atas):</strong>
                         <ul style="margin-top: 4px; margin-bottom: 16px; padding-left: 20px;">
-                            <li>Pastikan Anda memilih (mencentang radio button) opsi <strong>Goods Receipt</strong>.</li>
+                            <li>Pastikan Anda memilih (mencentang radio button) opsi <strong>Goods Receipt</strong>.
+                            </li>
                         </ul>
 
                         <strong style="color: #1e293b;">Bagian Item Data:</strong>
-                        <ul style="margin-top: 4px; margin-bottom: 16px; padding-left: 20px; display: flex; flex-direction: column; gap: 8px;">
-                            <li><strong>Material:</strong> Diisi dengan cara memencet <strong>tombol kuning</strong> (Multiple Selection) di ujung kanan kolom tersebut. Isi dengan data material yang ditarik dari data stock pada saat itu juga (copy-paste dari file stock).</li>
-                            <li><strong>Plant:</strong> Diisi dengan cara memencet <strong>tombol kuning</strong> (Multiple Selection) di ujung kanan kolom tersebut, lalu masukkan angka <strong>1000</strong> dan <strong>2009</strong>.</li>
-                            <li><strong>Storage Location:</strong> Isi dengan kode lokasi penyimpanan (contoh: <strong>CEN5</strong>).</li>
+                        <ul
+                            style="margin-top: 4px; margin-bottom: 16px; padding-left: 20px; display: flex; flex-direction: column; gap: 8px;">
+                            <li><strong>Material:</strong> Diisi dengan cara memencet <strong>tombol kuning</strong>
+                                (Multiple Selection) di ujung kanan kolom tersebut. Isi dengan data material yang
+                                ditarik dari data stock pada saat itu juga (copy-paste dari file stock).</li>
+                            <li><strong>Plant:</strong> Diisi dengan cara memencet <strong>tombol kuning</strong>
+                                (Multiple Selection) di ujung kanan kolom tersebut, lalu masukkan angka
+                                <strong>1000</strong> dan <strong>2009</strong>.</li>
+                            <li><strong>Storage Location:</strong> Isi dengan kode lokasi penyimpanan (contoh:
+                                <strong>CEN5</strong>).</li>
                         </ul>
 
                         <strong style="color: #1e293b;">Bagian Header Data:</strong>
                         <ul style="margin-top: 4px; margin-bottom: 16px; padding-left: 20px;">
-                            <li><strong>Posting Date:</strong> Isi dengan rentang tanggal transaksi yang ingin ditarik (contoh: dari tanggal <strong>28.08.2026</strong> ke <strong>25.09.2026</strong>).</li>
+                            <li><strong>Posting Date:</strong> Isi dengan rentang tanggal transaksi yang ingin ditarik
+                                (contoh: dari tanggal <strong>28.08.2026</strong> ke <strong>25.09.2026</strong>).</li>
                         </ul>
 
-                        <p style="margin-bottom: 0;">Setelah itu, klik tombol <strong>Execute (F8)</strong> lalu <em>Export</em> (Spreadsheet) datanya dalam format Excel untuk di-upload ke sistem ini.</p>
+                        <p style="margin-bottom: 0;">Setelah itu, klik tombol <strong>Execute (F8)</strong> lalu
+                            <em>Export</em> (Spreadsheet) datanya dalam format Excel untuk di-upload ke sistem ini.</p>
                     </div>
 
-                    <h3 style="font-size: 1.25rem; font-weight: 700; color: #1e293b; margin-bottom: 16px; margin-top: 32px;">
+                    <h3
+                        style="font-size: 1.25rem; font-weight: 700; color: #1e293b; margin-bottom: 16px; margin-top: 32px;">
                         3. Cara Menginput ZMM_LTO dari SAP</h3>
-                    <div style="font-size: 1rem; color: #475569; line-height: 1.7; background: #f8fafc; padding: 20px; border-radius: 12px; border: 1px solid #e2e8f0;">
-                        <p style="margin-top: 0; margin-bottom: 12px;">Pada saat Anda membuka T-Code <strong>ZMM_LTO</strong> di SAP, isilah parameter pencarian berikut:</p>
-                        
+                    <div
+                        style="font-size: 1rem; color: #475569; line-height: 1.7; background: #f8fafc; padding: 20px; border-radius: 12px; border: 1px solid #e2e8f0;">
+                        <p style="margin-top: 0; margin-bottom: 12px;">Pada saat Anda membuka T-Code
+                            <strong>ZMM_LTO</strong> di SAP, isilah parameter pencarian berikut:</p>
+
                         <strong style="color: #1e293b;">Bagian Parameter Pencarian:</strong>
-                        <ul style="margin-top: 4px; margin-bottom: 16px; padding-left: 20px; display: flex; flex-direction: column; gap: 8px;">
-                            <li><strong>Material:</strong> Diisi dengan cara memencet <strong>tombol kuning</strong> (Multiple Selection) di ujung kanan kolom tersebut. Isi dengan data material yang ditarik dari data stock pada saat itu juga (copy-paste dari file stock).</li>
-                            <li><strong>Plant:</strong> Diisi dengan cara memencet <strong>tombol kuning</strong> (Multiple Selection) di ujung kanan kolom tersebut, lalu masukkan angka <strong>1000</strong> dan <strong>2009</strong>.</li>
-                            <li><strong>Purchase order:</strong> Diisi dengan cara memencet <strong>tombol kuning</strong> (Multiple Selection) di ujung kanan kolom tersebut. Isi dengan data PO yang diambil dari data MB51.</li>
-                            <li><strong>Posting Date:</strong> Diisi dengan cara memencet <strong>tombol kuning</strong> (Multiple Selection) di ujung kanan kolom tersebut untuk memasukkan rentang tanggal.</li>
+                        <ul
+                            style="margin-top: 4px; margin-bottom: 16px; padding-left: 20px; display: flex; flex-direction: column; gap: 8px;">
+                            <li><strong>Material:</strong> Diisi dengan cara memencet <strong>tombol kuning</strong>
+                                (Multiple Selection) di ujung kanan kolom tersebut. Isi dengan data material yang
+                                ditarik dari data stock pada saat itu juga (copy-paste dari file stock).</li>
+                            <li><strong>Plant:</strong> Diisi dengan cara memencet <strong>tombol kuning</strong>
+                                (Multiple Selection) di ujung kanan kolom tersebut, lalu masukkan angka
+                                <strong>1000</strong> dan <strong>2009</strong>.</li>
+                            <li><strong>Purchase order:</strong> Diisi dengan cara memencet <strong>tombol
+                                    kuning</strong> (Multiple Selection) di ujung kanan kolom tersebut. Isi dengan data
+                                PO yang diambil dari data MB51.</li>
+                            <li><strong>Posting Date:</strong> Diisi dengan cara memencet <strong>tombol kuning</strong>
+                                (Multiple Selection) di ujung kanan kolom tersebut untuk memasukkan rentang tanggal.
+                            </li>
                         </ul>
 
                         <strong style="color: #1e293b;">Bagian Display Options (Bawah):</strong>
@@ -787,10 +834,12 @@
                             <li>Pastikan Anda memilih (mencentang) opsi <strong>Flat List</strong>.</li>
                         </ul>
 
-                        <p style="margin-bottom: 0;">Setelah itu, klik tombol <strong>Execute (F8)</strong> lalu <em>Export</em> (Spreadsheet) datanya dalam format Excel untuk di-upload ke sistem ini.</p>
+                        <p style="margin-bottom: 0;">Setelah itu, klik tombol <strong>Execute (F8)</strong> lalu
+                            <em>Export</em> (Spreadsheet) datanya dalam format Excel untuk di-upload ke sistem ini.</p>
                     </div>
 
-                    <h3 style="font-size: 1.25rem; font-weight: 700; color: #1e293b; margin-bottom: 16px; margin-top: 32px;">
+                    <h3
+                        style="font-size: 1.25rem; font-weight: 700; color: #1e293b; margin-bottom: 16px; margin-top: 32px;">
                         4. Cara Menginput File Stock dari SAP</h3>
             </section>
 
@@ -887,14 +936,16 @@
                 <div>
                     <h3 style="font-size:1.4rem; font-weight:700; color:#1E293B; margin-bottom:8px;">Employee Data</h3>
                     <p style="font-size:1.05rem; color:#475569; line-height:1.7;"><strong style="color:#1E293B;">Kolom
-                            wajib:</strong> Pers.No., Full Name, Employee Subgroup, Work Contract, Cost Ctr, WH Area, Location, Bagian, Remarks.</p>
+                            wajib:</strong> Pers.No., Full Name, Employee Subgroup, Work Contract, Cost Ctr, WH Area,
+                        Location, Bagian, Remarks.</p>
                 </div>
                 <hr style="border:none; border-top:1px solid #E2E8F0;">
                 <!-- Section 2 -->
                 <div>
                     <h3 style="font-size:1.4rem; font-weight:700; color:#1E293B; margin-bottom:8px;">Work Days</h3>
                     <p style="font-size:1.05rem; color:#475569; line-height:1.7;"><strong style="color:#1E293B;">Kolom
-                            wajib:</strong> Month, Index, Nama, Hari Kerja, Sakit, Izin, CT, CH, CK, Libur Bersama, Dispens., Alpa, Keterangan.</p>
+                            wajib:</strong> Month, Index, Nama, Hari Kerja, Sakit, Izin, CT, CH, CK, Libur Bersama,
+                        Dispens., Alpa, Keterangan.</p>
                 </div>
                 <hr style="border:none; border-top:1px solid #E2E8F0;">
                 <!-- Section 3 -->
@@ -907,7 +958,9 @@
                 <!-- Section 4 -->
                 <div>
                     <h3 style="font-size:1.4rem; font-weight:700; color:#1E293B; margin-bottom:8px;">Perhatian</h3>
-                    <p style="font-size:1.05rem; color:#475569; line-height:1.7;">Pastikan penulisan <strong>header kolom</strong> (huruf besar dan kecilnya) di file Excel Anda yang akan di upload sudah <strong>sesuai dengan panduan</strong> di atas.</p>
+                    <p style="font-size:1.05rem; color:#475569; line-height:1.7;">Pastikan penulisan <strong>header
+                            kolom</strong> (huruf besar dan kecilnya) di file Excel Anda yang akan di upload sudah
+                        <strong>sesuai dengan panduan</strong> di atas.</p>
                 </div>
             </div>
 
@@ -924,16 +977,16 @@
             // 1. Logika Navigasi Menu Tambahan (Bisa diklik bareng dengan menu yang lama)
             const navItems = document.querySelectorAll('.nav-item[data-target]');
             const viewSections = document.querySelectorAll('.view-section');
-            
+
             navItems.forEach(item => {
-                item.addEventListener('click', function() {
+                item.addEventListener('click', function () {
                     const target = this.getAttribute('data-target');
                     if (target === 'absensi') {
                         // Sembunyikan section lain
                         viewSections.forEach(sec => sec.style.display = 'none');
                         // Tampilkan section absensi
                         const absensiView = document.getElementById('absensi-view');
-                        if(absensiView) {
+                        if (absensiView) {
                             absensiView.style.display = 'block';
                             absensiView.classList.add('active');
                         }
@@ -943,16 +996,16 @@
 
             // 2. Logika Upload Data Absensi
             let absensiFiles = { framsys: null, workdays: null, master: null };
-            
+
             function handleFileSelect(type, inputId, statusId) {
                 const el = document.getElementById(inputId);
-                if(el) {
-                    el.addEventListener('change', function(e) {
+                if (el) {
+                    el.addEventListener('change', function (e) {
                         if (e.target.files[0]) {
                             absensiFiles[type] = e.target.files[0];
                             document.getElementById(statusId).textContent = "✅ " + e.target.files[0].name;
                             document.getElementById(statusId).style.color = "#10b981";
-                            
+
                             // Jika semua file sudah diupload
                             if (absensiFiles.framsys && absensiFiles.workdays && absensiFiles.master) {
                                 document.getElementById('btn-proses-absensi').style.display = 'block';
@@ -961,22 +1014,22 @@
                     });
                 }
             }
-            
+
             handleFileSelect('framsys', 'absensi-file-framsys', 'status-framsys');
             handleFileSelect('workdays', 'absensi-file-workdays', 'status-workdays');
             handleFileSelect('master', 'absensi-file-master', 'status-master');
-            
+
             // 3. Proses Simulasi (Karena memproses 48rb data di browser langsung butuh waktu)
             const btnProses = document.getElementById('btn-proses-absensi');
-            if(btnProses) {
-                btnProses.addEventListener('click', function() {
+            if (btnProses) {
+                btnProses.addEventListener('click', function () {
                     this.textContent = "⏳ Sedang Memproses Data (Ini mungkin memakan waktu sebentar)...";
                     this.disabled = true;
                     this.style.background = "#94a3b8";
-                    
+
                     setTimeout(() => {
                         document.getElementById('absensi-result').style.display = 'block';
-                        
+
                         const tbody = document.getElementById('absensi-table-body');
                         const mockData = [
                             { area: 'Gen. Adm', wd: 1632, att: 1608, pct: '98.5%' },
@@ -988,7 +1041,7 @@
                             { area: 'PG4', wd: 8450, att: 8269, pct: '97.9%' },
                             { area: '<b>Total</b>', wd: 50471, att: 46098, pct: '91.3%' }
                         ];
-                        
+
                         tbody.innerHTML = mockData.map(r => `
                             <tr style="border-bottom: 1px solid #e2e8f0;">
                                 <td style="padding: 12px; color: #1e293b;">${r.area}</td>
@@ -997,7 +1050,7 @@
                                 <td style="padding: 12px; text-align: right; font-weight: 700; color: ${parseFloat(r.pct) < 80 ? '#ef4444' : '#10b981'}">${r.pct}</td>
                             </tr>
                         `).join('');
-                        
+
                         this.textContent = "✅ Proses Selesai!";
                         this.style.background = "#10b981";
                     }, 1500); // Simulasi delay proses JS
