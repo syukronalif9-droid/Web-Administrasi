@@ -24,7 +24,7 @@
 }
 
 body {
-    background: linear-gradient(135deg, #D4ECFC 0%, #E3E8FC 50%, #ECEBF8 100%);
+    background: #E8FA36; /* Bright yellow-green from the reference image */
     color: var(--text-body);
     overflow: hidden;
     display: flex;
