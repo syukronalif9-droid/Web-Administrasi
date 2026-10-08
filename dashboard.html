@@ -38,137 +38,68 @@
 
 <body>
     <div class="dashboard-container">
-        <!-- Sidebar -->
-        <aside class="sidebar">
-            <div class="sidebar-header">
-            </div>
-            <ul class="nav-menu">
-                <li class="nav-item active" data-target="dashboard">
-                    <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6">
-                        </path>
-                    </svg>
-                    <span class="menu-text">Dashboard</span>
-                </li>
-                <li class="nav-item" data-target="upload">
-                    <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path>
-                    </svg>
-                    <span class="menu-text">Upload Data</span>
-                </li>
-                <li class="nav-item" data-target="summary">
-                    <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z"></path>
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z"></path>
-                    </svg>
-                    <span class="menu-text">Summary</span>
-                </li>
-                <li class="nav-item" data-target="zmmlto">
-                    <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10">
-                        </path>
-                    </svg>
-                    <span class="menu-text">Absensi</span>
-                </li>
-                <li class="nav-item" data-target="mb51">
-                    <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4">
-                        </path>
-                    </svg>
-                    <span class="menu-text">Hari Kerja</span>
-                </li>
-                <li class="nav-item" data-target="stock">
-                    <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
-                    </svg>
-                    <span class="menu-text">Data Karyawan</span>
-                </li>
+        <!-- Main Content (Full Width) -->
+        <main class="main-content" style="border-radius: 24px; padding: 0;">
+            <header class="topbar" style="display: flex; justify-content: space-between; align-items: center; padding: 16px 32px; background: white; border-bottom: 1px solid #f1f5f9; border-radius: 24px 24px 0 0;">
+                <!-- Left: Logo -->
+                <div style="display: flex; align-items: center; gap: 12px; margin-right: 40px;">
+                    <div style="width: 32px; height: 32px; background: #3b82f6; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                        <div style="width: 12px; height: 12px; background: white; border-radius: 50%;"></div>
+                    </div>
+                </div>
 
-                <li class="nav-item" data-target="bantuan"
-                    style="margin-top: auto; color: #a5b4fc; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 15px;">
-                    <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z">
-                        </path>
-                    </svg>
-                    <span class="menu-text">Bantuan</span>
-                </li>
-                <li class="nav-item" onclick="logout()" style="color: #e74c3c; margin-top: 8px;">
-                    <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1">
-                        </path>
-                    </svg>
-                    <span class="menu-text">Log Out</span>
-                </li>
-            </ul>
-        </aside>
+                <!-- Center: Navigation Menu -->
+                <ul class="nav-menu" style="display: flex; flex-direction: row; padding: 0; margin: 0; list-style: none; gap: 32px; flex: 1; justify-content: center;">
+                    <li class="nav-item active" data-target="dashboard" style="padding: 8px 0; color: #1e293b; font-weight: 600; cursor: pointer; border-bottom: 3px solid #3b82f6; border-radius: 0; margin: 0; background: none; box-shadow: none;">
+                        <span class="menu-text">Dashboard</span>
+                    </li>
+                    <li class="nav-item" data-target="upload" style="padding: 8px 0; color: #94a3b8; font-weight: 500; cursor: pointer; border-radius: 0; margin: 0; background: none; box-shadow: none;">
+                        <span class="menu-text">Upload Data</span>
+                    </li>
+                    <li class="nav-item" data-target="summary" style="padding: 8px 0; color: #94a3b8; font-weight: 500; cursor: pointer; border-radius: 0; margin: 0; background: none; box-shadow: none;">
+                        <span class="menu-text">Summary</span>
+                    </li>
+                    <li class="nav-item" data-target="zmmlto" style="padding: 8px 0; color: #94a3b8; font-weight: 500; cursor: pointer; border-radius: 0; margin: 0; background: none; box-shadow: none;">
+                        <span class="menu-text">Absensi</span>
+                    </li>
+                    <li class="nav-item" data-target="mb51" style="padding: 8px 0; color: #94a3b8; font-weight: 500; cursor: pointer; border-radius: 0; margin: 0; background: none; box-shadow: none;">
+                        <span class="menu-text">Hari Kerja</span>
+                    </li>
+                    <li class="nav-item" data-target="stock" style="padding: 8px 0; color: #94a3b8; font-weight: 500; cursor: pointer; border-radius: 0; margin: 0; background: none; box-shadow: none;">
+                        <span class="menu-text">Data Karyawan</span>
+                    </li>
+                </ul>
 
-        <!-- Main Content -->
-        <main class="main-content">
-            <header class="topbar" style="display: flex; justify-content: space-between; align-items: center;">
-                <div style="display: flex; align-items: center; gap: 12px;">
-                    <button id="sidebar-toggle"
-                        style="background: #2563eb; border: none; cursor: pointer; color: white; display: flex; align-items: center; justify-content: center; padding: 8px 16px; border-radius: 8px; transition: all 0.3s;">
-                        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"
-                            viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M11 19l-7-7 7-7m8 14l-7-7 7-7">
-                            </path>
-                        </svg>
-                    </button>
-
-                    <button id="btn-export-cen5" class="upload-btn"
-                        style="background: #10B981; color: white; border: none; font-weight: 600; display: none; padding: 8px 16px; border-radius: 8px; cursor: pointer; align-items: center; gap: 6px; transition: all 0.2s;"
-                        onmouseover="this.style.background='#059669'" onmouseout="this.style.background='#10B981'">
-                        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
-                        </svg>
+                <!-- Right: Actions & User -->
+                <div class="topbar-actions" style="display: flex; gap: 20px; align-items: center;">
+                    <button id="btn-export-cen5" class="upload-btn" style="background: #10B981; color: white; border: none; font-weight: 600; display: none; padding: 8px 16px; border-radius: 8px; cursor: pointer; align-items: center; gap: 6px; transition: all 0.2s;">
                         Export CEN5
                     </button>
-                    <button id="btn-export-cen2" class="upload-btn"
-                        style="background: #10B981; color: white; border: none; font-weight: 600; display: none; padding: 8px 16px; border-radius: 8px; cursor: pointer; align-items: center; gap: 6px; transition: all 0.2s;"
-                        onmouseover="this.style.background='#059669'" onmouseout="this.style.background='#10B981'">
-                        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
-                        </svg>
+                    <button id="btn-export-cen2" class="upload-btn" style="background: #10B981; color: white; border: none; font-weight: 600; display: none; padding: 8px 16px; border-radius: 8px; cursor: pointer; align-items: center; gap: 6px; transition: all 0.2s;">
                         Export CEN2
                     </button>
-                </div>
-                <div class="topbar-actions" style="display: flex; gap: 12px; align-items: center;">
-                    <button id="btn-reset-summary" class="reset-db-btn upload-btn" data-table="summary_upload"
-                        style="background-color: #ef4444; border: none; font-weight: 600; display: none; color: white; cursor: pointer;">
-                        <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
-                            </path>
-                        </svg>
+                    <button id="btn-reset-summary" class="reset-db-btn upload-btn" data-table="summary_upload" style="background-color: #ef4444; border: none; font-weight: 600; display: none; color: white; cursor: pointer;">
                         Hapus Summary
                     </button>
-                    <button id="btn-print" class="upload-btn" onclick="handlePrintExcelStyle()"
-                        style="background-color: #3b82f6; border-color: #2563eb; font-weight: 600; display: none;">
-                        <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z">
-                            </path>
-                        </svg>
+                    <button id="btn-print" class="upload-btn" onclick="handlePrintExcelStyle()" style="background-color: #3b82f6; border-color: #2563eb; font-weight: 600; display: none;">
                         Print
                     </button>
-                    <button id="btn-upload" class="upload-btn">
-                        <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path>
-                        </svg>
+                    <button id="btn-upload" class="upload-btn" style="display: none;">
                         Upload
                     </button>
+                    
+                    <!-- Notification Bell & User Avatar -->
+                    <div style="display: flex; align-items: center; gap: 16px; margin-left: 16px; border-left: 1px solid #e2e8f0; padding-left: 16px;">
+                        <div style="color: #94a3b8; cursor: pointer; position: relative;">
+                            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
+                            </svg>
+                            <div style="position: absolute; top: 0; right: 2px; width: 6px; height: 6px; background: #ef4444; border-radius: 50%;"></div>
+                        </div>
+                        <div style="width: 32px; height: 32px; border-radius: 50%; background: #cbd5e1; overflow: hidden; cursor: pointer;" onclick="logout()">
+                            <img src="https://ui-avatars.com/api/?name=Admin&background=0D8ABC&color=fff" alt="User" style="width: 100%; height: 100%; object-fit: cover;">
+                        </div>
+                    </div>
                 </div>
             </header>
 
