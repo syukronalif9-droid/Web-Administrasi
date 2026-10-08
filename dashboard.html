@@ -132,21 +132,21 @@
                         <!-- KPI Card 1: Avg Working Days -->
                         <div class="card" style="background: white; border-radius: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.03); padding: 16px 20px; flex: 1 1 150px; max-width: 250px; align-self: flex-start; display: flex; flex-direction: column; justify-content: center; align-items: center; border: 2px solid #f1f5f9;">
                             <h3 style="font-family: 'Times New Roman', Times, serif; color: #0a1d42; font-size: 1rem; margin: 0; font-weight: 700; text-align: center; line-height: 1.3;">Avg. Working Days</h3>
-                            <div style="font-size: 2.5rem; font-weight: 800; color: #3b82f6; margin: 8px 0; letter-spacing: -1px;">6.309</div>
+                            <div id="kpi-working-days" style="font-size: 2.5rem; font-weight: 800; color: #3b82f6; margin: 8px 0; letter-spacing: -1px;">6.309</div>
                             <div style="font-family: 'Times New Roman', Times, serif; color: #0a1d42; font-size: 1rem; font-weight: 700; margin: 0;">people/days</div>
                         </div>
 
                         <!-- KPI Card 2: Avg Attendance -->
                         <div class="card" style="background: white; border-radius: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.03); padding: 16px 20px; flex: 1 1 150px; max-width: 250px; align-self: flex-start; display: flex; flex-direction: column; justify-content: center; align-items: center; border: 2px solid #f1f5f9;">
                             <h3 style="font-family: 'Times New Roman', Times, serif; color: #0a1d42; font-size: 1rem; margin: 0; font-weight: 700; text-align: center; line-height: 1.3;">Avg. Attendance</h3>
-                            <div style="font-size: 2.5rem; font-weight: 800; color: #10b981; margin: 8px 0; letter-spacing: -1px;">5.763</div>
+                            <div id="kpi-attendance" style="font-size: 2.5rem; font-weight: 800; color: #10b981; margin: 8px 0; letter-spacing: -1px;">5.763</div>
                             <div style="font-family: 'Times New Roman', Times, serif; color: #0a1d42; font-size: 1rem; font-weight: 700; margin: 0;">people/days</div>
                         </div>
 
                         <!-- KPI Card 3: Avg Discipline Rate -->
                         <div class="card" style="background: white; border-radius: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.03); padding: 16px 20px; flex: 1 1 150px; max-width: 250px; align-self: flex-start; display: flex; flex-direction: column; justify-content: center; align-items: center; border: 2px solid #f1f5f9;">
                             <h3 style="font-family: 'Times New Roman', Times, serif; color: #b91c1c; font-size: 1rem; margin: 0; font-weight: 700; text-align: center; line-height: 1.3;">Avg. Discipline Rate</h3>
-                            <div style="font-size: 2.5rem; font-weight: 800; color: #b91c1c; margin: 8px 0; letter-spacing: -1px;">91,1%</div>
+                            <div id="kpi-discipline" style="font-size: 2.5rem; font-weight: 800; color: #b91c1c; margin: 8px 0; letter-spacing: -1px;">91,1%</div>
                             <div style="height: 16px;"></div> <!-- Spacer matching the people/days height -->
                         </div>
 
@@ -656,6 +656,18 @@
                                 <span class="drop-zone__prompt">Drag & Drop file Framsys / ZMM_LTO atau klik di
                                     sini</span>
                                 <input type="file" id="upload-zmmlto" accept=".csv" class="drop-zone__input">
+                            </div>
+                        </div>
+
+                        <!-- New Upload Zone for Dashboard Summary -->
+                        <div>
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                                <label style="font-weight: 600; color: var(--text-heading); font-size: 0.9rem;">Dashboard Summary (.csv)</label>
+                                <button id="btn-reset-dashboard" class="reset-db-btn" data-table="dashboard" style="background: #ef4444; color: white; border: none; padding: 4px 12px; font-size: 12px; font-weight: 600; border-radius: 4px; cursor: pointer;">Hapus Data</button>
+                            </div>
+                            <div class="drop-zone" id="drop-zone-dashboard">
+                                <span class="drop-zone__prompt">Drag & Drop file dasboard.csv atau klik di sini</span>
+                                <input type="file" id="upload-dashboard-csv" accept=".csv" class="drop-zone__input">
                             </div>
                         </div>
                         <button id="btn-process-upload-offline"
@@ -1181,6 +1193,62 @@
                         this.textContent = "✅ Proses Selesai!";
                         this.style.background = "#10b981";
                     }, 1500); // Simulasi delay proses JS
+                });
+            }
+        });
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const dashboardUpload = document.getElementById('upload-dashboard-csv');
+            const btnProcessUpload = document.getElementById('btn-process-upload-offline');
+            let dashboardFile = null;
+
+            if (dashboardUpload) {
+                dashboardUpload.addEventListener('change', function(e) {
+                    if (e.target.files[0]) {
+                        dashboardFile = e.target.files[0];
+                        const promptText = this.parentElement.querySelector('.drop-zone__prompt');
+                        if (promptText) {
+                            promptText.textContent = "✅ " + dashboardFile.name;
+                            promptText.style.color = "#10b981";
+                        }
+                    }
+                });
+            }
+
+            if (btnProcessUpload) {
+                btnProcessUpload.addEventListener('click', function() {
+                    if (!dashboardFile) return;
+                    Papa.parse(dashboardFile, {
+                        header: true,
+                        skipEmptyLines: true,
+                        complete: function(results) {
+                            const data = results.data;
+                            if (!data || data.length === 0) return;
+                            let totalWd = 0, totalAtt = 0, totalDisc = 0, count = 0;
+                            data.forEach(row => {
+                                if (row['Working Days'] && row['Attendance'] && row['Discipline Rate']) {
+                                    let wd = parseFloat(row['Working Days'].replace(/\./g, ''));
+                                    let att = parseFloat(row['Attendance'].replace(/\./g, ''));
+                                    let disc = parseFloat(row['Discipline Rate'].replace('%', '').replace(',', '.'));
+                                    if (!isNaN(wd) && !isNaN(att) && !isNaN(disc)) {
+                                        totalWd += wd; totalAtt += att; totalDisc += disc; count++;
+                                    }
+                                }
+                            });
+                            if (count > 0) {
+                                let avgWd = totalWd / count;
+                                let avgAtt = totalAtt / count;
+                                let avgDisc = totalDisc / count;
+                                const kpiWd = document.getElementById('kpi-working-days');
+                                const kpiAtt = document.getElementById('kpi-attendance');
+                                const kpiDisc = document.getElementById('kpi-discipline');
+                                if (kpiWd) kpiWd.textContent = avgWd.toLocaleString('id-ID', { maximumFractionDigits: 0 });
+                                if (kpiAtt) kpiAtt.textContent = avgAtt.toLocaleString('id-ID', { maximumFractionDigits: 0 });
+                                if (kpiDisc) kpiDisc.textContent = avgDisc.toLocaleString('id-ID', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + '%';
+                            }
+                        }
+                    });
                 });
             }
         });
