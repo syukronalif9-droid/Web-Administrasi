@@ -39,33 +39,86 @@
 <body>
     <div class="dashboard-container">
         <!-- Main Content (Full Width) -->
-        <main class="main-content" style="border-radius: 24px; padding: 0;">
-            <header class="topbar" style="display: flex; justify-content: space-between; align-items: center; padding: 16px 32px; background: white; border-bottom: 1px solid #f1f5f9; border-radius: 24px 24px 0 0;">
+        <main class="main-content" style="border-radius: 24px; padding: 24px;">
+            <style>
+                .topbar-pill {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    padding: 12px 32px;
+                    background: white;
+                    border-radius: 99px;
+                    margin-bottom: 24px;
+                    box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+                }
+                .nav-menu.horizontal {
+                    display: flex;
+                    flex-direction: row;
+                    padding: 0;
+                    margin: 0;
+                    list-style: none;
+                    gap: 40px;
+                    justify-content: center;
+                    flex: 1;
+                }
+                .nav-menu.horizontal .nav-item {
+                    padding: 8px 4px;
+                    margin: 0;
+                    background: transparent !important;
+                    box-shadow: none !important;
+                    border-radius: 0 !important;
+                    color: #94a3b8;
+                    font-weight: 600;
+                    font-size: 0.95rem;
+                    cursor: pointer;
+                    position: relative;
+                    transition: color 0.3s ease;
+                }
+                .nav-menu.horizontal .nav-item:hover {
+                    color: #475569;
+                }
+                .nav-menu.horizontal .nav-item.active {
+                    color: #1e293b !important;
+                }
+                .nav-menu.horizontal .nav-item.active::after {
+                    content: '';
+                    position: absolute;
+                    bottom: -2px;
+                    left: 0;
+                    width: 100%;
+                    height: 3px;
+                    background-color: #3b82f6;
+                    border-radius: 3px;
+                }
+            </style>
+            
+            <header class="topbar topbar-pill">
                 <!-- Left: Logo -->
-                <div style="display: flex; align-items: center; gap: 12px; margin-right: 40px;">
-                    <div style="width: 32px; height: 32px; background: #3b82f6; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
-                        <div style="width: 12px; height: 12px; background: white; border-radius: 50%;"></div>
+                <div style="display: flex; align-items: center; gap: 8px; margin-right: 40px;">
+                    <div style="width: 16px; height: 16px; background: #3b82f6; border-radius: 5px; position: relative;">
+                        <div style="width: 8px; height: 8px; background: white; border-radius: 50%; position: absolute; bottom: 2px; right: 2px;"></div>
                     </div>
+                    <div style="width: 8px; height: 8px; background: #3b82f6; border-radius: 50%;"></div>
                 </div>
 
                 <!-- Center: Navigation Menu -->
-                <ul class="nav-menu" style="display: flex; flex-direction: row; padding: 0; margin: 0; list-style: none; gap: 32px; flex: 1; justify-content: center;">
-                    <li class="nav-item active" data-target="dashboard" style="padding: 8px 0; color: #1e293b; font-weight: 600; cursor: pointer; border-bottom: 3px solid #3b82f6; border-radius: 0; margin: 0; background: none; box-shadow: none;">
+                <ul class="nav-menu horizontal">
+                    <li class="nav-item active" data-target="dashboard">
                         <span class="menu-text">Dashboard</span>
                     </li>
-                    <li class="nav-item" data-target="upload" style="padding: 8px 0; color: #94a3b8; font-weight: 500; cursor: pointer; border-radius: 0; margin: 0; background: none; box-shadow: none;">
+                    <li class="nav-item" data-target="upload">
                         <span class="menu-text">Upload Data</span>
                     </li>
-                    <li class="nav-item" data-target="summary" style="padding: 8px 0; color: #94a3b8; font-weight: 500; cursor: pointer; border-radius: 0; margin: 0; background: none; box-shadow: none;">
+                    <li class="nav-item" data-target="summary">
                         <span class="menu-text">Summary</span>
                     </li>
-                    <li class="nav-item" data-target="zmmlto" style="padding: 8px 0; color: #94a3b8; font-weight: 500; cursor: pointer; border-radius: 0; margin: 0; background: none; box-shadow: none;">
+                    <li class="nav-item" data-target="zmmlto">
                         <span class="menu-text">Absensi</span>
                     </li>
-                    <li class="nav-item" data-target="mb51" style="padding: 8px 0; color: #94a3b8; font-weight: 500; cursor: pointer; border-radius: 0; margin: 0; background: none; box-shadow: none;">
+                    <li class="nav-item" data-target="mb51">
                         <span class="menu-text">Hari Kerja</span>
                     </li>
-                    <li class="nav-item" data-target="stock" style="padding: 8px 0; color: #94a3b8; font-weight: 500; cursor: pointer; border-radius: 0; margin: 0; background: none; box-shadow: none;">
+                    <li class="nav-item" data-target="stock">
                         <span class="menu-text">Data Karyawan</span>
                     </li>
                 </ul>
