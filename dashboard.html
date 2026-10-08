@@ -130,9 +130,45 @@
                         <div class="card" style="background: white; border-radius: 32px; box-shadow: 0 10px 30px rgba(0,0,0,0.03); padding: 32px; width: 100%; min-height: 400px; display: flex; flex-direction: column;">
                             <h2 style="font-family: 'Times New Roman', Times, serif; color: #52525b; font-size: 2rem; margin: 0; margin-bottom: 24px; font-weight: 700;">Discipline Rate (%) Per Bagian</h2>
                             
-                            <!-- Placeholder for chart -->
-                            <div id="discipline-chart-container" style="flex-grow: 1; display: flex; align-items: center; justify-content: center; border: 2px dashed #e4e4e7; border-radius: 16px; color: #a1a1aa; font-weight: 500;">
-                                Area Grafik
+                            <!-- Custom Progress Bar Chart -->
+                            <div id="discipline-chart-container" style="flex-grow: 1; display: flex; flex-direction: column; justify-content: center; gap: 24px; padding: 20px 0;">
+                                
+                                <!-- Marketing -->
+                                <div style="display: flex; align-items: center; gap: 16px;">
+                                    <div style="width: 100px; font-weight: 600; color: #4b5563; font-size: 1rem;">Marketing</div>
+                                    <div style="flex-grow: 1; height: 28px; background: #94a3b8; border-radius: 8px; overflow: hidden; display: flex;">
+                                        <div style="width: 80%; background: #4f46e5; height: 100%; border-radius: 8px 0 0 8px;"></div>
+                                    </div>
+                                    <div style="width: 40px; font-weight: 700; color: #4b5563; font-size: 1rem; text-align: right;">80%</div>
+                                </div>
+
+                                <!-- Sales -->
+                                <div style="display: flex; align-items: center; gap: 16px;">
+                                    <div style="width: 100px; font-weight: 600; color: #4b5563; font-size: 1rem;">Sales</div>
+                                    <div style="flex-grow: 1; height: 28px; background: #94a3b8; border-radius: 8px; overflow: hidden; display: flex;">
+                                        <div style="width: 75%; background: #16a34a; height: 100%; border-radius: 8px 0 0 8px;"></div>
+                                    </div>
+                                    <div style="width: 40px; font-weight: 700; color: #4b5563; font-size: 1rem; text-align: right;">75%</div>
+                                </div>
+
+                                <!-- Human -->
+                                <div style="display: flex; align-items: center; gap: 16px;">
+                                    <div style="width: 100px; font-weight: 600; color: #4b5563; font-size: 1rem;">Human</div>
+                                    <div style="flex-grow: 1; height: 28px; background: #94a3b8; border-radius: 8px; overflow: hidden; display: flex;">
+                                        <div style="width: 90%; background: #2563eb; height: 100%; border-radius: 8px 0 0 8px;"></div>
+                                    </div>
+                                    <div style="width: 40px; font-weight: 700; color: #4b5563; font-size: 1rem; text-align: right;">90%</div>
+                                </div>
+
+                                <!-- IT -->
+                                <div style="display: flex; align-items: center; gap: 16px;">
+                                    <div style="width: 100px; font-weight: 600; color: #4b5563; font-size: 1rem;">IT</div>
+                                    <div style="flex-grow: 1; height: 28px; background: #94a3b8; border-radius: 8px; overflow: hidden; display: flex;">
+                                        <div style="width: 60%; background: #d97706; height: 100%; border-radius: 8px 0 0 8px;"></div>
+                                    </div>
+                                    <div style="width: 40px; font-weight: 700; color: #4b5563; font-size: 1rem; text-align: right;">60%</div>
+                                </div>
+
                             </div>
                         </div>
                     </div>
