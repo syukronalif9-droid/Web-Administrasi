@@ -12,6 +12,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/plugins/monthSelect/style.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
         const supabaseUrl = 'https://bavacuaqbbwnqbrcldsj.supabase.co';
@@ -196,8 +197,8 @@
 
                         /* Card 1: Left column */
                         .card-left {
-                            background-color: #1A1A1A;
-                            color: white;
+                            background-color: #FFFFFF;
+                            color: #1A1A1A;
                             grid-column: 1;
                             grid-row: 1 / span 3;
                             justify-content: flex-start;
@@ -291,7 +292,15 @@
                             align-self: flex-start;
                             margin-bottom: 12px;
                         }
-                        .card-left .bento-header, .card-right-top .bento-header {
+                        .card-left .bento-header {
+                            background: transparent;
+                            color: #1A1A1A;
+                            padding: 0;
+                            display: flex;
+                            align-items: center;
+                            gap: 8px;
+                        }
+                        .card-right-top .bento-header {
                             background: #D3F976;
                             color: #1A1A1A;
                         }
@@ -321,17 +330,17 @@
                         }
                         
                         .bento-date-picker {
-                            background: rgba(255,255,255,0.1);
+                            background: rgba(0,0,0,0.05);
                             border: none;
-                            color: white;
+                            color: #1A1A1A;
                             border-radius: 8px;
                             padding: 4px 8px;
                             font-size: 0.8rem;
                             outline: none;
                         }
-                        .card-mid-top .bento-date-picker {
-                            background: rgba(0,0,0,0.1);
-                            color: #1A1A1A;
+                        .card-right-top .bento-date-picker {
+                            background: rgba(255,255,255,0.1);
+                            color: white;
                         }
                     </style>
 
@@ -374,38 +383,63 @@
                             <script>
                                 document.addEventListener("DOMContentLoaded", function() {
                                     setTimeout(() => {
-                                        const ctxPie = document.getElementById('totalPieChart');
-                                        if (ctxPie) {
-                                            new Chart(ctxPie, {
-                                                type: 'pie',
-                                                data: {
-                                                    labels: ['Ontime', 'Late', 'Stock', 'Other'],
-                                                    datasets: [{
-                                                        data: [35, 20, 20, 25],
-                                                        backgroundColor: [
-                                                            '#36a2eb', // Cyan/Light Blue
-                                                            '#ff9f40', // Orange
-                                                            '#8b5cf6', // Purple
-                                                            '#ff6384'  // Salmon/Pink
-                                                        ],
-                                                        borderWidth: 2,
-                                                        borderColor: '#1A1A1A', // Matches card background
-                                                        offset: 0 // Solid circle, no explosion
-                                                    }]
-                                                },
-                                                options: {
-                                                    responsive: true,
-                                                    maintainAspectRatio: false,
-                                                    plugins: {
-                                                        legend: { display: false }
-                                                    },
-                                                    layout: {
-                                                        padding: 5
+                                        const chartDom = document.getElementById('totalPieChart');
+                                        if (chartDom && typeof echarts !== 'undefined') {
+                                            const myChart = echarts.init(chartDom);
+                                            const option = {
+                                                title: {
+                                                    text: 'Referer of a Website',
+                                                    left: 'center',
+                                                    textStyle: {
+                                                        fontSize: 12,
+                                                        fontWeight: 'normal',
+                                                        color: '#666'
                                                     }
-                                                }
+                                                },
+                                                tooltip: {
+                                                    trigger: 'item'
+                                                },
+                                                color: ['#36a2eb', '#ff9f40', '#3b82f6', '#8b5cf6', '#ff6384'],
+                                                series: [
+                                                    {
+                                                        name: 'Status',
+                                                        type: 'pie',
+                                                        radius: '65%',
+                                                        center: ['50%', '55%'],
+                                                        data: [
+                                                            { value: 1048, name: 'Email' },
+                                                            { value: 735, name: 'Union Ads' },
+                                                            { value: 580, name: 'Video Ads' },
+                                                            { value: 484, name: 'Search' },
+                                                            { value: 300, name: 'Direct' }
+                                                        ],
+                                                        label: {
+                                                            color: '#666',
+                                                            fontSize: 10
+                                                        },
+                                                        labelLine: {
+                                                            lineStyle: {
+                                                                color: '#ccc'
+                                                            }
+                                                        },
+                                                        emphasis: {
+                                                            itemStyle: {
+                                                                shadowBlur: 10,
+                                                                shadowOffsetX: 0,
+                                                                shadowColor: 'rgba(0, 0, 0, 0.5)'
+                                                            }
+                                                        }
+                                                    }
+                                                ]
+                                            };
+                                            myChart.setOption(option);
+                                            
+                                            // Handle resize
+                                            window.addEventListener('resize', function() {
+                                                myChart.resize();
                                             });
                                         }
-                                    }, 500); // Small delay to ensure chart.js is ready
+                                    }, 500); // Small delay to ensure echarts is ready
                                 });
                             </script>
                         </div>
