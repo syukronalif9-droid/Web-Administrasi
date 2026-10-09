@@ -54,14 +54,14 @@
                 .nav-menu.horizontal {
                     display: flex;
                     flex-direction: row;
-                    padding: 0;
+                    padding: 8px 12px;
                     margin: 0;
                     list-style: none;
                     gap: 12px;
                     justify-content: center;
-                    background: transparent;
+                    background: #ffffff;
                     border-radius: 99px;
-                    box-shadow: none;
+                    box-shadow: 0 4px 15px rgba(0,0,0,0.03);
                 }
                 .nav-menu.horizontal .nav-item {
                     padding: 10px 24px;
@@ -81,14 +81,14 @@
                     background: #f3f4f6 !important;
                 }
                 .nav-menu.horizontal .nav-item.active {
-                    color: #111827 !important;
-                    background: #fef08a !important; /* Yellow active pill */
+                    color: #ffffff !important;
+                    background: #1f2937 !important; /* Dark active pill */
                 }
             </style>
             
-            <header class="topbar topbar-pill" style="justify-content: flex-end; padding-top: 16px;">
-                <!-- Center: Navigation Menu (Now Aligned to Right) -->
-                <ul class="nav-menu horizontal" style="margin-left: auto; margin-right: -24px;">
+            <header class="topbar topbar-pill" style="justify-content: flex-end; gap: 16px; padding-top: 16px;">
+                <!-- Center: Navigation Menu (Now Aligned to Right with white pill) -->
+                <ul class="nav-menu horizontal">
                     <li class="nav-item active" data-target="dashboard">
                         <span class="menu-text">Dashboard</span>
                     </li>
@@ -104,7 +104,7 @@
                     <li class="nav-item" data-target="mb51">
                         <span class="menu-text">Hari Kerja</span>
                     </li>
-                    <li class="nav-item" data-target="stock" style="padding-right: 24px;">
+                    <li class="nav-item" data-target="stock">
                         <span class="menu-text">Data Karyawan</span>
                     </li>
                 </ul>
