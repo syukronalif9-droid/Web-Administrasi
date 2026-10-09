@@ -37,8 +37,8 @@ body {
 .dashboard-container {
     display: flex;
     width: 100%;
-    max-width: 100%;
-    height: calc(100vh - 24px);
+    max-width: calc(100% - 48px);
+    height: calc(100vh - 48px);
     min-height: 600px;
     max-height: 100%;
     background-color: #E6E6E4;
@@ -565,7 +565,6 @@ td.long-text {
 
 body, html {
     margin: 0;
-    padding: 0;
     font-family: 'Inter', sans-serif;
     background-color: #F1F5F9;
     color: #1E293B;
