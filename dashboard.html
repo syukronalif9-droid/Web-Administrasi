@@ -1386,80 +1386,78 @@
                 });
             }
 
-            // Fetch and parse worksheet for Top 10 Dropdown
-            fetch('worksheet .csv')
-                .then(response => response.text())
-                .then(csvText => {
-                    const lines = csvText.split('\n');
-                    const users = [];
-                    // Data starts at line 5 (index 4) and continues
-                    for (let i = 5; i < lines.length; i++) {
-                        const line = lines[i].trim();
-                        if (!line || line.startsWith(';;')) continue;
-                        
-                        const cols = line.split(';');
-                        if (cols.length >= 44) {
-                            const name = cols[4] ? cols[4].trim() : '';
-                            let discStr = cols[43] ? cols[43].trim() : '';
-                            if (name && discStr && discStr !== '-') {
-                                // Convert discStr to number, e.g. "92,4" -> 92.4
-                                let discVal = parseFloat(discStr.replace(',', '.'));
-                                if (!isNaN(discVal)) {
-                                    users.push({ name: name, disc: discVal });
-                                }
+            // Use the globally loaded worksheetCsvData instead of fetch (avoids CORS on file://)
+            if (typeof worksheetCsvData !== 'undefined') {
+                const csvText = worksheetCsvData;
+                const lines = csvText.split('\n');
+                const users = [];
+                // Data starts at line 5 (index 4) and continues
+                for (let i = 5; i < lines.length; i++) {
+                    const line = lines[i].trim();
+                    if (!line || line.startsWith(';;')) continue;
+                    
+                    const cols = line.split(';');
+                    if (cols.length >= 44) {
+                        const name = cols[4] ? cols[4].trim() : '';
+                        let discStr = cols[43] ? cols[43].trim() : '';
+                        if (name && discStr && discStr !== '-') {
+                            // Convert discStr to number, e.g. "92,4" -> 92.4
+                            let discVal = parseFloat(discStr.replace(',', '.'));
+                            if (!isNaN(discVal)) {
+                                users.push({ name: name, disc: discVal });
                             }
                         }
                     }
-                    
-                    // Sort by discipline descending
-                    users.sort((a, b) => b.disc - a.disc);
-                    const top10 = users.slice(0, 10);
-                    
-                    const container = document.getElementById('top10-list-container');
-                    if (container && top10.length > 0) {
-                        container.innerHTML = '';
-                        top10.forEach((u, index) => {
-                            const isActive = index === 0; // Highlight the top 1
-                            const bg = isActive ? '#739eb7' : 'rgba(255,255,255,0.04)';
-                            const textPrimary = isActive ? '#ffffff' : '#f4f4f5';
-                            const textSecondary = isActive ? 'rgba(255,255,255,0.8)' : '#71717a';
-                            const badgeBg = isActive ? '#ffffff' : 'rgba(255,255,255,0.05)';
-                            const badgeText = isActive ? '#18181b' : '#a1a1aa';
-                            const strokeColor = isActive ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.05)';
-                            
-                            const html = `
-                                <div style="background: ${bg}; border-radius: 99px; padding: 10px 20px; display: flex; align-items: center; justify-content: space-between; border: 1px solid ${strokeColor}; transition: all 0.2s; cursor: default;">
-                                    
-                                    <div style="display: flex; align-items: center; gap: 16px; flex: 1;">
-                                        <!-- Avatar Placeholder -->
-                                        <div style="width: 40px; height: 40px; border-radius: 50%; background: ${isActive ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.1)'}; display: flex; align-items: center; justify-content: center; font-weight: 700; color: ${textPrimary}; font-size: 1.1rem; flex-shrink: 0;">
-                                            ${u.name.charAt(0)}
-                                        </div>
-                                        
-                                        <!-- Info -->
-                                        <div style="display: flex; flex-direction: column;">
-                                            <span style="color: ${textPrimary}; font-weight: 600; font-size: 0.95rem; line-height: 1.2;">${u.name}</span>
-                                            <span style="color: ${textSecondary}; font-size: 0.8rem; margin-top: 2px;">Rank #${index + 1}</span>
-                                        </div>
+                }
+                
+                // Sort by discipline descending
+                users.sort((a, b) => b.disc - a.disc);
+                const top10 = users.slice(0, 10);
+                
+                const container = document.getElementById('top10-list-container');
+                if (container && top10.length > 0) {
+                    container.innerHTML = '';
+                    top10.forEach((u, index) => {
+                        const isActive = index === 0; // Highlight the top 1
+                        const bg = isActive ? '#739eb7' : 'rgba(255,255,255,0.04)';
+                        const textPrimary = isActive ? '#ffffff' : '#f4f4f5';
+                        const textSecondary = isActive ? 'rgba(255,255,255,0.8)' : '#71717a';
+                        const badgeBg = isActive ? '#ffffff' : 'rgba(255,255,255,0.05)';
+                        const badgeText = isActive ? '#18181b' : '#a1a1aa';
+                        const strokeColor = isActive ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.05)';
+                        
+                        const html = `
+                            <div style="background: ${bg}; border-radius: 99px; padding: 10px 20px; display: flex; align-items: center; justify-content: space-between; border: 1px solid ${strokeColor}; transition: all 0.2s; cursor: default;">
+                                
+                                <div style="display: flex; align-items: center; gap: 16px; flex: 1;">
+                                    <!-- Avatar Placeholder -->
+                                    <div style="width: 40px; height: 40px; border-radius: 50%; background: ${isActive ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.1)'}; display: flex; align-items: center; justify-content: center; font-weight: 700; color: ${textPrimary}; font-size: 1.1rem; flex-shrink: 0;">
+                                        ${u.name.charAt(0)}
                                     </div>
                                     
-                                    <!-- Right Side -->
-                                    <div style="display: flex; align-items: center; gap: 24px;">
-                                        <div style="background: ${badgeBg}; color: ${badgeText}; padding: 6px 16px; border-radius: 99px; font-size: 0.75rem; font-weight: 600; min-width: 80px; text-align: center;">
-                                            ${u.disc === 100 ? 'Perfect' : 'Good'}
-                                        </div>
-                                        <div style="color: ${textPrimary}; font-weight: 400; font-size: 1.05rem; min-width: 80px; text-align: right; letter-spacing: 0.5px;">
-                                            <span style="opacity: 0.6; font-size: 0.9rem; margin-right: 2px;">%</span>${u.disc.toLocaleString('id-ID', { minimumFractionDigits: 1, maximumFractionDigits: 1 })}
-                                        </div>
+                                    <!-- Info -->
+                                    <div style="display: flex; flex-direction: column;">
+                                        <span style="color: ${textPrimary}; font-weight: 600; font-size: 0.95rem; line-height: 1.2;">${u.name}</span>
+                                        <span style="color: ${textSecondary}; font-size: 0.8rem; margin-top: 2px;">Rank #${index + 1}</span>
                                     </div>
-                                    
                                 </div>
-                            `;
-                            container.insertAdjacentHTML('beforeend', html);
-                        });
-                    }
-                })
-                .catch(err => console.error("Error loading worksheet for top 10:", err));
+                                
+                                <!-- Right Side -->
+                                <div style="display: flex; align-items: center; gap: 24px;">
+                                    <div style="background: ${badgeBg}; color: ${badgeText}; padding: 6px 16px; border-radius: 99px; font-size: 0.75rem; font-weight: 600; min-width: 80px; text-align: center;">
+                                        ${u.disc === 100 ? 'Perfect' : 'Good'}
+                                    </div>
+                                    <div style="color: ${textPrimary}; font-weight: 400; font-size: 1.05rem; min-width: 80px; text-align: right; letter-spacing: 0.5px;">
+                                        <span style="opacity: 0.6; font-size: 0.9rem; margin-right: 2px;">%</span>${u.disc.toLocaleString('id-ID', { minimumFractionDigits: 1, maximumFractionDigits: 1 })}
+                                    </div>
+                                </div>
+                                
+                            </div>
+                        `;
+                        container.insertAdjacentHTML('beforeend', html);
+                    });
+                }
+            }
 
         });
     </script>
