@@ -161,6 +161,17 @@
                             <h3 style="color: #ffffff; font-size: 1rem; margin: 8px 0 0 0; font-weight: 500; text-align: left; line-height: 1.3;">Avg. Discipline Rate</h3>
                         </div>
 
+                        <!-- Top 10 Users Dropdown Card -->
+                        <div class="card" style="order: 2; background: white; border-radius: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); padding: 24px 28px; flex: 1 1 300px; max-width: 400px; display: flex; flex-direction: column; justify-content: center; border: none; font-family: 'Inter', sans-serif;">
+                            <h3 style="color: #18181b; font-size: 1rem; margin: 0 0 12px 0; font-weight: 600;">Top 10 Highest Discipline</h3>
+                            <div style="position: relative;">
+                                <select id="top10-discipline-dropdown" style="width: 100%; padding: 12px 16px; border-radius: 12px; border: 1px solid #e4e4e7; background: #f4f4f5; font-size: 0.95rem; font-weight: 500; color: #3f3f46; outline: none; appearance: none; cursor: pointer;">
+                                    <option>Loading data...</option>
+                                </select>
+                                <svg style="position: absolute; right: 16px; top: 50%; transform: translateY(-50%); pointer-events: none;" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#71717a" stroke-width="2"><path d="M6 9l6 6 6-6"></path></svg>
+                            </div>
+                        </div>
+
                         <div class="card" style="order: 3; background: #f8fafc; border-radius: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); padding: 20px; flex: 1 1 400px; max-width: none; display: flex; flex-direction: column;">
                             <!-- Header with Toggle Buttons -->
                             <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px; gap: 10px;">
@@ -1377,6 +1388,49 @@
                     });
                 });
             }
+
+            // Fetch and parse worksheet for Top 10 Dropdown
+            fetch('worksheet .csv')
+                .then(response => response.text())
+                .then(csvText => {
+                    const lines = csvText.split('\n');
+                    const users = [];
+                    // Data starts at line 5 (index 4) and continues
+                    for (let i = 5; i < lines.length; i++) {
+                        const line = lines[i].trim();
+                        if (!line || line.startsWith(';;')) continue;
+                        
+                        const cols = line.split(';');
+                        if (cols.length >= 44) {
+                            const name = cols[4] ? cols[4].trim() : '';
+                            let discStr = cols[43] ? cols[43].trim() : '';
+                            if (name && discStr && discStr !== '-') {
+                                // Convert discStr to number, e.g. "92,4" -> 92.4
+                                let discVal = parseFloat(discStr.replace(',', '.'));
+                                if (!isNaN(discVal)) {
+                                    users.push({ name: name, disc: discVal });
+                                }
+                            }
+                        }
+                    }
+                    
+                    // Sort by discipline descending
+                    users.sort((a, b) => b.disc - a.disc);
+                    const top10 = users.slice(0, 10);
+                    
+                    const dropdown = document.getElementById('top10-discipline-dropdown');
+                    if (dropdown && top10.length > 0) {
+                        dropdown.innerHTML = '<option disabled selected>View Top 10 Karyawan</option>';
+                        top10.forEach((u, index) => {
+                            const option = document.createElement('option');
+                            option.value = u.name;
+                            option.textContent = `#${index + 1} - ${u.name} (${u.disc.toLocaleString('id-ID', { minimumFractionDigits: 1, maximumFractionDigits: 1 })}%)`;
+                            dropdown.appendChild(option);
+                        });
+                    }
+                })
+                .catch(err => console.error("Error loading worksheet for top 10:", err));
+
         });
     </script>
 </body>
