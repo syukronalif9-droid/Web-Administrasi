@@ -86,17 +86,9 @@
                 }
             </style>
             
-            <header class="topbar topbar-pill">
-                <!-- Left: Logo -->
-                <div style="display: flex; align-items: center; gap: 8px; margin-right: 40px; background: white; padding: 8px 16px; border-radius: 99px; box-shadow: 0 4px 15px rgba(0,0,0,0.03);">
-                    <div style="width: 16px; height: 16px; background: #111827; border-radius: 5px; position: relative;">
-                        <div style="width: 8px; height: 8px; background: white; border-radius: 50%; position: absolute; bottom: 2px; right: 2px;"></div>
-                    </div>
-                    <div style="width: 8px; height: 8px; background: #111827; border-radius: 50%;"></div>
-                </div>
-
-                <!-- Center: Navigation Menu -->
-                <ul class="nav-menu horizontal">
+            <header class="topbar topbar-pill" style="justify-content: flex-end; padding-top: 16px;">
+                <!-- Center: Navigation Menu (Now Aligned to Right) -->
+                <ul class="nav-menu horizontal" style="margin-left: auto;">
                     <li class="nav-item active" data-target="dashboard">
                         <span class="menu-text">Dashboard</span>
                     </li>
@@ -116,11 +108,6 @@
                         <span class="menu-text">Data Karyawan</span>
                     </li>
                 </ul>
-
-                <!-- Right: Actions & User -->
-                <div class="topbar-actions" style="display: flex; gap: 20px; align-items: center; width: 40px;">
-                    <!-- Removed to simplify design -->
-                </div>
             </header>
 
             <!-- Dashboard View (New) -->
