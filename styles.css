@@ -37,7 +37,7 @@ body {
 .dashboard-container {
     display: flex;
     width: 100%;
-    max-width: 1900px;
+    max-width: 100%;
     height: calc(100vh - 24px);
     min-height: 600px;
     max-height: 100%;

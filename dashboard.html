@@ -127,32 +127,29 @@
             <section id="dashboard-view" class="view-section active">
                 <div style="display: flex; flex-direction: column; min-height: calc(100vh - 140px);">
                     <h1 style="font-family: 'Times New Roman', Times, serif; color: #0a1d42; font-size: 2rem; font-weight: 800; text-align: center; margin: 0 0 24px 0; letter-spacing: 1px;">EMPLOYEE ATTENDANCE &amp; DISCIPLINE TREND</h1>
-                    <div style="display: flex; flex-direction: column; gap: 24px; width: 100%;">
-                        
-                        <!-- Top Row -->
-                        <div style="display: flex; flex-direction: row; flex-wrap: nowrap; align-items: stretch; gap: 20px; width: 100%;">
+                    <div style="display: flex; flex-direction: row; flex-wrap: wrap; align-items: stretch; gap: 20px; width: 100%;">
                         
                         <!-- KPI Card 1: Avg Working Days -->
-                        <div class="card" style="background: #e2fc8f; border-radius: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); padding: 24px; flex: 1 1 0; align-self: flex-start; display: flex; flex-direction: column; justify-content: center; align-items: flex-start; border: none; font-family: 'Inter', sans-serif;">
+                        <div class="card" style="background: #e2fc8f; border-radius: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); padding: 24px; flex: 1 1 150px; max-width: 250px; align-self: flex-start; display: flex; flex-direction: column; justify-content: center; align-items: flex-start; border: none; font-family: 'Inter', sans-serif;">
                             <div id="kpi-working-days" style="font-size: 2.5rem; font-weight: 700; color: #18181b; margin: 0; letter-spacing: -1px;">6.309</div>
                             <h3 style="color: #18181b; font-size: 1rem; margin: 8px 0 0 0; font-weight: 500; text-align: left; line-height: 1.3;">Avg. Working Days</h3>
                             <div style="color: #18181b; font-size: 0.8rem; font-weight: 500; opacity: 0.7; margin-top: 4px;">people/days</div>
                         </div>
 
                         <!-- KPI Card 2: Avg Attendance -->
-                        <div class="card" style="background: white; border-radius: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); padding: 24px; flex: 1 1 0; align-self: flex-start; display: flex; flex-direction: column; justify-content: center; align-items: flex-start; border: none; font-family: 'Inter', sans-serif;">
+                        <div class="card" style="background: white; border-radius: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); padding: 24px; flex: 1 1 150px; max-width: 250px; align-self: flex-start; display: flex; flex-direction: column; justify-content: center; align-items: flex-start; border: none; font-family: 'Inter', sans-serif;">
                             <div id="kpi-attendance" style="font-size: 2.5rem; font-weight: 700; color: #18181b; margin: 0; letter-spacing: -1px;">5.763</div>
                             <h3 style="color: #18181b; font-size: 1rem; margin: 8px 0 0 0; font-weight: 500; text-align: left; line-height: 1.3;">Avg. Attendance</h3>
                             <div style="color: #18181b; font-size: 0.8rem; font-weight: 500; opacity: 0.7; margin-top: 4px;">people/days</div>
                         </div>
 
                         <!-- KPI Card 3: Avg Discipline Rate -->
-                        <div class="card" style="background: #9f8cf0; border-radius: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); padding: 24px; flex: 1 1 0; align-self: flex-start; display: flex; flex-direction: column; justify-content: center; align-items: flex-start; border: none; font-family: 'Inter', sans-serif;">
+                        <div class="card" style="background: #9f8cf0; border-radius: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); padding: 24px; flex: 1 1 150px; max-width: 250px; align-self: flex-start; display: flex; flex-direction: column; justify-content: center; align-items: flex-start; border: none; font-family: 'Inter', sans-serif;">
                             <div id="kpi-discipline" style="font-size: 2.5rem; font-weight: 700; color: #ffffff; margin: 0; letter-spacing: -1px;">91,1%</div>
                             <h3 style="color: #ffffff; font-size: 1rem; margin: 8px 0 0 0; font-weight: 500; text-align: left; line-height: 1.3;">Avg. Discipline Rate</h3>
                         </div>
 
-                        <div class="card" style="background: white; border-radius: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.03); padding: 20px; flex: 1.5 1 0; display: flex; flex-direction: column;">
+                        <div class="card" style="background: white; border-radius: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.03); padding: 20px; flex: 1 1 300px; max-width: 450px; display: flex; flex-direction: column;">
                             <h2 style="font-family: 'Times New Roman', Times, serif; color: #52525b; font-size: 1.25rem; margin: 0; margin-bottom: 16px; font-weight: 700; line-height: 1.2;">Discipline Rate (%) Per Bagian</h2>
                             
                             <!-- Custom Progress Bar Chart -->
@@ -234,7 +231,7 @@
                         </div>
 
                         <!-- Dark Line Chart Card -->
-                        <div class="card" style="background: #18181b; border-radius: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); padding: 20px; flex: 2 1 0; display: flex; flex-direction: column;">
+                        <div class="card" style="background: #18181b; border-radius: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); padding: 20px; flex: 1 1 300px; max-width: 550px; display: flex; flex-direction: column;">
                             
                             <!-- Title and Year Pill -->
                             <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px; gap: 10px;">
@@ -326,10 +323,12 @@
                                 </svg>
                             </div>
                         </div>
-                        </div> <!-- End Top Row -->
+
+                        <!-- Flex Break to force next row -->
+                        <div style="flex-basis: 100%; height: 0;"></div>
 
                         <!-- Bar Chart Card (Attendance Overview) -->
-                        <div class="card" style="background: #ffffff; border-radius: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); padding: 20px; width: 100%; display: flex; flex-direction: column;">
+                        <div class="card" style="background: #ffffff; border-radius: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); padding: 20px; flex: 1 1 100%; max-width: 1000px; display: flex; flex-direction: column;">
                             <!-- Title and Year Pill -->
                             <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px; gap: 10px;">
                                 <h2 style="font-family: 'Times New Roman', Times, serif; color: #18181b; font-size: 1.25rem; margin: 0; font-weight: 700; line-height: 1.2;">Attendance Overview - All WH</h2>
@@ -452,8 +451,11 @@
                             </div>
                         </div>
 
+                        <!-- Flex Break to force next row -->
+                        <div style="flex-basis: 100%; height: 0;"></div>
+
                         <!-- Bar Chart Card (Attendance Per Bagian) -->
-                        <div class="card" style="background: #ffffff; border-radius: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); padding: 20px; width: 100%; display: flex; flex-direction: column;">
+                        <div class="card" style="background: #ffffff; border-radius: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); padding: 20px; flex: 1 1 100%; max-width: 1000px; display: flex; flex-direction: column;">
                             <!-- Title and Year Pill -->
                             <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px; gap: 10px;">
                                 <h2 style="font-family: 'Times New Roman', Times, serif; color: #18181b; font-size: 1.25rem; margin: 0; font-weight: 700; line-height: 1.2;">Attendance Per Bagian</h2>
