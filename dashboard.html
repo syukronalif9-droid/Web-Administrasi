@@ -149,10 +149,47 @@
                             <h3 style="color: #ffffff; font-size: 1rem; margin: 8px 0 0 0; font-weight: 500; text-align: left; line-height: 1.3;">Avg. Discipline Rate</h3>
                         </div>
 
-                        <div class="card" style="background: white; border-radius: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.03); padding: 20px; flex: 1 1 100%; display: flex; flex-direction: row; flex-wrap: wrap; gap: 24px;">
-                            <!-- Discipline Rate Per Bagian (Inner) -->
-                            <div style="flex: 1 1 300px; display: flex; flex-direction: column;">
-                                <h2 style="font-family: 'Times New Roman', Times, serif; color: #52525b; font-size: 1.25rem; margin: 0; margin-bottom: 16px; font-weight: 700; line-height: 1.2;">Discipline Rate (%) Per Bagian</h2>
+                        <div class="card" style="background: white; border-radius: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.03); padding: 20px; flex: 1 1 100%; display: flex; flex-direction: column;">
+                            <!-- Header with Toggle Buttons -->
+                            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px; gap: 10px;">
+                                <div style="display: flex; gap: 10px; background: #f4f4f5; padding: 4px; border-radius: 12px;">
+                                    <button onclick="toggleDisciplineChart('trend')" id="btn-discipline-trend" style="padding: 8px 16px; border: none; background: #ffffff; border-radius: 8px; font-weight: 600; color: #18181b; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.05); transition: all 0.2s; font-family: 'Times New Roman', Times, serif; font-size: 1.1rem;">Discipline Rate Trend - All WH</button>
+                                    <button onclick="toggleDisciplineChart('bagian')" id="btn-discipline-bagian" style="padding: 8px 16px; border: none; background: transparent; border-radius: 8px; font-weight: 600; color: #71717a; cursor: pointer; transition: all 0.2s; font-family: 'Times New Roman', Times, serif; font-size: 1.1rem;">Discipline Rate Per Bagian</button>
+                                </div>
+                                <div style="padding: 2px 12px; border-radius: 99px; border: 1px solid #3b82f6; color: #3b82f6; font-size: 0.75rem; font-weight: 700;">2026</div>
+                            </div>
+                            
+                            <script>
+                                function toggleDisciplineChart(type) {
+                                    const btnTrend = document.getElementById('btn-discipline-trend');
+                                    const btnBagian = document.getElementById('btn-discipline-bagian');
+                                    const contentTrend = document.getElementById('discipline-content-trend');
+                                    const contentBagian = document.getElementById('discipline-content-bagian');
+
+                                    if (type === 'trend') {
+                                        btnTrend.style.background = '#ffffff';
+                                        btnTrend.style.color = '#18181b';
+                                        btnTrend.style.boxShadow = '0 2px 4px rgba(0,0,0,0.05)';
+                                        btnBagian.style.background = 'transparent';
+                                        btnBagian.style.color = '#71717a';
+                                        btnBagian.style.boxShadow = 'none';
+                                        contentTrend.style.display = 'flex';
+                                        contentBagian.style.display = 'none';
+                                    } else {
+                                        btnBagian.style.background = '#ffffff';
+                                        btnBagian.style.color = '#18181b';
+                                        btnBagian.style.boxShadow = '0 2px 4px rgba(0,0,0,0.05)';
+                                        btnTrend.style.background = 'transparent';
+                                        btnTrend.style.color = '#71717a';
+                                        btnTrend.style.boxShadow = 'none';
+                                        contentTrend.style.display = 'none';
+                                        contentBagian.style.display = 'flex';
+                                    }
+                                }
+                            </script>
+
+                            <!-- Content: Discipline Rate Per Bagian -->
+                            <div id="discipline-content-bagian" style="display: none; flex-direction: column; width: 100%;">
                             
                             <!-- Custom Progress Bar Chart -->
                             <div id="discipline-chart-container" style="flex-grow: 1; display: flex; flex-direction: column; justify-content: center; gap: 10px; padding: 4px 0;">
@@ -232,14 +269,8 @@
                             </div>
                             </div>
 
-                            <!-- Dark Line Chart Card (Inner) -->
-                            <div style="background: #18181b; border-radius: 20px; padding: 20px; flex: 1 1 450px; display: flex; flex-direction: column;">
-                                
-                                <!-- Title and Year Pill -->
-                            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px; gap: 10px;">
-                                <h2 style="font-family: 'Times New Roman', Times, serif; color: #f4f4f5; font-size: 1.25rem; margin: 0; font-weight: 700; line-height: 1.2;">Discipline Rate (%) Trend - All WH</h2>
-                                <div style="padding: 2px 12px; border-radius: 99px; border: 1px solid #3b82f6; color: #3b82f6; font-size: 0.75rem; font-weight: 700;">2026</div>
-                            </div>
+                            <!-- Content: Discipline Rate Trend -->
+                            <div id="discipline-content-trend" style="display: flex; flex-direction: column; width: 100%; background: #18181b; border-radius: 20px; padding: 20px;">
 
                             <!-- SVG Chart -->
                             <div style="flex-grow: 1; position: relative; width: 100%; min-height: 220px;">
