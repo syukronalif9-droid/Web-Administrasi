@@ -64,14 +64,14 @@
                     box-shadow: 0 4px 15px rgba(0,0,0,0.03);
                 }
                 .nav-menu.horizontal .nav-item {
-                    padding: 8px 20px;
+                    padding: 6px 14px;
                     margin: 0;
                     background: transparent !important;
                     box-shadow: none !important;
                     border-radius: 99px !important;
                     color: #6b7280;
                     font-weight: 500;
-                    font-size: 0.85rem;
+                    font-size: 0.8rem;
                     cursor: pointer;
                     position: relative;
                     transition: all 0.3s ease;
@@ -86,8 +86,13 @@
                 }
             </style>
             
-            <header class="topbar topbar-pill" style="justify-content: flex-end; gap: 16px; padding-top: 16px;">
-                <!-- Center: Navigation Menu (Now Aligned to Right with white pill) -->
+            <header class="topbar topbar-pill" style="display: flex; justify-content: space-between; align-items: center; padding-top: 16px; margin-bottom: 24px;">
+                <!-- Left: Logo -->
+                <div style="background: #ffffff; padding: 8px 24px; border-radius: 99px; font-weight: 600; font-size: 1rem; color: #1f2937; box-shadow: 0 4px 15px rgba(0,0,0,0.03); display: flex; align-items: center; letter-spacing: -0.5px;">
+                    Administrasi
+                </div>
+
+                <!-- Right: Navigation Menu -->
                 <ul class="nav-menu horizontal">
                     <li class="nav-item active" data-target="dashboard">
                         <span class="menu-text">Dashboard</span>
