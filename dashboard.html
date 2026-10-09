@@ -54,7 +54,7 @@
                 .nav-menu.horizontal {
                     display: flex;
                     flex-direction: row;
-                    padding: 8px 12px;
+                    padding: 0;
                     margin: 0;
                     list-style: none;
                     gap: 12px;
@@ -88,7 +88,7 @@
             
             <header class="topbar topbar-pill" style="justify-content: flex-end; padding-top: 16px;">
                 <!-- Center: Navigation Menu (Now Aligned to Right) -->
-                <ul class="nav-menu horizontal" style="margin-left: auto;">
+                <ul class="nav-menu horizontal" style="margin-left: auto; margin-right: -24px;">
                     <li class="nav-item active" data-target="dashboard">
                         <span class="menu-text">Dashboard</span>
                     </li>
@@ -104,7 +104,7 @@
                     <li class="nav-item" data-target="mb51">
                         <span class="menu-text">Hari Kerja</span>
                     </li>
-                    <li class="nav-item" data-target="stock">
+                    <li class="nav-item" data-target="stock" style="padding-right: 24px;">
                         <span class="menu-text">Data Karyawan</span>
                     </li>
                 </ul>
