@@ -213,116 +213,175 @@
                             <div id="discipline-content-bagian" style="display: none; flex-direction: column; width: 100%;">
                             
                             <!-- ECharts Donut Chart -->
-                            <div id="discipline-donut-chart" style="width: 100%; height: 420px; padding: 10px 0;"></div>
+                            <div id="discipline-donut-chart" style="width: 100%; height: 400px;"></div>
                             <script>
                                 document.addEventListener('DOMContentLoaded', function() {
                                     var chartDom = document.getElementById('discipline-donut-chart');
                                     var myChart = echarts.init(chartDom);
+
+                                    var disciplineData = [
+                                        { value: 99.3, name: 'Traffic',              color: '#3b82f6' },
+                                        { value: 98.5, name: 'Gen. Adm',             color: '#6366f1' },
+                                        { value: 97.9, name: 'PG4',                  color: '#8b5cf6' },
+                                        { value: 94.8, name: 'PG1',                  color: '#f97316' },
+                                        { value: 92.0, name: 'Sppt, Lubr & Other M', color: '#ec4899' },
+                                        { value: 87.9, name: 'PG3',                  color: '#ef4444' },
+                                        { value: 79.3, name: 'PG2',                  color: '#f43f5e' },
+                                        { value: 74.6, name: 'Inv. Control',         color: '#fb923c' }
+                                    ];
+
                                     var option = {
                                         tooltip: {
                                             trigger: 'item',
-                                            formatter: '{b}: {c}%'
-                                        },
-                                        legend: {
-                                            show: false
-                                        },
-                                        graphic: {
-                                            elements: [{
-                                                type: 'circle',
-                                                left: 'center',
-                                                top: 'center',
-                                                shape: { r: 65 },
-                                                style: { 
-                                                    fill: '#0f172a', 
-                                                    shadowBlur: 10, 
-                                                    shadowColor: 'rgba(0,0,0,0.3)' 
-                                                }
-                                            }, {
-                                                type: 'text',
-                                                left: 'center',
-                                                top: 'center',
-                                                style: {
-                                                    text: '91.1%', // Average Discipline Rate
-                                                    fill: '#ffffff',
-                                                    fontSize: 24,
-                                                    fontWeight: 'bold',
-                                                    fontFamily: 'Inter, sans-serif'
-                                                }
-                                            }]
+                                            backgroundColor: 'rgba(15, 23, 42, 0.9)',
+                                            borderColor: 'rgba(255,255,255,0.1)',
+                                            textStyle: { color: '#f1f5f9', fontFamily: 'Inter, sans-serif' },
+                                            formatter: function(p) {
+                                                return '<b>' + p.name + '</b><br/>Discipline Rate: <b>' + p.value + '%</b>';
+                                            }
                                         },
                                         series: [
+                                            // --- Outer ring: main donut ---
                                             {
                                                 name: 'Discipline Rate',
                                                 type: 'pie',
-                                                radius: ['45%', '70%'],
+                                                radius: ['52%', '78%'],
                                                 center: ['50%', '50%'],
-                                                selectedMode: 'single',
-                                                selectedOffset: 15,
                                                 avoidLabelOverlap: true,
+                                                padAngle: 2,
                                                 itemStyle: {
-                                                    borderRadius: 2,
-                                                    borderColor: '#fff',
-                                                    borderWidth: 2,
-                                                    shadowBlur: 15,
-                                                    shadowColor: 'rgba(0, 0, 0, 0.2)',
-                                                    shadowOffsetX: 0,
-                                                    shadowOffsetY: 5
+                                                    borderRadius: 6,
+                                                    borderColor: '#f8fafc',
+                                                    borderWidth: 2
                                                 },
                                                 label: {
                                                     show: true,
                                                     position: 'outside',
-                                                    formatter: function(params) {
-                                                        return `{val|${params.value}%}\n{hr|}\n{name|${params.name}}`;
+                                                    formatter: function(p) {
+                                                        return '{val|' + p.value + '%}\n{name|' + p.name + '}';
                                                     },
                                                     rich: {
                                                         val: {
-                                                            fontSize: 20,
-                                                            fontWeight: 'bold',
-                                                            color: 'inherit',
-                                                            padding: [0, 0, 8, 0],
-                                                            align: 'left'
-                                                        },
-                                                        hr: {
-                                                            borderColor: 'inherit',
-                                                            width: '100%',
-                                                            borderWidth: 1.5,
-                                                            height: 0
+                                                            fontSize: 13,
+                                                            fontWeight: '700',
+                                                            color: '#18181b',
+                                                            lineHeight: 20,
+                                                            fontFamily: 'Inter, sans-serif'
                                                         },
                                                         name: {
-                                                            fontSize: 12,
-                                                            color: '#64748b',
-                                                            padding: [8, 0, 0, 0],
-                                                            align: 'left'
+                                                            fontSize: 11,
+                                                            color: '#71717a',
+                                                            lineHeight: 16,
+                                                            fontFamily: 'Inter, sans-serif'
                                                         }
                                                     }
                                                 },
                                                 labelLine: {
                                                     show: true,
-                                                    length: 20,
-                                                    length2: 50,
-                                                    lineStyle: {
-                                                        width: 1.5,
-                                                        color: 'inherit'
+                                                    length: 15,
+                                                    length2: 25,
+                                                    smooth: 0.2,
+                                                    lineStyle: { width: 1.5 }
+                                                },
+                                                emphasis: {
+                                                    scaleSize: 8,
+                                                    itemStyle: {
+                                                        shadowBlur: 20,
+                                                        shadowColor: 'rgba(0,0,0,0.25)'
                                                     }
                                                 },
-                                                data: [
-                                                    { value: 99.3, name: 'Traffic', itemStyle: { color: '#4da6ff' }, selected: true },
-                                                    { value: 98.5, name: 'Gen. Adm', itemStyle: { color: '#4f46e5' } },
-                                                    { value: 97.9, name: 'PG4', itemStyle: { color: '#b642f5' } },
-                                                    { value: 94.8, name: 'PG1', itemStyle: { color: '#f97316' } },
-                                                    { value: 87.9, name: 'PG3', itemStyle: { color: '#dc2626' } },
-                                                    { value: 79.3, name: 'PG2', itemStyle: { color: '#be123c' } },
-                                                    { value: 92.0, name: 'Sppt, Lubr & Other M', itemStyle: { color: '#f43f5e' } },
-                                                    { value: 74.6, name: 'Inv. Control', itemStyle: { color: '#fbcfe8' } }
-                                                ]
+                                                data: disciplineData.map(function(d) {
+                                                    return {
+                                                        value: d.value,
+                                                        name: d.name,
+                                                        itemStyle: { color: d.color }
+                                                    };
+                                                })
+                                            },
+                                            // --- Inner ring: decorative ---
+                                            {
+                                                type: 'pie',
+                                                radius: ['40%', '50%'],
+                                                center: ['50%', '50%'],
+                                                silent: true,
+                                                label: { show: false },
+                                                labelLine: { show: false },
+                                                itemStyle: {
+                                                    borderRadius: 4,
+                                                    borderColor: '#f8fafc',
+                                                    borderWidth: 1,
+                                                    opacity: 0.35
+                                                },
+                                                data: disciplineData.map(function(d) {
+                                                    return {
+                                                        value: d.value,
+                                                        name: d.name,
+                                                        itemStyle: { color: d.color }
+                                                    };
+                                                })
+                                            },
+                                            // --- Center label ---
+                                            {
+                                                type: 'pie',
+                                                radius: ['0%', '38%'],
+                                                center: ['50%', '50%'],
+                                                silent: true,
+                                                label: { show: false },
+                                                labelLine: { show: false },
+                                                itemStyle: { color: 'transparent' },
+                                                emphasis: { disabled: true },
+                                                data: [{ value: 1, name: '' }]
                                             }
-                                        ]
+                                        ],
+                                        graphic: {
+                                            elements: [
+                                                {
+                                                    type: 'circle',
+                                                    left: 'center',
+                                                    top: 'middle',
+                                                    shape: { r: 55 },
+                                                    style: {
+                                                        fill: new echarts.graphic.RadialGradient(0.5, 0.5, 1, [
+                                                            { offset: 0, color: '#1e293b' },
+                                                            { offset: 1, color: '#0f172a' }
+                                                        ]),
+                                                        shadowBlur: 20,
+                                                        shadowColor: 'rgba(0,0,0,0.4)'
+                                                    }
+                                                },
+                                                {
+                                                    type: 'text',
+                                                    left: 'center',
+                                                    top: 'middle',
+                                                    style: {
+                                                        text: '91,1%',
+                                                        fill: '#ffffff',
+                                                        fontSize: 22,
+                                                        fontWeight: 'bold',
+                                                        fontFamily: 'Inter, sans-serif',
+                                                        textAlign: 'center',
+                                                        textVerticalAlign: 'middle'
+                                                    }
+                                                }
+                                            ]
+                                        }
                                     };
+
                                     myChart.setOption(option);
-                                    
-                                    window.addEventListener('resize', function() {
-                                        myChart.resize();
+                                    window.addEventListener('resize', function() { myChart.resize(); });
+
+                                    // Re-init chart when tab becomes visible
+                                    var observer = new MutationObserver(function(mutations) {
+                                        mutations.forEach(function(m) {
+                                            if (m.target.style && m.target.style.display !== 'none') {
+                                                setTimeout(function() { myChart.resize(); }, 100);
+                                            }
+                                        });
                                     });
+                                    var bagianDiv = document.getElementById('discipline-content-bagian');
+                                    if (bagianDiv) {
+                                        observer.observe(bagianDiv, { attributes: true, attributeFilter: ['style'] });
+                                    }
                                 });
                             </script>
                             </div>
