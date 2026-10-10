@@ -164,7 +164,13 @@
 
                         <!-- Top 5 Users List Card -->
                         <div class="card" style="order: 4; background-color: #121212; background-image: radial-gradient(circle at 80% 20%, rgba(255,255,255,0.05) 0%, transparent 50%), radial-gradient(circle at 20% 80%, rgba(255,255,255,0.03) 0%, transparent 60%); border-radius: 24px; box-shadow: 0 10px 40px rgba(0,0,0,0.5); padding: 24px; flex: 1 1 300px; display: flex; flex-direction: column; border: 1px solid rgba(255,255,255,0.05); font-family: 'Inter', sans-serif; position: relative; overflow: hidden;">
-                            <h3 style="color: #ffffff; font-size: 1.1rem; margin: 0 0 20px 0; font-weight: 600;">Top 5 Highest Discipline</h3>
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                                <h3 id="top5-title" style="color: #ffffff; font-size: 1.1rem; margin: 0; font-weight: 600;">Top 5 Highest Discipline</h3>
+                                <div style="display: flex; gap: 8px; background: rgba(255,255,255,0.1); padding: 4px; border-radius: 8px;">
+                                    <button id="btn-top5-highest" onclick="window.renderTop5List('highest')" style="padding: 6px 12px; border: none; background: #3b82f6; border-radius: 6px; font-weight: 600; color: #ffffff; cursor: pointer; transition: all 0.2s; font-size: 0.8rem;">Terbaik</button>
+                                    <button id="btn-top5-lowest" onclick="window.renderTop5List('lowest')" style="padding: 6px 12px; border: none; background: transparent; border-radius: 6px; font-weight: 600; color: #a1a1aa; cursor: pointer; transition: all 0.2s; font-size: 0.8rem;">Terendah</button>
+                                </div>
+                            </div>
                             <div id="top5-list-container" style="display: grid; grid-template-columns: 1fr; grid-template-rows: repeat(5, auto); grid-auto-flow: row; gap: 12px; width: 100%;">
                                 <div style="color: #a1a1aa; font-size: 0.9rem; padding: 12px;">Loading data...</div>
                             </div>
