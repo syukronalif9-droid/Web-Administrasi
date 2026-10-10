@@ -164,17 +164,6 @@
 
                         <!-- Filters Container -->
                         <div style="order: 2; display: flex; flex-direction: row; gap: 16px; flex: 1 1 400px; max-width: 660px;">
-                            <!-- Filter Card: Employee Status -->
-                            <div class="card" style="background: white; border-radius: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); padding: 24px; flex: 0.8; display: flex; flex-direction: column; justify-content: flex-start; align-items: flex-start; border: 1px solid #e2e8f0; font-family: 'Inter', sans-serif;">
-                                <h3 style="color: #18181b; font-size: 0.9rem; margin: 0 0 12px 0; font-weight: 600; text-align: left;">Employee Status</h3>
-                                <select id="employee-status-filter" onchange="window.applyFilters()" style="width: 100%; padding: 12px; border-radius: 12px; border: 1px solid #cbd5e1; font-size: 0.9rem; font-family: 'Inter', sans-serif; background: #f8fafc; color: #334155; outline: none; cursor: pointer;">
-                                    <option value="Summary Employee">Summary Employee</option>
-                                    <option value="Permanent">Permanent</option>
-                                    <option value="Harian Lepas">Harian Lepas</option>
-                                    <option value="Contract (GGP/OS)">Contract (GGP/OS)</option>
-                                </select>
-                            </div>
-                            
                             <!-- Filter Card: Period Calendar Grid -->
                             <div class="card" style="background: #0b1727; border-radius: 24px; box-shadow: 0 10px 40px rgba(0,0,0,0.4); padding: 20px; flex: 1.2; display: flex; flex-direction: column; justify-content: center; align-items: stretch; border: 1px solid #142a42; font-family: 'Inter', sans-serif; position: relative;">
                                 <h3 style="color: #4db3b8; font-size: 0.85rem; margin: 0 0 10px 0; font-weight: 600; text-align: left; text-transform: uppercase; letter-spacing: 1px;">Filter Period</h3>
@@ -197,6 +186,17 @@
                                     <button class="month-btn" data-val="Des-26" onclick="window.selectMonth(this)" style="background: transparent; border: 1px solid #1e3a4f; border-radius: 4px; padding: 6px 0; color: #4eb5bb; font-size: 0.8rem; font-weight: 600; cursor: pointer; transition: all 0.2s;">DEC</button>
                                 </div>
                                 <button class="month-btn active" data-val="Summary (All Months)" onclick="window.selectMonth(this)" style="margin-top: 8px; background: linear-gradient(135deg, #38f9d7 0%, #43e97b 100%); border: none; border-radius: 4px; padding: 6px 0; color: #071b29; font-size: 0.8rem; font-weight: 700; cursor: pointer; transition: all 0.2s;">SUMMARY (ALL)</button>
+                            </div>
+
+                            <!-- Filter Card: Employee Status -->
+                            <div class="card" style="background: white; border-radius: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); padding: 24px; flex: 0.8; display: flex; flex-direction: column; justify-content: flex-start; align-items: flex-start; border: 1px solid #e2e8f0; font-family: 'Inter', sans-serif;">
+                                <h3 style="color: #18181b; font-size: 0.9rem; margin: 0 0 12px 0; font-weight: 600; text-align: left;">Employee Status</h3>
+                                <select id="employee-status-filter" onchange="window.applyFilters()" style="width: 100%; padding: 12px; border-radius: 12px; border: 1px solid #cbd5e1; font-size: 0.9rem; font-family: 'Inter', sans-serif; background: #f8fafc; color: #334155; outline: none; cursor: pointer;">
+                                    <option value="Summary Employee">Summary Employee</option>
+                                    <option value="Permanent">Permanent</option>
+                                    <option value="Harian Lepas">Harian Lepas</option>
+                                    <option value="Contract (GGP/OS)">Contract (GGP/OS)</option>
+                                </select>
                             </div>
                         </div>
 
