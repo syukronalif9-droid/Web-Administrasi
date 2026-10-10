@@ -162,38 +162,39 @@
                             <h3 style="color: #ffffff; font-size: 1rem; margin: 8px 0 0 0; font-weight: 500; text-align: left; line-height: 1.3;">Avg. Discipline Rate</h3>
                         </div>
 
-                        <!-- Filter Card -->
-                        <div class="card" style="order: 2; background: white; border-radius: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); padding: 32px 28px; flex: 1 1 300px; max-width: 400px; display: flex; flex-direction: column; justify-content: center; align-items: stretch; border: 1px solid #e2e8f0; font-family: 'Inter', sans-serif;">
-                            <h3 style="color: #18181b; font-size: 1rem; margin: 0 0 16px 0; font-weight: 700; letter-spacing: -0.5px;">Filters</h3>
-                            <div style="display: flex; gap: 12px; width: 100%;">
-                                <div style="flex: 1; display: flex; flex-direction: column; gap: 6px;">
-                                    <label style="color: #64748b; font-size: 0.8rem; font-weight: 600;">Status</label>
-                                    <select id="employee-status-filter" onchange="window.applyFilters()" style="width: 100%; padding: 10px; border-radius: 12px; border: 1px solid #cbd5e1; font-size: 0.9rem; font-family: 'Inter', sans-serif; background: #f8fafc; color: #334155; outline: none; cursor: pointer;">
-                                        <option value="Summary Employee">Summary</option>
-                                        <option value="Permanent">Permanent</option>
-                                        <option value="Harian Lepas">Harian Lepas</option>
-                                        <option value="Contract (GGP/OS)">Contract</option>
-                                    </select>
-                                </div>
-                                <div style="flex: 1; display: flex; flex-direction: column; gap: 6px;">
-                                    <label style="color: #64748b; font-size: 0.8rem; font-weight: 600;">Period</label>
-                                    <select id="period-filter" onchange="window.applyFilters()" style="width: 100%; padding: 10px; border-radius: 12px; border: 1px solid #cbd5e1; font-size: 0.9rem; font-family: 'Inter', sans-serif; background: #f8fafc; color: #334155; outline: none; cursor: pointer;">
-                                        <option value="Summary (All Months)">All Months</option>
-                                        <option value="Jan-26">Jan-26</option>
-                                        <option value="Feb-26">Feb-26</option>
-                                        <option value="Mar-26">Mar-26</option>
-                                        <option value="Apr-26">Apr-26</option>
-                                        <option value="Mei-26">Mei-26</option>
-                                        <option value="Jun-26">Jun-26</option>
-                                        <option value="Jul-26">Jul-26</option>
-                                        <option value="Agu-26">Agu-26</option>
-                                        <option value="Sep-26">Sep-26</option>
-                                        <option value="Okt-26">Okt-26</option>
-                                        <option value="Nov-26">Nov-26</option>
-                                        <option value="Des-26">Des-26</option>
-                                    </select>
-                                </div>
+                        <!-- Filter Card: Employee Status -->
+                        <div class="card" style="order: 2; background: white; border-radius: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); padding: 32px 28px; flex: 1 1 200px; max-width: 320px; display: flex; flex-direction: column; justify-content: center; align-items: flex-start; border: 1px solid #e2e8f0; font-family: 'Inter', sans-serif;">
+                            <h3 style="color: #18181b; font-size: 0.9rem; margin: 0 0 12px 0; font-weight: 600; text-align: left;">Employee Status</h3>
+                            <select id="employee-status-filter" onchange="window.applyFilters()" style="width: 100%; padding: 12px; border-radius: 12px; border: 1px solid #cbd5e1; font-size: 1rem; font-family: 'Inter', sans-serif; background: #f8fafc; color: #334155; outline: none; cursor: pointer;">
+                                <option value="Summary Employee">Summary Employee</option>
+                                <option value="Permanent">Permanent</option>
+                                <option value="Harian Lepas">Harian Lepas</option>
+                                <option value="Contract (GGP/OS)">Contract (GGP/OS)</option>
+                            </select>
+                        </div>
+                        
+                        <!-- Filter Card: Period Calendar Grid -->
+                        <div class="card" style="order: 3; background: #0b1727; border-radius: 24px; box-shadow: 0 10px 40px rgba(0,0,0,0.4); padding: 24px; flex: 1 1 200px; max-width: 320px; display: flex; flex-direction: column; justify-content: center; align-items: stretch; border: 1px solid #142a42; font-family: 'Inter', sans-serif; position: relative;">
+                            <h3 style="color: #4db3b8; font-size: 0.9rem; margin: 0 0 12px 0; font-weight: 600; text-align: left; text-transform: uppercase; letter-spacing: 1px;">Filter Period</h3>
+                            
+                            <input type="hidden" id="period-filter" value="Summary (All Months)">
+                            
+                            <!-- Grid -->
+                            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px;" id="month-grid-container">
+                                <button class="month-btn" data-val="Jan-26" onclick="window.selectMonth(this)" style="background: transparent; border: 1px solid #1e3a4f; border-radius: 4px; padding: 6px 0; color: #4eb5bb; font-size: 0.8rem; font-weight: 600; cursor: pointer; transition: all 0.2s;">JAN</button>
+                                <button class="month-btn" data-val="Feb-26" onclick="window.selectMonth(this)" style="background: transparent; border: 1px solid #1e3a4f; border-radius: 4px; padding: 6px 0; color: #4eb5bb; font-size: 0.8rem; font-weight: 600; cursor: pointer; transition: all 0.2s;">FEB</button>
+                                <button class="month-btn" data-val="Mar-26" onclick="window.selectMonth(this)" style="background: transparent; border: 1px solid #1e3a4f; border-radius: 4px; padding: 6px 0; color: #4eb5bb; font-size: 0.8rem; font-weight: 600; cursor: pointer; transition: all 0.2s;">MAR</button>
+                                <button class="month-btn" data-val="Apr-26" onclick="window.selectMonth(this)" style="background: transparent; border: 1px solid #1e3a4f; border-radius: 4px; padding: 6px 0; color: #4eb5bb; font-size: 0.8rem; font-weight: 600; cursor: pointer; transition: all 0.2s;">APR</button>
+                                <button class="month-btn" data-val="Mei-26" onclick="window.selectMonth(this)" style="background: transparent; border: 1px solid #1e3a4f; border-radius: 4px; padding: 6px 0; color: #4eb5bb; font-size: 0.8rem; font-weight: 600; cursor: pointer; transition: all 0.2s;">MAY</button>
+                                <button class="month-btn" data-val="Jun-26" onclick="window.selectMonth(this)" style="background: transparent; border: 1px solid #1e3a4f; border-radius: 4px; padding: 6px 0; color: #4eb5bb; font-size: 0.8rem; font-weight: 600; cursor: pointer; transition: all 0.2s;">JUN</button>
+                                <button class="month-btn" data-val="Jul-26" onclick="window.selectMonth(this)" style="background: transparent; border: 1px solid #1e3a4f; border-radius: 4px; padding: 6px 0; color: #4eb5bb; font-size: 0.8rem; font-weight: 600; cursor: pointer; transition: all 0.2s;">JUL</button>
+                                <button class="month-btn" data-val="Agu-26" onclick="window.selectMonth(this)" style="background: transparent; border: 1px solid #1e3a4f; border-radius: 4px; padding: 6px 0; color: #4eb5bb; font-size: 0.8rem; font-weight: 600; cursor: pointer; transition: all 0.2s;">AUG</button>
+                                <button class="month-btn" data-val="Sep-26" onclick="window.selectMonth(this)" style="background: transparent; border: 1px solid #1e3a4f; border-radius: 4px; padding: 6px 0; color: #4eb5bb; font-size: 0.8rem; font-weight: 600; cursor: pointer; transition: all 0.2s;">SEP</button>
+                                <button class="month-btn" data-val="Okt-26" onclick="window.selectMonth(this)" style="background: transparent; border: 1px solid #1e3a4f; border-radius: 4px; padding: 6px 0; color: #4eb5bb; font-size: 0.8rem; font-weight: 600; cursor: pointer; transition: all 0.2s;">OCT</button>
+                                <button class="month-btn" data-val="Nov-26" onclick="window.selectMonth(this)" style="background: transparent; border: 1px solid #1e3a4f; border-radius: 4px; padding: 6px 0; color: #4eb5bb; font-size: 0.8rem; font-weight: 600; cursor: pointer; transition: all 0.2s;">NOV</button>
+                                <button class="month-btn" data-val="Des-26" onclick="window.selectMonth(this)" style="background: transparent; border: 1px solid #1e3a4f; border-radius: 4px; padding: 6px 0; color: #4eb5bb; font-size: 0.8rem; font-weight: 600; cursor: pointer; transition: all 0.2s;">DEC</button>
                             </div>
+                            <button class="month-btn active" data-val="Summary (All Months)" onclick="window.selectMonth(this)" style="margin-top: 8px; background: linear-gradient(135deg, #38f9d7 0%, #43e97b 100%); border: none; border-radius: 4px; padding: 6px 0; color: #071b29; font-size: 0.8rem; font-weight: 700; cursor: pointer; transition: all 0.2s;">SUMMARY (ALL)</button>
                         </div>
 
                         <!-- Top 5 Users List Card -->
@@ -1751,6 +1752,25 @@ document.addEventListener("DOMContentLoaded", function() {
                         btnHigh.style.color = '#a1a1aa';
                     }
                 }
+                window.selectMonth = function(btn) {
+                    const container = btn.parentElement.parentElement;
+                    const btns = container.querySelectorAll('.month-btn');
+                    btns.forEach(b => {
+                        b.classList.remove('active');
+                        b.style.background = 'transparent';
+                        b.style.color = '#4eb5bb';
+                        b.style.border = '1px solid #1e3a4f';
+                    });
+                    
+                    btn.classList.add('active');
+                    btn.style.background = 'linear-gradient(135deg, #38f9d7 0%, #43e97b 100%)';
+                    btn.style.color = '#071b29';
+                    btn.style.border = 'none';
+                    
+                    document.getElementById('period-filter').value = btn.getAttribute('data-val');
+                    window.applyFilters();
+                };
+
             };
             
             // Initial render
