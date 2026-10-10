@@ -162,6 +162,17 @@
                             <h3 style="color: #ffffff; font-size: 1rem; margin: 8px 0 0 0; font-weight: 500; text-align: left; line-height: 1.3;">Avg. Discipline Rate</h3>
                         </div>
 
+                        <!-- Filter Card -->
+                        <div class="card" style="order: 2; background: white; border-radius: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); padding: 32px 28px; flex: 1 1 200px; max-width: 320px; display: flex; flex-direction: column; justify-content: center; align-items: flex-start; border: 1px solid #e2e8f0; font-family: 'Inter', sans-serif;">
+                            <h3 style="color: #18181b; font-size: 0.9rem; margin: 0 0 12px 0; font-weight: 600; text-align: left;">Employee Status</h3>
+                            <select id="employee-status-filter" onchange="window.applyStatusFilter(this.value)" style="width: 100%; padding: 12px; border-radius: 12px; border: 1px solid #cbd5e1; font-size: 1rem; font-family: 'Inter', sans-serif; background: #f8fafc; color: #334155; outline: none; cursor: pointer;">
+                                <option value="Summary Employee">Summary Employee</option>
+                                <option value="Permanent">Permanent</option>
+                                <option value="Harian Lepas">Harian Lepas</option>
+                                <option value="Contract (GGP/OS)">Contract (GGP/OS)</option>
+                            </select>
+                        </div>
+
                         <!-- Top 5 Users List Card -->
                         <div class="card" style="order: 4; background-color: #121212; background-image: radial-gradient(circle at 80% 20%, rgba(255,255,255,0.05) 0%, transparent 50%), radial-gradient(circle at 20% 80%, rgba(255,255,255,0.03) 0%, transparent 60%); border-radius: 24px; box-shadow: 0 10px 40px rgba(0,0,0,0.5); padding: 24px; flex: 1 1 300px; display: flex; flex-direction: column; border: 1px solid rgba(255,255,255,0.05); font-family: 'Inter', sans-serif; position: relative; overflow: hidden;">
                             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
@@ -1533,23 +1544,81 @@ document.addEventListener("DOMContentLoaded", function() {
                     
                     const cols = line.split(';');
                     if (cols.length >= 44) {
+                        const status = cols[1] ? cols[1].trim() : '';
                         const name = cols[4] ? cols[4].trim() : '';
                         const bagian = cols[2] ? cols[2].trim() : '';
+                        let wdStr = cols[41] ? cols[41].trim() : '';
+                        let attStr = cols[42] ? cols[42].trim() : '';
                         let discStr = cols[43] ? cols[43].trim() : '';
+                        
                         if (name && discStr && discStr !== '-') {
-                            // Convert discStr to number, e.g. "92,4" -> 92.4
                             let discVal = parseFloat(discStr.replace(',', '.'));
+                            let wdVal = parseFloat(wdStr.replace(',', '.'));
+                            let attVal = parseFloat(attStr.replace(',', '.'));
                             if (!isNaN(discVal)) {
-                                users.push({ name: name, bagian: bagian, disc: discVal });
+                                users.push({ 
+                                    name: name, 
+                                    bagian: bagian, 
+                                    disc: discVal,
+                                    wd: isNaN(wdVal) ? 0 : wdVal,
+                                    att: isNaN(attVal) ? 0 : attVal,
+                                    status: status
+                                });
                             }
                         }
                     }
                 }
                 
+                // Store all users for filtering
+                window.allUsersData = users;
+                window.currentSortOrder = 'highest';
+                
+                window.applyStatusFilter = function(status) {
+                    let filtered = window.allUsersData;
+                    if (status && status !== 'Summary Employee') {
+                        filtered = window.allUsersData.filter(u => u.status === status);
+                    }
+                    
+                    // Update KPIs
+                    if (filtered.length > 0) {
+                        let totalWd = 0, totalAtt = 0, totalDisc = 0;
+                        filtered.forEach(u => {
+                            totalWd += u.wd;
+                            totalAtt += u.att;
+                            totalDisc += u.disc;
+                        });
+                        let avgWd = totalWd / filtered.length;
+                        let avgAtt = totalAtt / filtered.length;
+                        let avgDisc = totalDisc / filtered.length;
+                        
+                        const kpiWd = document.getElementById('kpi-working-days');
+                        const kpiAtt = document.getElementById('kpi-attendance');
+                        const kpiDisc = document.getElementById('kpi-discipline');
+                        
+                        // We format exactly like original logic but use our calculated averages
+                        if (kpiWd) kpiWd.textContent = avgWd.toLocaleString('id-ID', { maximumFractionDigits: 1 });
+                        if (kpiAtt) kpiAtt.textContent = avgAtt.toLocaleString('id-ID', { maximumFractionDigits: 1 });
+                        if (kpiDisc) kpiDisc.textContent = avgDisc.toLocaleString('id-ID', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + '%';
+                    } else {
+                        // Reset if no data
+                        const kpiWd = document.getElementById('kpi-working-days');
+                        const kpiAtt = document.getElementById('kpi-attendance');
+                        const kpiDisc = document.getElementById('kpi-discipline');
+                        if (kpiWd) kpiWd.textContent = "0";
+                        if (kpiAtt) kpiAtt.textContent = "0";
+                        if (kpiDisc) kpiDisc.textContent = "0%";
+                    }
+                    
+                    // Update Top 5
+                    window.parsedUsersData = filtered;
+                    window.renderTop5List(window.currentSortOrder);
+                };
+                
                 // Parse complete, setup toggle logic
                 window.parsedUsersData = users;
                 
                 window.renderTop5List = function(sortOrder = 'highest') {
+                    window.currentSortOrder = sortOrder; // remember the sort order
                     const sortedUsers = [...window.parsedUsersData].sort((a, b) => sortOrder === 'highest' ? b.disc - a.disc : a.disc - b.disc);
                     const top5 = sortedUsers.slice(0, 5);
                 
@@ -1629,7 +1698,7 @@ document.addEventListener("DOMContentLoaded", function() {
             };
             
             // Initial render
-            window.renderTop5List('highest');
+            window.applyStatusFilter('Summary Employee');
         }
 
         });
