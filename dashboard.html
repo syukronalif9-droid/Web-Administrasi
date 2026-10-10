@@ -1554,6 +1554,11 @@ document.addEventListener("DOMContentLoaded", function() {
                 if (container && top5.length > 0) {
                     container.innerHTML = '';
                     top5.forEach((u, index) => {
+                        const isLowest = sortOrder === 'lowest';
+                        const pillGradient = isLowest ? 'linear-gradient(to bottom, #fb7185 0%, #e11d48 100%)' : 'linear-gradient(to bottom, #38bdf8 0%, #0284c7 100%)';
+                        const iconColor = isLowest ? '#e11d48' : '#1ea2db';
+                        const avatarCenter = isLowest ? '#f43f5e' : '#4a78c9';
+                        
                         const html = `
                             <div style="display: flex; align-items: center; width: 100%; position: relative;">
                                 
