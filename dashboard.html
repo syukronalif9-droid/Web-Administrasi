@@ -1528,12 +1528,13 @@ document.addEventListener("DOMContentLoaded", function() {
                     const cols = line.split(';');
                     if (cols.length >= 44) {
                         const name = cols[4] ? cols[4].trim() : '';
+                        const bagian = cols[2] ? cols[2].trim() : '';
                         let discStr = cols[43] ? cols[43].trim() : '';
                         if (name && discStr && discStr !== '-') {
                             // Convert discStr to number, e.g. "92,4" -> 92.4
                             let discVal = parseFloat(discStr.replace(',', '.'));
                             if (!isNaN(discVal)) {
-                                users.push({ name: name, disc: discVal });
+                                users.push({ name: name, bagian: bagian, disc: discVal });
                             }
                         }
                     }
@@ -1574,7 +1575,7 @@ document.addEventListener("DOMContentLoaded", function() {
                                 <!-- Right Side -->
                                 <div style="display: flex; align-items: center; gap: 24px;">
                                     <div style="background: ${badgeBg}; color: ${badgeText}; padding: 6px 16px; border-radius: 99px; font-size: 0.75rem; font-weight: 600; min-width: 80px; text-align: center;">
-                                        ${u.disc === 100 ? 'Perfect' : 'Good'}
+                                        ${u.bagian || (u.disc === 100 ? 'Perfect' : 'Good')}
                                     </div>
                                     <div style="color: ${textPrimary}; font-weight: 400; font-size: 1.05rem; min-width: 80px; text-align: right; letter-spacing: 0.5px;">
                                         <span style="opacity: 0.6; font-size: 0.9rem; margin-right: 2px;">%</span>${u.disc.toLocaleString('id-ID', { minimumFractionDigits: 1, maximumFractionDigits: 1 })}
