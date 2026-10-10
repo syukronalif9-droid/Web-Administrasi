@@ -1546,9 +1546,12 @@ document.addEventListener("DOMContentLoaded", function() {
                     }
                 }
                 
-                // Sort by discipline descending
-                users.sort((a, b) => b.disc - a.disc);
-                const top5 = users.slice(0, 5);
+                // Parse complete, setup toggle logic
+                window.parsedUsersData = users;
+                
+                window.renderTop5List = function(sortOrder = 'highest') {
+                    const sortedUsers = [...window.parsedUsersData].sort((a, b) => sortOrder === 'highest' ? b.disc - a.disc : a.disc - b.disc);
+                    const top5 = sortedUsers.slice(0, 5);
                 
                 const container = document.getElementById('top5-list-container');
                 if (container && top5.length > 0) {
