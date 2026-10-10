@@ -301,7 +301,7 @@
                                             // --- Inner ring: decorative ---
                                             {
                                                 type: 'pie',
-                                                radius: ['40%', '50%'],
+                                                radius: ['43%', '48%'],
                                                 center: ['50%', '50%'],
                                                 silent: true,
                                                 label: { show: false },
@@ -320,51 +320,33 @@
                                                     };
                                                 })
                                             },
-                                            // --- Center label ---
+                                            // --- Center label & Dark Background ---
                                             {
                                                 type: 'pie',
-                                                radius: ['0%', '38%'],
+                                                radius: ['0%', '42%'],
                                                 center: ['50%', '50%'],
                                                 silent: true,
-                                                label: { show: false },
+                                                label: {
+                                                    show: true,
+                                                    position: 'center',
+                                                    formatter: '91,1%',
+                                                    color: '#ffffff',
+                                                    fontSize: 24,
+                                                    fontWeight: 'bold',
+                                                    fontFamily: 'Inter, sans-serif'
+                                                },
                                                 labelLine: { show: false },
-                                                itemStyle: { color: 'transparent' },
-                                                emphasis: { disabled: true },
+                                                itemStyle: {
+                                                    color: new echarts.graphic.RadialGradient(0.5, 0.5, 1, [
+                                                        { offset: 0, color: '#1e293b' },
+                                                        { offset: 1, color: '#0f172a' }
+                                                    ]),
+                                                    shadowBlur: 20,
+                                                    shadowColor: 'rgba(0,0,0,0.4)'
+                                                },
                                                 data: [{ value: 1, name: '' }]
                                             }
-                                        ],
-                                        graphic: {
-                                            elements: [
-                                                {
-                                                    type: 'circle',
-                                                    left: 'center',
-                                                    top: 'middle',
-                                                    shape: { r: 55 },
-                                                    style: {
-                                                        fill: new echarts.graphic.RadialGradient(0.5, 0.5, 1, [
-                                                            { offset: 0, color: '#1e293b' },
-                                                            { offset: 1, color: '#0f172a' }
-                                                        ]),
-                                                        shadowBlur: 20,
-                                                        shadowColor: 'rgba(0,0,0,0.4)'
-                                                    }
-                                                },
-                                                {
-                                                    type: 'text',
-                                                    left: 'center',
-                                                    top: 'middle',
-                                                    style: {
-                                                        text: '91,1%',
-                                                        fill: '#ffffff',
-                                                        fontSize: 22,
-                                                        fontWeight: 'bold',
-                                                        fontFamily: 'Inter, sans-serif',
-                                                        textAlign: 'center',
-                                                        textVerticalAlign: 'middle'
-                                                    }
-                                                }
-                                            ]
-                                        }
+                                        ]
                                     };
 
                                     myChart.setOption(option);
