@@ -165,11 +165,31 @@
                         <!-- Filter Card -->
                         <div class="card" style="order: 2; background: white; border-radius: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); padding: 32px 28px; flex: 1 1 200px; max-width: 320px; display: flex; flex-direction: column; justify-content: center; align-items: flex-start; border: 1px solid #e2e8f0; font-family: 'Inter', sans-serif;">
                             <h3 style="color: #18181b; font-size: 0.9rem; margin: 0 0 12px 0; font-weight: 600; text-align: left;">Employee Status</h3>
-                            <select id="employee-status-filter" onchange="window.applyStatusFilter(this.value)" style="width: 100%; padding: 12px; border-radius: 12px; border: 1px solid #cbd5e1; font-size: 1rem; font-family: 'Inter', sans-serif; background: #f8fafc; color: #334155; outline: none; cursor: pointer;">
+                            <select id="employee-status-filter" onchange="window.applyFilters()" style="width: 100%; padding: 12px; border-radius: 12px; border: 1px solid #cbd5e1; font-size: 1rem; font-family: 'Inter', sans-serif; background: #f8fafc; color: #334155; outline: none; cursor: pointer;">
                                 <option value="Summary Employee">Summary Employee</option>
                                 <option value="Permanent">Permanent</option>
                                 <option value="Harian Lepas">Harian Lepas</option>
                                 <option value="Contract (GGP/OS)">Contract (GGP/OS)</option>
+                            </select>
+                        </div>
+                        
+                        <!-- Period Filter Card -->
+                        <div class="card" style="order: 3; background: white; border-radius: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); padding: 32px 28px; flex: 1 1 200px; max-width: 320px; display: flex; flex-direction: column; justify-content: center; align-items: flex-start; border: 1px solid #e2e8f0; font-family: 'Inter', sans-serif;">
+                            <h3 style="color: #18181b; font-size: 0.9rem; margin: 0 0 12px 0; font-weight: 600; text-align: left;">Period</h3>
+                            <select id="period-filter" onchange="window.applyFilters()" style="width: 100%; padding: 12px; border-radius: 12px; border: 1px solid #cbd5e1; font-size: 1rem; font-family: 'Inter', sans-serif; background: #f8fafc; color: #334155; outline: none; cursor: pointer;">
+                                <option value="Summary (All Months)">Summary (All Months)</option>
+                                <option value="Jan-26">Jan-26</option>
+                                <option value="Feb-26">Feb-26</option>
+                                <option value="Mar-26">Mar-26</option>
+                                <option value="Apr-26">Apr-26</option>
+                                <option value="Mei-26">Mei-26</option>
+                                <option value="Jun-26">Jun-26</option>
+                                <option value="Jul-26">Jul-26</option>
+                                <option value="Agu-26">Agu-26</option>
+                                <option value="Sep-26">Sep-26</option>
+                                <option value="Okt-26">Okt-26</option>
+                                <option value="Nov-26">Nov-26</option>
+                                <option value="Des-26">Des-26</option>
                             </select>
                         </div>
 
@@ -1547,24 +1567,37 @@ document.addEventListener("DOMContentLoaded", function() {
                         const status = cols[1] ? cols[1].trim() : '';
                         const name = cols[4] ? cols[4].trim() : '';
                         const bagian = cols[2] ? cols[2].trim() : '';
-                        let wdStr = cols[41] ? cols[41].trim() : '';
-                        let attStr = cols[42] ? cols[42].trim() : '';
-                        let discStr = cols[43] ? cols[43].trim() : '';
                         
-                        if (name && discStr && discStr !== '-') {
-                            let discVal = parseFloat(discStr.replace(',', '.'));
-                            let wdVal = parseFloat(wdStr.replace(',', '.'));
-                            let attVal = parseFloat(attStr.replace(',', '.'));
-                            if (!isNaN(discVal)) {
-                                users.push({ 
-                                    name: name, 
-                                    bagian: bagian, 
-                                    disc: discVal,
-                                    wd: isNaN(wdVal) ? 0 : wdVal,
-                                    att: isNaN(attVal) ? 0 : attVal,
-                                    status: status
-                                });
-                            }
+                        const getVal = (idx) => {
+                            let str = cols[idx] ? cols[idx].trim() : '';
+                            if (!str || str === '-') return null;
+                            let val = parseFloat(str.replace(',', '.'));
+                            return isNaN(val) ? null : val;
+                        };
+                        
+                        const periods = {
+                            'Jan-26': { wd: getVal(5), att: getVal(6), disc: getVal(7) },
+                            'Feb-26': { wd: getVal(8), att: getVal(9), disc: getVal(10) },
+                            'Mar-26': { wd: getVal(11), att: getVal(12), disc: getVal(13) },
+                            'Apr-26': { wd: getVal(14), att: getVal(15), disc: getVal(16) },
+                            'Mei-26': { wd: getVal(17), att: getVal(18), disc: getVal(19) },
+                            'Jun-26': { wd: getVal(20), att: getVal(21), disc: getVal(22) },
+                            'Jul-26': { wd: getVal(23), att: getVal(24), disc: getVal(25) },
+                            'Agu-26': { wd: getVal(26), att: getVal(27), disc: getVal(28) },
+                            'Sep-26': { wd: getVal(29), att: getVal(30), disc: getVal(31) },
+                            'Okt-26': { wd: getVal(32), att: getVal(33), disc: getVal(34) },
+                            'Nov-26': { wd: getVal(35), att: getVal(36), disc: getVal(37) },
+                            'Des-26': { wd: getVal(38), att: getVal(39), disc: getVal(40) },
+                            'Summary (All Months)': { wd: getVal(41), att: getVal(42), disc: getVal(43) }
+                        };
+                        
+                        if (name && periods['Summary (All Months)'].disc !== null) {
+                            users.push({ 
+                                name: name, 
+                                bagian: bagian, 
+                                status: status,
+                                periods: periods
+                            });
                         }
                     }
                 }
@@ -1573,23 +1606,43 @@ document.addEventListener("DOMContentLoaded", function() {
                 window.allUsersData = users;
                 window.currentSortOrder = 'highest';
                 
-                window.applyStatusFilter = function(status) {
+                window.applyFilters = function() {
+                    const statusSelect = document.getElementById('employee-status-filter');
+                    const periodSelect = document.getElementById('period-filter');
+                    
+                    const status = statusSelect ? statusSelect.value : 'Summary Employee';
+                    const period = periodSelect ? periodSelect.value : 'Summary (All Months)';
+                    
                     let filtered = window.allUsersData;
                     if (status && status !== 'Summary Employee') {
                         filtered = window.allUsersData.filter(u => u.status === status);
                     }
                     
+                    let processedUsers = [];
+                    filtered.forEach(u => {
+                        let pData = u.periods[period];
+                        if (pData && pData.disc !== null) {
+                            processedUsers.push({
+                                name: u.name,
+                                bagian: u.bagian,
+                                wd: pData.wd || 0,
+                                att: pData.att || 0,
+                                disc: pData.disc
+                            });
+                        }
+                    });
+                    
                     // Update KPIs
-                    if (filtered.length > 0) {
+                    if (processedUsers.length > 0) {
                         let totalWd = 0, totalAtt = 0, totalDisc = 0;
-                        filtered.forEach(u => {
+                        processedUsers.forEach(u => {
                             totalWd += u.wd;
                             totalAtt += u.att;
                             totalDisc += u.disc;
                         });
-                        let avgWd = totalWd / filtered.length;
-                        let avgAtt = totalAtt / filtered.length;
-                        let avgDisc = totalDisc / filtered.length;
+                        let avgWd = totalWd / processedUsers.length;
+                        let avgAtt = totalAtt / processedUsers.length;
+                        let avgDisc = totalDisc / processedUsers.length;
                         
                         const kpiWd = document.getElementById('kpi-working-days');
                         const kpiAtt = document.getElementById('kpi-attendance');
@@ -1610,7 +1663,7 @@ document.addEventListener("DOMContentLoaded", function() {
                     }
                     
                     // Update Top 5
-                    window.parsedUsersData = filtered;
+                    window.parsedUsersData = processedUsers;
                     window.renderTop5List(window.currentSortOrder);
                 };
                 
@@ -1698,7 +1751,7 @@ document.addEventListener("DOMContentLoaded", function() {
             };
             
             // Initial render
-            window.applyStatusFilter('Summary Employee');
+            window.applyFilters();
         }
 
         });
