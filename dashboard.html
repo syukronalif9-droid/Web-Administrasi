@@ -1549,19 +1549,22 @@ document.addEventListener("DOMContentLoaded", function() {
                     container.innerHTML = '';
                     top5.forEach((u, index) => {
                         const isActive = index === 0; // Highlight the top 1
-                        const bg = isActive ? '#739eb7' : '#ffffff';
-                        const textPrimary = isActive ? '#ffffff' : '#18181b';
-                        const textSecondary = isActive ? 'rgba(255,255,255,0.8)' : '#71717a';
-                        const badgeBg = isActive ? '#ffffff' : '#f1f5f9';
-                        const badgeText = isActive ? '#18181b' : '#64748b';
-                        const strokeColor = isActive ? 'rgba(255,255,255,0.2)' : '#e2e8f0';
+                        const bg = isActive ? 'linear-gradient(135deg, #3b82f6, #2563eb)' : '#f8fafc';
+                        const textPrimary = isActive ? '#ffffff' : '#1e293b';
+                        const textSecondary = isActive ? 'rgba(255,255,255,0.8)' : '#64748b';
+                        const badgeBg = isActive ? 'rgba(255,255,255,0.2)' : '#e2e8f0';
+                        const badgeText = isActive ? '#ffffff' : '#475569';
+                        const strokeColor = isActive ? 'transparent' : '#e2e8f0';
+                        const shadow = isActive ? '0 10px 15px -3px rgba(59, 130, 246, 0.3)' : 'none';
+                        const avatarBg = isActive ? 'rgba(255,255,255,0.2)' : '#e2e8f0';
+                        const avatarColor = isActive ? '#ffffff' : '#94a3b8';
                         
                         const html = `
-                            <div style="background: ${bg}; border-radius: 99px; padding: 10px 20px; display: flex; align-items: center; justify-content: space-between; border: 1px solid ${strokeColor}; transition: all 0.2s; cursor: default;">
+                            <div style="background: ${bg}; border-radius: 99px; padding: 10px 20px; display: flex; align-items: center; justify-content: space-between; border: 1px solid ${strokeColor}; box-shadow: ${shadow}; transition: all 0.2s; cursor: default;">
                                 
                                 <div style="display: flex; align-items: center; gap: 16px; flex: 1;">
                                     <!-- Avatar Placeholder -->
-                                    <div style="width: 40px; height: 40px; border-radius: 50%; background: ${isActive ? 'rgba(255,255,255,0.2)' : '#f1f5f9'}; display: flex; align-items: center; justify-content: center; font-weight: 700; color: ${textPrimary}; font-size: 1.1rem; flex-shrink: 0;">
+                                    <div style="width: 40px; height: 40px; border-radius: 50%; background: ${avatarBg}; display: flex; align-items: center; justify-content: center; font-weight: 700; color: ${avatarColor}; font-size: 1.1rem; flex-shrink: 0;">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
                                             <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
                                         </svg>
