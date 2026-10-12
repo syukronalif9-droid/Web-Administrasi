@@ -8,7 +8,7 @@
     <title>CEN5 Aging Monitoring System</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
         rel="stylesheet">
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="styles.css?v=26">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/plugins/monthSelect/style.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -1276,8 +1276,8 @@ document.addEventListener("DOMContentLoaded", function() {
 
         </main>
     </div>
-    <script src="script.js?v=25"></script>
-    <script src="override.js?v=25"></script>
+    <script src="script.js?v=26"></script>
+    <script src="override.js?v=26"></script>
 
     <!-- Modal Hapus Data -->
     <div id="modal-hapus"
@@ -1595,6 +1595,7 @@ document.addEventListener("DOMContentLoaded", function() {
                 window.applyFilters = function() {
                     const statusSelect = document.getElementById('employee-status-filter');
                     const periodSelect = document.getElementById('period-filter');
+                    const dashMonthEl = document.getElementById('dash-month-filter');
                     
                     const status = statusSelect ? statusSelect.value : 'Summary Employee';
                     const period = periodSelect ? periodSelect.value : 'Summary (All Months)';
@@ -1604,19 +1605,72 @@ document.addEventListener("DOMContentLoaded", function() {
                         filtered = window.allUsersData.filter(u => u.status === status);
                     }
                     
+                    let selectedPeriods = [];
+                    if (dashMonthEl && dashMonthEl.dataset.selectedPeriods) {
+                        try {
+                            selectedPeriods = JSON.parse(dashMonthEl.dataset.selectedPeriods);
+                        } catch(e) {}
+                    }
+                    if ((!selectedPeriods || selectedPeriods.length === 0) && period && period !== 'Summary (All Months)') {
+                        selectedPeriods = period.split(',').map(s => s.trim()).filter(Boolean);
+                    }
+
                     let processedUsers = [];
-                    filtered.forEach(u => {
-                        let pData = u.periods[period];
-                        if (pData && pData.disc !== null) {
-                            processedUsers.push({
-                                name: u.name,
-                                bagian: u.bagian,
-                                wd: pData.wd || 0,
-                                att: pData.att || 0,
-                                disc: pData.disc
+                    if (!selectedPeriods || selectedPeriods.length === 0) {
+                        // Default: Summary (All Months)
+                        filtered.forEach(u => {
+                            let pData = u.periods['Summary (All Months)'];
+                            if (pData && pData.disc !== null) {
+                                processedUsers.push({
+                                    name: u.name,
+                                    bagian: u.bagian,
+                                    wd: pData.wd || 0,
+                                    att: pData.att || 0,
+                                    disc: pData.disc
+                                });
+                            }
+                        });
+                    } else if (selectedPeriods.length === 1) {
+                        // Single Month
+                        const pKey = selectedPeriods[0];
+                        filtered.forEach(u => {
+                            let pData = u.periods[pKey];
+                            if (pData && pData.disc !== null) {
+                                processedUsers.push({
+                                    name: u.name,
+                                    bagian: u.bagian,
+                                    wd: pData.wd || 0,
+                                    att: pData.att || 0,
+                                    disc: pData.disc
+                                });
+                            }
+                        });
+                    } else {
+                        // Multi-Month / Custom Range (3 bulan, 4 bulan, dll.)
+                        filtered.forEach(u => {
+                            let totalWd = 0;
+                            let totalAtt = 0;
+                            let validCount = 0;
+                            selectedPeriods.forEach(pKey => {
+                                let pData = u.periods[pKey];
+                                if (pData) {
+                                    if (pData.wd !== null && !isNaN(pData.wd)) totalWd += pData.wd;
+                                    if (pData.att !== null && !isNaN(pData.att)) totalAtt += pData.att;
+                                    if (pData.disc !== null && !isNaN(pData.disc)) validCount++;
+                                }
                             });
-                        }
-                    });
+                            if (validCount > 0) {
+                                let disc = totalWd > 0 ? (totalAtt / totalWd) * 100 : 0;
+                                processedUsers.push({
+                                    name: u.name,
+                                    bagian: u.bagian,
+                                    wd: totalWd,
+                                    att: totalAtt,
+                                    disc: disc
+                                });
+                            }
+                        });
+                    }
                     
                     // 1. Update KPI Cards
                     let avgDiscVal = 0;
@@ -1887,58 +1941,21 @@ document.addEventListener("DOMContentLoaded", function() {
                     window.applyFilters();
                 };
 
-                // Initialize flatpickr month-select for Dashboard
-                const dashMonthEl = document.getElementById('dash-month-filter');
-                if (dashMonthEl && typeof flatpickr !== 'undefined') {
-                    flatpickr(dashMonthEl, {
-                        altInput: true,
-                        altFormat: "F Y",
-                        dateFormat: "Y-m",
-                        defaultDate: null,
-                        plugins: [
-                            new monthSelectPlugin({
-                                shorthand: true,
-                                dateFormat: "Y-m",
-                                altFormat: "F Y",
-                                theme: "light"
-                            })
-                        ],
-                        onReady: function(selectedDates, dateStr, instance) {
-                            if (instance.altInput) {
-                                instance.altInput.placeholder = "Semua Bulan";
-                                instance.altInput.className = "blue-pill-date";
-                                instance.altInput.style.fontFamily = "'Inter', sans-serif";
-                                instance.altInput.style.fontSize = "0.95rem";
-                                instance.altInput.style.fontWeight = "600";
-                                instance.altInput.style.textAlign = "center";
-                                instance.altInput.style.padding = "8px 38px 8px 18px";
-                                instance.altInput.style.width = "100%";
-                                instance.altInput.style.boxSizing = "border-box";
-                            }
-                            const clearBtn = document.createElement("button");
-                            clearBtn.textContent = "Clear Filter";
-                            clearBtn.style = "width: 100%; border: none; background: #EF4444; color: white; padding: 10px; cursor: pointer; border-bottom-left-radius: 6px; border-bottom-right-radius: 6px; font-weight: 700; font-size: 0.9rem; margin-top: 4px; font-family: 'Inter', sans-serif;";
-                            clearBtn.addEventListener("click", function(e) {
-                                e.preventDefault();
-                                instance.clear();
-                                if (instance.altInput) instance.altInput.value = "";
-                                document.getElementById('period-filter').value = "Summary (All Months)";
-                                window.applyFilters();
-                                instance.close();
-                            });
-                            if (instance.calendarContainer) {
-                                instance.calendarContainer.appendChild(clearBtn);
-                            }
-                        },
-                        onChange: function(selectedDates, dateStr, instance) {
-                            if (selectedDates.length > 0) {
-                                const d = selectedDates[0];
-                                const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
-                                const m = monthNames[d.getMonth()];
-                                const y = String(d.getFullYear()).slice(-2);
-                                document.getElementById('period-filter').value = m + '-' + y;
-                            } else {
-                                document.getElementById('period-filter').value = "Summary (All Months)";
+                // Initialize Custom Month Range & Multi-Month Picker for Dashboard
+                if (typeof window.initCustomMonthPicker === 'function') {
+                    window.initCustomMonthPicker({
+                        target: 'dash-month-filter',
+                        defaultYear: 2026,
+                        onApply: function(info) {
+                            const periodInput = document.getElementById('period-filter');
+                            if (periodInput) {
+                                if (info.isAll || info.periodKeys.length === 0) {
+                                    periodInput.value = 'Summary (All Months)';
+                                } else if (info.periodKeys.length === 1) {
+                                    periodInput.value = info.periodKeys[0];
+                                } else {
+                                    periodInput.value = info.periodKeys.join(',');
+                                }
                             }
                             window.applyFilters();
                         }

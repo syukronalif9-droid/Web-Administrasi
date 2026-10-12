@@ -990,6 +990,417 @@ window.exportSummaryExcelClean = function() {
     }
 };
 
+// ==========================================
+// CUSTOM MONTH RANGE & MULTI-MONTH PICKER
+// ==========================================
+window.initCustomMonthPicker = function(options) {
+    const inputEl = typeof options.target === 'string' ? document.getElementById(options.target) : options.target;
+    if (!inputEl) return;
 
+    // Destroy flatpickr instance if attached
+    if (inputEl._flatpickr) {
+        try { inputEl._flatpickr.destroy(); } catch(e) {}
+    }
 
+    const monthNamesShort = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+    const monthNamesLong = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
 
+    let currentYear = options.defaultYear || 2026;
+    let mode = 'range'; // 'range' | 'multi'
+    let rangeStart = null;
+    let rangeHover = null;
+    let selectedMonths = new Set(); // 0-11
+    let isAllMonths = true; // default: Semua Bulan
+
+    // Ensure input element attributes & styles
+    inputEl.readOnly = true;
+    inputEl.style.cursor = 'pointer';
+
+    // Remove any previously created popover for this target
+    const oldPopoverId = 'cmp-popover-' + (inputEl.id || 'custom');
+    const existing = document.getElementById(oldPopoverId);
+    if (existing) existing.remove();
+
+    // Create Popover DOM
+    const popover = document.createElement('div');
+    popover.id = oldPopoverId;
+    popover.className = 'cmp-popover';
+    popover.style.display = 'none';
+    document.body.appendChild(popover);
+
+    function formatDisplayLabel() {
+        if (isAllMonths || selectedMonths.size === 0 || selectedMonths.size === 12) {
+            return "Semua Bulan";
+        }
+        const sorted = Array.from(selectedMonths).sort((a, b) => a - b);
+        if (sorted.length === 1) {
+            return `${monthNamesLong[sorted[0]]} ${currentYear}`;
+        }
+        // Check if contiguous range
+        let isContiguous = true;
+        for (let i = 0; i < sorted.length - 1; i++) {
+            if (sorted[i + 1] !== sorted[i] + 1) {
+                isContiguous = false;
+                break;
+            }
+        }
+        if (isContiguous) {
+            const startName = monthNamesShort[sorted[0]];
+            const endName = monthNamesShort[sorted[sorted.length - 1]];
+            return `${startName} - ${endName} ${currentYear} (${sorted.length} Bulan)`;
+        } else {
+            const names = sorted.map(m => monthNamesShort[m]).join(', ');
+            return `${names} ${currentYear} (${sorted.length} Bulan)`;
+        }
+    }
+
+    function renderPopover() {
+        popover.innerHTML = '';
+
+        // 1. Header with Year and Badge
+        const header = document.createElement('div');
+        header.className = 'cmp-header';
+
+        const navWrap = document.createElement('div');
+        navWrap.className = 'cmp-year-nav';
+
+        const prevBtn = document.createElement('button');
+        prevBtn.type = 'button';
+        prevBtn.className = 'cmp-nav-btn';
+        prevBtn.innerHTML = '‹';
+        prevBtn.onclick = (e) => {
+            e.stopPropagation();
+            currentYear--;
+            renderPopover();
+        };
+
+        const yearText = document.createElement('span');
+        yearText.className = 'cmp-year-text';
+        yearText.textContent = currentYear;
+
+        const nextBtn = document.createElement('button');
+        nextBtn.type = 'button';
+        nextBtn.className = 'cmp-nav-btn';
+        nextBtn.innerHTML = '›';
+        nextBtn.onclick = (e) => {
+            e.stopPropagation();
+            currentYear++;
+            renderPopover();
+        };
+
+        navWrap.appendChild(prevBtn);
+        navWrap.appendChild(yearText);
+        navWrap.appendChild(nextBtn);
+
+        const badge = document.createElement('span');
+        badge.className = 'cmp-badge';
+        if (isAllMonths || selectedMonths.size === 0 || selectedMonths.size === 12) {
+            badge.textContent = 'Semua Bulan';
+        } else {
+            badge.textContent = `${selectedMonths.size} Bulan Terpilih`;
+        }
+
+        header.appendChild(navWrap);
+        header.appendChild(badge);
+        popover.appendChild(header);
+
+        // 2. Mode Selector Bar (Range vs Multi)
+        const modeBar = document.createElement('div');
+        modeBar.className = 'cmp-mode-bar';
+
+        const tabRange = document.createElement('button');
+        tabRange.type = 'button';
+        tabRange.className = 'cmp-mode-tab' + (mode === 'range' ? ' active' : '');
+        tabRange.textContent = 'Rentang (Range)';
+        tabRange.onclick = (e) => {
+            e.stopPropagation();
+            mode = 'range';
+            rangeStart = null;
+            rangeHover = null;
+            renderPopover();
+        };
+
+        const tabMulti = document.createElement('button');
+        tabMulti.type = 'button';
+        tabMulti.className = 'cmp-mode-tab' + (mode === 'multi' ? ' active' : '');
+        tabMulti.textContent = 'Pilih Bebas (Multi)';
+        tabMulti.onclick = (e) => {
+            e.stopPropagation();
+            mode = 'multi';
+            renderPopover();
+        };
+
+        modeBar.appendChild(tabRange);
+        modeBar.appendChild(tabMulti);
+        popover.appendChild(modeBar);
+
+        // 3. Quick Presets Bar
+        const presetsWrap = document.createElement('div');
+        presetsWrap.className = 'cmp-presets-wrap';
+
+        const presets = [
+            { label: 'Semua Bulan', months: [] },
+            { label: 'Q1 (Jan-Mar)', months: [0, 1, 2] },
+            { label: 'Q2 (Apr-Jun)', months: [3, 4, 5] },
+            { label: 'Q3 (Jul-Sep)', months: [6, 7, 8] },
+            { label: 'Q4 (Okt-Des)', months: [9, 10, 11] },
+            { label: 'Sem 1 (6 Bln)', months: [0, 1, 2, 3, 4, 5] },
+            { label: 'Sem 2 (6 Bln)', months: [6, 7, 8, 9, 10, 11] }
+        ];
+
+        presets.forEach(p => {
+            const chip = document.createElement('button');
+            chip.type = 'button';
+            chip.className = 'cmp-preset-chip';
+            chip.textContent = p.label;
+
+            if (p.months.length === 0 && (isAllMonths || selectedMonths.size === 0 || selectedMonths.size === 12)) {
+                chip.classList.add('active');
+            } else if (p.months.length > 0 && !isAllMonths && p.months.length === selectedMonths.size && p.months.every(m => selectedMonths.has(m))) {
+                chip.classList.add('active');
+            }
+
+            chip.onclick = (e) => {
+                e.stopPropagation();
+                if (p.months.length === 0) {
+                    isAllMonths = true;
+                    selectedMonths.clear();
+                    rangeStart = null;
+                } else {
+                    isAllMonths = false;
+                    selectedMonths = new Set(p.months);
+                    rangeStart = p.months[0];
+                }
+                renderPopover();
+            };
+            presetsWrap.appendChild(chip);
+        });
+        popover.appendChild(presetsWrap);
+
+        // 4. Month Grid (12 Months)
+        const grid = document.createElement('div');
+        grid.className = 'cmp-grid';
+
+        for (let i = 0; i < 12; i++) {
+            const mBtn = document.createElement('button');
+            mBtn.type = 'button';
+            mBtn.className = 'cmp-month-btn';
+            mBtn.textContent = monthNamesShort[i];
+
+            const isSelected = !isAllMonths && selectedMonths.has(i);
+            if (isSelected) {
+                mBtn.classList.add('selected');
+            }
+
+            // Hover preview in range mode
+            if (mode === 'range' && rangeStart !== null && rangeHover !== null) {
+                const min = Math.min(rangeStart, rangeHover);
+                const max = Math.max(rangeStart, rangeHover);
+                if (i >= min && i <= max && !isSelected) {
+                    mBtn.classList.add('in-range');
+                }
+            }
+
+            mBtn.onmouseenter = () => {
+                if (mode === 'range' && rangeStart !== null) {
+                    rangeHover = i;
+                    renderPopover();
+                }
+            };
+
+            mBtn.onclick = (e) => {
+                e.stopPropagation();
+                isAllMonths = false;
+
+                if (mode === 'range') {
+                    if (rangeStart === null) {
+                        rangeStart = i;
+                        selectedMonths = new Set([i]);
+                    } else {
+                        // Complete range
+                        const min = Math.min(rangeStart, i);
+                        const max = Math.max(rangeStart, i);
+                        selectedMonths.clear();
+                        for (let k = min; k <= max; k++) {
+                            selectedMonths.add(k);
+                        }
+                        rangeStart = null;
+                        rangeHover = null;
+                    }
+                } else {
+                    // Multi mode toggle
+                    if (selectedMonths.has(i)) {
+                        selectedMonths.delete(i);
+                        if (selectedMonths.size === 0) isAllMonths = true;
+                    } else {
+                        selectedMonths.add(i);
+                    }
+                }
+                renderPopover();
+            };
+
+            grid.appendChild(mBtn);
+        }
+        popover.appendChild(grid);
+
+        // 5. Footer (Reset & Apply)
+        const footer = document.createElement('div');
+        footer.className = 'cmp-footer';
+
+        const resetBtn = document.createElement('button');
+        resetBtn.type = 'button';
+        resetBtn.className = 'cmp-btn-reset';
+        resetBtn.textContent = 'Reset (Semua Bulan)';
+        resetBtn.onclick = (e) => {
+            e.stopPropagation();
+            isAllMonths = true;
+            selectedMonths.clear();
+            rangeStart = null;
+            rangeHover = null;
+            applyAndClose();
+        };
+
+        const applyBtn = document.createElement('button');
+        applyBtn.type = 'button';
+        applyBtn.className = 'cmp-btn-apply';
+        const countText = (isAllMonths || selectedMonths.size === 0 || selectedMonths.size === 12) ? 'Semua Bulan' : `${selectedMonths.size} Bulan`;
+        applyBtn.textContent = `Terapkan (${countText})`;
+        applyBtn.onclick = (e) => {
+            e.stopPropagation();
+            applyAndClose();
+        };
+
+        footer.appendChild(resetBtn);
+        footer.appendChild(applyBtn);
+        popover.appendChild(footer);
+    }
+
+    function applyAndClose() {
+        const sorted = Array.from(selectedMonths).sort((a, b) => a - b);
+        const isAll = isAllMonths || sorted.length === 0 || sorted.length === 12;
+
+        const yy = String(currentYear).slice(-2);
+        const periodKeys = isAll ? [] : sorted.map(m => `${monthNamesShort[m]}-${yy}`);
+        const monthNumbers = isAll ? [] : sorted.map(m => String(m + 1));
+
+        const label = formatDisplayLabel();
+        inputEl.value = label;
+
+        // Save metadata on element dataset
+        inputEl.dataset.selectedMonths = JSON.stringify(isAll ? [] : monthNumbers);
+        inputEl.dataset.selectedPeriods = JSON.stringify(isAll ? [] : periodKeys);
+        inputEl.dataset.selectedYear = isAll ? 'all' : String(currentYear);
+        inputEl.dataset.isAll = isAll ? 'true' : 'false';
+
+        hidePopover();
+
+        if (typeof options.onApply === 'function') {
+            options.onApply({
+                year: currentYear,
+                months: sorted,
+                monthNumbers: monthNumbers,
+                periodKeys: periodKeys,
+                isAll: isAll,
+                label: label
+            });
+        }
+    }
+
+    function showPopover() {
+        renderPopover();
+        popover.style.display = 'block';
+
+        const rect = inputEl.getBoundingClientRect();
+        const popoverWidth = 350;
+        let left = rect.left + (rect.width / 2) - (popoverWidth / 2);
+        if (left < 10) left = 10;
+        if (left + popoverWidth > window.innerWidth - 10) {
+            left = window.innerWidth - popoverWidth - 10;
+        }
+
+        let top = rect.bottom + 8;
+        if (top + 400 > window.innerHeight && rect.top > 400) {
+            top = rect.top - 400 - 8;
+        }
+
+        popover.style.left = left + 'px';
+        popover.style.top = top + 'px';
+    }
+
+    function hidePopover() {
+        popover.style.display = 'none';
+        rangeHover = null;
+    }
+
+    // Toggle on input click
+    inputEl.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (popover.style.display === 'none' || !popover.style.display) {
+            // Close other open popovers
+            document.querySelectorAll('.cmp-popover').forEach(p => p.style.display = 'none');
+            showPopover();
+        } else {
+            hidePopover();
+        }
+    });
+
+    // Close on click outside
+    document.addEventListener('click', (e) => {
+        if (!popover.contains(e.target) && e.target !== inputEl) {
+            hidePopover();
+        }
+    });
+
+    // Close on resize
+    window.addEventListener('resize', hidePopover);
+
+    // Initial label
+    inputEl.value = formatDisplayLabel();
+    inputEl.dataset.selectedMonths = JSON.stringify([]);
+    inputEl.dataset.selectedPeriods = JSON.stringify([]);
+    inputEl.dataset.selectedYear = 'all';
+    inputEl.dataset.isAll = 'true';
+};
+
+// Auto-initialize Custom Month Pickers for Dashboard and Summary
+function setupAllCustomMonthPickers() {
+    if (document.getElementById('dash-month-filter')) {
+        window.initCustomMonthPicker({
+            target: 'dash-month-filter',
+            defaultYear: 2026,
+            onApply: function(info) {
+                const periodInput = document.getElementById('period-filter');
+                if (periodInput) {
+                    if (info.isAll || info.periodKeys.length === 0) {
+                        periodInput.value = 'Summary (All Months)';
+                    } else if (info.periodKeys.length === 1) {
+                        periodInput.value = info.periodKeys[0];
+                    } else {
+                        periodInput.value = info.periodKeys.join(',');
+                    }
+                }
+                if (typeof window.applyFilters === 'function') {
+                    window.applyFilters();
+                }
+            }
+        });
+    }
+
+    if (document.getElementById('summary-month-filter')) {
+        window.initCustomMonthPicker({
+            target: 'summary-month-filter',
+            defaultYear: 2026,
+            onApply: function(info) {
+                if (typeof renderSummary === 'function') {
+                    renderSummary();
+                }
+            }
+        });
+    }
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', setupAllCustomMonthPickers);
+} else {
+    setupAllCustomMonthPickers();
+}

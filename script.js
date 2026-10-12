@@ -592,35 +592,15 @@ async function init() {
     
     const monthFilter = document.getElementById('summary-month-filter');
     if (monthFilter) {
-        flatpickr(monthFilter, {
-            altInput: true,
-            altFormat: "F Y", // display format like October 2026
-            dateFormat: "Y-m", // value format like 2026-10
-            plugins: [
-                new monthSelectPlugin({
-                    shorthand: true, // displays Jan, Feb instead of full names
-                    dateFormat: "Y-m",
-                    altFormat: "F Y",
-                    theme: "light"
-                })
-            ],
-            onReady: function(selectedDates, dateStr, instance) {
-                const clearBtn = document.createElement("button");
-                clearBtn.textContent = "Clear Filter";
-                clearBtn.style = "width: 100%; border: none; background: #EF4444; color: white; padding: 8px; cursor: pointer; border-bottom-left-radius: 4px; border-bottom-right-radius: 4px; font-weight: bold; margin-top: 4px;";
-                clearBtn.addEventListener("click", function(e) {
-                    e.preventDefault();
-                    instance.clear();
-                    instance.close();
-                });
-                if (instance.calendarContainer) {
-                    instance.calendarContainer.appendChild(clearBtn);
+        if (typeof window.initCustomMonthPicker === 'function') {
+            window.initCustomMonthPicker({
+                target: 'summary-month-filter',
+                defaultYear: 2026,
+                onApply: function(info) {
+                    renderSummary();
                 }
-            },
-            onChange: function(selectedDates, dateStr, instance) {
-                renderSummary();
-            }
-        });
+            });
+        }
     }
 
     if (fillFilter) {
@@ -1452,22 +1432,56 @@ function renderSummary() {
 
     const monthFilterEl = document.getElementById('summary-month-filter');
     
-    let selectedMonthStr = monthFilterEl ? monthFilterEl.value : ''; // "YYYY-MM" or ""
+    let selectedMonths = [];
     let selectedYear = 'all';
-    let selectedMonth = 'all';
 
-    if (selectedMonthStr) {
-        let parts = selectedMonthStr.split('-');
-        if (parts.length === 2) {
+    if (monthFilterEl && monthFilterEl.dataset.selectedMonths) {
+        try {
+            selectedMonths = JSON.parse(monthFilterEl.dataset.selectedMonths);
+        } catch(e) {}
+    }
+    if (monthFilterEl && monthFilterEl.dataset.selectedYear) {
+        selectedYear = monthFilterEl.dataset.selectedYear;
+    }
+
+    // Fallback parsing jika dataset belum ada tapi value format "YYYY-MM"
+    if ((!selectedMonths || selectedMonths.length === 0) && monthFilterEl && monthFilterEl.value) {
+        let val = monthFilterEl.value.trim();
+        if (/^\d{4}-\d{2}$/.test(val)) {
+            let parts = val.split('-');
             selectedYear = parts[0];
-            selectedMonth = parseInt(parts[1]).toString(); // "10" or "1"
+            selectedMonths = [parseInt(parts[1]).toString()];
         }
     }
 
     let filteredMb51Data = globalMb51Data;
-    if (selectedMonth !== 'all') {
-        filteredMb51Data = globalMb51Data.filter(row => String(row['Month'] || '').trim() === selectedMonth);
+    if (selectedMonths && selectedMonths.length === 1) {
+        filteredMb51Data = globalMb51Data.filter(row => String(row['Month'] || '').trim() === String(selectedMonths[0]));
+    } else if (selectedMonths && selectedMonths.length > 1) {
+        // Multi-Month / Custom Range (3 bulan, 4 bulan, dll.)
+        const monthSet = new Set(selectedMonths.map(m => String(m).trim()));
+        const matchedRows = globalMb51Data.filter(row => monthSet.has(String(row['Month'] || '').trim()));
+        
+        const grouped = {};
+        matchedRows.forEach(row => {
+            const empId = String(row['Index'] || row['Pers.No.'] || '').trim();
+            if (!empId) return;
+            if (!grouped[empId]) {
+                grouped[empId] = { ...row };
+                grouped[empId]['Hari Kerja'] = Number(row['Hari Kerja']) || Number(row['Working Days']) || 0;
+                grouped[empId]['Sakit'] = Number(String(row['Sakit'] || '').replace(/[^\d]/g, '')) || 0;
+                grouped[empId]['Izin'] = Number(String(row['Izin'] || '').replace(/[^\d]/g, '')) || 0;
+                grouped[empId]['Alpa'] = Number(String(row['Alpa'] || '').replace(/[^\d]/g, '')) || 0;
+            } else {
+                grouped[empId]['Hari Kerja'] += Number(row['Hari Kerja']) || Number(row['Working Days']) || 0;
+                grouped[empId]['Sakit'] += Number(String(row['Sakit'] || '').replace(/[^\d]/g, '')) || 0;
+                grouped[empId]['Izin'] += Number(String(row['Izin'] || '').replace(/[^\d]/g, '')) || 0;
+                grouped[empId]['Alpa'] += Number(String(row['Alpa'] || '').replace(/[^\d]/g, '')) || 0;
+            }
+        });
+        filteredMb51Data = Object.values(grouped);
     } else {
+        // Semua Bulan (Semua baris diakumulasikan per employee)
         const grouped = {};
         filteredMb51Data.forEach(row => {
             const empId = String(row['Index'] || row['Pers.No.'] || '').trim();
@@ -1535,14 +1549,11 @@ function renderSummary() {
                                 if (fDate.getFullYear().toString() !== selectedYear) { matchYear = false; }
                             }
                             
-                            if (selectedMonth !== 'all') {
-                                const isNumericMonth = !isNaN(selectedMonth) && parseInt(selectedMonth) > 0 && parseInt(selectedMonth) <= 12;
-                                if (isNumericMonth) {
-                                    if (fDate.getMonth() + 1 !== parseInt(selectedMonth)) { matchMonth = false; }
-                                } else {
-                                    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
-                                    const mStr = `${months[fDate.getMonth()]}-${String(fDate.getFullYear()).slice(2)}`;
-                                    if (mStr.toLowerCase() !== selectedMonth.toLowerCase()) { matchMonth = false; }
+                            if (selectedMonths && selectedMonths.length > 0) {
+                                const mNum = fDate.getMonth() + 1;
+                                const mSet = new Set(selectedMonths.map(m => String(m).trim()));
+                                if (!mSet.has(String(mNum))) {
+                                    matchMonth = false;
                                 }
                             }
                         }

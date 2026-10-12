@@ -774,6 +774,240 @@ body, html {
     font-size: 0.95rem;
     font-weight: 600;
 }
+
+/* Blue Pill Date Input Styling */
+.blue-pill-date {
+    background: #007AFF !important;
+    color: #ffffff !important;
+    border: none !important;
+    border-radius: 24px !important;
+    padding: 8px 38px 8px 18px !important;
+    font-weight: 600 !important;
+    font-size: 0.95rem !important;
+    font-family: 'Inter', sans-serif !important;
+    text-align: center !important;
+    cursor: pointer !important;
+    outline: none !important;
+    box-shadow: 0 4px 12px rgba(0, 122, 255, 0.3) !important;
+    transition: transform 0.2s, box-shadow 0.2s !important;
+    white-space: nowrap !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+    user-select: none;
+}
+.blue-pill-date::placeholder {
+    color: #ffffff !important;
+    opacity: 0.95 !important;
+}
+.blue-pill-date:hover {
+    box-shadow: 0 6px 16px rgba(0, 122, 255, 0.4) !important;
+    transform: translateY(-1px) !important;
+}
+
+/* Custom Month Range & Multi-Month Popover */
+.cmp-popover {
+    position: fixed;
+    z-index: 999999;
+    background: #ffffff;
+    border-radius: 20px;
+    box-shadow: 0 20px 45px rgba(0, 0, 0, 0.16), 0 4px 12px rgba(0, 0, 0, 0.08);
+    border: 1px solid #E2E8F0;
+    padding: 18px 20px;
+    width: 350px;
+    font-family: 'Inter', -apple-system, sans-serif;
+    animation: cmpFadeIn 0.2s ease-out;
+    box-sizing: border-box;
+}
+
+@keyframes cmpFadeIn {
+    from { opacity: 0; transform: translateY(-8px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.cmp-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+.cmp-year-nav {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.cmp-nav-btn {
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
+    border: 1px solid #E2E8F0;
+    background: #F8FAFC;
+    color: #334155;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s ease;
+}
+.cmp-nav-btn:hover {
+    background: #007AFF;
+    color: #ffffff;
+    border-color: #007AFF;
+}
+.cmp-year-text {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #0F172A;
+    min-width: 50px;
+    text-align: center;
+}
+.cmp-badge {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #007AFF;
+    background: #EBF5FF;
+    padding: 4px 10px;
+    border-radius: 999px;
+    border: 1px solid #BFDBFE;
+}
+
+.cmp-mode-bar {
+    display: flex;
+    background: #F1F5F9;
+    border-radius: 10px;
+    padding: 3px;
+    margin-bottom: 12px;
+    gap: 4px;
+}
+.cmp-mode-tab {
+    flex: 1;
+    border: none;
+    background: transparent;
+    padding: 6px 8px;
+    border-radius: 8px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #64748B;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    text-align: center;
+}
+.cmp-mode-tab.active {
+    background: #ffffff;
+    color: #007AFF;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+    font-weight: 700;
+}
+
+.cmp-presets-wrap {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 14px;
+}
+.cmp-preset-chip {
+    border: 1px solid #E2E8F0;
+    background: #F8FAFC;
+    color: #475569;
+    padding: 4px 9px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+.cmp-preset-chip:hover {
+    background: #EBF5FF;
+    color: #007AFF;
+    border-color: #93C5FD;
+}
+.cmp-preset-chip.active {
+    background: #007AFF;
+    color: #ffffff;
+    border-color: #007AFF;
+}
+
+.cmp-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    margin-bottom: 16px;
+}
+.cmp-month-btn {
+    border: 1px solid #E2E8F0;
+    background: #F8FAFC;
+    color: #334155;
+    padding: 10px 4px;
+    border-radius: 10px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.15s ease;
+    position: relative;
+    user-select: none;
+}
+.cmp-month-btn:hover {
+    border-color: #93C5FD;
+    background: #EBF5FF;
+    color: #007AFF;
+    transform: translateY(-1px);
+}
+.cmp-month-btn.selected {
+    background: #007AFF !important;
+    color: #ffffff !important;
+    border-color: #007AFF !important;
+    font-weight: 700 !important;
+    box-shadow: 0 4px 10px rgba(0, 122, 255, 0.3) !important;
+    transform: translateY(-1px);
+}
+.cmp-month-btn.in-range {
+    background: #E0F2FE !important;
+    color: #0369A1 !important;
+    border-color: #BAE6FD !important;
+    font-weight: 600 !important;
+}
+
+.cmp-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 12px;
+    border-top: 1px solid #F1F5F9;
+}
+.cmp-btn-reset {
+    background: transparent;
+    border: none;
+    color: #EF4444;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 6px 8px;
+    border-radius: 8px;
+    transition: background 0.15s;
+}
+.cmp-btn-reset:hover {
+    background: #FEE2E2;
+}
+.cmp-btn-apply {
+    background: #007AFF;
+    color: #ffffff;
+    border: none;
+    border-radius: 20px;
+    padding: 8px 18px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 3px 8px rgba(0, 122, 255, 0.3);
+    transition: all 0.15s ease;
+}
+.cmp-btn-apply:hover {
+    background: #0066D6;
+    box-shadow: 0 5px 12px rgba(0, 122, 255, 0.4);
+    transform: translateY(-1px);
+}
+
 @ m e d i a   p r i n t   {   . s i d e b a r ,   . t o p b a r   {   d i s p l a y :   n o n e   ! i m p o r t a n t ;   }   . m a i n - c o n t e n t   {   m a r g i n - l e f t :   0   ! i m p o r t a n t ;   w i d t h :   1 0 0 %   ! i m p o r t a n t ;   }   } 
  
  
