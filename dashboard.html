@@ -475,6 +475,38 @@
                                             }
                                         },
                                         series: [
+                                            // Trend Line overlay
+                                            {
+                                                name: 'Trend Line',
+                                                type: 'line',
+                                                smooth: true,
+                                                symbol: 'circle',
+                                                symbolSize: 8,
+                                                data: values,
+                                                itemStyle: {
+                                                    color: '#f59e0b',
+                                                    borderColor: '#ffffff',
+                                                    borderWidth: 2,
+                                                    shadowBlur: 6,
+                                                    shadowColor: 'rgba(245, 158, 11, 0.5)'
+                                                },
+                                                lineStyle: {
+                                                    width: 3,
+                                                    color: '#f59e0b',
+                                                    shadowBlur: 10,
+                                                    shadowColor: 'rgba(245, 158, 11, 0.4)',
+                                                    shadowOffsetY: 4
+                                                },
+                                                emphasis: {
+                                                    scale: 1.5,
+                                                    itemStyle: {
+                                                        color: '#d97706',
+                                                        borderColor: '#ffffff',
+                                                        borderWidth: 3
+                                                    }
+                                                },
+                                                z: 10
+                                            },
                                             // Main bars
                                             {
                                                 name: 'Discipline Rate',
