@@ -472,6 +472,10 @@ window.renderTable = function(tableId, data) {
         if (span) span.textContent = filteredData.length;
     }
 
+    if (tableId === 'summary-table') {
+        window.currentFilteredSummaryData = filteredData;
+    }
+
     if (filteredData.length === 0) {
         table.innerHTML = '<thead><tr><th>Informasi</th></tr></thead><tbody><tr><td style="text-align: center; padding: 20px; font-weight: 500; color: #888;">Data Tidak Ditemukan / Kosong</td></tr></tbody>';
         return;
@@ -882,6 +886,109 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 });
+
+// ==========================================
+// FUNGSI EXPORT EXCEL BERSIH & RAPI UNTUK SLIDE SUMMARY
+// ==========================================
+window.exportSummaryExcelClean = function() {
+    let sourceData = [];
+
+    // Prioritas 1: Data yang sedang terfilter di tabel Summary (termasuk filter bulan & pencarian search)
+    if (window.currentFilteredSummaryData && window.currentFilteredSummaryData.length > 0) {
+        sourceData = window.currentFilteredSummaryData;
+    } else if (typeof globalSummaryData !== 'undefined' && globalSummaryData && globalSummaryData.length > 0) {
+        sourceData = globalSummaryData;
+    }
+
+    if (!sourceData || sourceData.length === 0) {
+        alert("Tidak ada data Summary yang dapat diekspor.");
+        return;
+    }
+
+    // Filter tambahan jika user mengetik di search bar tapi belum trigger override
+    const searchInput = document.getElementById('summary-search');
+    const query = (searchInput && searchInput.value) ? searchInput.value.trim().toLowerCase() : '';
+    if (query) {
+        sourceData = sourceData.filter(row => {
+            return Object.values(row).some(val => val !== null && val !== undefined && String(val).toLowerCase().includes(query));
+        });
+    }
+
+    if (sourceData.length === 0) {
+        alert("Tidak ada data yang cocok dengan kriteria pencarian saat ini.");
+        return;
+    }
+
+    // Urutan kolom resmi yang rapi untuk diexport ke Excel
+    const targetColumns = [
+        { key: 'Work Contract', label: 'Work Contract', width: 18 },
+        { key: 'WH Area', label: 'WH Area', width: 22 },
+        { key: 'Employee ID', label: 'Employee ID', width: 16 },
+        { key: 'Employee Name', label: 'Employee Name', width: 30 },
+        { key: 'Working Days', label: 'Working Days', width: 15 },
+        { key: 'Attendance', label: 'Attendance', width: 15 },
+        { key: 'Discipline (%)', label: 'Discipline (%)', width: 16 }
+    ];
+
+    // Bangun baris data yang bersih dan terformat rapi
+    const formattedRows = sourceData.map((row, idx) => {
+        const item = {
+            'No': idx + 1
+        };
+
+        targetColumns.forEach(col => {
+            let val = row[col.key];
+            if (val === undefined || val === null) val = '';
+            
+            // Format angka atau teks
+            if (col.key === 'Working Days') {
+                let num = parseFloat(String(val).replace(',', '.'));
+                item[col.label] = isNaN(num) ? (val || 0) : num;
+            } else if (col.key === 'Attendance') {
+                let num = parseFloat(String(val).replace(',', '.'));
+                item[col.label] = isNaN(num) ? (val || 0) : num;
+            } else {
+                item[col.label] = String(val).trim();
+            }
+        });
+
+        return item;
+    });
+
+    if (typeof XLSX === 'undefined') {
+        alert("Pustaka XLSX (SheetJS) belum termuat. Mohon tunggu beberapa detik atau muat ulang halaman.");
+        return;
+    }
+
+    try {
+        // Konversi ke worksheet Excel
+        const ws = XLSX.utils.json_to_sheet(formattedRows);
+
+        // Atur lebar kolom (Auto Width yang nyaman dibaca)
+        const colWidths = [
+            { wch: 6 }, // No
+            ...targetColumns.map(c => ({ wch: c.width }))
+        ];
+        ws['!cols'] = colWidths;
+
+        // Buat workbook baru
+        const wb = XLSX.utils.book_new();
+
+        // Tentukan nama file yang informatif sesuai filter bulan
+        const monthInput = document.getElementById('summary-month-filter');
+        let periodName = (monthInput && monthInput.value) ? monthInput.value.trim() : 'Semua_Bulan';
+        periodName = periodName.replace(/[^a-zA-Z0-9_-]/g, '_');
+
+        XLSX.utils.book_append_sheet(wb, ws, "Summary Absensi");
+
+        // Unduh file Excel
+        const fileName = `Summary_Absensi_${periodName}.xlsx`;
+        XLSX.writeFile(wb, fileName);
+    } catch (err) {
+        console.error("Error exporting excel:", err);
+        alert("Gagal mengekspor file Excel: " + err.message);
+    }
+};
 
 
 
