@@ -165,7 +165,7 @@
                             <!-- Filter: Employee Status (Bottom: Blue Pill Dropdown inside Matching White Card) -->
                             <div class="card" style="padding: 10px 16px; display: inline-flex; align-items: center; justify-content: center; background: #ffffff; border-radius: 20px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); border: 1px solid #e2e8f0;">
                                 <div style="position: relative; display: inline-flex; align-items: center; width: 100%;">
-                                    <select id="employee-status-filter" onchange="window.applyFilters()" style="appearance: none; -webkit-appearance: none; -moz-appearance: none; width: 100%; box-sizing: border-box; background: #007AFF; color: #ffffff; border: none; border-radius: 24px; padding: 8px 38px 8px 18px; font-weight: 600; font-size: 0.95rem; font-family: 'Inter', sans-serif; cursor: pointer; outline: none; box-shadow: 0 4px 12px rgba(0, 122, 255, 0.3); transition: transform 0.2s, box-shadow 0.2s; white-space: nowrap;">
+                                    <select id="employee-status-filter" onchange="window.applyFilters()" style="appearance: none; -webkit-appearance: none; -moz-appearance: none; width: 100%; box-sizing: border-box; background: #007AFF; color: #ffffff; border: none; border-radius: 24px; padding: 8px 38px 8px 18px; font-weight: 600; font-size: 0.95rem; font-family: 'Inter', sans-serif; text-align: center; text-align-last: center; cursor: pointer; outline: none; box-shadow: 0 4px 12px rgba(0, 122, 255, 0.3); transition: transform 0.2s, box-shadow 0.2s; white-space: nowrap;">
                                         <option value="Summary Employee" style="background: #ffffff; color: #1e293b;">Summary Employee</option>
                                         <option value="Permanent" style="background: #ffffff; color: #1e293b;">Permanent</option>
                                         <option value="Harian Lepas" style="background: #ffffff; color: #1e293b;">Harian Lepas</option>
@@ -1804,6 +1804,13 @@ document.addEventListener("DOMContentLoaded", function() {
                             if (instance.altInput) {
                                 instance.altInput.placeholder = "Semua Bulan";
                                 instance.altInput.className = "blue-pill-date";
+                                instance.altInput.style.fontFamily = "'Inter', sans-serif";
+                                instance.altInput.style.fontSize = "0.95rem";
+                                instance.altInput.style.fontWeight = "600";
+                                instance.altInput.style.textAlign = "center";
+                                instance.altInput.style.padding = "8px 38px 8px 18px";
+                                instance.altInput.style.width = "100%";
+                                instance.altInput.style.boxSizing = "border-box";
                             }
                             const clearBtn = document.createElement("button");
                             clearBtn.textContent = "Clear Filter";
