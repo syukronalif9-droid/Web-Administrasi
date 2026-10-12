@@ -1077,18 +1077,11 @@ window.initCustomMonthPicker = function(options) {
             applyBtn.textContent = `Terapkan (${countText})`;
         }
 
-        // Update active preset chips
-        const chips = popover.querySelectorAll('.cmp-preset-chip');
-        chips.forEach(chip => {
-            const presetVal = chip.dataset.preset;
-            if (presetVal === 'all') {
-                chip.classList.toggle('active', isAllMonths || selectedMonths.size === 0 || selectedMonths.size === 12);
-            } else {
-                const pMonths = JSON.parse(chip.dataset.months || '[]');
-                const isMatch = !isAllMonths && pMonths.length === selectedMonths.size && pMonths.every(m => selectedMonths.has(m));
-                chip.classList.toggle('active', isMatch);
-            }
-        });
+        // Update active status tombol Semua Bulan
+        const chipAll = popover.querySelector('.cmp-preset-chip[data-preset="all"]');
+        if (chipAll) {
+            chipAll.classList.toggle('active', isAllMonths || selectedMonths.size === 0 || selectedMonths.size === 12);
+        }
     }
 
     function renderPopover() {
@@ -1143,18 +1136,13 @@ window.initCustomMonthPicker = function(options) {
         hint.innerHTML = "✨ <b>Klik & seret (drag)</b> mouse untuk memilih rentang bulan";
         popover.appendChild(hint);
 
-        // 3. Quick Presets Bar
+        // 3. Tombol Pintasan "Semua Bulan"
         const presetsWrap = document.createElement('div');
         presetsWrap.className = 'cmp-presets-wrap';
+        presetsWrap.style = "display: flex; justify-content: center; margin-bottom: 12px;";
 
         const presets = [
-            { id: 'all', label: 'Semua Bulan', months: [] },
-            { id: 'q1', label: 'Q1 (Jan-Mar)', months: [0, 1, 2] },
-            { id: 'q2', label: 'Q2 (Apr-Jun)', months: [3, 4, 5] },
-            { id: 'q3', label: 'Q3 (Jul-Sep)', months: [6, 7, 8] },
-            { id: 'q4', label: 'Q4 (Okt-Des)', months: [9, 10, 11] },
-            { id: 's1', label: 'Sem 1 (6 Bln)', months: [0, 1, 2, 3, 4, 5] },
-            { id: 's2', label: 'Sem 2 (6 Bln)', months: [6, 7, 8, 9, 10, 11] }
+            { id: 'all', label: 'Semua Bulan', months: [] }
         ];
 
         presets.forEach(p => {
@@ -1164,16 +1152,12 @@ window.initCustomMonthPicker = function(options) {
             chip.dataset.preset = p.id;
             chip.dataset.months = JSON.stringify(p.months);
             chip.textContent = p.label;
+            chip.style = "padding: 6px 18px; border-radius: 14px; font-weight: 600; font-size: 0.85rem;";
 
             chip.onclick = (e) => {
                 e.stopPropagation();
-                if (p.months.length === 0) {
-                    isAllMonths = true;
-                    selectedMonths.clear();
-                } else {
-                    isAllMonths = false;
-                    selectedMonths = new Set(p.months);
-                }
+                isAllMonths = true;
+                selectedMonths.clear();
                 updateGridVisuals();
             };
             presetsWrap.appendChild(chip);
