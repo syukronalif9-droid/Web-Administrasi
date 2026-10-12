@@ -947,13 +947,13 @@ document.addEventListener("DOMContentLoaded", function() {
                             <div
                                 style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
                                 <label style="font-weight: 600; color: var(--text-heading); font-size: 0.9rem;">Work
-                                    Days / MB51 (.csv)</label>
+                                    Days (.csv)</label>
                                 <button id="btn-reset-mb51" class="reset-db-btn" data-table="mb51"
                                     style="background: #ef4444; color: white; border: none; padding: 4px 12px; font-size: 12px; font-weight: 600; border-radius: 4px; cursor: pointer;">Hapus
                                     Data</button>
                             </div>
                             <div class="drop-zone" id="drop-zone-mb51">
-                                <span class="drop-zone__prompt">Drag & Drop file Work Days / MB51 atau klik di
+                                <span class="drop-zone__prompt">Drag & Drop file Work Days atau klik di
                                     sini</span>
                                 <input type="file" id="upload-mb51" accept=".csv" class="drop-zone__input">
                             </div>
@@ -961,28 +961,15 @@ document.addEventListener("DOMContentLoaded", function() {
                         <div>
                             <div
                                 style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                                <label style="font-weight: 600; color: var(--text-heading); font-size: 0.9rem;">Framsys
-                                    / ZMM_LTO (.csv)</label>
+                                <label style="font-weight: 600; color: var(--text-heading); font-size: 0.9rem;">Framsys (.csv)</label>
                                 <button id="btn-reset-zmmlto" class="reset-db-btn" data-table="ZMM_LTO"
                                     style="background: #ef4444; color: white; border: none; padding: 4px 12px; font-size: 12px; font-weight: 600; border-radius: 4px; cursor: pointer;">Hapus
                                     Data</button>
                             </div>
                             <div class="drop-zone" id="drop-zone-zmmlto">
-                                <span class="drop-zone__prompt">Drag & Drop file Framsys / ZMM_LTO atau klik di
+                                <span class="drop-zone__prompt">Drag & Drop file Framsys atau klik di
                                     sini</span>
                                 <input type="file" id="upload-zmmlto" accept=".csv" class="drop-zone__input">
-                            </div>
-                        </div>
-
-                        <!-- New Upload Zone for Dashboard Summary -->
-                        <div>
-                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                                <label style="font-weight: 600; color: var(--text-heading); font-size: 0.9rem;">Dashboard Summary (.csv)</label>
-                                <button id="btn-reset-dashboard" class="reset-db-btn" data-table="dashboard" style="background: #ef4444; color: white; border: none; padding: 4px 12px; font-size: 12px; font-weight: 600; border-radius: 4px; cursor: pointer;">Hapus Data</button>
-                            </div>
-                            <div class="drop-zone" id="drop-zone-dashboard">
-                                <span class="drop-zone__prompt">Drag & Drop file dasboard.csv atau klik di sini</span>
-                                <input type="file" id="upload-dashboard-csv" accept=".csv" class="drop-zone__input">
                             </div>
                         </div>
                         <button id="btn-process-upload-offline"
@@ -1215,19 +1202,19 @@ document.addEventListener("DOMContentLoaded", function() {
                         style="font-size: 1.25rem; font-weight: 700; color: #1e293b; margin-bottom: 12px; margin-top: 24px;">
                         1. Panduan Dashboard</h3>
                     <p style="font-size: 1rem; color: #475569; line-height: 1.7;">Aging dihitung dari <strong
-                            style="color:#1E293B;">Tanggal GR (Posting Date MB51)</strong> hingga tanggal yang dipilih
+                            style="color:#1E293B;">Tanggal GR (Posting Date Work Days)</strong> hingga tanggal yang dipilih
                         di filter (atau tanggal hari ini jika filter dikosongkan).<br><br>
-                        <strong style="color:#1E293B;">Ontime</strong> â€” Aging &le; 3 hari<br>
-                        <strong style="color:#1E293B;">Late</strong> â€” Aging &gt; 3 hari
+                        <strong style="color:#1E293B;">Ontime</strong> — Aging &le; 3 hari<br>
+                        <strong style="color:#1E293B;">Late</strong> — Aging &gt; 3 hari
                     </p>
 
                     <h3
                         style="font-size: 1.25rem; font-weight: 700; color: #1e293b; margin-bottom: 16px; margin-top: 32px;">
-                        2. Cara Menginput MB51 dari SAP</h3>
+                        2. Cara Menginput Work Days dari SAP</h3>
                     <div
                         style="font-size: 1rem; color: #475569; line-height: 1.7; background: #f8fafc; padding: 20px; border-radius: 12px; border: 1px solid #e2e8f0;">
-                        <p style="margin-top: 0; margin-bottom: 12px;">Pada saat Anda membuka T-Code
-                            <strong>MB51</strong> di SAP, isilah parameter pencarian berikut:</p>
+                        <p style="margin-top: 0; margin-bottom: 12px;">Pada saat Anda membuka menu
+                            <strong>Work Days</strong> di SAP, isilah parameter pencarian berikut:</p>
 
                         <strong style="color: #1e293b;">Type of Data Input (Bagian Atas):</strong>
                         <ul style="margin-top: 4px; margin-bottom: 16px; padding-left: 20px;">
@@ -1260,11 +1247,11 @@ document.addEventListener("DOMContentLoaded", function() {
 
                     <h3
                         style="font-size: 1.25rem; font-weight: 700; color: #1e293b; margin-bottom: 16px; margin-top: 32px;">
-                        3. Cara Menginput ZMM_LTO dari SAP</h3>
+                        3. Cara Menginput Framsys dari SAP</h3>
                     <div
                         style="font-size: 1rem; color: #475569; line-height: 1.7; background: #f8fafc; padding: 20px; border-radius: 12px; border: 1px solid #e2e8f0;">
-                        <p style="margin-top: 0; margin-bottom: 12px;">Pada saat Anda membuka T-Code
-                            <strong>ZMM_LTO</strong> di SAP, isilah parameter pencarian berikut:</p>
+                        <p style="margin-top: 0; margin-bottom: 12px;">Pada saat Anda membuka menu
+                            <strong>Framsys</strong> di SAP, isilah parameter pencarian berikut:</p>
 
                         <strong style="color: #1e293b;">Bagian Parameter Pencarian:</strong>
                         <ul
@@ -1277,7 +1264,7 @@ document.addEventListener("DOMContentLoaded", function() {
                                 <strong>1000</strong> dan <strong>2009</strong>.</li>
                             <li><strong>Purchase order:</strong> Diisi dengan cara memencet <strong>tombol
                                     kuning</strong> (Multiple Selection) di ujung kanan kolom tersebut. Isi dengan data
-                                PO yang diambil dari data MB51.</li>
+                                PO yang diambil dari data Work Days.</li>
                             <li><strong>Posting Date:</strong> Diisi dengan cara memencet <strong>tombol kuning</strong>
                                 (Multiple Selection) di ujung kanan kolom tersebut untuk memasukkan rentang tanggal.
                             </li>
