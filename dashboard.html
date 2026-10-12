@@ -149,12 +149,12 @@
                             <h3 style="color: #ffffff; font-size: 1rem; margin: 8px 0 0 0; font-weight: 500; text-align: left; line-height: 1.3;">Avg. Discipline Rate</h3>
                         </div>
 
-                        <!-- Filters Container (Matching Card Badges) -->
-                        <div style="order: 2; display: flex; flex-direction: row; align-items: center; gap: 16px;">
-                            <!-- Filter: Period & Year (Blue Pill Popup Picker inside White Card) -->
-                            <div class="card" style="padding: 10px 16px; display: inline-flex; align-items: center; background: #ffffff; border-radius: 20px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); border: 1px solid #e2e8f0;">
-                                <div style="position: relative; display: inline-flex; align-items: center;">
-                                    <input type="text" id="dash-month-filter" class="blue-pill-date" placeholder="Semua Bulan" readonly>
+                        <!-- Filters Container (Stacked Vertical: Top = Calendar, Bottom = Employee Status) -->
+                        <div style="order: 2; display: flex; flex-direction: column; justify-content: center; align-items: stretch; gap: 12px;">
+                            <!-- Filter: Period & Year (Top: Blue Pill Popup Picker inside White Card) -->
+                            <div class="card" style="padding: 10px 16px; display: inline-flex; align-items: center; justify-content: center; background: #ffffff; border-radius: 20px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); border: 1px solid #e2e8f0;">
+                                <div style="position: relative; display: inline-flex; align-items: center; width: 100%;">
+                                    <input type="text" id="dash-month-filter" class="blue-pill-date" placeholder="Semua Bulan" readonly style="width: 100%; box-sizing: border-box;">
                                     <svg style="position: absolute; right: 14px; pointer-events: none; color: white;" width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7"></path>
                                     </svg>
@@ -162,10 +162,10 @@
                                 <input type="hidden" id="period-filter" value="Summary (All Months)">
                             </div>
 
-                            <!-- Filter: Employee Status (Blue Pill Dropdown inside Matching White Card) -->
-                            <div class="card" style="padding: 10px 16px; display: inline-flex; align-items: center; background: #ffffff; border-radius: 20px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); border: 1px solid #e2e8f0;">
-                                <div style="position: relative; display: inline-flex; align-items: center;">
-                                    <select id="employee-status-filter" onchange="window.applyFilters()" style="appearance: none; -webkit-appearance: none; -moz-appearance: none; background: #007AFF; color: #ffffff; border: none; border-radius: 24px; padding: 8px 38px 8px 18px; font-weight: 600; font-size: 0.95rem; font-family: 'Inter', sans-serif; cursor: pointer; outline: none; box-shadow: 0 4px 12px rgba(0, 122, 255, 0.3); transition: transform 0.2s, box-shadow 0.2s; white-space: nowrap;">
+                            <!-- Filter: Employee Status (Bottom: Blue Pill Dropdown inside Matching White Card) -->
+                            <div class="card" style="padding: 10px 16px; display: inline-flex; align-items: center; justify-content: center; background: #ffffff; border-radius: 20px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); border: 1px solid #e2e8f0;">
+                                <div style="position: relative; display: inline-flex; align-items: center; width: 100%;">
+                                    <select id="employee-status-filter" onchange="window.applyFilters()" style="appearance: none; -webkit-appearance: none; -moz-appearance: none; width: 100%; box-sizing: border-box; background: #007AFF; color: #ffffff; border: none; border-radius: 24px; padding: 8px 38px 8px 18px; font-weight: 600; font-size: 0.95rem; font-family: 'Inter', sans-serif; cursor: pointer; outline: none; box-shadow: 0 4px 12px rgba(0, 122, 255, 0.3); transition: transform 0.2s, box-shadow 0.2s; white-space: nowrap;">
                                         <option value="Summary Employee" style="background: #ffffff; color: #1e293b;">Summary Employee</option>
                                         <option value="Permanent" style="background: #ffffff; color: #1e293b;">Permanent</option>
                                         <option value="Harian Lepas" style="background: #ffffff; color: #1e293b;">Harian Lepas</option>
