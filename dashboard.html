@@ -199,15 +199,19 @@
                                 <button class="month-btn active" data-val="Summary (All Months)" onclick="window.selectMonth(this)" style="margin-top: 8px; background: #2563eb; border: none; border-radius: 8px; padding: 7px 0; color: #ffffff; font-size: 0.75rem; font-weight: 700; letter-spacing: 0.5px; cursor: pointer; box-shadow: 0 2px 6px rgba(37,99,235,0.25); transition: all 0.15s ease;">ALL MONTHS</button>
                             </div>
 
-                            <!-- Filter Card: Employee Status -->
-                            <div class="card" style="background: white; border-radius: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); padding: 24px; flex: 0.8; display: flex; flex-direction: column; justify-content: flex-start; align-items: flex-start; border: 1px solid #e2e8f0; font-family: 'Inter', sans-serif;">
-                                <h3 style="color: #18181b; font-size: 0.9rem; margin: 0 0 12px 0; font-weight: 600; text-align: left;">Employee Status</h3>
-                                <select id="employee-status-filter" onchange="window.applyFilters()" style="width: 100%; padding: 12px; border-radius: 12px; border: 1px solid #cbd5e1; font-size: 0.9rem; font-family: 'Inter', sans-serif; background: #f8fafc; color: #334155; outline: none; cursor: pointer;">
-                                    <option value="Summary Employee">Summary Employee</option>
-                                    <option value="Permanent">Permanent</option>
-                                    <option value="Harian Lepas">Harian Lepas</option>
-                                    <option value="Contract (GGP/OS)">Contract (GGP/OS)</option>
-                                </select>
+                            <!-- Filter: Employee Status (Simple Blue Pill Button) -->
+                            <div class="card" style="background: white; border-radius: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); padding: 20px; flex: 0.75; display: flex; flex-direction: column; justify-content: center; align-items: center; border: 1px solid #e2e8f0; font-family: 'Inter', sans-serif;">
+                                <div style="position: relative; display: inline-flex; align-items: center; width: 100%; max-width: 220px;">
+                                    <select id="employee-status-filter" onchange="window.applyFilters()" style="appearance: none; -webkit-appearance: none; -moz-appearance: none; width: 100%; background: #007AFF; color: #ffffff; border: none; border-radius: 9999px; padding: 10px 38px 10px 20px; font-weight: 600; font-size: 0.9rem; font-family: 'Inter', sans-serif; cursor: pointer; outline: none; box-shadow: 0 4px 14px rgba(0, 122, 255, 0.35); transition: all 0.2s; text-overflow: ellipsis; white-space: nowrap; overflow: hidden;">
+                                        <option value="Summary Employee" style="background: #ffffff; color: #1e293b;">Summary Employee</option>
+                                        <option value="Permanent" style="background: #ffffff; color: #1e293b;">Permanent</option>
+                                        <option value="Harian Lepas" style="background: #ffffff; color: #1e293b;">Harian Lepas</option>
+                                        <option value="Contract (GGP/OS)" style="background: #ffffff; color: #1e293b;">Contract (GGP/OS)</option>
+                                    </select>
+                                    <svg style="position: absolute; right: 14px; pointer-events: none; color: #ffffff;" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                                        <polyline points="6 9 12 15 18 9"></polyline>
+                                    </svg>
+                                </div>
                             </div>
                         </div>
 
