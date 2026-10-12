@@ -239,6 +239,7 @@
                                 document.addEventListener('DOMContentLoaded', function() {
                                     var chartDom = document.getElementById('discipline-donut-chart');
                                     var myChart = echarts.init(chartDom);
+                                    window.disciplineDonutChart = myChart;
 
                                     var disciplineData = [
                                         { value: 99.3, name: 'Traffic',              color: '#3b82f6' },
@@ -398,6 +399,7 @@
                                 document.addEventListener('DOMContentLoaded', function() {
                                     var trendDom = document.getElementById('discipline-trend-chart');
                                     var trendChart = echarts.init(trendDom);
+                                    window.disciplineTrendChart = trendChart;
 
                                     var months = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
                                     var values = [85.3, 85.6, 85.2, 87.0, 93.2, 96.0, 97.9, 98.2, null, null, null, null];
@@ -611,6 +613,7 @@ document.addEventListener("DOMContentLoaded", function() {
     var domOverview = document.getElementById("attendance-overview-chart");
     if(domOverview) {
         var chartOverview = echarts.init(domOverview);
+        window.attendanceOverviewChart = chartOverview;
         
         var months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
         var workingOverview = [6418, 6013, 5042, 6654, 6478, 6397, 6935, 6535, null, null, null, null];
@@ -725,6 +728,7 @@ document.addEventListener("DOMContentLoaded", function() {
     var domBagian = document.getElementById("attendance-bagian-chart");
     if(domBagian) {
         var chartBagian = echarts.init(domBagian);
+        window.attendanceBagianChart = chartBagian;
         
         var labelsBagian = ['Gen. Adm', 'Inv. Control', 'Sppt, Lubr', 'Traffic', 'PG1', 'PG2', 'PG3', 'PG4'];
         var workingBagian = [1632, 2297, 2995, 7432, 9802, 7344, 10342, 8450];
@@ -1605,7 +1609,8 @@ document.addEventListener("DOMContentLoaded", function() {
                         }
                     });
                     
-                    // Update KPIs
+                    // 1. Update KPI Cards
+                    let avgDiscVal = 0;
                     if (processedUsers.length > 0) {
                         let totalWd = 0, totalAtt = 0, totalDisc = 0;
                         processedUsers.forEach(u => {
@@ -1616,17 +1621,16 @@ document.addEventListener("DOMContentLoaded", function() {
                         let avgWd = totalWd / processedUsers.length;
                         let avgAtt = totalAtt / processedUsers.length;
                         let avgDisc = totalDisc / processedUsers.length;
+                        avgDiscVal = avgDisc;
                         
                         const kpiWd = document.getElementById('kpi-working-days');
                         const kpiAtt = document.getElementById('kpi-attendance');
                         const kpiDisc = document.getElementById('kpi-discipline');
                         
-                        // We format exactly like original logic but use our calculated averages
                         if (kpiWd) kpiWd.textContent = avgWd.toLocaleString('id-ID', { maximumFractionDigits: 1 });
                         if (kpiAtt) kpiAtt.textContent = avgAtt.toLocaleString('id-ID', { maximumFractionDigits: 1 });
                         if (kpiDisc) kpiDisc.textContent = avgDisc.toLocaleString('id-ID', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + '%';
                     } else {
-                        // Reset if no data
                         const kpiWd = document.getElementById('kpi-working-days');
                         const kpiAtt = document.getElementById('kpi-attendance');
                         const kpiDisc = document.getElementById('kpi-discipline');
@@ -1635,9 +1639,137 @@ document.addEventListener("DOMContentLoaded", function() {
                         if (kpiDisc) kpiDisc.textContent = "0%";
                     }
                     
-                    // Update Top 5
+                    // 2. Update Top 5 List
                     window.parsedUsersData = processedUsers;
                     window.renderTop5List(window.currentSortOrder);
+
+                    // 3. Update Discipline Rate Trend Chart (Monthly values filtered by status)
+                    if (window.disciplineTrendChart) {
+                        const monthKeys = ['Jan-26', 'Feb-26', 'Mar-26', 'Apr-26', 'Mei-26', 'Jun-26', 'Jul-26', 'Agu-26', 'Sep-26', 'Okt-26', 'Nov-26', 'Des-26'];
+                        const trendVals = monthKeys.map(mKey => {
+                            let mUsers = filtered.filter(u => u.periods[mKey] && u.periods[mKey].disc !== null);
+                            if (mUsers.length === 0) return null;
+                            let sumDisc = mUsers.reduce((acc, u) => acc + u.periods[mKey].disc, 0);
+                            return Math.round((sumDisc / mUsers.length) * 10) / 10;
+                        });
+
+                        window.disciplineTrendChart.setOption({
+                            series: [
+                                { name: 'Trend Line', data: trendVals },
+                                {
+                                    name: 'Discipline Rate',
+                                    data: trendVals.map(v => {
+                                        if (v == null) return { value: 0, itemStyle: { color: 'transparent' } };
+                                        return {
+                                            value: v,
+                                            itemStyle: {
+                                                color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                                                    { offset: 0, color: '#3b82f6' },
+                                                    { offset: 0.5, color: '#60a5fa' },
+                                                    { offset: 1, color: 'rgba(147, 197, 253, 0.3)' }
+                                                ]),
+                                                borderRadius: [6, 6, 0, 0]
+                                            }
+                                        };
+                                    })
+                                },
+                                {
+                                    name: 'Reflection',
+                                    data: trendVals.map(v => (v == null ? 0 : -(v * 0.08)))
+                                }
+                            ]
+                        });
+                    }
+
+                    // 4. Update Discipline Donut Chart (Per Bagian, for active period & status)
+                    if (window.disciplineDonutChart) {
+                        const bagianList = [
+                            { key: 'Traffic', color: '#3b82f6' },
+                            { key: 'Gen. Adm', color: '#6366f1' },
+                            { key: 'PG4', color: '#8b5cf6' },
+                            { key: 'PG1', color: '#f97316' },
+                            { key: 'Sppt, Lubr & Other M', color: '#ec4899' },
+                            { key: 'PG3', color: '#ef4444' },
+                            { key: 'PG2', color: '#f43f5e' },
+                            { key: 'Inv. Control', color: '#fb923c' }
+                        ];
+
+                        const donutData = bagianList.map(b => {
+                            let bUsers = processedUsers.filter(u => u.bagian === b.key);
+                            let rate = 0;
+                            if (bUsers.length > 0) {
+                                let totalBDisc = bUsers.reduce((acc, u) => acc + u.disc, 0);
+                                rate = Math.round((totalBDisc / bUsers.length) * 10) / 10;
+                            }
+                            return { value: rate, name: b.key, itemStyle: { color: b.color } };
+                        });
+
+                        const centerLabelText = avgDiscVal > 0 ? avgDiscVal.toLocaleString('id-ID', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + '%' : '0%';
+
+                        window.disciplineDonutChart.setOption({
+                            series: [
+                                {
+                                    name: 'Discipline Rate',
+                                    data: donutData
+                                },
+                                {
+                                    name: 'Center Background',
+                                    label: { formatter: centerLabelText }
+                                }
+                            ]
+                        });
+                    }
+
+                    // 5. Update Attendance Overview Chart (Monthly Working Days & Attendance filtered by status)
+                    if (window.attendanceOverviewChart) {
+                        const monthKeys = ['Jan-26', 'Feb-26', 'Mar-26', 'Apr-26', 'Mei-26', 'Jun-26', 'Jul-26', 'Agu-26', 'Sep-26', 'Okt-26', 'Nov-26', 'Des-26'];
+                        const monthlyWorking = [];
+                        const monthlyAttendance = [];
+
+                        monthKeys.forEach(mKey => {
+                            let mUsers = filtered.filter(u => u.periods[mKey] && u.periods[mKey].disc !== null);
+                            if (mUsers.length === 0) {
+                                monthlyWorking.push(null);
+                                monthlyAttendance.push(null);
+                            } else {
+                                let totWd = Math.round(mUsers.reduce((acc, u) => acc + (u.periods[mKey].wd || 0), 0));
+                                let totAtt = Math.round(mUsers.reduce((acc, u) => acc + (u.periods[mKey].att || 0), 0));
+                                monthlyWorking.push(totWd);
+                                monthlyAttendance.push(totAtt);
+                            }
+                        });
+
+                        window.attendanceOverviewChart.setOption({
+                            series: [
+                                { name: 'Working Days', data: monthlyWorking },
+                                { name: 'Attendance', data: monthlyAttendance }
+                            ]
+                        });
+                    }
+
+                    // 6. Update Attendance Per Bagian Chart (Working Days & Attendance per Bagian for active period & status)
+                    if (window.attendanceBagianChart) {
+                        const standardBagians = ['Gen. Adm', 'Inv. Control', 'Sppt, Lubr & Other M', 'Traffic', 'PG1', 'PG2', 'PG3', 'PG4'];
+                        const displayBagians = ['Gen. Adm', 'Inv. Control', 'Sppt, Lubr', 'Traffic', 'PG1', 'PG2', 'PG3', 'PG4'];
+                        const bagianWd = [];
+                        const bagianAtt = [];
+
+                        standardBagians.forEach(bKey => {
+                            let bUsers = processedUsers.filter(u => u.bagian === bKey);
+                            let totWd = Math.round(bUsers.reduce((acc, u) => acc + u.wd, 0));
+                            let totAtt = Math.round(bUsers.reduce((acc, u) => acc + u.att, 0));
+                            bagianWd.push(totWd);
+                            bagianAtt.push(totAtt);
+                        });
+
+                        window.attendanceBagianChart.setOption({
+                            xAxis: { data: displayBagians },
+                            series: [
+                                { name: 'Working Days', data: bagianWd },
+                                { name: 'Attendance', data: bagianAtt }
+                            ]
+                        });
+                    }
                 };
                 
                 // Parse complete, setup toggle logic
