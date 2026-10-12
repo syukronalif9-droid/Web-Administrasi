@@ -991,7 +991,7 @@ window.exportSummaryExcelClean = function() {
 };
 
 // ==========================================
-// CUSTOM MONTH RANGE & MULTI-MONTH PICKER
+// CUSTOM MONTH RANGE & MULTI-MONTH PICKER (DRAG TO SELECT / SERET MOUSE)
 // ==========================================
 window.initCustomMonthPicker = function(options) {
     const inputEl = typeof options.target === 'string' ? document.getElementById(options.target) : options.target;
@@ -1006,11 +1006,10 @@ window.initCustomMonthPicker = function(options) {
     const monthNamesLong = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
 
     let currentYear = options.defaultYear || 2026;
-    let mode = 'range'; // 'range' | 'multi'
-    let rangeStart = null;
-    let rangeHover = null;
     let selectedMonths = new Set(); // 0-11
     let isAllMonths = true; // default: Semua Bulan
+    let isDragging = false;
+    let dragStartIndex = null;
 
     // Ensure input element attributes & styles
     inputEl.readOnly = true;
@@ -1036,7 +1035,6 @@ window.initCustomMonthPicker = function(options) {
         if (sorted.length === 1) {
             return `${monthNamesLong[sorted[0]]} ${currentYear}`;
         }
-        // Check if contiguous range
         let isContiguous = true;
         for (let i = 0; i < sorted.length - 1; i++) {
             if (sorted[i + 1] !== sorted[i] + 1) {
@@ -1052,6 +1050,45 @@ window.initCustomMonthPicker = function(options) {
             const names = sorted.map(m => monthNamesShort[m]).join(', ');
             return `${names} ${currentYear} (${sorted.length} Bulan)`;
         }
+    }
+
+    function updateGridVisuals() {
+        const btns = popover.querySelectorAll('.cmp-month-btn');
+        btns.forEach((btn, idx) => {
+            if (!isAllMonths && selectedMonths.has(idx)) {
+                btn.classList.add('selected');
+            } else {
+                btn.classList.remove('selected');
+            }
+        });
+
+        const badge = popover.querySelector('.cmp-badge');
+        if (badge) {
+            if (isAllMonths || selectedMonths.size === 0 || selectedMonths.size === 12) {
+                badge.textContent = 'Semua Bulan';
+            } else {
+                badge.textContent = `${selectedMonths.size} Bulan Terpilih`;
+            }
+        }
+
+        const applyBtn = popover.querySelector('.cmp-btn-apply');
+        if (applyBtn) {
+            const countText = (isAllMonths || selectedMonths.size === 0 || selectedMonths.size === 12) ? 'Semua Bulan' : `${selectedMonths.size} Bulan`;
+            applyBtn.textContent = `Terapkan (${countText})`;
+        }
+
+        // Update active preset chips
+        const chips = popover.querySelectorAll('.cmp-preset-chip');
+        chips.forEach(chip => {
+            const presetVal = chip.dataset.preset;
+            if (presetVal === 'all') {
+                chip.classList.toggle('active', isAllMonths || selectedMonths.size === 0 || selectedMonths.size === 12);
+            } else {
+                const pMonths = JSON.parse(chip.dataset.months || '[]');
+                const isMatch = !isAllMonths && pMonths.length === selectedMonths.size && pMonths.every(m => selectedMonths.has(m));
+                chip.classList.toggle('active', isMatch);
+            }
+        });
     }
 
     function renderPopover() {
@@ -1094,153 +1131,135 @@ window.initCustomMonthPicker = function(options) {
 
         const badge = document.createElement('span');
         badge.className = 'cmp-badge';
-        if (isAllMonths || selectedMonths.size === 0 || selectedMonths.size === 12) {
-            badge.textContent = 'Semua Bulan';
-        } else {
-            badge.textContent = `${selectedMonths.size} Bulan Terpilih`;
-        }
+        badge.textContent = (isAllMonths || selectedMonths.size === 0 || selectedMonths.size === 12) ? 'Semua Bulan' : `${selectedMonths.size} Bulan Terpilih`;
 
         header.appendChild(navWrap);
         header.appendChild(badge);
         popover.appendChild(header);
 
-        // 2. Mode Selector Bar (Range vs Multi)
-        const modeBar = document.createElement('div');
-        modeBar.className = 'cmp-mode-bar';
-
-        const tabRange = document.createElement('button');
-        tabRange.type = 'button';
-        tabRange.className = 'cmp-mode-tab' + (mode === 'range' ? ' active' : '');
-        tabRange.textContent = 'Rentang (Range)';
-        tabRange.onclick = (e) => {
-            e.stopPropagation();
-            mode = 'range';
-            rangeStart = null;
-            rangeHover = null;
-            renderPopover();
-        };
-
-        const tabMulti = document.createElement('button');
-        tabMulti.type = 'button';
-        tabMulti.className = 'cmp-mode-tab' + (mode === 'multi' ? ' active' : '');
-        tabMulti.textContent = 'Pilih Bebas (Multi)';
-        tabMulti.onclick = (e) => {
-            e.stopPropagation();
-            mode = 'multi';
-            renderPopover();
-        };
-
-        modeBar.appendChild(tabRange);
-        modeBar.appendChild(tabMulti);
-        popover.appendChild(modeBar);
+        // 2. Helpful Quick Instruction
+        const hint = document.createElement('div');
+        hint.style = "font-size: 0.78rem; color: #475569; font-weight: 500; text-align: center; margin-bottom: 12px; background: #F1F5F9; padding: 6px 10px; border-radius: 10px; border: 1px dashed #CBD5E1; user-select: none;";
+        hint.innerHTML = "✨ <b>Klik & seret (drag)</b> mouse untuk memilih rentang bulan";
+        popover.appendChild(hint);
 
         // 3. Quick Presets Bar
         const presetsWrap = document.createElement('div');
         presetsWrap.className = 'cmp-presets-wrap';
 
         const presets = [
-            { label: 'Semua Bulan', months: [] },
-            { label: 'Q1 (Jan-Mar)', months: [0, 1, 2] },
-            { label: 'Q2 (Apr-Jun)', months: [3, 4, 5] },
-            { label: 'Q3 (Jul-Sep)', months: [6, 7, 8] },
-            { label: 'Q4 (Okt-Des)', months: [9, 10, 11] },
-            { label: 'Sem 1 (6 Bln)', months: [0, 1, 2, 3, 4, 5] },
-            { label: 'Sem 2 (6 Bln)', months: [6, 7, 8, 9, 10, 11] }
+            { id: 'all', label: 'Semua Bulan', months: [] },
+            { id: 'q1', label: 'Q1 (Jan-Mar)', months: [0, 1, 2] },
+            { id: 'q2', label: 'Q2 (Apr-Jun)', months: [3, 4, 5] },
+            { id: 'q3', label: 'Q3 (Jul-Sep)', months: [6, 7, 8] },
+            { id: 'q4', label: 'Q4 (Okt-Des)', months: [9, 10, 11] },
+            { id: 's1', label: 'Sem 1 (6 Bln)', months: [0, 1, 2, 3, 4, 5] },
+            { id: 's2', label: 'Sem 2 (6 Bln)', months: [6, 7, 8, 9, 10, 11] }
         ];
 
         presets.forEach(p => {
             const chip = document.createElement('button');
             chip.type = 'button';
             chip.className = 'cmp-preset-chip';
+            chip.dataset.preset = p.id;
+            chip.dataset.months = JSON.stringify(p.months);
             chip.textContent = p.label;
-
-            if (p.months.length === 0 && (isAllMonths || selectedMonths.size === 0 || selectedMonths.size === 12)) {
-                chip.classList.add('active');
-            } else if (p.months.length > 0 && !isAllMonths && p.months.length === selectedMonths.size && p.months.every(m => selectedMonths.has(m))) {
-                chip.classList.add('active');
-            }
 
             chip.onclick = (e) => {
                 e.stopPropagation();
                 if (p.months.length === 0) {
                     isAllMonths = true;
                     selectedMonths.clear();
-                    rangeStart = null;
                 } else {
                     isAllMonths = false;
                     selectedMonths = new Set(p.months);
-                    rangeStart = p.months[0];
                 }
-                renderPopover();
+                updateGridVisuals();
             };
             presetsWrap.appendChild(chip);
         });
         popover.appendChild(presetsWrap);
 
-        // 4. Month Grid (12 Months)
+        // 4. Month Grid (12 Months) with DRAG TO SELECT (SERET MOUSE)
         const grid = document.createElement('div');
         grid.className = 'cmp-grid';
+        grid.style.userSelect = 'none';
+        grid.style.webkitUserSelect = 'none';
 
         for (let i = 0; i < 12; i++) {
             const mBtn = document.createElement('button');
             mBtn.type = 'button';
             mBtn.className = 'cmp-month-btn';
+            mBtn.dataset.monthIdx = i;
             mBtn.textContent = monthNamesShort[i];
+            mBtn.style.userSelect = 'none';
+            mBtn.style.webkitUserSelect = 'none';
 
-            const isSelected = !isAllMonths && selectedMonths.has(i);
-            if (isSelected) {
-                mBtn.classList.add('selected');
-            }
-
-            // Hover preview in range mode
-            if (mode === 'range' && rangeStart !== null && rangeHover !== null) {
-                const min = Math.min(rangeStart, rangeHover);
-                const max = Math.max(rangeStart, rangeHover);
-                if (i >= min && i <= max && !isSelected) {
-                    mBtn.classList.add('in-range');
-                }
-            }
-
-            mBtn.onmouseenter = () => {
-                if (mode === 'range' && rangeStart !== null) {
-                    rangeHover = i;
-                    renderPopover();
-                }
-            };
-
-            mBtn.onclick = (e) => {
-                e.stopPropagation();
+            // MOUSE DOWN: Mulai seret (drag)
+            mBtn.addEventListener('mousedown', (e) => {
+                e.preventDefault();
+                isDragging = true;
+                dragStartIndex = i;
                 isAllMonths = false;
+                selectedMonths = new Set([i]);
+                updateGridVisuals();
+            });
 
-                if (mode === 'range') {
-                    if (rangeStart === null) {
-                        rangeStart = i;
-                        selectedMonths = new Set([i]);
-                    } else {
-                        // Complete range
-                        const min = Math.min(rangeStart, i);
-                        const max = Math.max(rangeStart, i);
-                        selectedMonths.clear();
-                        for (let k = min; k <= max; k++) {
-                            selectedMonths.add(k);
-                        }
-                        rangeStart = null;
-                        rangeHover = null;
+            // MOUSE ENTER: Seret melewati bulan ini
+            mBtn.addEventListener('mouseenter', () => {
+                if (isDragging && dragStartIndex !== null) {
+                    const min = Math.min(dragStartIndex, i);
+                    const max = Math.max(dragStartIndex, i);
+                    selectedMonths = new Set();
+                    for (let k = min; k <= max; k++) {
+                        selectedMonths.add(k);
                     }
-                } else {
-                    // Multi mode toggle
-                    if (selectedMonths.has(i)) {
-                        selectedMonths.delete(i);
-                        if (selectedMonths.size === 0) isAllMonths = true;
-                    } else {
-                        selectedMonths.add(i);
-                    }
+                    updateGridVisuals();
                 }
-                renderPopover();
-            };
+            });
 
             grid.appendChild(mBtn);
         }
+
+        // TOUCH SUPPORT UNTUK LAYAR SENTUH
+        grid.addEventListener('touchstart', (e) => {
+            if (e.touches.length === 1) {
+                const touch = e.touches[0];
+                const elem = document.elementFromPoint(touch.clientX, touch.clientY);
+                if (elem && elem.dataset && elem.dataset.monthIdx !== undefined) {
+                    const idx = parseInt(elem.dataset.monthIdx);
+                    isDragging = true;
+                    dragStartIndex = idx;
+                    isAllMonths = false;
+                    selectedMonths = new Set([idx]);
+                    updateGridVisuals();
+                }
+            }
+        }, { passive: true });
+
+        grid.addEventListener('touchmove', (e) => {
+            if (isDragging && dragStartIndex !== null && e.touches.length === 1) {
+                e.preventDefault();
+                const touch = e.touches[0];
+                const elem = document.elementFromPoint(touch.clientX, touch.clientY);
+                if (elem && elem.dataset && elem.dataset.monthIdx !== undefined) {
+                    const idx = parseInt(elem.dataset.monthIdx);
+                    const min = Math.min(dragStartIndex, idx);
+                    const max = Math.max(dragStartIndex, idx);
+                    selectedMonths = new Set();
+                    for (let k = min; k <= max; k++) {
+                        selectedMonths.add(k);
+                    }
+                    updateGridVisuals();
+                }
+            }
+        }, { passive: false });
+
+        grid.addEventListener('touchend', () => {
+            isDragging = false;
+            dragStartIndex = null;
+        });
+
         popover.appendChild(grid);
 
         // 5. Footer (Reset & Apply)
@@ -1255,16 +1274,14 @@ window.initCustomMonthPicker = function(options) {
             e.stopPropagation();
             isAllMonths = true;
             selectedMonths.clear();
-            rangeStart = null;
-            rangeHover = null;
+            dragStartIndex = null;
             applyAndClose();
         };
 
         const applyBtn = document.createElement('button');
         applyBtn.type = 'button';
         applyBtn.className = 'cmp-btn-apply';
-        const countText = (isAllMonths || selectedMonths.size === 0 || selectedMonths.size === 12) ? 'Semua Bulan' : `${selectedMonths.size} Bulan`;
-        applyBtn.textContent = `Terapkan (${countText})`;
+        applyBtn.textContent = 'Terapkan Filter';
         applyBtn.onclick = (e) => {
             e.stopPropagation();
             applyAndClose();
@@ -1273,6 +1290,8 @@ window.initCustomMonthPicker = function(options) {
         footer.appendChild(resetBtn);
         footer.appendChild(applyBtn);
         popover.appendChild(footer);
+
+        updateGridVisuals();
     }
 
     function applyAndClose() {
@@ -1329,8 +1348,17 @@ window.initCustomMonthPicker = function(options) {
 
     function hidePopover() {
         popover.style.display = 'none';
-        rangeHover = null;
+        isDragging = false;
+        dragStartIndex = null;
     }
+
+    // Stop dragging when mouseup happens anywhere on the page
+    document.addEventListener('mouseup', () => {
+        if (isDragging) {
+            isDragging = false;
+            dragStartIndex = null;
+        }
+    });
 
     // Toggle on input click
     inputEl.addEventListener('click', (e) => {

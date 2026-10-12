@@ -872,34 +872,6 @@ body, html {
     border: 1px solid #BFDBFE;
 }
 
-.cmp-mode-bar {
-    display: flex;
-    background: #F1F5F9;
-    border-radius: 10px;
-    padding: 3px;
-    margin-bottom: 12px;
-    gap: 4px;
-}
-.cmp-mode-tab {
-    flex: 1;
-    border: none;
-    background: transparent;
-    padding: 6px 8px;
-    border-radius: 8px;
-    font-size: 0.8rem;
-    font-weight: 600;
-    color: #64748B;
-    cursor: pointer;
-    transition: all 0.15s ease;
-    text-align: center;
-}
-.cmp-mode-tab.active {
-    background: #ffffff;
-    color: #007AFF;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.06);
-    font-weight: 700;
-}
-
 .cmp-presets-wrap {
     display: flex;
     flex-wrap: wrap;
@@ -916,6 +888,7 @@ body, html {
     font-weight: 600;
     cursor: pointer;
     transition: all 0.15s ease;
+    user-select: none;
 }
 .cmp-preset-chip:hover {
     background: #EBF5FF;
@@ -933,20 +906,25 @@ body, html {
     grid-template-columns: repeat(4, 1fr);
     gap: 8px;
     margin-bottom: 16px;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: none;
 }
 .cmp-month-btn {
     border: 1px solid #E2E8F0;
     background: #F8FAFC;
     color: #334155;
-    padding: 10px 4px;
-    border-radius: 10px;
-    font-size: 0.85rem;
+    padding: 12px 4px;
+    border-radius: 12px;
+    font-size: 0.9rem;
     font-weight: 600;
     cursor: pointer;
     text-align: center;
-    transition: all 0.15s ease;
+    transition: background 0.1s ease, transform 0.1s ease;
     position: relative;
     user-select: none;
+    -webkit-user-select: none;
+    touch-action: none;
 }
 .cmp-month-btn:hover {
     border-color: #93C5FD;
@@ -959,14 +937,8 @@ body, html {
     color: #ffffff !important;
     border-color: #007AFF !important;
     font-weight: 700 !important;
-    box-shadow: 0 4px 10px rgba(0, 122, 255, 0.3) !important;
-    transform: translateY(-1px);
-}
-.cmp-month-btn.in-range {
-    background: #E0F2FE !important;
-    color: #0369A1 !important;
-    border-color: #BAE6FD !important;
-    font-weight: 600 !important;
+    box-shadow: 0 4px 12px rgba(0, 122, 255, 0.35) !important;
+    transform: scale(1.02);
 }
 
 .cmp-footer {
