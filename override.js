@@ -996,6 +996,8 @@ window.exportSummaryExcelClean = function() {
 window.initCustomMonthPicker = function(options) {
     const inputEl = typeof options.target === 'string' ? document.getElementById(options.target) : options.target;
     if (!inputEl) return;
+    if (inputEl._cmpInitialized) return;
+    inputEl._cmpInitialized = true;
 
     // Destroy flatpickr instance if attached
     if (inputEl._flatpickr) {
@@ -1061,6 +1063,11 @@ window.initCustomMonthPicker = function(options) {
                 btn.classList.remove('selected');
             }
         });
+
+        // Update teks input langsung saat seret / klik bulan agar informasi berubah live!
+        const currentLabel = formatDisplayLabel();
+        inputEl.value = currentLabel;
+        inputEl.setAttribute('value', currentLabel);
 
         const badge = popover.querySelector('.cmp-badge');
         if (badge) {
