@@ -176,12 +176,8 @@
                                         </div>
                                         <span style="font-size: 0.8rem; font-weight: 600; color: #64748b; letter-spacing: 0.3px; text-transform: uppercase;">Year</span>
                                     </div>
-                                    <div style="position: relative;">
-                                        <select id="year-filter" onchange="window.changeYear(this.value)" style="appearance: none; -webkit-appearance: none; background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 8px; padding: 5px 28px 5px 12px; font-size: 0.85rem; font-weight: 700; color: #1e293b; cursor: pointer; outline: none; transition: border-color 0.2s;">
-                                            <option value="2026" selected>2026</option>
-                                            <option value="2025">2025</option>
-                                        </select>
-                                        <svg style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); pointer-events: none; color: #64748b;" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                                    <div style="display: flex; align-items: center;">
+                                        <input type="number" id="year-filter" value="2026" min="2020" max="2035" step="1" oninput="window.changeYear(this.value)" onchange="window.changeYear(this.value)" style="width: 78px; background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 8px; padding: 4px 6px 4px 10px; font-size: 0.95rem; font-weight: 700; color: #1e293b; outline: none; transition: all 0.2s; font-family: 'Inter', sans-serif;">
                                     </div>
                                 </div>
                                 
@@ -1822,7 +1818,8 @@ document.addEventListener("DOMContentLoaded", function() {
                 };
 
                 window.changeYear = function(year) {
-                    const yearSuffix = year.slice(-2);
+                    if (!year || String(year).trim().length < 4) return;
+                    const yearSuffix = String(year).slice(-2);
                     const monthMap = [
                         { prefix: 'Jan', label: 'JAN' },
                         { prefix: 'Feb', label: 'FEB' },
