@@ -92,23 +92,53 @@
                     box-shadow: 0 4px 12px rgba(24, 24, 27, 0.2) !important;
                 }
 
-                /* Custom Floating Sidebar Styles */
+                /* Custom Floating Modal (Center & Wider) */
                 #custom-sidebar-trigger:hover {
                     background: #f8fafc !important;
                     border-color: #cbd5e1 !important;
                     transform: translateY(-1px);
                     box-shadow: 0 6px 18px rgba(0,0,0,0.07) !important;
                 }
+                #custom-floating-sidebar {
+                    position: fixed !important;
+                    top: 50% !important;
+                    left: 50% !important;
+                    transform: translate(-50%, -46%) scale(0.96) !important;
+                    width: 720px !important;
+                    max-width: 94vw !important;
+                    height: 88vh !important;
+                    max-height: 860px !important;
+                    background: #ffffff !important;
+                    border-radius: 24px !important;
+                    box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.3) !important;
+                    z-index: 9999 !important;
+                    display: flex !important;
+                    flex-direction: column !important;
+                    overflow: hidden !important;
+                    border: 1px solid rgba(226, 232, 240, 0.9) !important;
+                    font-family: 'Inter', sans-serif !important;
+                    opacity: 0 !important;
+                    visibility: hidden !important;
+                    pointer-events: none !important;
+                    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.3s !important;
+                }
                 #custom-floating-sidebar.open {
-                    transform: translateX(0) !important;
+                    transform: translate(-50%, -50%) scale(1) !important;
+                    opacity: 1 !important;
+                    visibility: visible !important;
+                    pointer-events: auto !important;
                 }
                 #custom-sidebar-overlay.open {
                     opacity: 1 !important;
                     visibility: visible !important;
+                    pointer-events: auto !important;
                 }
                 .sidebar-slide-tab {
                     background: transparent;
                     color: #64748b;
+                    font-size: 0.95rem !important;
+                    font-weight: 600 !important;
+                    padding: 11px 16px !important;
                 }
                 .sidebar-slide-tab.active {
                     background: #ffffff !important;
@@ -2130,14 +2160,14 @@ document.addEventListener("DOMContentLoaded", function() {
     <!-- Custom Floating Sidebar Overlay -->
     <div id="custom-sidebar-overlay" onclick="closeCustomSidebar()" style="position: fixed; inset: 0; background: rgba(15, 23, 42, 0.45); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); z-index: 9998; opacity: 0; visibility: hidden; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);"></div>
 
-    <!-- Custom Floating Sidebar Drawer: DIGITALISASI SURAT PERINTAH LEMBUR (SPL) -->
-    <aside id="custom-floating-sidebar" style="position: fixed; top: 16px; left: 16px; bottom: 16px; width: 480px; max-width: calc(100vw - 32px); background: #ffffff; border-radius: 24px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); z-index: 9999; transform: translateX(-120%); transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1); display: flex; flex-direction: column; overflow: hidden; border: 1px solid rgba(226, 232, 240, 0.9); font-family: 'Inter', sans-serif;">
+    <!-- Custom Floating Modal Dialog: DIGITALISASI SURAT PERINTAH LEMBUR (SPL) -->
+    <aside id="custom-floating-sidebar">
         
         <!-- Header -->
-        <div style="padding: 18px 22px 14px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #f1f5f9; background: #ffffff;">
-            <div style="display: flex; align-items: center; gap: 12px;">
-                <div style="width: 40px; height: 40px; border-radius: 12px; background: #18181b; display: flex; align-items: center; justify-content: center; color: white;">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <div style="padding: 20px 28px 16px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #f1f5f9; background: #ffffff;">
+            <div style="display: flex; align-items: center; gap: 14px;">
+                <div style="width: 44px; height: 44px; border-radius: 14px; background: #18181b; display: flex; align-items: center; justify-content: center; color: white; flex-shrink: 0;">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
                         <polyline points="14 2 14 8 20 8"></polyline>
                         <line x1="16" y1="13" x2="8" y2="13"></line>
@@ -2145,12 +2175,12 @@ document.addEventListener("DOMContentLoaded", function() {
                     </svg>
                 </div>
                 <div>
-                    <h4 style="margin: 0; font-size: 1.05rem; font-weight: 700; color: #0f172a; letter-spacing: -0.3px;">Surat Perintah Lembur (SPL)</h4>
-                    <p style="margin: 2px 0 0 0; font-size: 0.75rem; color: #64748b;">Digitalisasi & Hierarki Persetujuan Warehouse</p>
+                    <h4 style="margin: 0; font-size: 1.2rem; font-weight: 700; color: #0f172a; letter-spacing: -0.3px;">Surat Perintah Lembur (SPL)</h4>
+                    <p style="margin: 3px 0 0 0; font-size: 0.85rem; color: #64748b;">Digitalisasi & Alur Persetujuan Warehouse</p>
                 </div>
             </div>
-            <button onclick="closeCustomSidebar()" title="Tutup" style="background: #f1f5f9; border: none; width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #475569; transition: all 0.2s;">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <button onclick="closeCustomSidebar()" title="Tutup" style="background: #f1f5f9; border: none; width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #475569; transition: all 0.2s;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                     <line x1="18" y1="6" x2="6" y2="18"></line>
                     <line x1="6" y1="6" x2="18" y2="18"></line>
                 </svg>
@@ -2158,22 +2188,22 @@ document.addEventListener("DOMContentLoaded", function() {
         </div>
 
         <!-- 2 Slide Segmented Tabs -->
-        <div style="padding: 14px 20px 8px; background: #ffffff;">
-            <div style="display: flex; background: #f1f5f9; padding: 4px; border-radius: 12px; gap: 4px;">
-                <button id="slide-tab-1" onclick="switchCustomSlide(1)" class="sidebar-slide-tab active" style="flex: 1; padding: 9px 12px; border: none; border-radius: 9px; font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 6px;">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+        <div style="padding: 16px 28px 10px; background: #ffffff;">
+            <div style="display: flex; background: #f1f5f9; padding: 5px; border-radius: 14px; gap: 6px;">
+                <button id="slide-tab-1" onclick="switchCustomSlide(1)" class="sidebar-slide-tab active" style="flex: 1; border: none; border-radius: 10px; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
                     <span>Slide 1: Buat SPL</span>
                 </button>
-                <button id="slide-tab-2" onclick="switchCustomSlide(2)" class="sidebar-slide-tab" style="flex: 1; padding: 9px 12px; border: none; border-radius: 9px; font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 6px;">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+                <button id="slide-tab-2" onclick="switchCustomSlide(2)" class="sidebar-slide-tab" style="flex: 1; border: none; border-radius: 10px; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
                     <span>Slide 2: Riwayat & Approval</span>
-                    <span id="spl-pending-badge" style="background: #f59e0b; color: white; font-size: 0.68rem; font-weight: 700; padding: 1px 6px; border-radius: 99px;">1</span>
+                    <span id="spl-pending-badge" style="background: #f59e0b; color: white; font-size: 0.75rem; font-weight: 700; padding: 2px 8px; border-radius: 99px;">1</span>
                 </button>
             </div>
         </div>
 
         <!-- Slides Scroll Area -->
-        <div style="flex: 1; position: relative; overflow-y: auto; overflow-x: hidden; padding: 12px 20px 20px;">
+        <div style="flex: 1; position: relative; overflow-y: auto; overflow-x: hidden; padding: 16px 28px 24px;">
             
             <!-- ============================================== -->
             <!-- SLIDE 1 PANE: FORM PEMBUATAN SPL BARU          -->
@@ -2181,103 +2211,103 @@ document.addEventListener("DOMContentLoaded", function() {
             <div id="sidebar-slide-1" class="sidebar-slide-pane">
                 
                 <!-- GERBANG VERIFIKASI (Tampil Jika Belum Verifikasi) -->
-                <div id="spl-verify-box" style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 20px; box-shadow: 0 4px 14px rgba(0,0,0,0.03); margin-bottom: 16px;">
-                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
-                        <div style="width: 36px; height: 36px; border-radius: 10px; background: #18181b; color: white; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <div id="spl-verify-box" style="background: #ffffff; border: 1.5px solid #e2e8f0; border-radius: 18px; padding: 24px; box-shadow: 0 4px 14px rgba(0,0,0,0.03); margin-bottom: 20px;">
+                    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 14px;">
+                        <div style="width: 42px; height: 42px; border-radius: 12px; background: #18181b; color: white; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
                             </svg>
                         </div>
                         <div>
-                            <div style="font-weight: 700; font-size: 0.92rem; color: #0f172a;">Verifikasi Pembuat SPL</div>
-                            <div style="font-size: 0.72rem; color: #64748b;">Khusus level Kepala Seksi, Kepala Bagian, atau Manager</div>
+                            <div style="font-weight: 700; font-size: 1.05rem; color: #0f172a;">Verifikasi Pembuat SPL</div>
+                            <div style="font-size: 0.82rem; color: #64748b;">Khusus level Kepala Seksi, Kepala Bagian, atau Manager</div>
                         </div>
                     </div>
 
-                    <div style="display: flex; gap: 8px; margin-bottom: 10px;">
-                        <input type="text" id="spl-verify-nik-input" placeholder="Masukkan Pers.No / NIK..." style="flex: 1; padding: 9px 12px; border: 1.5px solid #cbd5e1; border-radius: 10px; font-size: 0.85rem; font-weight: 600; outline: none; transition: border-color 0.2s;" onkeydown="if(event.key==='Enter'){performSplVerification();}">
-                        <button type="button" onclick="performSplVerification()" style="background: #18181b; color: white; border: none; padding: 9px 16px; border-radius: 10px; font-size: 0.82rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px; white-space: nowrap;">
+                    <div style="display: flex; gap: 10px; margin-bottom: 12px;">
+                        <input type="text" id="spl-verify-nik-input" placeholder="Masukkan Pers.No / NIK..." style="flex: 1; padding: 11px 14px; border: 1.5px solid #cbd5e1; border-radius: 12px; font-size: 0.95rem; font-weight: 600; outline: none; transition: border-color 0.2s;" onkeydown="if(event.key==='Enter'){performSplVerification();}">
+                        <button type="button" onclick="performSplVerification()" style="background: #18181b; color: white; border: none; padding: 11px 20px; border-radius: 12px; font-size: 0.9rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; white-space: nowrap;">
                             <span>Verifikasi</span>
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg>
                         </button>
                     </div>
 
                     <!-- Shortcut Contoh NIK untuk Mempermudah Pengujian -->
-                    <div style="font-size: 0.7rem; color: #94a3b8; display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
+                    <div style="font-size: 0.8rem; color: #94a3b8; display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
                         <span>Pilih Contoh:</span>
-                        <button type="button" onclick="performSplVerification('209113')" style="background: #f1f5f9; border: 1px solid #e2e8f0; border-radius: 4px; padding: 2px 6px; font-size: 0.68rem; color: #0f172a; cursor: pointer;">209113 (Kasie)</button>
-                        <button type="button" onclick="performSplVerification('10039299')" style="background: #f1f5f9; border: 1px solid #e2e8f0; border-radius: 4px; padding: 2px 6px; font-size: 0.68rem; color: #0f172a; cursor: pointer;">10039299 (Kabag)</button>
-                        <button type="button" onclick="performSplVerification('5078')" style="background: #f1f5f9; border: 1px solid #e2e8f0; border-radius: 4px; padding: 2px 6px; font-size: 0.68rem; color: #0f172a; cursor: pointer;">5078 (Manager)</button>
-                        <button type="button" onclick="performSplVerification('7339')" style="background: #fee2e2; border: 1px solid #fecdd3; border-radius: 4px; padding: 2px 6px; font-size: 0.68rem; color: #ef4444; cursor: pointer;">7339 (Staff/Tolak)</button>
+                        <button type="button" onclick="performSplVerification('209113')" style="background: #f1f5f9; border: 1px solid #e2e8f0; border-radius: 6px; padding: 4px 10px; font-size: 0.78rem; font-weight: 600; color: #0f172a; cursor: pointer;">209113 (Kasie)</button>
+                        <button type="button" onclick="performSplVerification('10039299')" style="background: #f1f5f9; border: 1px solid #e2e8f0; border-radius: 6px; padding: 4px 10px; font-size: 0.78rem; font-weight: 600; color: #0f172a; cursor: pointer;">10039299 (Kabag)</button>
+                        <button type="button" onclick="performSplVerification('5078')" style="background: #f1f5f9; border: 1px solid #e2e8f0; border-radius: 6px; padding: 4px 10px; font-size: 0.78rem; font-weight: 600; color: #0f172a; cursor: pointer;">5078 (Manager)</button>
+                        <button type="button" onclick="performSplVerification('7339')" style="background: #fee2e2; border: 1px solid #fecdd3; border-radius: 6px; padding: 4px 10px; font-size: 0.78rem; font-weight: 600; color: #ef4444; cursor: pointer;">7339 (Staff/Tolak)</button>
                     </div>
 
                     <!-- Kotak Notifikasi Penolakan Akses -->
-                    <div id="spl-verify-error-box" style="display: none; background: #fff1f2; border: 1px solid #fecdd3; border-radius: 10px; padding: 12px; margin-top: 12px; color: #9f1239;">
-                        <div id="spl-verify-error-msg"></div>
+                    <div id="spl-verify-error-box" style="display: none; background: #fff1f2; border: 1px solid #fecdd3; border-radius: 12px; padding: 14px; margin-top: 14px; color: #9f1239;">
+                        <div id="spl-verify-error-msg" style="font-size: 0.88rem;"></div>
                     </div>
                 </div>
 
                 <!-- KARTU TERVERIFIKASI (Tampil Jika Sudah Berhasil Verifikasi) -->
-                <div id="spl-verified-card" style="display: none; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 14px; padding: 12px 16px; margin-bottom: 14px;">
+                <div id="spl-verified-card" style="display: none; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 16px; padding: 14px 20px; margin-bottom: 18px;">
                     <div style="display: flex; align-items: center; justify-content: space-between;">
-                        <div style="display: flex; align-items: center; gap: 10px;">
-                            <div style="width: 32px; height: 32px; border-radius: 50%; background: #16a34a; color: white; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: bold; flex-shrink: 0;">
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <div style="width: 36px; height: 36px; border-radius: 50%; background: #16a34a; color: white; display: flex; align-items: center; justify-content: center; font-size: 0.95rem; font-weight: bold; flex-shrink: 0;">
                                 ✓
                             </div>
                             <div>
-                                <div style="display: flex; align-items: center; gap: 6px;">
-                                    <span id="spl-verified-name" style="font-weight: 700; font-size: 0.88rem; color: #0f172a;">Nama Pembuat</span>
-                                    <span id="spl-verified-role-badge" style="background: #16a34a; color: white; font-size: 0.65rem; font-weight: 700; padding: 1px 6px; border-radius: 99px;">KASIE</span>
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <span id="spl-verified-name" style="font-weight: 700; font-size: 1rem; color: #0f172a;">Nama Pembuat</span>
+                                    <span id="spl-verified-role-badge" style="background: #16a34a; color: white; font-size: 0.72rem; font-weight: 700; padding: 2px 8px; border-radius: 99px;">KASIE</span>
                                 </div>
-                                <div style="font-size: 0.72rem; color: #15803d; font-weight: 500;">
+                                <div style="font-size: 0.82rem; color: #15803d; font-weight: 500; margin-top: 2px;">
                                     <span id="spl-verified-nik">NIK: 209113</span> • <span id="spl-verified-role">Kepala Seksi</span>
                                 </div>
                             </div>
                         </div>
-                        <button type="button" onclick="resetSplVerification()" title="Verifikasi dengan NIK lain" style="background: #ffffff; border: 1px solid #bbf7d0; color: #15803d; padding: 4px 10px; border-radius: 6px; font-size: 0.72rem; font-weight: 600; cursor: pointer;">
+                        <button type="button" onclick="resetSplVerification()" title="Verifikasi dengan NIK lain" style="background: #ffffff; border: 1px solid #bbf7d0; color: #15803d; padding: 6px 12px; border-radius: 8px; font-size: 0.82rem; font-weight: 600; cursor: pointer;">
                             Ganti NIK
                         </button>
                     </div>
                 </div>
 
-                <form id="form-create-spl" onsubmit="handleSplSubmit(event)" style="display: none; flex-direction: column; gap: 14px;">
+                <form id="form-create-spl" onsubmit="handleSplSubmit(event)" style="display: none; flex-direction: column; gap: 16px;">
                     
                     <!-- Row 1: No SPL & Tanggal -->
-                    <div style="display: flex; gap: 10px;">
+                    <div style="display: flex; gap: 14px;">
                         <div style="flex: 1.2;">
-                            <label style="display: block; font-size: 0.75rem; font-weight: 700; color: #475569; margin-bottom: 4px;">No. Dokumen SPL</label>
-                            <input type="text" id="spl-doc-no" readonly style="width: 100%; box-sizing: border-box; padding: 8px 10px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 0.82rem; font-weight: 600; color: #0f172a;">
+                            <label style="display: block; font-size: 0.85rem; font-weight: 700; color: #334155; margin-bottom: 6px;">No. Dokumen SPL</label>
+                            <input type="text" id="spl-doc-no" readonly style="width: 100%; box-sizing: border-box; padding: 10px 12px; background: #f8fafc; border: 1.5px solid #e2e8f0; border-radius: 10px; font-size: 0.92rem; font-weight: 600; color: #0f172a;">
                         </div>
                         <div style="flex: 1;">
-                            <label style="display: block; font-size: 0.75rem; font-weight: 700; color: #475569; margin-bottom: 4px;">Tanggal Lembur</label>
-                            <input type="date" id="spl-date" required style="width: 100%; box-sizing: border-box; padding: 8px 10px; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.82rem; font-weight: 500; color: #0f172a;">
+                            <label style="display: block; font-size: 0.85rem; font-weight: 700; color: #334155; margin-bottom: 6px;">Tanggal Lembur</label>
+                            <input type="date" id="spl-date" required style="width: 100%; box-sizing: border-box; padding: 10px 12px; background: #ffffff; border: 1.5px solid #cbd5e1; border-radius: 10px; font-size: 0.92rem; font-weight: 500; color: #0f172a;">
                         </div>
                     </div>
 
                     <!-- Row 2: Jam Mulai, Jam Selesai & Estimasi Jam -->
                     <div>
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
-                            <label style="font-size: 0.75rem; font-weight: 700; color: #475569;">Waktu Kerja Lembur</label>
-                            <span id="spl-calc-duration" style="font-size: 0.75rem; font-weight: 700; color: #0284c7; background: #e0f2fe; padding: 2px 8px; border-radius: 6px;">4 Jam</span>
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                            <label style="font-size: 0.85rem; font-weight: 700; color: #334155;">Waktu Kerja Lembur</label>
+                            <span id="spl-calc-duration" style="font-size: 0.82rem; font-weight: 700; color: #0284c7; background: #e0f2fe; padding: 3px 10px; border-radius: 8px;">4 Jam</span>
                         </div>
-                        <div style="display: flex; gap: 10px; align-items: center;">
-                            <input type="time" id="spl-start-time" value="17:00" required style="flex: 1; padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.82rem; font-weight: 500; text-align: center;">
-                            <span style="font-size: 0.75rem; color: #94a3b8; font-weight: bold;">s/d</span>
-                            <input type="time" id="spl-end-time" value="21:00" required style="flex: 1; padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.82rem; font-weight: 500; text-align: center;">
+                        <div style="display: flex; gap: 12px; align-items: center;">
+                            <input type="time" id="spl-start-time" value="17:00" required style="flex: 1; padding: 10px 12px; border: 1.5px solid #cbd5e1; border-radius: 10px; font-size: 0.92rem; font-weight: 500; text-align: center;">
+                            <span style="font-size: 0.85rem; color: #94a3b8; font-weight: bold;">s/d</span>
+                            <input type="time" id="spl-end-time" value="21:00" required style="flex: 1; padding: 10px 12px; border: 1.5px solid #cbd5e1; border-radius: 10px; font-size: 0.92rem; font-weight: 500; text-align: center;">
                         </div>
                     </div>
 
                     <!-- Row 3: WH Area & Lokasi (Dinamis dari Master Employee1.csv) -->
-                    <div style="display: flex; gap: 10px;">
+                    <div style="display: flex; gap: 14px;">
                         <div style="flex: 1;">
-                            <label style="display: block; font-size: 0.75rem; font-weight: 700; color: #475569; margin-bottom: 4px;">WH Area (Sub-Dept)</label>
-                            <select id="spl-area-select" onchange="onSplAreaChange()" required style="width: 100%; box-sizing: border-box; padding: 8px 10px; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.82rem; font-weight: 500; color: #0f172a; cursor: pointer;">
+                            <label style="display: block; font-size: 0.85rem; font-weight: 700; color: #334155; margin-bottom: 6px;">WH Area (Sub-Dept)</label>
+                            <select id="spl-area-select" onchange="onSplAreaChange()" required style="width: 100%; box-sizing: border-box; padding: 10px 12px; background: #ffffff; border: 1.5px solid #cbd5e1; border-radius: 10px; font-size: 0.92rem; font-weight: 500; color: #0f172a; cursor: pointer;">
                                 <option value="">-- Pilih WH Area --</option>
                             </select>
                         </div>
                         <div style="flex: 1;">
-                            <label style="display: block; font-size: 0.75rem; font-weight: 700; color: #475569; margin-bottom: 4px;">Lokasi Kerja</label>
-                            <select id="spl-location-select" onchange="onSplLocationChange()" required style="width: 100%; box-sizing: border-box; padding: 8px 10px; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.82rem; font-weight: 500; color: #0f172a; cursor: pointer;">
+                            <label style="display: block; font-size: 0.85rem; font-weight: 700; color: #334155; margin-bottom: 6px;">Lokasi Kerja</label>
+                            <select id="spl-location-select" onchange="onSplLocationChange()" required style="width: 100%; box-sizing: border-box; padding: 10px 12px; background: #ffffff; border: 1.5px solid #cbd5e1; border-radius: 10px; font-size: 0.92rem; font-weight: 500; color: #0f172a; cursor: pointer;">
                                 <option value="">-- Pilih Lokasi --</option>
                             </select>
                         </div>
@@ -2285,53 +2315,53 @@ document.addEventListener("DOMContentLoaded", function() {
 
                     <!-- Row 4: Member Team Checkbox List -->
                     <div>
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                            <label style="font-size: 0.75rem; font-weight: 700; color: #475569;">Pilih Karyawan Ditugaskan</label>
-                            <span style="font-size: 0.7rem; color: #64748b;">(Bisa pilih lebih dari 1)</span>
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                            <label style="font-size: 0.85rem; font-weight: 700; color: #334155;">Pilih Karyawan Ditugaskan</label>
+                            <span style="font-size: 0.78rem; color: #64748b;">(Bisa pilih lebih dari 1)</span>
                         </div>
-                        <div id="spl-employee-list-container" style="max-height: 130px; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 8px;">
-                            <div style="color: #94a3b8; font-size: 0.8rem; font-style: italic; text-align: center; padding: 10px;">Pilih WH Area & Lokasi terlebih dahulu</div>
+                        <div id="spl-employee-list-container" style="max-height: 160px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; background: #f8fafc; border: 1.5px solid #e2e8f0; border-radius: 12px; padding: 12px;">
+                            <div style="color: #94a3b8; font-size: 0.88rem; font-style: italic; text-align: center; padding: 12px;">Pilih WH Area & Lokasi terlebih dahulu</div>
                         </div>
                     </div>
 
                     <!-- Row 5: Hierarki Approval Otomatis Card -->
-                    <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 12px;">
-                        <div style="font-size: 0.72rem; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">Alur Hierarki Persetujuan (Auto-Linked)</div>
+                    <div style="background: #f8fafc; border: 1.5px solid #e2e8f0; border-radius: 14px; padding: 16px;">
+                        <div style="font-size: 0.78rem; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px;">Alur Hierarki Persetujuan (Auto-Linked)</div>
                         
-                        <div style="display: flex; flex-direction: column; gap: 8px;">
+                        <div style="display: flex; flex-direction: column; gap: 12px;">
                             <!-- Kasie -->
-                            <div style="display: flex; align-items: center; justify-content: space-between; font-size: 0.78rem;">
-                                <div style="display: flex; align-items: center; gap: 6px;">
-                                    <span style="width: 20px; height: 20px; border-radius: 50%; background: #16a34a; color: white; display: flex; align-items: center; justify-content: center; font-size: 0.65rem; font-weight: bold;">1</span>
+                            <div style="display: flex; align-items: center; justify-content: space-between; font-size: 0.88rem;">
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <span style="width: 24px; height: 24px; border-radius: 50%; background: #16a34a; color: white; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: bold;">1</span>
                                     <span style="color: #334155; font-weight: 600;">Create SPL (Kasie):</span>
                                 </div>
                                 <div style="text-align: right;">
-                                    <div id="spl-app-kasie-name" style="font-weight: 700; color: #0f172a;">-</div>
-                                    <div id="spl-app-kasie-no" style="font-size: 0.68rem; color: #64748b;"></div>
+                                    <div id="spl-app-kasie-name" style="font-weight: 700; color: #0f172a; font-size: 0.92rem;">-</div>
+                                    <div id="spl-app-kasie-no" style="font-size: 0.78rem; color: #64748b;"></div>
                                 </div>
                             </div>
 
                             <!-- Kabag -->
-                            <div style="display: flex; align-items: center; justify-content: space-between; font-size: 0.78rem;">
-                                <div style="display: flex; align-items: center; gap: 6px;">
-                                    <span style="width: 20px; height: 20px; border-radius: 50%; background: #f59e0b; color: white; display: flex; align-items: center; justify-content: center; font-size: 0.65rem; font-weight: bold;">2</span>
+                            <div style="display: flex; align-items: center; justify-content: space-between; font-size: 0.88rem;">
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <span style="width: 24px; height: 24px; border-radius: 50%; background: #f59e0b; color: white; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: bold;">2</span>
                                     <span style="color: #334155; font-weight: 600;">Approver 1 (Kabag):</span>
                                 </div>
                                 <div style="text-align: right;">
-                                    <div id="spl-app-kabag-name" style="font-weight: 700; color: #0f172a;">-</div>
-                                    <div id="spl-app-kabag-no" style="font-size: 0.68rem; color: #64748b;"></div>
+                                    <div id="spl-app-kabag-name" style="font-weight: 700; color: #0f172a; font-size: 0.92rem;">-</div>
+                                    <div id="spl-app-kabag-no" style="font-size: 0.78rem; color: #64748b;"></div>
                                 </div>
                             </div>
 
                             <!-- Manager -->
-                            <div style="display: flex; align-items: center; justify-content: space-between; font-size: 0.78rem;">
-                                <div style="display: flex; align-items: center; gap: 6px;">
-                                    <span style="width: 20px; height: 20px; border-radius: 50%; background: #3b82f6; color: white; display: flex; align-items: center; justify-content: center; font-size: 0.65rem; font-weight: bold;">3</span>
+                            <div style="display: flex; align-items: center; justify-content: space-between; font-size: 0.88rem;">
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <span style="width: 24px; height: 24px; border-radius: 50%; background: #3b82f6; color: white; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: bold;">3</span>
                                     <span style="color: #334155; font-weight: 600;">Approver 2 (Manager):</span>
                                 </div>
                                 <div style="text-align: right;">
-                                    <div id="spl-app-mgr-name" style="font-weight: 700; color: #0f172a;">Wawan Kurniawan</div>
-                                    <div id="spl-app-mgr-no" style="font-size: 0.68rem; color: #64748b;">NIK: 5078</div>
+                                    <div id="spl-app-mgr-name" style="font-weight: 700; color: #0f172a; font-size: 0.92rem;">Wawan Kurniawan</div>
+                                    <div id="spl-app-mgr-no" style="font-size: 0.78rem; color: #64748b;">NIK: 5078</div>
                                 </div>
                             </div>
                         </div>
@@ -2339,13 +2369,13 @@ document.addEventListener("DOMContentLoaded", function() {
 
                     <!-- Row 6: Alasan Lembur -->
                     <div>
-                        <label style="display: block; font-size: 0.75rem; font-weight: 700; color: #475569; margin-bottom: 4px;">Uraian Pekerjaan / Alasan Lembur</label>
-                        <textarea id="spl-reason" rows="2" required placeholder="Contoh: Bongkar muat kontainer ekspor mendesak..." style="width: 100%; box-sizing: border-box; padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.82rem; font-family: 'Inter', sans-serif; resize: none;"></textarea>
+                        <label style="display: block; font-size: 0.85rem; font-weight: 700; color: #334155; margin-bottom: 6px;">Uraian Pekerjaan / Alasan Lembur</label>
+                        <textarea id="spl-reason" rows="3" required placeholder="Contoh: Bongkar muat kontainer ekspor mendesak..." style="width: 100%; box-sizing: border-box; padding: 10px 12px; border: 1.5px solid #cbd5e1; border-radius: 10px; font-size: 0.92rem; font-family: 'Inter', sans-serif; resize: none;"></textarea>
                     </div>
 
                     <!-- Submit Button -->
-                    <button type="submit" style="width: 100%; background: #18181b; color: #ffffff; padding: 12px; border-radius: 12px; font-weight: 700; font-size: 0.92rem; border: none; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 14px rgba(24,24,27,0.25); display: flex; align-items: center; justify-content: center; gap: 8px;">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                    <button type="submit" style="width: 100%; background: #18181b; color: #ffffff; padding: 14px; border-radius: 14px; font-weight: 700; font-size: 1rem; border: none; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 14px rgba(24,24,27,0.25); display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 4px;">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
                         <span>Ajukan Surat Perintah Lembur</span>
                     </button>
                 </form>

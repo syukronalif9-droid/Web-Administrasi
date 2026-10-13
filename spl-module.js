@@ -515,15 +515,15 @@ function onSplLocationChange() {
     // Render Employee Checkboxes
     members.forEach((m, idx) => {
         const item = document.createElement('label');
-        item.style.cssText = 'display: flex; align-items: center; gap: 8px; padding: 6px 10px; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 0.82rem; cursor: pointer; transition: background 0.15s;';
-        item.onmouseenter = () => item.style.background = '#f8fafc';
+        item.style.cssText = 'display: flex; align-items: center; gap: 10px; padding: 9px 14px; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 10px; font-size: 0.92rem; cursor: pointer; transition: all 0.15s; user-select: none;';
+        item.onmouseenter = () => item.style.background = '#f1f5f9';
         item.onmouseleave = () => item.style.background = '#ffffff';
         
         item.innerHTML = `
-            <input type="checkbox" name="spl_emp_check" value="${m.persNo}|${m.name}" style="accent-color: #18181b; cursor: pointer;">
+            <input type="checkbox" name="spl_emp_check" value="${m.persNo}|${m.name}" style="width: 17px; height: 17px; accent-color: #18181b; cursor: pointer;">
             <div style="flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-                <strong style="color: #0f172a;">${m.name}</strong> 
-                <span style="color: #64748b; font-size: 0.75rem;">(${m.persNo})</span>
+                <strong style="color: #0f172a; font-size: 0.92rem;">${m.name}</strong> 
+                <span style="color: #64748b; font-size: 0.82rem; margin-left: 4px;">(NIK: ${m.persNo})</span>
             </div>
         `;
         empContainer.appendChild(item);
@@ -836,24 +836,24 @@ function renderSplHistoryList(filterStatus = 'all') {
         const empNames = item.employees.map(e => e.name).join(', ');
 
         const emailInfo = item.emailNotification ? `
-            <div style="margin-top: 6px; font-size: 0.72rem; color: #0369a1; background: #f0f9ff; border: 1px solid #bae6fd; padding: 4px 8px; border-radius: 6px; display: flex; align-items: center; gap: 6px;">
-                <span style="font-size: 0.85rem;">✉</span>
+            <div style="margin-top: 8px; font-size: 0.82rem; color: #0369a1; background: #f0f9ff; border: 1px solid #bae6fd; padding: 6px 12px; border-radius: 8px; display: flex; align-items: center; gap: 8px;">
+                <span style="font-size: 1rem;">✉</span>
                 <span><strong>Email Notifikasi:</strong> ${item.kabag.email} & ${item.manager.email}</span>
             </div>
         ` : '';
 
         card.innerHTML = `
-            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px;">
                 <div>
-                    <span style="font-weight: 700; font-size: 0.88rem; color: #0f172a;">${item.splNo}</span>
-                    <div style="font-size: 0.75rem; color: #64748b;">${item.area} • ${item.location} • ${item.date}</div>
+                    <span style="font-weight: 700; font-size: 1.05rem; color: #0f172a;">${item.splNo}</span>
+                    <div style="font-size: 0.82rem; color: #64748b; margin-top: 2px;">${item.area} • ${item.location} • ${item.date}</div>
                 </div>
-                <span style="background: ${statusBg}; color: ${statusColor}; font-size: 0.72rem; font-weight: 700; padding: 3px 8px; border-radius: 99px;">
+                <span style="background: ${statusBg}; color: ${statusColor}; font-size: 0.8rem; font-weight: 700; padding: 4px 12px; border-radius: 99px;">
                     ${item.finalStatus}
                 </span>
             </div>
 
-            <div style="font-size: 0.8rem; color: #334155; margin-bottom: 8px; background: #f8fafc; padding: 8px 10px; border-radius: 8px; border: 1px solid #f1f5f9;">
+            <div style="font-size: 0.88rem; color: #334155; margin-bottom: 12px; background: #f8fafc; padding: 12px 14px; border-radius: 12px; border: 1px solid #f1f5f9; line-height: 1.5;">
                 <div><strong>Karyawan (${item.employees.length}):</strong> ${empNames}</div>
                 <div style="margin-top: 4px;"><strong>Waktu:</strong> ${item.startTime} - ${item.endTime} (${item.duration} Jam)</div>
                 <div style="margin-top: 4px; color: #64748b; font-style: italic;">"${item.reason}"</div>
@@ -861,49 +861,49 @@ function renderSplHistoryList(filterStatus = 'all') {
             </div>
 
             <!-- Approval Stepper -->
-            <div style="display: flex; align-items: center; justify-content: space-between; margin: 12px 0 10px; padding: 8px 10px; background: #ffffff; border: 1px dashed #cbd5e1; border-radius: 10px; font-size: 0.7rem;">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin: 14px 0 12px; padding: 12px 14px; background: #ffffff; border: 1.5px dashed #cbd5e1; border-radius: 12px; font-size: 0.8rem;">
                 <!-- Kasie Step -->
                 <div style="display: flex; flex-direction: column; align-items: center; text-align: center; flex: 1;">
-                    <div style="width: 22px; height: 22px; border-radius: 50%; background: #16a34a; color: white; display: flex; align-items: center; justify-content: center; font-size: 0.65rem; font-weight: bold; margin-bottom: 2px;">✓</div>
-                    <span style="font-weight: 600; color: #0f172a;">Kasie (Created)</span>
-                    <span style="color: #64748b; font-size: 0.65rem;">${item.kasie.name.split(',')[0]}</span>
+                    <div style="width: 28px; height: 28px; border-radius: 50%; background: #16a34a; color: white; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: bold; margin-bottom: 4px;">✓</div>
+                    <span style="font-weight: 700; color: #0f172a;">Kasie (Created)</span>
+                    <span style="color: #64748b; font-size: 0.75rem;">${item.kasie.name.split(',')[0]}</span>
                 </div>
-                <div style="height: 2px; background: ${item.kabag.status === 'approved' ? '#16a34a' : '#cbd5e1'}; flex: 0.5;"></div>
+                <div style="height: 3px; background: ${item.kabag.status === 'approved' ? '#16a34a' : '#cbd5e1'}; flex: 0.6;"></div>
 
                 <!-- Kabag Step -->
                 <div style="display: flex; flex-direction: column; align-items: center; text-align: center; flex: 1;">
-                    <div style="width: 22px; height: 22px; border-radius: 50%; background: ${item.kabag.status === 'approved' ? '#16a34a' : '#f59e0b'}; color: white; display: flex; align-items: center; justify-content: center; font-size: 0.65rem; font-weight: bold; margin-bottom: 2px;">
+                    <div style="width: 28px; height: 28px; border-radius: 50%; background: ${item.kabag.status === 'approved' ? '#16a34a' : '#f59e0b'}; color: white; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: bold; margin-bottom: 4px;">
                         ${item.kabag.status === 'approved' ? '✓' : '⌛'}
                     </div>
-                    <span style="font-weight: 600; color: #0f172a;">Kabag</span>
-                    <span style="color: #64748b; font-size: 0.65rem;">${item.kabag.name.split(',')[0]}</span>
+                    <span style="font-weight: 700; color: #0f172a;">Kabag</span>
+                    <span style="color: #64748b; font-size: 0.75rem;">${item.kabag.name.split(',')[0]}</span>
                 </div>
-                <div style="height: 2px; background: ${item.manager.status === 'approved' ? '#16a34a' : '#cbd5e1'}; flex: 0.5;"></div>
+                <div style="height: 3px; background: ${item.manager.status === 'approved' ? '#16a34a' : '#cbd5e1'}; flex: 0.6;"></div>
 
                 <!-- Manager Step -->
                 <div style="display: flex; flex-direction: column; align-items: center; text-align: center; flex: 1;">
-                    <div style="width: 22px; height: 22px; border-radius: 50%; background: ${item.manager.status === 'approved' ? '#16a34a' : (item.kabag.status === 'approved' ? '#f59e0b' : '#cbd5e1')}; color: white; display: flex; align-items: center; justify-content: center; font-size: 0.65rem; font-weight: bold; margin-bottom: 2px;">
+                    <div style="width: 28px; height: 28px; border-radius: 50%; background: ${item.manager.status === 'approved' ? '#16a34a' : (item.kabag.status === 'approved' ? '#f59e0b' : '#cbd5e1')}; color: white; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: bold; margin-bottom: 4px;">
                         ${item.manager.status === 'approved' ? '✓' : (item.kabag.status === 'approved' ? '⌛' : '○')}
                     </div>
-                    <span style="font-weight: 600; color: #0f172a;">Manager</span>
-                    <span style="color: #64748b; font-size: 0.65rem;">${item.manager.name}</span>
+                    <span style="font-weight: 700; color: #0f172a;">Manager</span>
+                    <span style="color: #64748b; font-size: 0.75rem;">${item.manager.name}</span>
                 </div>
             </div>
 
             <!-- Action Buttons -->
-            <div style="display: flex; gap: 8px; justify-content: flex-end; align-items: center; margin-top: 8px; border-top: 1px solid #f1f5f9; padding-top: 8px;">
+            <div style="display: flex; gap: 10px; justify-content: flex-end; align-items: center; margin-top: 10px; border-top: 1px solid #f1f5f9; padding-top: 10px;">
                 ${item.finalStatus !== 'Disetujui' ? `
-                    <button onclick="simulateApproveSpl('${item.id}')" style="background: #18181b; color: #ffffff; border: none; padding: 5px 12px; border-radius: 8px; font-size: 0.75rem; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;">
+                    <button onclick="simulateApproveSpl('${item.id}')" style="background: #18181b; color: #ffffff; border: none; padding: 8px 16px; border-radius: 10px; font-size: 0.82rem; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
                         <span>✓ Setujui (Simulasi)</span>
                     </button>
                 ` : ''}
 
-                <button onclick="printSplDocument('${item.id}')" style="background: #f1f5f9; color: #0f172a; border: 1px solid #e2e8f0; padding: 5px 12px; border-radius: 8px; font-size: 0.75rem; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;">
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9V2h12v7"></path><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+                <button onclick="printSplDocument('${item.id}')" style="background: #f1f5f9; color: #0f172a; border: 1px solid #e2e8f0; padding: 8px 16px; border-radius: 10px; font-size: 0.82rem; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9V2h12v7"></path><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
                     <span>Cetak SPL</span>
                 </button>
 
-                <button onclick="deleteSpl('${item.id}')" title="Hapus SPL" style="background: transparent; color: #ef4444; border: none; padding: 5px 8px; border-radius: 6px; font-size: 0.75rem; cursor: pointer;">
+                <button onclick="deleteSpl('${item.id}')" title="Hapus SPL" style="background: transparent; color: #ef4444; border: none; padding: 8px 10px; border-radius: 8px; font-size: 0.85rem; cursor: pointer;">
                     ✕
                 </button>
             </div>
