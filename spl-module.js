@@ -566,6 +566,12 @@ function dispatchSplEmailNotification(spl) {
     const kabagEmail = spl.kabag.email;
     const mgrEmail = spl.manager.email;
 
+    const baseUrl = window.location.origin + window.location.pathname.replace('dashboard.html', '');
+    const kabagApproveUrl = `${baseUrl}approve.html?id=${encodeURIComponent(spl.id)}&role=kabag&action=approve`;
+    const kabagRejectUrl = `${baseUrl}approve.html?id=${encodeURIComponent(spl.id)}&role=kabag&action=reject`;
+    const mgrApproveUrl = `${baseUrl}approve.html?id=${encodeURIComponent(spl.id)}&role=manager&action=approve`;
+    const mgrRejectUrl = `${baseUrl}approve.html?id=${encodeURIComponent(spl.id)}&role=manager&action=reject`;
+
     const emailParams = {
         spl_no: spl.splNo,
         to_kabag_name: spl.kabag.name,
@@ -581,7 +587,11 @@ function dispatchSplEmailNotification(spl) {
         employee_count: spl.employees.length,
         employee_list: spl.employees.map((e, idx) => `${idx + 1}. ${e.name} (${e.persNo})`).join('\n'),
         reason: spl.reason,
-        app_url: window.location.href
+        app_url: window.location.href,
+        kabag_approve_url: kabagApproveUrl,
+        kabag_reject_url: kabagRejectUrl,
+        manager_approve_url: mgrApproveUrl,
+        manager_reject_url: mgrRejectUrl
     };
 
     // If EmailJS SDK is loaded and public key is configured, send via API

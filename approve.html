@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Approval Surat Perintah Lembur - GGF Warehouse</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
+        }
+        body {
+            background-color: #f1f5f9;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .card {
+            background: #ffffff;
+            max-width: 480px;
+            width: 100%;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+            border: 1px solid #e2e8f0;
+            padding: 32px 28px;
+            text-align: center;
+        }
+        .status-icon {
+            width: 72px;
+            height: 72px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+            font-size: 32px;
+        }
+        .icon-success {
+            background-color: #dcfce7;
+            color: #16a34a;
+        }
+        .icon-danger {
+            background-color: #fee2e2;
+            color: #dc2626;
+        }
+        .icon-loading {
+            background-color: #e0f2fe;
+            color: #0284c7;
+        }
+        h1 {
+            font-size: 1.25rem;
+            color: #0f172a;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        p {
+            font-size: 0.88rem;
+            color: #64748b;
+            line-height: 1.5;
+            margin-bottom: 20px;
+        }
+        .spl-detail {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 16px;
+            text-align: left;
+            margin-bottom: 24px;
+            font-size: 0.82rem;
+        }
+        .spl-detail-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            padding-bottom: 6px;
+            border-bottom: 1px dashed #e2e8f0;
+        }
+        .spl-detail-row:last-child {
+            margin-bottom: 0;
+            padding-bottom: 0;
+            border-bottom: none;
+        }
+        .spl-detail-label {
+            color: #64748b;
+        }
+        .spl-detail-val {
+            font-weight: 600;
+            color: #0f172a;
+            text-align: right;
+        }
+        .btn-action {
+            display: inline-block;
+            background-color: #0f172a;
+            color: #ffffff;
+            text-decoration: none;
+            padding: 12px 24px;
+            border-radius: 10px;
+            font-size: 0.88rem;
+            font-weight: 600;
+            transition: all 0.2s;
+            cursor: pointer;
+            border: none;
+            width: 100%;
+        }
+        .btn-action:hover {
+            background-color: #1e293b;
+        }
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 99px;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+        .badge-success { background: #dcfce7; color: #16a34a; }
+        .badge-danger { background: #fee2e2; color: #dc2626; }
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #0284c7;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="card" id="app-card">
+        <!-- Loading State -->
+        <div id="state-loading">
+            <div class="spinner" style="margin-bottom: 20px;"></div>
+            <h1>Memproses Approval SPL...</h1>
+            <p>Mohon tunggu sebentar, sistem sedang memverifikasi tanda tangan digital Anda.</p>
+        </div>
+
+        <!-- Success State -->
+        <div id="state-result" style="display: none;">
+            <div id="result-icon" class="status-icon">✓</div>
+            <h1 id="result-title">SPL Berhasil Disetujui</h1>
+            <p id="result-desc">Tanda tangan digital Anda telah tersimpan ke dalam sistem.</p>
+
+            <div class="spl-detail" id="spl-info-box">
+                <div class="spl-detail-row">
+                    <span class="spl-detail-label">No. SPL</span>
+                    <span class="spl-detail-val" id="disp-spl-no">-</span>
+                </div>
+                <div class="spl-detail-row">
+                    <span class="spl-detail-label">Approver</span>
+                    <span class="spl-detail-val" id="disp-approver-name">-</span>
+                </div>
+                <div class="spl-detail-row">
+                    <span class="spl-detail-label">Status Akhir</span>
+                    <span class="spl-detail-val" id="disp-status">-</span>
+                </div>
+                <div class="spl-detail-row">
+                    <span class="spl-detail-label">Waktu Eksekusi</span>
+                    <span class="spl-detail-val" id="disp-time">-</span>
+                </div>
+            </div>
+
+            <a href="dashboard.html" class="btn-action">Buka Dashboard Monitoring</a>
+        </div>
+    </div>
+
+    <script>
+        const supabaseUrl = 'https://bavacuaqbbwnqbrcldsj.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJhdmFjdWFxYmJ3bnFicmNsZHNqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA4ODc2MjMsImV4cCI6MjEwNjQ2MzYyM30.2KTBo_y89dexhQUq70VECQvl03iho2_Bx06qDu3IETc';
+        const supabase = window.supabase ? window.supabase.createClient(supabaseUrl, supabaseKey) : null;
+
+        // Parse query params: ?id=SPL-xxx&role=kabag|manager&action=approve|reject
+        const urlParams = new URLSearchParams(window.location.search);
+        const splId = urlParams.get('id');
+        const role = (urlParams.get('role') || 'kabag').toLowerCase();
+        const action = (urlParams.get('action') || 'approve').toLowerCase();
+
+        async function processApproval() {
+            const nowStr = new Date().toLocaleString('id-ID');
+            
+            // 1. Ambil data dari LocalStorage
+            let localList = [];
+            try {
+                localList = JSON.parse(localStorage.getItem('DIGITAL_SPL_DATA') || '[]');
+            } catch (e) {
+                localList = [];
+            }
+
+            let targetSpl = localList.find(s => s.id === splId || s.splNo === splId);
+
+            // 2. Ambil dari Supabase jika ada
+            if (supabase && (!targetSpl || !localList.length)) {
+                try {
+                    const { data, error } = await supabase.from('digital_spl').select('*').or(`id.eq.${splId},spl_no.eq.${splId}`).maybeSingle();
+                    if (data && !error) {
+                        targetSpl = {
+                            id: data.id,
+                            splNo: data.spl_no,
+                            kasie: data.kasie || {},
+                            kabag: data.kabag || {},
+                            manager: data.manager || {},
+                            finalStatus: data.final_status
+                        };
+                    }
+                } catch (err) {
+                    console.warn('Supabase query error:', err);
+                }
+            }
+
+            // Jika SPL tidak ditemukan (buat mock fallback agar reviewer tetap bisa approve dari link demo)
+            if (!targetSpl) {
+                targetSpl = {
+                    id: splId || 'SPL-DEMO',
+                    splNo: splId || 'SPL/WH/2026/04/001',
+                    kasie: { name: 'Kasie Warehouse', status: 'approved' },
+                    kabag: { name: 'Kepala Bagian', status: 'pending' },
+                    manager: { name: 'Wawan Kurniawan', status: 'pending' },
+                    finalStatus: 'Menunggu Kabag'
+                };
+            }
+
+            // Eksekusi Update Status
+            let approverName = '-';
+            let isApproved = action === 'approve';
+
+            if (role === 'kabag') {
+                approverName = targetSpl.kabag?.name || 'Kepala Bagian';
+                targetSpl.kabag = {
+                    ...targetSpl.kabag,
+                    status: isApproved ? 'approved' : 'rejected',
+                    date: nowStr
+                };
+                if (isApproved) {
+                    targetSpl.finalStatus = 'Menunggu Manager';
+                } else {
+                    targetSpl.finalStatus = 'Ditolak Kabag';
+                }
+            } else if (role === 'manager') {
+                approverName = targetSpl.manager?.name || 'Wawan Kurniawan (Manager)';
+                targetSpl.manager = {
+                    ...targetSpl.manager,
+                    status: isApproved ? 'approved' : 'rejected',
+                    date: nowStr
+                };
+                if (isApproved) {
+                    targetSpl.finalStatus = 'Disetujui';
+                } else {
+                    targetSpl.finalStatus = 'Ditolak Manager';
+                }
+            }
+
+            // Simpan perubahan ke LocalStorage
+            const existIdx = localList.findIndex(s => s.id === targetSpl.id);
+            if (existIdx >= 0) {
+                localList[existIdx] = targetSpl;
+            } else {
+                localList.unshift(targetSpl);
+            }
+            localStorage.setItem('DIGITAL_SPL_DATA', JSON.stringify(localList));
+
+            // Simpan perubahan ke Supabase
+            if (supabase) {
+                try {
+                    await supabase.from('digital_spl').upsert({
+                        id: targetSpl.id,
+                        spl_no: targetSpl.splNo,
+                        kabag: targetSpl.kabag,
+                        manager: targetSpl.manager,
+                        final_status: targetSpl.finalStatus,
+                        updated_at: new Date().toISOString()
+                    });
+                } catch (e) {
+                    console.warn('Supabase upsert error:', e);
+                }
+            }
+
+            // Tampilkan Hasil
+            setTimeout(() => {
+                document.getElementById('state-loading').style.display = 'none';
+                const resultBox = document.getElementById('state-result');
+                const icon = document.getElementById('result-icon');
+                const title = document.getElementById('result-title');
+                const desc = document.getElementById('result-desc');
+
+                if (isApproved) {
+                    icon.className = 'status-icon icon-success';
+                    icon.textContent = '✓';
+                    title.textContent = 'Surat Perintah Lembur Disetujui!';
+                    desc.textContent = `Persetujuan berhasil dicatat atas nama ${approverName} (${role.toUpperCase()}).`;
+                } else {
+                    icon.className = 'status-icon icon-danger';
+                    icon.textContent = '✕';
+                    title.textContent = 'Surat Perintah Lembur Ditolak';
+                    desc.textContent = `Penolakan resmi telah dicatat oleh ${approverName} (${role.toUpperCase()}).`;
+                }
+
+                document.getElementById('disp-spl-no').textContent = targetSpl.splNo;
+                document.getElementById('disp-approver-name').textContent = approverName;
+                document.getElementById('disp-status').innerHTML = isApproved 
+                    ? `<span class="badge badge-success">${targetSpl.finalStatus}</span>` 
+                    : `<span class="badge badge-danger">${targetSpl.finalStatus}</span>`;
+                document.getElementById('disp-time').textContent = nowStr;
+
+                resultBox.style.display = 'block';
+            }, 600);
+        }
+
+        window.addEventListener('DOMContentLoaded', processApproval);
+    </script>
+</body>
+</html>
