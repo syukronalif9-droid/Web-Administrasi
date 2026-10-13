@@ -587,7 +587,7 @@ function getEmailJsConfig() {
         try { return JSON.parse(raw); } catch (e) {}
     }
     return {
-        serviceId: 'service_ggf_spl',
+        serviceId: 'service_ggqdruv',
         templateId: 'template_spl_approval',
         publicKey: '',
         enabled: true
