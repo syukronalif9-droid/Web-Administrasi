@@ -533,6 +533,43 @@ function onSplLocationChange() {
 // ========================================================
 // EMAIL NOTIFICATION SERVICE (APPROVER 1 & 2)
 // ========================================================
+// Tabel Pemetaan Email Asli Para Approver (Bisa diisi akun Gmail / email nyata mereka)
+// Key: NIK / Pers.No dari masing-masing Kabag & Manager
+const DEFAULT_APPROVER_REAL_EMAILS = {
+    '5078': '',       // Wawan Kurniawan (Manager Warehouse)
+    '10039299': '',   // Andriyanto (Kabag Traffic)
+    '3152137': '',    // Setiawan (Kabag Packaging)
+    '5292': '',       // Puji Triananto (Kabag Inv. Control)
+    '3050800': '',    // Robin Dangin (Kabag Material WH)
+    '4808': '',       // Mulyadi (Kabag Finished Goods)
+    '10031743': '',   // Junaidi Anwar (Kabag Fertilizer WH)
+    '1956': '',       // Sujiman (Kabag Sparepart WH)
+    '10027916': ''    // M. Rafly Anggara (Kabag General WH)
+};
+
+function getApproverEmailByPersNo(persNo, fullName) {
+    if (!persNo && !fullName) return '';
+    
+    // 1. Cek apakah ada email kustom yang disimpan user di LocalStorage
+    let customMap = {};
+    try {
+        customMap = JSON.parse(localStorage.getItem('SPL_CUSTOM_APPROVER_EMAILS') || '{}');
+    } catch(e) {}
+
+    const cleanNo = String(persNo || '').trim();
+    if (cleanNo && customMap[cleanNo]) {
+        return customMap[cleanNo]; // Gunakan email nyata yang diinputkan user!
+    }
+
+    // 2. Cek default mapping
+    if (cleanNo && DEFAULT_APPROVER_REAL_EMAILS[cleanNo]) {
+        return DEFAULT_APPROVER_REAL_EMAILS[cleanNo];
+    }
+
+    // 3. Fallback: generate otomatis nama@ggf.com
+    return generateCorporateEmail(fullName);
+}
+
 function generateCorporateEmail(fullName) {
     if (!fullName || fullName === '-' || fullName.trim() === '') return '';
     // Hapus gelar seperti S.T, S.P, dll
@@ -621,9 +658,9 @@ function dispatchSplEmailNotification(spl) {
 }
 
 function setApproverInfo(kasieName, kasieNo, kabagName, kabagNo, mgrName, mgrNo) {
-    const kasieEmail = generateCorporateEmail(kasieName);
-    const kabagEmail = generateCorporateEmail(kabagName);
-    const mgrEmail = generateCorporateEmail(mgrName || 'Wawan Kurniawan');
+    const kasieEmail = getApproverEmailByPersNo(kasieNo, kasieName);
+    const kabagEmail = getApproverEmailByPersNo(kabagNo, kabagName);
+    const mgrEmail = getApproverEmailByPersNo(mgrNo || '5078', mgrName || 'Wawan Kurniawan');
 
     document.getElementById('spl-app-kasie-name').textContent = kasieName || '-';
     document.getElementById('spl-app-kasie-no').textContent = kasieNo ? `NIK: ${kasieNo}` : '';
@@ -739,9 +776,9 @@ function handleSplSubmit(e) {
     const mgrName = document.getElementById('spl-app-mgr-name').textContent;
     const mgrNo = document.getElementById('spl-app-mgr-no').textContent.replace('NIK: ', '').split('•')[0].trim();
 
-    const kasieEmail = generateCorporateEmail(kasieName);
-    const kabagEmail = generateCorporateEmail(kabagName);
-    const mgrEmail = generateCorporateEmail(mgrName);
+    const kasieEmail = getApproverEmailByPersNo(kasieNo, kasieName);
+    const kabagEmail = getApproverEmailByPersNo(kabagNo, kabagName);
+    const mgrEmail = getApproverEmailByPersNo(mgrNo || '5078', mgrName || 'Wawan Kurniawan');
 
     // Calculate duration
     const [sH, sM] = startTime.split(':').map(Number);
@@ -1136,6 +1173,99 @@ function openSplEmailConfigModal() {
                     <div style="font-size: 0.72rem; color: #64748b; margin-top: 4px;">Dapatkan gratis di menu <em>Account → API Keys</em> pada situs emailjs.com</div>
                 </div>
 
+                <!-- Accordion / Form Input Email Nyata Tiap Approver -->
+                <div style="border-top: 1px solid #f1f5f9; padding-top: 14px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                        <label style="font-weight: 700; color: #334155; font-size: 0.88rem;">📋 Alamat Email Asli Para Approver (Gmail/Korporat):</label>
+                    </div>
+                    <p style="font-size: 0.75rem; color: #64748b; margin-bottom: 10px;">
+                        Masukkan alamat email nyata (Gmail/Outlook/dsb). Jika dikosongkan, sistem otomatis memakai format default <code>@ggf.com</code>.
+                    </p>
+
+                    <div style="max-height: 180px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 12px;">
+                        <!-- Manager -->
+                        <div>
+                            <div style="display: flex; justify-content: space-between; font-size: 0.78rem; font-weight: 600; color: #0f172a; margin-bottom: 2px;">
+                                <span>Wawan Kurniawan (Manager Warehouse)</span>
+                                <span style="color: #64748b;">NIK: 5078</span>
+                            </div>
+                            <input type="email" id="approver-email-5078" class="custom-approver-input" data-persno="5078" placeholder="Contoh: wawan.kurniawan@gmail.com" style="width: 100%; box-sizing: border-box; padding: 6px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.8rem;">
+                        </div>
+
+                        <!-- Kabag Traffic -->
+                        <div>
+                            <div style="display: flex; justify-content: space-between; font-size: 0.78rem; font-weight: 600; color: #0f172a; margin-bottom: 2px;">
+                                <span>Andriyanto (Kabag Traffic)</span>
+                                <span style="color: #64748b;">NIK: 10039299</span>
+                            </div>
+                            <input type="email" id="approver-email-10039299" class="custom-approver-input" data-persno="10039299" placeholder="Contoh: andriyanto@gmail.com" style="width: 100%; box-sizing: border-box; padding: 6px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.8rem;">
+                        </div>
+
+                        <!-- Kabag Packaging -->
+                        <div>
+                            <div style="display: flex; justify-content: space-between; font-size: 0.78rem; font-weight: 600; color: #0f172a; margin-bottom: 2px;">
+                                <span>Setiawan (Kabag Packaging)</span>
+                                <span style="color: #64748b;">NIK: 3152137</span>
+                            </div>
+                            <input type="email" id="approver-email-3152137" class="custom-approver-input" data-persno="3152137" placeholder="Contoh: setiawan@gmail.com" style="width: 100%; box-sizing: border-box; padding: 6px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.8rem;">
+                        </div>
+
+                        <!-- Kabag Inv Control -->
+                        <div>
+                            <div style="display: flex; justify-content: space-between; font-size: 0.78rem; font-weight: 600; color: #0f172a; margin-bottom: 2px;">
+                                <span>Puji Triananto, S.P (Kabag Inv. Control)</span>
+                                <span style="color: #64748b;">NIK: 5292</span>
+                            </div>
+                            <input type="email" id="approver-email-5292" class="custom-approver-input" data-persno="5292" placeholder="Contoh: puji.triananto@gmail.com" style="width: 100%; box-sizing: border-box; padding: 6px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.8rem;">
+                        </div>
+
+                        <!-- Kabag Material WH -->
+                        <div>
+                            <div style="display: flex; justify-content: space-between; font-size: 0.78rem; font-weight: 600; color: #0f172a; margin-bottom: 2px;">
+                                <span>Robin Dangin (Kabag Material WH)</span>
+                                <span style="color: #64748b;">NIK: 3050800</span>
+                            </div>
+                            <input type="email" id="approver-email-3050800" class="custom-approver-input" data-persno="3050800" placeholder="Contoh: robin.dangin@gmail.com" style="width: 100%; box-sizing: border-box; padding: 6px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.8rem;">
+                        </div>
+
+                        <!-- Kabag Finished Goods -->
+                        <div>
+                            <div style="display: flex; justify-content: space-between; font-size: 0.78rem; font-weight: 600; color: #0f172a; margin-bottom: 2px;">
+                                <span>Mulyadi (Kabag Finished Goods)</span>
+                                <span style="color: #64748b;">NIK: 4808</span>
+                            </div>
+                            <input type="email" id="approver-email-4808" class="custom-approver-input" data-persno="4808" placeholder="Contoh: mulyadi@gmail.com" style="width: 100%; box-sizing: border-box; padding: 6px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.8rem;">
+                        </div>
+
+                        <!-- Kabag Fertilizer WH -->
+                        <div>
+                            <div style="display: flex; justify-content: space-between; font-size: 0.78rem; font-weight: 600; color: #0f172a; margin-bottom: 2px;">
+                                <span>Junaidi Anwar (Kabag Fertilizer WH)</span>
+                                <span style="color: #64748b;">NIK: 10031743</span>
+                            </div>
+                            <input type="email" id="approver-email-10031743" class="custom-approver-input" data-persno="10031743" placeholder="Contoh: junaidi.anwar@gmail.com" style="width: 100%; box-sizing: border-box; padding: 6px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.8rem;">
+                        </div>
+
+                        <!-- Kabag Sparepart WH -->
+                        <div>
+                            <div style="display: flex; justify-content: space-between; font-size: 0.78rem; font-weight: 600; color: #0f172a; margin-bottom: 2px;">
+                                <span>Sujiman (Kabag Sparepart WH)</span>
+                                <span style="color: #64748b;">NIK: 1956</span>
+                            </div>
+                            <input type="email" id="approver-email-1956" class="custom-approver-input" data-persno="1956" placeholder="Contoh: sujiman@gmail.com" style="width: 100%; box-sizing: border-box; padding: 6px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.8rem;">
+                        </div>
+
+                        <!-- Kabag General WH -->
+                        <div>
+                            <div style="display: flex; justify-content: space-between; font-size: 0.78rem; font-weight: 600; color: #0f172a; margin-bottom: 2px;">
+                                <span>Muhammad Rafly Anggara (Kabag General WH)</span>
+                                <span style="color: #64748b;">NIK: 10027916</span>
+                            </div>
+                            <input type="email" id="approver-email-10027916" class="custom-approver-input" data-persno="10027916" placeholder="Contoh: rafly@gmail.com" style="width: 100%; box-sizing: border-box; padding: 6px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.8rem;">
+                        </div>
+                    </div>
+                </div>
+
                 <div style="border-top: 1px solid #f1f5f9; padding-top: 12px;">
                     <label style="display: block; font-weight: 700; color: #334155; margin-bottom: 4px;">Tes Kirim ke Email Anda Sendiri:</label>
                     <div style="display: flex; gap: 8px;">
@@ -1161,6 +1291,15 @@ function openSplEmailConfigModal() {
     `;
 
     document.body.appendChild(modal);
+
+    // Populate existing custom approver emails
+    try {
+        const customMap = JSON.parse(localStorage.getItem('SPL_CUSTOM_APPROVER_EMAILS') || '{}');
+        Object.keys(customMap).forEach(persNo => {
+            const input = document.getElementById(`approver-email-${persNo}`);
+            if (input) input.value = customMap[persNo];
+        });
+    } catch(e) {}
 }
 
 function saveSplEmailConfig() {
@@ -1168,6 +1307,7 @@ function saveSplEmailConfig() {
     const templateId = document.getElementById('cfg-template-id').value.trim();
     const publicKey = document.getElementById('cfg-public-key').value.trim();
 
+    // Simpan Akun EmailJS
     saveEmailJsConfig({
         serviceId: serviceId || 'service_ggf_spl',
         templateId: templateId || 'template_spl_approval',
@@ -1175,9 +1315,26 @@ function saveSplEmailConfig() {
         enabled: true
     });
 
-    alert('Pengaturan Email berhasil disimpan!');
+    // Simpan Email Asli Para Approver (Gmail/Korporat nyata)
+    const customMap = {};
+    document.querySelectorAll('.custom-approver-input').forEach(input => {
+        const persNo = input.dataset.persno;
+        const val = input.value.trim();
+        if (persNo && val) {
+            customMap[persNo] = val;
+        }
+    });
+    localStorage.setItem('SPL_CUSTOM_APPROVER_EMAILS', JSON.stringify(customMap));
+
+    alert('Pengaturan Email & Alamat Email Asli Approver berhasil disimpan!');
     const modal = document.getElementById('spl-email-config-modal');
     if (modal) modal.remove();
+
+    // Refresh status tampilan form jika sedang dibuka
+    const areaSelect = document.getElementById('spl-area-select');
+    if (areaSelect && areaSelect.value) {
+        onSplLocationChange();
+    }
 }
 
 function previewSampleEmailContent() {
