@@ -639,23 +639,25 @@ function dispatchSplEmailNotification(spl) {
     };
 
     // If EmailJS SDK is loaded and public key is configured, send via API
+    let apiStatus = 'SIMULASI';
     if (window.emailjs && cfg.publicKey) {
         try {
             window.emailjs.init({ publicKey: cfg.publicKey });
-            window.emailjs.send(cfg.serviceId, cfg.templateId, emailParams)
-                .then(function(res) {
-                    console.log('EmailJS Notification Sent:', res.status, res.text);
-                }, function(err) {
-                    console.warn('EmailJS Direct Notice Error:', err);
-                });
+            const sendResult = await window.emailjs.send(cfg.serviceId, cfg.templateId, emailParams);
+            console.log('EmailJS Notification Sent:', sendResult.status, sendResult.text);
+            apiStatus = 'SUKSES TERKIRIM API';
         } catch (e) {
-            console.warn('EmailJS call failed:', e);
+            console.error('EmailJS direct call error:', e);
+            alert(`⚠️ Catatan Email: Pengiriman email gagal via API EmailJS.\nPenyebab: ${e?.text || e?.message || JSON.stringify(e)}\n\nPastikan Service ID & Template ID sudah sesuai.`);
+            apiStatus = 'GAGAL: ' + (e?.text || e?.message || 'Error');
         }
+    } else if (!cfg.publicKey) {
+        alert('⚠️ Perhatian: Public Key EmailJS belum tersimpan di browser Anda.\nSilakan buka tab "Slide 2" -> "Tes & Pengaturan Email" untuk menyimpan Public Key Anda.');
     }
 
     return {
         sentAt: new Date().toLocaleString('id-ID'),
-        status: 'TERKIRIM',
+        status: apiStatus,
         subject: `[Pengajuan SPL Baru] ${spl.splNo} - ${spl.area}`,
         recipients: [
             { role: 'Approver 1 (Kabag)', name: spl.kabag.name, email: kabagEmail },
@@ -730,7 +732,7 @@ function generateNextSplNumber() {
 }
 
 // Submit Form Action
-function handleSplSubmit(e) {
+async function handleSplSubmit(e) {
     if (e) e.preventDefault();
 
     // Strict Pers.No Role Guard Check
@@ -813,7 +815,7 @@ function handleSplSubmit(e) {
     };
 
     // Auto-dispatch Email Notification to Approver 1 & Approver 2
-    const emailResult = dispatchSplEmailNotification(newSpl);
+    const emailResult = await dispatchSplEmailNotification(newSpl);
     newSpl.emailNotification = emailResult;
 
     const list = getStoredSplList();
