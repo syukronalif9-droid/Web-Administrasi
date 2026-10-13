@@ -303,71 +303,129 @@ function getEmployeeRoleByPersNo(inputPersNo) {
 }
 
 function getCurrentUserSession() {
-    let savedNo = localStorage.getItem('SPL_CURRENT_USER_PERS_NO');
+    const savedNo = localStorage.getItem('SPL_CURRENT_USER_PERS_NO');
     if (!savedNo) {
-        // Default awal: Kepala Seksi Traffic (209113 - Nur Tri Ayatullah) agar langsung berfungsi
-        savedNo = '209113';
-        localStorage.setItem('SPL_CURRENT_USER_PERS_NO', savedNo);
+        return null; // Belum verifikasi
     }
     return getEmployeeRoleByPersNo(savedNo);
 }
 
-function setCurrentUserSession(persNo) {
-    localStorage.setItem('SPL_CURRENT_USER_PERS_NO', String(persNo).trim());
+function performSplVerification(explicitNik) {
+    const inputField = document.getElementById('spl-verify-nik-input');
+    const persNo = explicitNik || (inputField ? inputField.value.trim() : '');
+
+    const errorBox = document.getElementById('spl-verify-error-box');
+    const errorMsg = document.getElementById('spl-verify-error-msg');
+
+    if (!persNo) {
+        alert('Mohon masukkan NIK / Pers.No Anda untuk verifikasi!');
+        if (inputField) inputField.focus();
+        return;
+    }
+
+    const employee = getEmployeeRoleByPersNo(persNo);
+
+    if (employee.canCreateSpl) {
+        // Berhasil Terverifikasi sebagai Kasie, Kabag, atau Manager
+        localStorage.setItem('SPL_CURRENT_USER_PERS_NO', employee.persNo);
+        if (errorBox) errorBox.style.display = 'none';
+        updateSplAccessControlUI();
+    } else {
+        // Gagal / Ditolak karena level Staff atau Member Team
+        localStorage.removeItem('SPL_CURRENT_USER_PERS_NO');
+        if (errorBox && errorMsg) {
+            errorBox.style.display = 'block';
+            errorMsg.innerHTML = `
+                <div><strong>Akses Pembuatan Ditolak!</strong></div>
+                <div style="margin-top: 4px; font-size: 0.78rem;">
+                    NIK <strong>${employee.persNo}</strong> (${employee.name}) terdaftar sebagai <strong>${employee.title}</strong> di ${employee.area || 'Warehouse'}.
+                </div>
+                <div style="margin-top: 6px; font-size: 0.74rem; opacity: 0.9;">
+                    Sesuai ketentuan, pembuatan Surat Perintah Lembur (SPL) hanya dapat dilakukan oleh level <strong>Kepala Seksi, Kepala Bagian, atau Manager</strong>.
+                </div>
+            `;
+        }
+        updateSplAccessControlUI();
+    }
+}
+
+function resetSplVerification() {
+    localStorage.removeItem('SPL_CURRENT_USER_PERS_NO');
+    const inputField = document.getElementById('spl-verify-nik-input');
+    if (inputField) inputField.value = '';
+    const errorBox = document.getElementById('spl-verify-error-box');
+    if (errorBox) errorBox.style.display = 'none';
     updateSplAccessControlUI();
+}
+
+function setCurrentUserSession(persNo) {
+    if (!persNo) {
+        resetSplVerification();
+    } else {
+        performSplVerification(persNo);
+    }
 }
 
 function updateSplAccessControlUI() {
     const user = getCurrentUserSession();
-    
-    // Update labels in Drawer
-    const userRoleBadge = document.getElementById('spl-user-role-badge');
-    const userNameLabel = document.getElementById('spl-user-name-label');
-    const userNikLabel = document.getElementById('spl-user-nik-label');
-    const roleSelect = document.getElementById('spl-sim-role-select');
 
-    if (roleSelect && roleSelect.value !== user.persNo) {
-        roleSelect.value = user.persNo;
-    }
-
-    if (userNameLabel) userNameLabel.textContent = user.name;
-    if (userNikLabel) userNikLabel.textContent = `NIK: ${user.persNo} • ${user.title}`;
-
-    if (userRoleBadge) {
-        userRoleBadge.textContent = user.role;
-        if (user.role === 'MANAGER') {
-            userRoleBadge.style.background = '#3b82f6';
-        } else if (user.role === 'KABAG') {
-            userRoleBadge.style.background = '#f59e0b';
-        } else if (user.role === 'KASIE') {
-            userRoleBadge.style.background = '#10b981';
-        } else {
-            userRoleBadge.style.background = '#ef4444';
-        }
-    }
-
-    // Form vs Locked Box
+    // DOM Elements
+    const verifyBox = document.getElementById('spl-verify-box');
+    const verifiedCard = document.getElementById('spl-verified-card');
+    const verifiedName = document.getElementById('spl-verified-name');
+    const verifiedRole = document.getElementById('spl-verified-role');
+    const verifiedNik = document.getElementById('spl-verified-nik');
+    const verifiedRoleBadge = document.getElementById('spl-verified-role-badge');
     const formElem = document.getElementById('form-create-spl');
-    const lockedBox = document.getElementById('spl-access-denied-box');
-    const lockedDesc = document.getElementById('spl-access-denied-desc');
+    const topBadge = document.getElementById('spl-user-role-badge');
+    const topNameLabel = document.getElementById('spl-user-name-label');
+    const topNikLabel = document.getElementById('spl-user-nik-label');
 
-    if (user.canCreateSpl) {
+    if (user && user.canCreateSpl) {
+        // STATE 1: TERVERIFIKASI & MEMILIKI WEWENANG
+        if (verifyBox) verifyBox.style.display = 'none';
+        if (verifiedCard) verifiedCard.style.display = 'block';
         if (formElem) formElem.style.display = 'flex';
-        if (lockedBox) lockedBox.style.display = 'none';
 
-        // Pre-fill / Lock area if Kasie / Kabag has specific area
+        if (verifiedName) verifiedName.textContent = user.name;
+        if (verifiedRole) verifiedRole.textContent = user.title;
+        if (verifiedNik) verifiedNik.textContent = `NIK: ${user.persNo}`;
+
+        if (verifiedRoleBadge) {
+            verifiedRoleBadge.textContent = user.role;
+            if (user.role === 'MANAGER') verifiedRoleBadge.style.background = '#3b82f6';
+            else if (user.role === 'KABAG') verifiedRoleBadge.style.background = '#f59e0b';
+            else verifiedRoleBadge.style.background = '#10b981';
+        }
+
+        // Header Drawer info
+        if (topNameLabel) topNameLabel.textContent = user.name;
+        if (topNikLabel) topNikLabel.textContent = `NIK: ${user.persNo} • ${user.title}`;
+        if (topBadge) {
+            topBadge.textContent = user.role;
+            if (user.role === 'MANAGER') topBadge.style.background = '#3b82f6';
+            else if (user.role === 'KABAG') topBadge.style.background = '#f59e0b';
+            else topBadge.style.background = '#10b981';
+        }
+
+        // Auto-select area if specific
         const areaSelect = document.getElementById('spl-area-select');
-        if (areaSelect && user.area && user.area !== 'Semua Area Warehouse') {
+        if (areaSelect && user.area && user.area !== 'Semua Area Warehouse' && !areaSelect.value) {
             areaSelect.value = user.area;
             onSplAreaChange();
         }
+
     } else {
+        // STATE 2: BELUM VERIFIKASI ATAU DITOLAK
+        if (verifyBox) verifyBox.style.display = 'block';
+        if (verifiedCard) verifiedCard.style.display = 'none';
         if (formElem) formElem.style.display = 'none';
-        if (lockedBox) {
-            lockedBox.style.display = 'block';
-            if (lockedDesc) {
-                lockedDesc.innerHTML = `Akun Anda terdaftar dengan NIK / Pers.No <strong>${user.persNo}</strong> (${user.name}) dengan jabatan <strong>${user.title}</strong>.<br><br>Sesuai SOP, pembuatan formulir SPL <strong>hanya dapat diajukan oleh Kepala Seksi, Kepala Bagian, atau Manager</strong>.`;
-            }
+
+        if (topNameLabel) topNameLabel.textContent = 'Belum Verifikasi';
+        if (topNikLabel) topNikLabel.textContent = 'Masukkan NIK untuk membuat SPL';
+        if (topBadge) {
+            topBadge.textContent = 'GUEST';
+            topBadge.style.background = '#94a3b8';
         }
     }
 }
@@ -935,3 +993,5 @@ window.getEmployeeRoleByPersNo = getEmployeeRoleByPersNo;
 window.getCurrentUserSession = getCurrentUserSession;
 window.setCurrentUserSession = setCurrentUserSession;
 window.updateSplAccessControlUI = updateSplAccessControlUI;
+window.performSplVerification = performSplVerification;
+window.resetSplVerification = resetSplVerification;
