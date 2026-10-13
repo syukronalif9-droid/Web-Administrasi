@@ -588,7 +588,7 @@ function getEmailJsConfig() {
     }
     return {
         serviceId: 'service_ggqdruv',
-        templateId: 'template_o5mvd66',
+        templateId: '2sima0k',
         publicKey: '',
         enabled: true
     };
@@ -603,7 +603,12 @@ function dispatchSplEmailNotification(spl) {
     const kabagEmail = spl.kabag.email;
     const mgrEmail = spl.manager.email;
 
-    const baseUrl = window.location.origin + window.location.pathname.replace('dashboard.html', '');
+    // Jika dibuka dari file lokal (file:///), gunakan alamat GitHub Pages agar link di Gmail bisa langsung diklik
+    let baseUrl = window.location.origin + window.location.pathname.replace('dashboard.html', '');
+    if (window.location.protocol === 'file:') {
+        baseUrl = 'https://syukronalif9-droid.github.io/Web-Administrasi/';
+    }
+
     const kabagApproveUrl = `${baseUrl}approve.html?id=${encodeURIComponent(spl.id)}&role=kabag&action=approve`;
     const kabagRejectUrl = `${baseUrl}approve.html?id=${encodeURIComponent(spl.id)}&role=kabag&action=reject`;
     const mgrApproveUrl = `${baseUrl}approve.html?id=${encodeURIComponent(spl.id)}&role=manager&action=approve`;
@@ -1380,7 +1385,10 @@ async function runDirectEmailTest() {
     statusBox.style.color = '#0369a1';
     statusBox.textContent = '⏳ Mengirim email pengujian...';
 
-    const baseUrl = window.location.origin + window.location.pathname.replace('dashboard.html', '');
+    let baseUrl = window.location.origin + window.location.pathname.replace('dashboard.html', '');
+    if (window.location.protocol === 'file:') {
+        baseUrl = 'https://syukronalif9-droid.github.io/Web-Administrasi/';
+    }
     const sampleApproveUrl = `${baseUrl}approve.html?id=SPL-TEST-EMAIL&role=kabag&action=approve`;
     const sampleRejectUrl = `${baseUrl}approve.html?id=SPL-TEST-EMAIL&role=kabag&action=reject`;
 
