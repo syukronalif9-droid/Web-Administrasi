@@ -207,16 +207,182 @@ function saveSplList(list) {
     localStorage.setItem('DIGITAL_SPL_DATA', JSON.stringify(list));
 }
 
+// ========================================================
+// ROLE VERIFICATION & ACCESS CONTROL BASED ON PERS.NO
+// ========================================================
+function getEmployeeRoleByPersNo(inputPersNo) {
+    if (!inputPersNo) {
+        return {
+            persNo: '',
+            name: 'Belum Login / Guest',
+            role: 'GUEST',
+            title: 'Tamu / Umum',
+            canCreateSpl: false,
+            canApproveSpl: false,
+            area: '',
+            location: ''
+        };
+    }
+
+    const cleanNo = String(inputPersNo).trim();
+
+    // 1. Cek Manager Warehouse (Approver 2 Final)
+    const mgrMatch = SPL_MASTER_DATA.find(d => String(d.mgrNo).trim() === cleanNo);
+    if (mgrMatch || cleanNo === '5078') {
+        return {
+            persNo: cleanNo,
+            name: mgrMatch ? mgrMatch.mgrName : 'Wawan Kurniawan',
+            role: 'MANAGER',
+            title: 'Manager Warehouse',
+            canCreateSpl: true,
+            canApproveSpl: true,
+            approvalLevel: 2,
+            area: 'Semua Area Warehouse',
+            location: 'Semua Lokasi'
+        };
+    }
+
+    // 2. Cek Kepala Bagian / Kabag (Approver 1)
+    const kabagMatch = SPL_MASTER_DATA.find(d => String(d.kabagNo).trim() === cleanNo);
+    if (kabagMatch) {
+        return {
+            persNo: cleanNo,
+            name: kabagMatch.kabagName,
+            role: 'KABAG',
+            title: 'Kepala Bagian (Kabag)',
+            canCreateSpl: true,
+            canApproveSpl: true,
+            approvalLevel: 1,
+            area: kabagMatch.area,
+            location: kabagMatch.location
+        };
+    }
+
+    // 3. Cek Kepala Seksi / Kasie (Create SPL)
+    const kasieMatch = SPL_MASTER_DATA.find(d => String(d.kasieNo).trim() === cleanNo);
+    if (kasieMatch) {
+        return {
+            persNo: cleanNo,
+            name: kasieMatch.kasieName,
+            role: 'KASIE',
+            title: 'Kepala Seksi (Kasie)',
+            canCreateSpl: true,
+            canApproveSpl: false,
+            approvalLevel: 0,
+            area: kasieMatch.area,
+            location: kasieMatch.location
+        };
+    }
+
+    // 4. Cek Member Team / Operator / Staff
+    const memberMatch = SPL_MASTER_DATA.find(d => String(d.persNo).trim() === cleanNo);
+    if (memberMatch) {
+        return {
+            persNo: cleanNo,
+            name: memberMatch.name,
+            role: 'MEMBER',
+            title: 'Member Team / Staff',
+            canCreateSpl: false,
+            canApproveSpl: false,
+            area: memberMatch.area,
+            location: memberMatch.location
+        };
+    }
+
+    // Default Unknown Staff
+    return {
+        persNo: cleanNo,
+        name: 'Staff Karyawan (' + cleanNo + ')',
+        role: 'STAFF',
+        title: 'Staff Biasa',
+        canCreateSpl: false,
+        canApproveSpl: false,
+        area: '',
+        location: ''
+    };
+}
+
+function getCurrentUserSession() {
+    let savedNo = localStorage.getItem('SPL_CURRENT_USER_PERS_NO');
+    if (!savedNo) {
+        // Default awal: Kepala Seksi Traffic (209113 - Nur Tri Ayatullah) agar langsung berfungsi
+        savedNo = '209113';
+        localStorage.setItem('SPL_CURRENT_USER_PERS_NO', savedNo);
+    }
+    return getEmployeeRoleByPersNo(savedNo);
+}
+
+function setCurrentUserSession(persNo) {
+    localStorage.setItem('SPL_CURRENT_USER_PERS_NO', String(persNo).trim());
+    updateSplAccessControlUI();
+}
+
+function updateSplAccessControlUI() {
+    const user = getCurrentUserSession();
+    
+    // Update labels in Drawer
+    const userRoleBadge = document.getElementById('spl-user-role-badge');
+    const userNameLabel = document.getElementById('spl-user-name-label');
+    const userNikLabel = document.getElementById('spl-user-nik-label');
+    const roleSelect = document.getElementById('spl-sim-role-select');
+
+    if (roleSelect && roleSelect.value !== user.persNo) {
+        roleSelect.value = user.persNo;
+    }
+
+    if (userNameLabel) userNameLabel.textContent = user.name;
+    if (userNikLabel) userNikLabel.textContent = `NIK: ${user.persNo} • ${user.title}`;
+
+    if (userRoleBadge) {
+        userRoleBadge.textContent = user.role;
+        if (user.role === 'MANAGER') {
+            userRoleBadge.style.background = '#3b82f6';
+        } else if (user.role === 'KABAG') {
+            userRoleBadge.style.background = '#f59e0b';
+        } else if (user.role === 'KASIE') {
+            userRoleBadge.style.background = '#10b981';
+        } else {
+            userRoleBadge.style.background = '#ef4444';
+        }
+    }
+
+    // Form vs Locked Box
+    const formElem = document.getElementById('form-create-spl');
+    const lockedBox = document.getElementById('spl-access-denied-box');
+    const lockedDesc = document.getElementById('spl-access-denied-desc');
+
+    if (user.canCreateSpl) {
+        if (formElem) formElem.style.display = 'flex';
+        if (lockedBox) lockedBox.style.display = 'none';
+
+        // Pre-fill / Lock area if Kasie / Kabag has specific area
+        const areaSelect = document.getElementById('spl-area-select');
+        if (areaSelect && user.area && user.area !== 'Semua Area Warehouse') {
+            areaSelect.value = user.area;
+            onSplAreaChange();
+        }
+    } else {
+        if (formElem) formElem.style.display = 'none';
+        if (lockedBox) {
+            lockedBox.style.display = 'block';
+            if (lockedDesc) {
+                lockedDesc.innerHTML = `Akun Anda terdaftar dengan NIK / Pers.No <strong>${user.persNo}</strong> (${user.name}) dengan jabatan <strong>${user.title}</strong>.<br><br>Sesuai SOP, pembuatan formulir SPL <strong>hanya dapat diajukan oleh Kepala Seksi, Kepala Bagian, atau Manager</strong>.`;
+            }
+        }
+    }
+}
+
 // Module Initializer
 function initSplModule() {
     populateSplAreas();
     setupSplTimeCalculator();
     generateNextSplNumber();
     renderSplHistoryList();
+    updateSplAccessControlUI();
 
-    // Default date to today (2026-04-13)
+    // Default date to today
     const dateInput = document.getElementById('spl-date');
-    if (dateInput) {
+    if (dateInput && !dateInput.value) {
         const today = new Date().toISOString().split('T')[0];
         dateInput.value = today;
     }
@@ -370,6 +536,13 @@ function generateNextSplNumber() {
 // Submit Form Action
 function handleSplSubmit(e) {
     if (e) e.preventDefault();
+
+    // Strict Pers.No Role Guard Check
+    const user = getCurrentUserSession();
+    if (!user.canCreateSpl) {
+        alert(`Akses Ditolak!\nNIK: ${user.persNo} (${user.name})\nJabatan: ${user.title}\n\nHanya level Kepala Seksi, Kepala Bagian, atau Manager yang memiliki wewenang membuat Surat Perintah Lembur (SPL).`);
+        return;
+    }
 
     const splNo = document.getElementById('spl-doc-no').value;
     const date = document.getElementById('spl-date').value;
@@ -758,3 +931,7 @@ window.renderSplHistoryList = renderSplHistoryList;
 window.simulateApproveSpl = simulateApproveSpl;
 window.deleteSpl = deleteSpl;
 window.printSplDocument = printSplDocument;
+window.getEmployeeRoleByPersNo = getEmployeeRoleByPersNo;
+window.getCurrentUserSession = getCurrentUserSession;
+window.setCurrentUserSession = setCurrentUserSession;
+window.updateSplAccessControlUI = updateSplAccessControlUI;
