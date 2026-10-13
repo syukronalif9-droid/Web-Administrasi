@@ -1090,6 +1090,183 @@ function printSplDocument(id) {
     printWindow.document.close();
 }
 
+// ========================================================
+// EMAIL TESTING & CONFIGURATION MODAL
+// ========================================================
+function openSplEmailConfigModal() {
+    const cfg = getEmailJsConfig();
+    const existingModal = document.getElementById('spl-email-config-modal');
+    if (existingModal) existingModal.remove();
+
+    const modal = document.createElement('div');
+    modal.id = 'spl-email-config-modal';
+    modal.style.cssText = 'position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); z-index: 10000; display: flex; align-items: center; justify-content: center; padding: 20px; font-family: "Inter", sans-serif;';
+
+    modal.innerHTML = `
+        <div style="background: #ffffff; max-width: 540px; width: 100%; border-radius: 20px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); border: 1px solid #e2e8f0; overflow: hidden;">
+            <div style="padding: 20px 24px; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center; background: #fafafa;">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <span style="font-size: 1.4rem;">⚙️</span>
+                    <div>
+                        <h4 style="margin: 0; font-size: 1.05rem; font-weight: 700; color: #0f172a;">Pengaturan & Tes Email Otomatis</h4>
+                        <p style="margin: 2px 0 0; font-size: 0.75rem; color: #64748b;">Koneksi Notifikasi Email Approver 1 (Kabag) & 2 (Manager)</p>
+                    </div>
+                </div>
+                <button onclick="document.getElementById('spl-email-config-modal').remove()" style="background: transparent; border: none; font-size: 1.2rem; cursor: pointer; color: #94a3b8;">✕</button>
+            </div>
+
+            <div style="padding: 24px; display: flex; flex-direction: column; gap: 14px; font-size: 0.85rem;">
+                <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 12px; padding: 12px 14px; color: #166534; font-size: 0.82rem; line-height: 1.5;">
+                    <strong>ℹ️ Status Email:</strong> Sistem otomatis memetakan nama Approver ke format <code>@ggf.com</code>. Untuk menghubungkan ke Gmail/Inbox asli secara langsung dari web, gunakan akun <strong>EmailJS (Gratis)</strong>.
+                </div>
+
+                <div>
+                    <label style="display: block; font-weight: 700; color: #334155; margin-bottom: 4px;">Service ID (EmailJS)</label>
+                    <input type="text" id="cfg-service-id" value="${cfg.serviceId || 'service_ggf_spl'}" placeholder="Contoh: service_abc123" style="width: 100%; box-sizing: border-box; padding: 9px 12px; border: 1.5px solid #cbd5e1; border-radius: 8px; font-size: 0.88rem;">
+                </div>
+
+                <div>
+                    <label style="display: block; font-weight: 700; color: #334155; margin-bottom: 4px;">Template ID (EmailJS)</label>
+                    <input type="text" id="cfg-template-id" value="${cfg.templateId || 'template_spl_approval'}" placeholder="Contoh: template_xyz789" style="width: 100%; box-sizing: border-box; padding: 9px 12px; border: 1.5px solid #cbd5e1; border-radius: 8px; font-size: 0.88rem;">
+                </div>
+
+                <div>
+                    <label style="display: block; font-weight: 700; color: #334155; margin-bottom: 4px;">Public Key (EmailJS Account)</label>
+                    <input type="text" id="cfg-public-key" value="${cfg.publicKey || ''}" placeholder="Masukkan Public Key EmailJS Anda..." style="width: 100%; box-sizing: border-box; padding: 9px 12px; border: 1.5px solid #cbd5e1; border-radius: 8px; font-size: 0.88rem;">
+                    <div style="font-size: 0.72rem; color: #64748b; margin-top: 4px;">Dapatkan gratis di menu <em>Account → API Keys</em> pada situs emailjs.com</div>
+                </div>
+
+                <div style="border-top: 1px solid #f1f5f9; padding-top: 12px;">
+                    <label style="display: block; font-weight: 700; color: #334155; margin-bottom: 4px;">Tes Kirim ke Email Anda Sendiri:</label>
+                    <div style="display: flex; gap: 8px;">
+                        <input type="email" id="cfg-test-email" placeholder="Masukkan alamat email Anda (cth: email@gmail.com)" style="flex: 1; padding: 9px 12px; border: 1.5px solid #cbd5e1; border-radius: 8px; font-size: 0.85rem;">
+                        <button type="button" onclick="runDirectEmailTest()" style="background: #0284c7; color: white; border: none; padding: 9px 14px; border-radius: 8px; font-weight: 600; cursor: pointer; white-space: nowrap;">
+                            🚀 Kirim Tes
+                        </button>
+                    </div>
+                </div>
+
+                <div id="cfg-test-status" style="display: none; padding: 10px; border-radius: 8px; font-size: 0.8rem;"></div>
+            </div>
+
+            <div style="padding: 14px 24px; background: #fafafa; border-top: 1px solid #f1f5f9; display: flex; justify-content: flex-end; gap: 10px;">
+                <button onclick="previewSampleEmailContent()" style="background: #f1f5f9; border: 1px solid #cbd5e1; color: #0f172a; padding: 8px 16px; border-radius: 8px; font-weight: 600; font-size: 0.82rem; cursor: pointer;">
+                    👁️ Lihat Format Email & Link Approval
+                </button>
+                <button onclick="saveSplEmailConfig()" style="background: #18181b; color: white; border: none; padding: 8px 18px; border-radius: 8px; font-weight: 600; font-size: 0.82rem; cursor: pointer;">
+                    Simpan Pengaturan
+                </button>
+            </div>
+        </div>
+    `;
+
+    document.body.appendChild(modal);
+}
+
+function saveSplEmailConfig() {
+    const serviceId = document.getElementById('cfg-service-id').value.trim();
+    const templateId = document.getElementById('cfg-template-id').value.trim();
+    const publicKey = document.getElementById('cfg-public-key').value.trim();
+
+    saveEmailJsConfig({
+        serviceId: serviceId || 'service_ggf_spl',
+        templateId: templateId || 'template_spl_approval',
+        publicKey: publicKey,
+        enabled: true
+    });
+
+    alert('Pengaturan Email berhasil disimpan!');
+    const modal = document.getElementById('spl-email-config-modal');
+    if (modal) modal.remove();
+}
+
+function previewSampleEmailContent() {
+    const baseUrl = window.location.origin + window.location.pathname.replace('dashboard.html', '');
+    const kabagApproveUrl = `${baseUrl}approve.html?id=SPL-DEMO&role=kabag&action=approve`;
+    const kabagRejectUrl = `${baseUrl}approve.html?id=SPL-DEMO&role=kabag&action=reject`;
+
+    alert(
+        `CONTOH TAMPILAN EMAIL YANG DITERIMA APPROVER:\n\n` +
+        `Subjek: [Pengajuan SPL Baru] SPL/WH/2026/04/001 - Traffic\n` +
+        `Kepada: andriyanto@ggf.com (Kabag) & wawan.kurniawan@ggf.com (Manager)\n\n` +
+        `Rincian Lembur:\n` +
+        `- Pembuat: Nur Tri Ayatullah (Kasie)\n` +
+        `- Tanggal: 13/10/2026 (17:00 - 21:00, 4 Jam)\n` +
+        `- Lokasi: Traffic / Way Lunik\n` +
+        `- Karyawan: Sakri (7339), Fedriyan Hertanto (10041846)\n\n` +
+        `LINK APPROVAL 1-KLIK (Bisa langsung diklik dari inbox):\n` +
+        `🟢 Setujui: ${kabagApproveUrl}\n` +
+        `🔴 Tolak    : ${kabagRejectUrl}`
+    );
+}
+
+async function runDirectEmailTest() {
+    const testEmail = document.getElementById('cfg-test-email').value.trim();
+    const statusBox = document.getElementById('cfg-test-status');
+    const serviceId = document.getElementById('cfg-service-id').value.trim();
+    const templateId = document.getElementById('cfg-template-id').value.trim();
+    const publicKey = document.getElementById('cfg-public-key').value.trim();
+
+    if (!testEmail) {
+        alert('Masukkan alamat email tujuan pengujian terlebih dahulu!');
+        return;
+    }
+
+    statusBox.style.display = 'block';
+    statusBox.style.background = '#e0f2fe';
+    statusBox.style.color = '#0369a1';
+    statusBox.textContent = '⏳ Mengirim email pengujian...';
+
+    const baseUrl = window.location.origin + window.location.pathname.replace('dashboard.html', '');
+    const sampleApproveUrl = `${baseUrl}approve.html?id=SPL-TEST-EMAIL&role=kabag&action=approve`;
+    const sampleRejectUrl = `${baseUrl}approve.html?id=SPL-TEST-EMAIL&role=kabag&action=reject`;
+
+    if (window.emailjs && publicKey) {
+        try {
+            window.emailjs.init({ publicKey: publicKey });
+            await window.emailjs.send(serviceId, templateId, {
+                spl_no: 'SPL/WH/2026/04/TEST',
+                to_kabag_email: testEmail,
+                to_kabag_name: 'Test Approver',
+                to_manager_email: testEmail,
+                to_manager_name: 'Test Manager',
+                creator_name: 'Nur Tri Ayatullah, S.T',
+                creator_nik: '209113',
+                wh_area: 'Traffic',
+                wh_location: 'Way Lunik',
+                overtime_date: new Date().toLocaleDateString('id-ID'),
+                overtime_time: '17:00 s/d 21:00 (4 Jam)',
+                employee_count: 2,
+                employee_list: '1. Sakri (7339)\n2. Fedriyan Hertanto (10041846)',
+                reason: 'Pengujian koneksi email otomatis Surat Perintah Lembur',
+                kabag_approve_url: sampleApproveUrl,
+                kabag_reject_url: sampleRejectUrl
+            });
+
+            statusBox.style.background = '#f0fdf4';
+            statusBox.style.color = '#166534';
+            statusBox.innerHTML = `✅ <strong>Berhasil Terkirim!</strong> Silakan periksa inbox email <code>${testEmail}</code> (dan folder Spam jika belum muncul).`;
+            return;
+        } catch (err) {
+            statusBox.style.background = '#fef2f2';
+            statusBox.style.color = '#991b1b';
+            statusBox.innerHTML = `⚠️ Gagal kirim API EmailJS: ${err?.text || err?.message || JSON.stringify(err)}. Pastikan Service ID & Template ID valid.`;
+            return;
+        }
+    }
+
+    // Jika belum isi Public Key, simulasikan pengiriman sukses secara lokal
+    setTimeout(() => {
+        statusBox.style.background = '#f0fdf4';
+        statusBox.style.color = '#166534';
+        statusBox.innerHTML = `
+            ✅ <strong>Simulasi Email Berhasil!</strong><br>
+            Sistem telah menyiapkan parameter email ke: <code>${testEmail}</code><br>
+            Untuk pengiriman ke kotak masuk asli, cukup masukkan <strong>Public Key EmailJS</strong> Anda di form atas.
+        `;
+    }, 600);
+}
+
 // Expose globals for HTML
 window.initSplModule = initSplModule;
 window.onSplAreaChange = onSplAreaChange;
@@ -1105,3 +1282,8 @@ window.setCurrentUserSession = setCurrentUserSession;
 window.updateSplAccessControlUI = updateSplAccessControlUI;
 window.performSplVerification = performSplVerification;
 window.resetSplVerification = resetSplVerification;
+window.openSplEmailConfigModal = openSplEmailConfigModal;
+window.saveSplEmailConfig = saveSplEmailConfig;
+window.previewSampleEmailContent = previewSampleEmailContent;
+window.runDirectEmailTest = runDirectEmailTest;
+

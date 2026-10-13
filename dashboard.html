@@ -2386,11 +2386,16 @@ document.addEventListener("DOMContentLoaded", function() {
             <!-- ============================================== -->
             <div id="sidebar-slide-2" class="sidebar-slide-pane" style="display: none;">
                 
-                <!-- Filter Pills -->
-                <div style="display: flex; gap: 6px; margin-bottom: 12px; overflow-x: auto; padding-bottom: 4px;">
-                    <button onclick="renderSplHistoryList('all')" style="background: #18181b; color: white; border: none; padding: 5px 12px; border-radius: 99px; font-size: 0.75rem; font-weight: 600; cursor: pointer; white-space: nowrap;">Semua</button>
-                    <button onclick="renderSplHistoryList('pending')" style="background: #f1f5f9; color: #475569; border: 1px solid #e2e8f0; padding: 5px 12px; border-radius: 99px; font-size: 0.75rem; font-weight: 600; cursor: pointer; white-space: nowrap;">Menunggu Approval</button>
-                    <button onclick="renderSplHistoryList('approved')" style="background: #f1f5f9; color: #475569; border: 1px solid #e2e8f0; padding: 5px 12px; border-radius: 99px; font-size: 0.75rem; font-weight: 600; cursor: pointer; white-space: nowrap;">Disetujui</button>
+                <!-- Filter Pills & Test Email Button -->
+                <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 14px; flex-wrap: wrap;">
+                    <div style="display: flex; gap: 6px; overflow-x: auto; padding-bottom: 2px;">
+                        <button onclick="renderSplHistoryList('all')" style="background: #18181b; color: white; border: none; padding: 7px 14px; border-radius: 99px; font-size: 0.82rem; font-weight: 600; cursor: pointer; white-space: nowrap;">Semua</button>
+                        <button onclick="renderSplHistoryList('pending')" style="background: #f1f5f9; color: #475569; border: 1px solid #e2e8f0; padding: 7px 14px; border-radius: 99px; font-size: 0.82rem; font-weight: 600; cursor: pointer; white-space: nowrap;">Menunggu Approval</button>
+                        <button onclick="renderSplHistoryList('approved')" style="background: #f1f5f9; color: #475569; border: 1px solid #e2e8f0; padding: 7px 14px; border-radius: 99px; font-size: 0.82rem; font-weight: 600; cursor: pointer; white-space: nowrap;">Disetujui</button>
+                    </div>
+                    <button type="button" onclick="openSplEmailConfigModal()" style="background: #e0f2fe; color: #0284c7; border: 1px solid #bae6fd; padding: 7px 14px; border-radius: 10px; font-size: 0.82rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 6px; white-space: nowrap;">
+                        <span>⚙️ Tes & Pengaturan Email</span>
+                    </button>
                 </div>
 
                 <!-- Container List SPL -->
