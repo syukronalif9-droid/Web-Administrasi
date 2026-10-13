@@ -536,15 +536,15 @@ function onSplLocationChange() {
 // Tabel Pemetaan Email Asli Para Approver (Bisa diisi akun Gmail / email nyata mereka)
 // Key: NIK / Pers.No dari masing-masing Kabag & Manager
 const DEFAULT_APPROVER_REAL_EMAILS = {
-    '5078': '',       // Wawan Kurniawan (Manager Warehouse)
-    '10039299': '',   // Andriyanto (Kabag Traffic)
-    '3152137': '',    // Setiawan (Kabag Packaging)
-    '5292': '',       // Puji Triananto (Kabag Inv. Control)
-    '3050800': '',    // Robin Dangin (Kabag Material WH)
-    '4808': '',       // Mulyadi (Kabag Finished Goods)
-    '10031743': '',   // Junaidi Anwar (Kabag Fertilizer WH)
-    '1956': '',       // Sujiman (Kabag Sparepart WH)
-    '10027916': ''    // M. Rafly Anggara (Kabag General WH)
+    '5078': '',                      // Wawan Kurniawan (Manager Warehouse)
+    '10039299': '',                  // Andriyanto (Kabag Traffic)
+    '3152137': '93setiawan@gmail.com', // Setiawan (Kabag Packaging) - Email Nyata
+    '5292': '',                      // Puji Triananto (Kabag Inv. Control)
+    '3050800': '',                   // Robin Dangin (Kabag Material WH)
+    '4808': '',                      // Mulyadi (Kabag Finished Goods)
+    '10031743': '',                  // Junaidi Anwar (Kabag Fertilizer WH)
+    '1956': '',                      // Sujiman (Kabag Sparepart WH)
+    '10027916': ''                   // M. Rafly Anggara (Kabag General WH)
 };
 
 function getApproverEmailByPersNo(persNo, fullName) {
@@ -1292,12 +1292,16 @@ function openSplEmailConfigModal() {
 
     document.body.appendChild(modal);
 
-    // Populate existing custom approver emails
+    // Populate existing custom approver emails with fallback to defaults
     try {
         const customMap = JSON.parse(localStorage.getItem('SPL_CUSTOM_APPROVER_EMAILS') || '{}');
-        Object.keys(customMap).forEach(persNo => {
-            const input = document.getElementById(`approver-email-${persNo}`);
-            if (input) input.value = customMap[persNo];
+        document.querySelectorAll('.custom-approver-input').forEach(input => {
+            const pNo = input.dataset.persno;
+            if (customMap[pNo]) {
+                input.value = customMap[pNo];
+            } else if (DEFAULT_APPROVER_REAL_EMAILS[pNo]) {
+                input.value = DEFAULT_APPROVER_REAL_EMAILS[pNo];
+            }
         });
     } catch(e) {}
 }
