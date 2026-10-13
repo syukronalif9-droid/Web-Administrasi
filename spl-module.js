@@ -1,0 +1,760 @@
+/**
+ * SPL Digitalization Module (Surat Perintah Lembur)
+ * Based on Master Employee1.csv Hierarchy
+ */
+
+const SPL_MASTER_DATA = [
+    // TRAFFIC
+    { area: "Traffic", location: "Way Lunik", persNo: "7339", name: "Sakri", kasieNo: "209113", kasieName: "Nur Tri Ayatullah, S.T", kabagNo: "10039299", kabagName: "Andriyanto", mgrNo: "5078", mgrName: "Wawan Kurniawan" },
+    { area: "Traffic", location: "Way Lunik", persNo: "10041846", name: "Fedriyan Hertanto", kasieNo: "209113", kasieName: "Nur Tri Ayatullah, S.T", kabagNo: "10039299", kabagName: "Andriyanto", mgrNo: "5078", mgrName: "Wawan Kurniawan" },
+    { area: "Traffic", location: "Way Lunik", persNo: "90074507", name: "Ryanto Fransiskus Sirait", kasieNo: "209113", kasieName: "Nur Tri Ayatullah, S.T", kabagNo: "10039299", kabagName: "Andriyanto", mgrNo: "5078", mgrName: "Wawan Kurniawan" },
+    { area: "Traffic", location: "Way Lunik", persNo: "90074534", name: "Andriyanto", kasieNo: "209113", kasieName: "Nur Tri Ayatullah, S.T", kabagNo: "10039299", kabagName: "Andriyanto", mgrNo: "5078", mgrName: "Wawan Kurniawan" },
+    { area: "Traffic", location: "Way Lunik", persNo: "10027886", name: "Agus Rianto", kasieNo: "209113", kasieName: "Nur Tri Ayatullah, S.T", kabagNo: "10039299", kabagName: "Andriyanto", mgrNo: "5078", mgrName: "Wawan Kurniawan" },
+    { area: "Traffic", location: "Way Lunik", persNo: "90095961", name: "Atang Sanjaya", kasieNo: "209113", kasieName: "Nur Tri Ayatullah, S.T", kabagNo: "10039299", kabagName: "Andriyanto", mgrNo: "5078", mgrName: "Wawan Kurniawan" },
+    { area: "Traffic", location: "Way Lunik", persNo: "85044272", name: "Dear Rizky Ramadhan Sinaga", kasieNo: "209113", kasieName: "Nur Tri Ayatullah, S.T", kabagNo: "10039299", kabagName: "Andriyanto", mgrNo: "5078", mgrName: "Wawan Kurniawan" },
+    
+    { area: "Traffic", location: "Tangerang", persNo: "82011025", name: "Andika Saputra", kasieNo: "10036097", kasieName: "Muhammad Syaili Alfian", kabagNo: "10039299", kabagName: "Andriyanto", mgrNo: "5078", mgrName: "Wawan Kurniawan" },
+    { area: "Traffic", location: "Tangerang", persNo: "82011026", name: "Iil Ismail", kasieNo: "10036097", kasieName: "Muhammad Syaili Alfian", kabagNo: "10039299", kabagName: "Andriyanto", mgrNo: "5078", mgrName: "Wawan Kurniawan" },
+    { area: "Traffic", location: "Tangerang", persNo: "82011040", name: "Evan Egy Mahendra", kasieNo: "10036097", kasieName: "Muhammad Syaili Alfian", kabagNo: "10039299", kabagName: "Andriyanto", mgrNo: "5078", mgrName: "Wawan Kurniawan" },
+    { area: "Traffic", location: "Tangerang", persNo: "82011016", name: "Bagus Eko Bramantyo", kasieNo: "10036097", kasieName: "Muhammad Syaili Alfian", kabagNo: "10039299", kabagName: "Andriyanto", mgrNo: "5078", mgrName: "Wawan Kurniawan" },
+    
+    { area: "Traffic", location: "Terbanggi", persNo: "90101516", name: "Reri Erico", kasieNo: "2100", kasieName: "Budi Kurnianto", kabagNo: "10039299", kabagName: "Andriyanto", mgrNo: "5078", mgrName: "Wawan Kurniawan" },
+    { area: "Traffic", location: "Terbanggi", persNo: "90101545", name: "Ilham Aziz Rachmadi", kasieNo: "2100", kasieName: "Budi Kurnianto", kabagNo: "10039299", kabagName: "Andriyanto", mgrNo: "5078", mgrName: "Wawan Kurniawan" },
+    { area: "Traffic", location: "Terbanggi", persNo: "90101543", name: "Adi Saputra", kasieNo: "2100", kasieName: "Budi Kurnianto", kabagNo: "10039299", kabagName: "Andriyanto", mgrNo: "5078", mgrName: "Wawan Kurniawan" },
+    { area: "Traffic", location: "Terbanggi", persNo: "90101550", name: "Wahyudin", kasieNo: "2100", kasieName: "Budi Kurnianto", kabagNo: "10039299", kabagName: "Andriyanto", mgrNo: "5078", mgrName: "Wawan Kurniawan" },
+    { area: "Traffic", location: "Terbanggi", persNo: "90101657", name: "Sukamto", kasieNo: "2100", kasieName: "Budi Kurnianto", kabagNo: "10039299", kabagName: "Andriyanto", mgrNo: "5078", mgrName: "Wawan Kurniawan" },
+    { area: "Traffic", location: "Terbanggi", persNo: "90101708", name: "Jauhari Masa", kasieNo: "2100", kasieName: "Budi Kurnianto", kabagNo: "10039299", kabagName: "Andriyanto", mgrNo: "5078", mgrName: "Wawan Kurniawan" },
+    { area: "Traffic", location: "Terbanggi", persNo: "82011017", name: "Sapuan Hadi", kasieNo: "2100", kasieName: "Budi Kurnianto", kabagNo: "10039299", kabagName: "Andriyanto", mgrNo: "5078", mgrName: "Wawan Kurniawan" },
+    { area: "Traffic", location: "Terbanggi", persNo: "82011027", name: "Adina Lubis", kasieNo: "2100", kasieName: "Budi Kurnianto", kabagNo: "10039299", kabagName: "Andriyanto", mgrNo: "5078", mgrName: "Wawan Kurniawan" },
+    { area: "Traffic", location: "Terbanggi", persNo: "82011010", name: "Tri Puji Santoso", kasieNo: "2100", kasieName: "Budi Kurnianto", kabagNo: "10039299", kabagName: "Andriyanto", mgrNo: "5078", mgrName: "Wawan Kurniawan" },
+    { area: "Traffic", location: "Terbanggi", persNo: "82011014", name: "Slamet Suwito", kasieNo: "2100", kasieName: "Budi Kurnianto", kabagNo: "10039299", kabagName: "Andriyanto", mgrNo: "5078", mgrName: "Wawan Kurniawan" },
+    { area: "Traffic", location: "Terbanggi", persNo: "82011034", name: "Deka Arisandi", kasieNo: "2100", kasieName: "Budi Kurnianto", kabagNo: "10039299", kabagName: "Andriyanto", mgrNo: "5078", mgrName: "Wawan Kurniawan" },
+    { area: "Traffic", location: "Terbanggi", persNo: "82011037", name: "Dwi Putra Jaya", kasieNo: "2100", kasieName: "Budi Kurnianto", kabagNo: "10039299", kabagName: "Andriyanto", mgrNo: "5078", mgrName: "Wawan Kurniawan" },
+    { area: "Traffic", location: "Terbanggi", persNo: "90114624", name: "M Riski Farudin", kasieNo: "2100", kasieName: "Budi Kurnianto", kabagNo: "10039299", kabagName: "Andriyanto", mgrNo: "5078", mgrName: "Wawan Kurniawan" },
+    { area: "Traffic", location: "Terbanggi", persNo: "90114121", name: "Tommy Pangestoe", kasieNo: "2100", kasieName: "Budi Kurnianto", kabagNo: "10039299", kabagName: "Andriyanto", mgrNo: "5078", mgrName: "Wawan Kurniawan" },
+    { area: "Traffic", location: "Terbanggi", persNo: "90114710", name: "Mega Candra", kasieNo: "2100", kasieName: "Budi Kurnianto", kabagNo: "10039299", kabagName: "Andriyanto", mgrNo: "5078", mgrName: "Wawan Kurniawan" },
+    { area: "Traffic", location: "Terbanggi", persNo: "90114899", name: "Rivaldo", kasieNo: "2100", kasieName: "Budi Kurnianto", kabagNo: "10039299", kabagName: "Andriyanto", mgrNo: "5078", mgrName: "Wawan Kurniawan" },
+    { area: "Traffic", location: "Terbanggi", persNo: "90123354", name: "Sopyan", kasieNo: "2100", kasieName: "Budi Kurnianto", kabagNo: "10039299", kabagName: "Andriyanto", mgrNo: "5078", mgrName: "Wawan Kurniawan" },
+
+    // GEN. ADM
+    { area: "Gen. Adm", location: "Central", persNo: "7318", name: "Sri Ngatun", kasieNo: "3234", kasieName: "Sri Indah", kabagNo: "3152137", kabagName: "Setiawan", mgrNo: "5078", mgrName: "Wawan Kurniawan" },
+    { area: "Gen. Adm", location: "Central", persNo: "90101538", name: "Edi Prayoga", kasieNo: "3234", kasieName: "Sri Indah", kabagNo: "3152137", kabagName: "Setiawan", mgrNo: "5078", mgrName: "Wawan Kurniawan" },
+    { area: "Gen. Adm", location: "Central", persNo: "90101534", name: "Joni Saputra", kasieNo: "3234", kasieName: "Sri Indah", kabagNo: "3152137", kabagName: "Setiawan", mgrNo: "5078", mgrName: "Wawan Kurniawan" },
+    { area: "Gen. Adm", location: "Central", persNo: "90101539", name: "Gusti Madewan Se", kasieNo: "3234", kasieName: "Sri Indah", kabagNo: "3152137", kabagName: "Setiawan", mgrNo: "5078", mgrName: "Wawan Kurniawan" },
+    { area: "Gen. Adm", location: "Central", persNo: "90101699", name: "Ahmad Novaldi", kasieNo: "3234", kasieName: "Sri Indah", kabagNo: "3152137", kabagName: "Setiawan", mgrNo: "5078", mgrName: "Wawan Kurniawan" },
+    { area: "Gen. Adm", location: "Central", persNo: "90101706", name: "Rieffed Gilang Nugroho", kasieNo: "3234", kasieName: "Sri Indah", kabagNo: "3152137", kabagName: "Setiawan", mgrNo: "5078", mgrName: "Wawan Kurniawan" },
+    { area: "Gen. Adm", location: "Central", persNo: "1905", name: "Mei Ida Astuti", kasieNo: "3234", kasieName: "Sri Indah", kabagNo: "3152137", kabagName: "Setiawan", mgrNo: "5078", mgrName: "Wawan Kurniawan" },
+
+    // INV. CONTROL
+    { area: "Inv. Control", location: "Central", persNo: "90101544", name: "Bibit Pranoto", kasieNo: "3050803", kasieName: "Eko Febriyanto", kabagNo: "5292", kabagName: "Puji Triananto, S.P", mgrNo: "5078", mgrName: "Wawan Kurniawan" },
+    { area: "Inv. Control", location: "Central", persNo: "90101670", name: "Dwi Prasetyo Budi", kasieNo: "3050803", kasieName: "Eko Febriyanto", kabagNo: "5292", kabagName: "Puji Triananto, S.P", mgrNo: "5078", mgrName: "Wawan Kurniawan" },
+    { area: "Inv. Control", location: "Central", persNo: "10030966", name: "Jesi Raka Siwi", kasieNo: "3050803", kasieName: "Eko Febriyanto", kabagNo: "5292", kabagName: "Puji Triananto, S.P", mgrNo: "5078", mgrName: "Wawan Kurniawan" },
+    { area: "Inv. Control", location: "Central", persNo: "10034005", name: "Jellycia Gunawan", kasieNo: "3050803", kasieName: "Eko Febriyanto", kabagNo: "5292", kabagName: "Puji Triananto, S.P", mgrNo: "5078", mgrName: "Wawan Kurniawan" },
+    { area: "Inv. Control", location: "Central", persNo: "10035642", name: "Anggi Dwi Satriawan", kasieNo: "3050803", kasieName: "Eko Febriyanto", kabagNo: "5292", kabagName: "Puji Triananto, S.P", mgrNo: "5078", mgrName: "Wawan Kurniawan" },
+    { area: "Inv. Control", location: "Central", persNo: "10036116", name: "Nur Rahman", kasieNo: "3050803", kasieName: "Eko Febriyanto", kabagNo: "5292", kabagName: "Puji Triananto, S.P", mgrNo: "5078", mgrName: "Wawan Kurniawan" },
+    { area: "Inv. Control", location: "Central", persNo: "10040065", name: "Aliifah Rohmadoni", kasieNo: "3050803", kasieName: "Eko Febriyanto", kabagNo: "5292", kabagName: "Puji Triananto, S.P", mgrNo: "5078", mgrName: "Wawan Kurniawan" },
+    { area: "Inv. Control", location: "PG3", persNo: "7315", name: "Supiyanto", kasieNo: "10039294", kasieName: "Edoardus Garindio Gardo Polo", kabagNo: "5292", kabagName: "Puji Triananto, S.P", mgrNo: "5078", mgrName: "Wawan Kurniawan" },
+    { area: "Inv. Control", location: "PG4", persNo: "90101063", name: "Heru Pangestu", kasieNo: "10042577", kasieName: "Ardi ferdiansyah", kabagNo: "5292", kabagName: "Puji Triananto, S.P", mgrNo: "5078", mgrName: "Wawan Kurniawan" },
+
+    // SPPT, LUBR & OTHER M
+    { area: "Sppt, Lubr & Other M", location: "Central", persNo: "4818", name: "Sumiyati", kasieNo: "4525", kasieName: "Suranto", kabagNo: "3050800", kabagName: "Robin Dangin", mgrNo: "5078", mgrName: "Wawan Kurniawan" },
+    { area: "Sppt, Lubr & Other M", location: "Central", persNo: "90101535", name: "Ariansyah Rizal", kasieNo: "4525", kasieName: "Suranto", kabagNo: "3050800", kabagName: "Robin Dangin", mgrNo: "5078", mgrName: "Wawan Kurniawan" },
+    { area: "Sppt, Lubr & Other M", location: "Central", persNo: "90101537", name: "Deni Herlangga", kasieNo: "4525", kasieName: "Suranto", kabagNo: "3050800", kabagName: "Robin Dangin", mgrNo: "5078", mgrName: "Wawan Kurniawan" },
+    { area: "Sppt, Lubr & Other M", location: "Central", persNo: "90122074", name: "Angga Aditya Nugraha", kasieNo: "4525", kasieName: "Suranto", kabagNo: "3050800", kabagName: "Robin Dangin", mgrNo: "5078", mgrName: "Wawan Kurniawan" },
+    { area: "Sppt, Lubr & Other M", location: "Central", persNo: "2115", name: "Budi Teguh Santoso", kasieNo: "10007205", kasieName: "Oktomi Rachman", kabagNo: "3050800", kabagName: "Robin Dangin", mgrNo: "5078", mgrName: "Wawan Kurniawan" },
+    { area: "Sppt, Lubr & Other M", location: "Central", persNo: "90101541", name: "Dimas Nugroho", kasieNo: "10007205", kasieName: "Oktomi Rachman", kabagNo: "3050800", kabagName: "Robin Dangin", mgrNo: "5078", mgrName: "Wawan Kurniawan" },
+    { area: "Sppt, Lubr & Other M", location: "Central", persNo: "90101517", name: "Rahmat Gunawan", kasieNo: "10007205", kasieName: "Oktomi Rachman", kabagNo: "3050800", kabagName: "Robin Dangin", mgrNo: "5078", mgrName: "Wawan Kurniawan" },
+    { area: "Sppt, Lubr & Other M", location: "Central", persNo: "90101542", name: "Rivaldo Ariel Fernandez Aditia S", kasieNo: "10007205", kasieName: "Oktomi Rachman", kabagNo: "3050800", kabagName: "Robin Dangin", mgrNo: "5078", mgrName: "Wawan Kurniawan" },
+    { area: "Sppt, Lubr & Other M", location: "Central", persNo: "90101536", name: "Arreza Bagus Wijaya", kasieNo: "10007205", kasieName: "Oktomi Rachman", kabagNo: "3050800", kabagName: "Robin Dangin", mgrNo: "5078", mgrName: "Wawan Kurniawan" },
+    { area: "Sppt, Lubr & Other M", location: "Central", persNo: "90101549", name: "Triyantoni Rosid", kasieNo: "10007205", kasieName: "Oktomi Rachman", kabagNo: "3050800", kabagName: "Robin Dangin", mgrNo: "5078", mgrName: "Wawan Kurniawan" },
+    { area: "Sppt, Lubr & Other M", location: "Central", persNo: "90101568", name: "Richardo Ariansyah", kasieNo: "10007205", kasieName: "Oktomi Rachman", kabagNo: "3050800", kabagName: "Robin Dangin", mgrNo: "5078", mgrName: "Wawan Kurniawan" },
+    { area: "Sppt, Lubr & Other M", location: "Central", persNo: "90101569", name: "Yohana Setiawan", kasieNo: "10007205", kasieName: "Oktomi Rachman", kabagNo: "3050800", kabagName: "Robin Dangin", mgrNo: "5078", mgrName: "Wawan Kurniawan" },
+    { area: "Sppt, Lubr & Other M", location: "Central", persNo: "90115231", name: "Muhammad Ikhwan Adis Setiawan", kasieNo: "10007205", kasieName: "Oktomi Rachman", kabagNo: "3050800", kabagName: "Robin Dangin", mgrNo: "5078", mgrName: "Wawan Kurniawan" },
+    { area: "Sppt, Lubr & Other M", location: "Central", persNo: "90122791", name: "Damar Dwi Bimandika", kasieNo: "10007205", kasieName: "Oktomi Rachman", kabagNo: "3050800", kabagName: "Robin Dangin", mgrNo: "5078", mgrName: "Wawan Kurniawan" },
+    { area: "Sppt, Lubr & Other M", location: "Central", persNo: "90123339", name: "Muhammad Sidiq Wicaksono", kasieNo: "10007205", kasieName: "Oktomi Rachman", kabagNo: "3050800", kabagName: "Robin Dangin", mgrNo: "5078", mgrName: "Wawan Kurniawan" },
+
+    // PG1
+    { area: "PG1", location: "Central", persNo: "2199", name: "K. Supriadi", kasieNo: "7321", kasieName: "Imawan Susanto", kabagNo: "4808", kabagName: "Mulyadi", mgrNo: "5078", mgrName: "Wawan Kurniawan" },
+    { area: "PG1", location: "Central", persNo: "4820", name: "Wahyu Lestari", kasieNo: "7321", kasieName: "Imawan Susanto", kabagNo: "4808", kabagName: "Mulyadi", mgrNo: "5078", mgrName: "Wawan Kurniawan" },
+    { area: "PG1", location: "Central", persNo: "10013290", name: "Andris Hermawan", kasieNo: "7321", kasieName: "Imawan Susanto", kabagNo: "4808", kabagName: "Mulyadi", mgrNo: "5078", mgrName: "Wawan Kurniawan" },
+    { area: "PG1", location: "Central", persNo: "90101513", name: "Muamar Roihan Saputra", kasieNo: "7321", kasieName: "Imawan Susanto", kabagNo: "4808", kabagName: "Mulyadi", mgrNo: "5078", mgrName: "Wawan Kurniawan" },
+    { area: "PG1", location: "Central", persNo: "82011021", name: "Jumanto", kasieNo: "7321", kasieName: "Imawan Susanto", kabagNo: "4808", kabagName: "Mulyadi", mgrNo: "5078", mgrName: "Wawan Kurniawan" },
+    { area: "PG1", location: "Central", persNo: "82011022", name: "Hengky Tirtanto", kasieNo: "7321", kasieName: "Imawan Susanto", kabagNo: "4808", kabagName: "Mulyadi", mgrNo: "5078", mgrName: "Wawan Kurniawan" },
+    { area: "PG1", location: "Central", persNo: "90114589", name: "M. Wildan Shihabbi", kasieNo: "7321", kasieName: "Imawan Susanto", kabagNo: "4808", kabagName: "Mulyadi", mgrNo: "5078", mgrName: "Wawan Kurniawan" },
+    { area: "PG1", location: "Central", persNo: "90101553", name: "M. Yunus", kasieNo: "7321", kasieName: "Imawan Susanto", kabagNo: "4808", kabagName: "Mulyadi", mgrNo: "5078", mgrName: "Wawan Kurniawan" },
+    { area: "PG1", location: "Central", persNo: "90101504", name: "Yasir", kasieNo: "7321", kasieName: "Imawan Susanto", kabagNo: "4808", kabagName: "Mulyadi", mgrNo: "5078", mgrName: "Wawan Kurniawan" },
+    { area: "PG1", location: "Central", persNo: "90101554", name: "Mulyono", kasieNo: "7321", kasieName: "Imawan Susanto", kabagNo: "4808", kabagName: "Mulyadi", mgrNo: "5078", mgrName: "Wawan Kurniawan" },
+    { area: "PG1", location: "Central", persNo: "90101556", name: "Yadi Hari Yahya", kasieNo: "7321", kasieName: "Imawan Susanto", kabagNo: "4808", kabagName: "Mulyadi", mgrNo: "5078", mgrName: "Wawan Kurniawan" },
+    { area: "PG1", location: "Central", persNo: "90121221", name: "Wendiy Rian Pratama", kasieNo: "7321", kasieName: "Imawan Susanto", kabagNo: "4808", kabagName: "Mulyadi", mgrNo: "5078", mgrName: "Wawan Kurniawan" },
+    { area: "PG1", location: "Central", persNo: "90112244", name: "Debi Ferdian", kasieNo: "7321", kasieName: "Imawan Susanto", kabagNo: "4808", kabagName: "Mulyadi", mgrNo: "5078", mgrName: "Wawan Kurniawan" },
+    { area: "PG1", location: "FM1B", persNo: "82012003", name: "Grisna Irawan", kasieNo: "3432", kasieName: "Slamet Hardiyanto", kabagNo: "4808", kabagName: "Mulyadi", mgrNo: "5078", mgrName: "Wawan Kurniawan" },
+    { area: "PG1", location: "FM1B", persNo: "90108727", name: "Ari Prasetiyo H P", kasieNo: "3432", kasieName: "Slamet Hardiyanto", kabagNo: "4808", kabagName: "Mulyadi", mgrNo: "5078", mgrName: "Wawan Kurniawan" },
+    { area: "PG1", location: "FM1A", persNo: "82012002", name: "Bayun Sumirat", kasieNo: "3432", kasieName: "Slamet Hardiyanto", kabagNo: "4808", kabagName: "Mulyadi", mgrNo: "5078", mgrName: "Wawan Kurniawan" },
+    { area: "PG1", location: "FM1A", persNo: "82011019", name: "Taufik Hidayat", kasieNo: "3432", kasieName: "Slamet Hardiyanto", kabagNo: "4808", kabagName: "Mulyadi", mgrNo: "5078", mgrName: "Wawan Kurniawan" },
+    { area: "PG1", location: "FM1A", persNo: "82012004", name: "Mei Supriyadi", kasieNo: "3432", kasieName: "Slamet Hardiyanto", kabagNo: "4808", kabagName: "Mulyadi", mgrNo: "5078", mgrName: "Wawan Kurniawan" },
+    { area: "PG1", location: "FM2", persNo: "90109032", name: "M. Anas Prayogi", kasieNo: "3432", kasieName: "Slamet Hardiyanto", kabagNo: "4808", kabagName: "Mulyadi", mgrNo: "5078", mgrName: "Wawan Kurniawan" },
+    { area: "PG1", location: "FM2", persNo: "90108736", name: "Erlinda Nurlia Putri", kasieNo: "3432", kasieName: "Slamet Hardiyanto", kabagNo: "4808", kabagName: "Mulyadi", mgrNo: "5078", mgrName: "Wawan Kurniawan" },
+    { area: "PG1", location: "FM2", persNo: "82012005", name: "Hendro", kasieNo: "3432", kasieName: "Slamet Hardiyanto", kabagNo: "4808", kabagName: "Mulyadi", mgrNo: "5078", mgrName: "Wawan Kurniawan" },
+
+    // PG2
+    { area: "PG2", location: "FM3A", persNo: "90119845", name: "Retno Evani Sari", kasieNo: "4816", kasieName: "Martinus Tukijan", kabagNo: "10031743", kabagName: "Junaidi Anwar", mgrNo: "5078", mgrName: "Wawan Kurniawan" },
+    { area: "PG2", location: "FM3A", persNo: "90119846", name: "Putra Sanopa", kasieNo: "4816", kasieName: "Martinus Tukijan", kabagNo: "10031743", kabagName: "Junaidi Anwar", mgrNo: "5078", mgrName: "Wawan Kurniawan" },
+    { area: "PG2", location: "FM3A", persNo: "90119844", name: "Dimas Andri Prihatna Jaya", kasieNo: "4816", kasieName: "Martinus Tukijan", kabagNo: "10031743", kabagName: "Junaidi Anwar", mgrNo: "5078", mgrName: "Wawan Kurniawan" },
+    { area: "PG2", location: "FM3B", persNo: "90119837", name: "Ferry Anggara Pratama", kasieNo: "4816", kasieName: "Martinus Tukijan", kabagNo: "10031743", kabagName: "Junaidi Anwar", mgrNo: "5078", mgrName: "Wawan Kurniawan" },
+    { area: "PG2", location: "FM3B", persNo: "90119838", name: "J. Agus Susanto", kasieNo: "4816", kasieName: "Martinus Tukijan", kabagNo: "10031743", kabagName: "Junaidi Anwar", mgrNo: "5078", mgrName: "Wawan Kurniawan" },
+    { area: "PG2", location: "FM3B", persNo: "90119836", name: "Nur Kholik", kasieNo: "4816", kasieName: "Martinus Tukijan", kabagNo: "10031743", kabagName: "Junaidi Anwar", mgrNo: "5078", mgrName: "Wawan Kurniawan" },
+    { area: "PG2", location: "FM4", persNo: "90119828", name: "Rahmadi Saputro", kasieNo: "4816", kasieName: "Martinus Tukijan", kabagNo: "10031743", kabagName: "Junaidi Anwar", mgrNo: "5078", mgrName: "Wawan Kurniawan" },
+    { area: "PG2", location: "FM4", persNo: "82012006", name: "Feri Irawan", kasieNo: "4816", kasieName: "Martinus Tukijan", kabagNo: "10031743", kabagName: "Junaidi Anwar", mgrNo: "5078", mgrName: "Wawan Kurniawan" },
+    { area: "PG2", location: "FM4", persNo: "90119827", name: "Agus Arizal", kasieNo: "4816", kasieName: "Martinus Tukijan", kabagNo: "10031743", kabagName: "Junaidi Anwar", mgrNo: "5078", mgrName: "Wawan Kurniawan" },
+    { area: "PG2", location: "OP1", persNo: "5347", name: "Mustakim", kasieNo: "2685", kasieName: "Mei Hartati", kabagNo: "10031743", kabagName: "Junaidi Anwar", mgrNo: "5078", mgrName: "Wawan Kurniawan" },
+    { area: "PG2", location: "OP1", persNo: "7322", name: "M. Agus Pranoto", kasieNo: "2685", kasieName: "Mei Hartati", kabagNo: "10031743", kabagName: "Junaidi Anwar", mgrNo: "5078", mgrName: "Wawan Kurniawan" },
+    { area: "PG2", location: "OP1", persNo: "90101567", name: "Diah Ayu Agustin", kasieNo: "2685", kasieName: "Mei Hartati", kabagNo: "10031743", kabagName: "Junaidi Anwar", mgrNo: "5078", mgrName: "Wawan Kurniawan" },
+    { area: "PG2", location: "OP1", persNo: "90101667", name: "Muhammad Alif Mumin", kasieNo: "2685", kasieName: "Mei Hartati", kabagNo: "10031743", kabagName: "Junaidi Anwar", mgrNo: "5078", mgrName: "Wawan Kurniawan" },
+    { area: "PG2", location: "OP1", persNo: "90120084", name: "Fedli Ciccelo Ardhana Ramadhan", kasieNo: "2685", kasieName: "Mei Hartati", kabagNo: "10031743", kabagName: "Junaidi Anwar", mgrNo: "5078", mgrName: "Wawan Kurniawan" },
+
+    // PG3
+    { area: "PG3", location: "AGR1, GDP3", persNo: "7326", name: "Agus Sri Susanto", kasieNo: "2539", kasieName: "Rabudin", kabagNo: "1956", kabagName: "Sujiman", mgrNo: "5078", mgrName: "Wawan Kurniawan" },
+    { area: "PG3", location: "AGR1, GDP3", persNo: "90108544", name: "Risky Nur Annisa", kasieNo: "2539", kasieName: "Rabudin", kabagNo: "1956", kabagName: "Sujiman", mgrNo: "5078", mgrName: "Wawan Kurniawan" },
+    { area: "PG3", location: "AGR1, GDP3", persNo: "90108540", name: "Licardo Naperzon", kasieNo: "2539", kasieName: "Rabudin", kabagNo: "1956", kabagName: "Sujiman", mgrNo: "5078", mgrName: "Wawan Kurniawan" },
+    { area: "PG3", location: "AGR2, AGR3", persNo: "7320", name: "Rosidi", kasieNo: "2914", kasieName: "Suwardi", kabagNo: "1956", kabagName: "Sujiman", mgrNo: "5078", mgrName: "Wawan Kurniawan" },
+    { area: "PG3", location: "AGR2, AGR3", persNo: "7325", name: "Sarifudin", kasieNo: "2914", kasieName: "Suwardi", kabagNo: "1956", kabagName: "Sujiman", mgrNo: "5078", mgrName: "Wawan Kurniawan" },
+    { area: "PG3", location: "AGR2, AGR3", persNo: "7328", name: "Multiono", kasieNo: "2914", kasieName: "Suwardi", kabagNo: "1956", kabagName: "Sujiman", mgrNo: "5078", mgrName: "Wawan Kurniawan" },
+    { area: "PG3", location: "AGR2, AGR3", persNo: "90108523", name: "Manore Sinulingga", kasieNo: "2914", kasieName: "Suwardi", kabagNo: "1956", kabagName: "Sujiman", mgrNo: "5078", mgrName: "Wawan Kurniawan" },
+    { area: "PG3", location: "AGR2, AGR3", persNo: "90108530", name: "Yansori", kasieNo: "2914", kasieName: "Suwardi", kabagNo: "1956", kabagName: "Sujiman", mgrNo: "5078", mgrName: "Wawan Kurniawan" },
+    { area: "PG3", location: "AGR2, AGR3", persNo: "90108533", name: "M Ilham Wahid", kasieNo: "2914", kasieName: "Suwardi", kabagNo: "1956", kabagName: "Sujiman", mgrNo: "5078", mgrName: "Wawan Kurniawan" },
+    { area: "PG3", location: "AGR2, AGR3", persNo: "90108534", name: "Paskal Apriyandi Sinulingga", kasieNo: "2914", kasieName: "Suwardi", kabagNo: "1956", kabagName: "Sujiman", mgrNo: "5078", mgrName: "Wawan Kurniawan" },
+    { area: "PG3", location: "AGR2, AGR3", persNo: "90074529", name: "Hariawan Eko Prabowo", kasieNo: "2914", kasieName: "Suwardi", kabagNo: "1956", kabagName: "Sujiman", mgrNo: "5078", mgrName: "Wawan Kurniawan" },
+    { area: "PG3", location: "AGR2, AGR3", persNo: "90108560", name: "Andi Pramantia", kasieNo: "2914", kasieName: "Suwardi", kabagNo: "1956", kabagName: "Sujiman", mgrNo: "5078", mgrName: "Wawan Kurniawan" },
+    { area: "PG3", location: "FM5, FM6", persNo: "10013279", name: "Pahrijal", kasieNo: "10032643", kasieName: "Asep Saputra", kabagNo: "1956", kabagName: "Sujiman", mgrNo: "5078", mgrName: "Wawan Kurniawan" },
+    { area: "PG3", location: "FM5, FM6", persNo: "90108498", name: "Muhyidin", kasieNo: "10032643", kasieName: "Asep Saputra", kabagNo: "1956", kabagName: "Sujiman", mgrNo: "5078", mgrName: "Wawan Kurniawan" },
+    { area: "PG3", location: "FM5, FM6", persNo: "82012007", name: "Nila Puspita Eka Sari", kasieNo: "10032643", kasieName: "Asep Saputra", kabagNo: "1956", kabagName: "Sujiman", mgrNo: "5078", mgrName: "Wawan Kurniawan" },
+    { area: "PG3", location: "FM5, FM6", persNo: "90108525", name: "Ripipan Juanda", kasieNo: "10032643", kasieName: "Asep Saputra", kabagNo: "1956", kabagName: "Sujiman", mgrNo: "5078", mgrName: "Wawan Kurniawan" },
+    { area: "PG3", location: "FM5, FM6", persNo: "90108529", name: "Agung Wasisto Utomo", kasieNo: "10032643", kasieName: "Asep Saputra", kabagNo: "1956", kabagName: "Sujiman", mgrNo: "5078", mgrName: "Wawan Kurniawan" },
+
+    // PG4
+    { area: "PG4", location: "Adm. Umum", persNo: "3060842", name: "Pujiatun", kasieNo: "3020620", kasieName: "Purwanto", kabagNo: "10027916", kabagName: "Muhammad Rafly Anggara Putra Wibowo", mgrNo: "5078", mgrName: "Wawan Kurniawan" },
+    { area: "PG4", location: "Packaging Material", persNo: "3152035", name: "Iwan Yuswana", kasieNo: "10034013", kasieName: "Ikhsan Taufiq", kabagNo: "10027916", kabagName: "Muhammad Rafly Anggara Putra Wibowo", mgrNo: "5078", mgrName: "Wawan Kurniawan" },
+    { area: "PG4", location: "Packaging Material", persNo: "90101072", name: "Aries setiawan", kasieNo: "10034013", kasieName: "Ikhsan Taufiq", kabagNo: "10027916", kabagName: "Muhammad Rafly Anggara Putra Wibowo", mgrNo: "5078", mgrName: "Wawan Kurniawan" },
+    { area: "PG4", location: "Packaging Material", persNo: "90101073", name: "Agus susanto", kasieNo: "10034013", kasieName: "Ikhsan Taufiq", kabagNo: "10027916", kabagName: "Muhammad Rafly Anggara Putra Wibowo", mgrNo: "5078", mgrName: "Wawan Kurniawan" },
+    { area: "PG4", location: "Packaging Material", persNo: "90101074", name: "Karyanto", kasieNo: "10034013", kasieName: "Ikhsan Taufiq", kabagNo: "10027916", kabagName: "Muhammad Rafly Anggara Putra Wibowo", mgrNo: "5078", mgrName: "Wawan Kurniawan" },
+    { area: "PG4", location: "Sparepart", persNo: "3070869", name: "Aris Susilo", kasieNo: "3970501", kasieName: "Suprayitno", kabagNo: "10027916", kabagName: "Muhammad Rafly Anggara Putra Wibowo", mgrNo: "5078", mgrName: "Wawan Kurniawan" },
+    { area: "PG4", location: "Sparepart", persNo: "3152037", name: "Sutiyono", kasieNo: "3970501", kasieName: "Suprayitno", kabagNo: "10027916", kabagName: "Muhammad Rafly Anggara Putra Wibowo", mgrNo: "5078", mgrName: "Wawan Kurniawan" },
+    { area: "PG4", location: "Sparepart", persNo: "3152048", name: "Sarwono", kasieNo: "3970501", kasieName: "Suprayitno", kabagNo: "10027916", kabagName: "Muhammad Rafly Anggara Putra Wibowo", mgrNo: "5078", mgrName: "Wawan Kurniawan" },
+    { area: "PG4", location: "Sparepart", persNo: "3152136", name: "Andi Kusdiyarto", kasieNo: "3970501", kasieName: "Suprayitno", kabagNo: "10027916", kabagName: "Muhammad Rafly Anggara Putra Wibowo", mgrNo: "5078", mgrName: "Wawan Kurniawan" },
+    { area: "PG4", location: "Sparepart", persNo: "90101094", name: "Basuki Rahmad", kasieNo: "3970501", kasieName: "Suprayitno", kabagNo: "10027916", kabagName: "Muhammad Rafly Anggara Putra Wibowo", mgrNo: "5078", mgrName: "Wawan Kurniawan" },
+    { area: "PG4", location: "Sparepart", persNo: "90101096", name: "Erick Setiawan", kasieNo: "3970501", kasieName: "Suprayitno", kabagNo: "10027916", kabagName: "Muhammad Rafly Anggara Putra Wibowo", mgrNo: "5078", mgrName: "Wawan Kurniawan" },
+    { area: "PG4", location: "Sparepart", persNo: "90101097", name: "Nasib riyanto", kasieNo: "3970501", kasieName: "Suprayitno", kabagNo: "10027916", kabagName: "Muhammad Rafly Anggara Putra Wibowo", mgrNo: "5078", mgrName: "Wawan Kurniawan" },
+    { area: "PG4", location: "Support Material", persNo: "3000714", name: "Ernawan", kasieNo: "3080901", kasieName: "Suhendi", kabagNo: "10027916", kabagName: "Muhammad Rafly Anggara Putra Wibowo", mgrNo: "5078", mgrName: "Wawan Kurniawan" },
+    { area: "PG4", location: "Support Material", persNo: "3060859", name: "Mustamar", kasieNo: "3080901", kasieName: "Suhendi", kabagNo: "10027916", kabagName: "Muhammad Rafly Anggara Putra Wibowo", mgrNo: "5078", mgrName: "Wawan Kurniawan" },
+    { area: "PG4", location: "Support Material", persNo: "3130962", name: "Bambang Hermanto", kasieNo: "3080901", kasieName: "Suhendi", kabagNo: "10027916", kabagName: "Muhammad Rafly Anggara Putra Wibowo", mgrNo: "5078", mgrName: "Wawan Kurniawan" },
+    { area: "PG4", location: "Support Material", persNo: "90101065", name: "Molani", kasieNo: "3080901", kasieName: "Suhendi", kabagNo: "10027916", kabagName: "Muhammad Rafly Anggara Putra Wibowo", mgrNo: "5078", mgrName: "Wawan Kurniawan" },
+    { area: "PG4", location: "Support Material", persNo: "90101066", name: "Memed", kasieNo: "3080901", kasieName: "Suhendi", kabagNo: "10027916", kabagName: "Muhammad Rafly Anggara Putra Wibowo", mgrNo: "5078", mgrName: "Wawan Kurniawan" },
+    { area: "PG4", location: "Support Material", persNo: "90101067", name: "Efendi", kasieNo: "3080901", kasieName: "Suhendi", kabagNo: "10027916", kabagName: "Muhammad Rafly Anggara Putra Wibowo", mgrNo: "5078", mgrName: "Wawan Kurniawan" },
+    { area: "PG4", location: "Support Material", persNo: "90101068", name: "Dian Abdul Kholik", kasieNo: "3080901", kasieName: "Suhendi", kabagNo: "10027916", kabagName: "Muhammad Rafly Anggara Putra Wibowo", mgrNo: "5078", mgrName: "Wawan Kurniawan" },
+    { area: "PG4", location: "Support Material", persNo: "90101069", name: "Alex Suryono", kasieNo: "3080901", kasieName: "Suhendi", kabagNo: "10027916", kabagName: "Muhammad Rafly Anggara Putra Wibowo", mgrNo: "5078", mgrName: "Wawan Kurniawan" },
+    { area: "PG4", location: "Support Material", persNo: "90101070", name: "Nasrulloh", kasieNo: "3080901", kasieName: "Suhendi", kabagNo: "10027916", kabagName: "Muhammad Rafly Anggara Putra Wibowo", mgrNo: "5078", mgrName: "Wawan Kurniawan" }
+];
+
+// Initialize default sample SPL if empty
+function getStoredSplList() {
+    const raw = localStorage.getItem('DIGITAL_SPL_DATA');
+    if (!raw) {
+        const sampleData = [
+            {
+                id: 'SPL-2026-001',
+                splNo: 'SPL/WH/2026/04/001',
+                date: '2026-04-12',
+                startTime: '17:00',
+                endTime: '21:00',
+                duration: 4,
+                area: 'Traffic',
+                location: 'Way Lunik',
+                employees: [{ persNo: '7339', name: 'Sakri' }, { persNo: '10041846', name: 'Fedriyan Hertanto' }],
+                reason: 'Loading kontainer ekspor mendesak kapal malam',
+                kasie: { no: '209113', name: 'Nur Tri Ayatullah, S.T', status: 'approved', date: '2026-04-12 16:30' },
+                kabag: { no: '10039299', name: 'Andriyanto', status: 'approved', date: '2026-04-12 16:45' },
+                manager: { no: '5078', name: 'Wawan Kurniawan', status: 'pending', date: null },
+                finalStatus: 'Menunggu Manager'
+            },
+            {
+                id: 'SPL-2026-002',
+                splNo: 'SPL/WH/2026/04/002',
+                date: '2026-04-13',
+                startTime: '16:30',
+                endTime: '19:30',
+                duration: 3,
+                area: 'Inv. Control',
+                location: 'Central',
+                employees: [{ persNo: '90101544', name: 'Bibit Pranoto' }],
+                reason: 'Stock opname akhir pekan material high-turnover',
+                kasie: { no: '3050803', name: 'Eko Febriyanto', status: 'approved', date: '2026-04-13 15:00' },
+                kabag: { no: '5292', name: 'Puji Triananto, S.P', status: 'approved', date: '2026-04-13 15:30' },
+                manager: { no: '5078', name: 'Wawan Kurniawan', status: 'approved', date: '2026-04-13 16:00' },
+                finalStatus: 'Disetujui'
+            }
+        ];
+        localStorage.setItem('DIGITAL_SPL_DATA', JSON.stringify(sampleData));
+        return sampleData;
+    }
+    try {
+        return JSON.parse(raw);
+    } catch (e) {
+        return [];
+    }
+}
+
+function saveSplList(list) {
+    localStorage.setItem('DIGITAL_SPL_DATA', JSON.stringify(list));
+}
+
+// Module Initializer
+function initSplModule() {
+    populateSplAreas();
+    setupSplTimeCalculator();
+    generateNextSplNumber();
+    renderSplHistoryList();
+
+    // Default date to today (2026-04-13)
+    const dateInput = document.getElementById('spl-date');
+    if (dateInput) {
+        const today = new Date().toISOString().split('T')[0];
+        dateInput.value = today;
+    }
+}
+
+function populateSplAreas() {
+    const areaSelect = document.getElementById('spl-area-select');
+    if (!areaSelect) return;
+
+    const areas = [...new Set(SPL_MASTER_DATA.map(d => d.area))];
+    areaSelect.innerHTML = '<option value="">-- Pilih WH Area --</option>';
+    areas.forEach(area => {
+        const opt = document.createElement('option');
+        opt.value = area;
+        opt.textContent = area;
+        areaSelect.appendChild(opt);
+    });
+}
+
+function onSplAreaChange() {
+    const area = document.getElementById('spl-area-select').value;
+    const locSelect = document.getElementById('spl-location-select');
+    const empContainer = document.getElementById('spl-employee-list-container');
+    
+    locSelect.innerHTML = '<option value="">-- Pilih Lokasi --</option>';
+    empContainer.innerHTML = '<div style="color: #94a3b8; font-size: 0.8rem; font-style: italic;">Pilih Area & Lokasi terlebih dahulu</div>';
+    resetApproverInfo();
+
+    if (!area) return;
+
+    const filtered = SPL_MASTER_DATA.filter(d => d.area === area);
+    const locations = [...new Set(filtered.map(d => d.location))];
+
+    locations.forEach(loc => {
+        const opt = document.createElement('option');
+        opt.value = loc;
+        opt.textContent = loc;
+        locSelect.appendChild(opt);
+    });
+
+    // Auto-select if only 1 location
+    if (locations.length === 1) {
+        locSelect.value = locations[0];
+        onSplLocationChange();
+    }
+}
+
+function onSplLocationChange() {
+    const area = document.getElementById('spl-area-select').value;
+    const location = document.getElementById('spl-location-select').value;
+    const empContainer = document.getElementById('spl-employee-list-container');
+    
+    empContainer.innerHTML = '';
+    if (!area || !location) {
+        empContainer.innerHTML = '<div style="color: #94a3b8; font-size: 0.8rem; font-style: italic;">Pilih Area & Lokasi terlebih dahulu</div>';
+        resetApproverInfo();
+        return;
+    }
+
+    const members = SPL_MASTER_DATA.filter(d => d.area === area && d.location === location);
+
+    if (members.length === 0) {
+        empContainer.innerHTML = '<div style="color: #ef4444; font-size: 0.8rem;">Tidak ada karyawan di area & lokasi ini</div>';
+        resetApproverInfo();
+        return;
+    }
+
+    // Set Approvers from the first matching member in this location
+    const ref = members[0];
+    setApproverInfo(ref.kasieName, ref.kasieNo, ref.kabagName, ref.kabagNo, ref.mgrName, ref.mgrNo);
+
+    // Render Employee Checkboxes
+    members.forEach((m, idx) => {
+        const item = document.createElement('label');
+        item.style.cssText = 'display: flex; align-items: center; gap: 8px; padding: 6px 10px; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 0.82rem; cursor: pointer; transition: background 0.15s;';
+        item.onmouseenter = () => item.style.background = '#f8fafc';
+        item.onmouseleave = () => item.style.background = '#ffffff';
+        
+        item.innerHTML = `
+            <input type="checkbox" name="spl_emp_check" value="${m.persNo}|${m.name}" style="accent-color: #18181b; cursor: pointer;">
+            <div style="flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                <strong style="color: #0f172a;">${m.name}</strong> 
+                <span style="color: #64748b; font-size: 0.75rem;">(${m.persNo})</span>
+            </div>
+        `;
+        empContainer.appendChild(item);
+    });
+}
+
+function setApproverInfo(kasieName, kasieNo, kabagName, kabagNo, mgrName, mgrNo) {
+    document.getElementById('spl-app-kasie-name').textContent = kasieName || '-';
+    document.getElementById('spl-app-kasie-no').textContent = kasieNo ? `NIK: ${kasieNo}` : '';
+    
+    document.getElementById('spl-app-kabag-name').textContent = kabagName || '-';
+    document.getElementById('spl-app-kabag-no').textContent = kabagNo ? `NIK: ${kabagNo}` : '';
+
+    document.getElementById('spl-app-mgr-name').textContent = mgrName || 'Wawan Kurniawan';
+    document.getElementById('spl-app-mgr-no').textContent = mgrNo ? `NIK: ${mgrNo}` : 'NIK: 5078';
+}
+
+function resetApproverInfo() {
+    setApproverInfo('-', '', '-', '', '-', '');
+}
+
+function setupSplTimeCalculator() {
+    const startInput = document.getElementById('spl-start-time');
+    const endInput = document.getElementById('spl-end-time');
+    const durationDisplay = document.getElementById('spl-calc-duration');
+
+    function calc() {
+        if (!startInput || !endInput || !durationDisplay) return;
+        const start = startInput.value;
+        const end = endInput.value;
+        if (!start || !end) {
+            durationDisplay.textContent = '0 Jam';
+            return;
+        }
+
+        const [sH, sM] = start.split(':').map(Number);
+        const [eH, eM] = end.split(':').map(Number);
+
+        let startMinutes = sH * 60 + sM;
+        let endMinutes = eH * 60 + eM;
+
+        if (endMinutes < startMinutes) {
+            endMinutes += 24 * 60; // Next day
+        }
+
+        const diffMinutes = endMinutes - startMinutes;
+        const hours = (diffMinutes / 60).toFixed(1);
+        durationDisplay.textContent = `${hours.replace('.0', '')} Jam (${diffMinutes} menit)`;
+    }
+
+    if (startInput && endInput) {
+        startInput.addEventListener('change', calc);
+        endInput.addEventListener('change', calc);
+    }
+}
+
+function generateNextSplNumber() {
+    const list = getStoredSplList();
+    const count = list.length + 1;
+    const year = new Date().getFullYear();
+    const padded = String(count).padStart(3, '0');
+    const noField = document.getElementById('spl-doc-no');
+    if (noField) {
+        noField.value = `SPL/WH/${year}/04/${padded}`;
+    }
+}
+
+// Submit Form Action
+function handleSplSubmit(e) {
+    if (e) e.preventDefault();
+
+    const splNo = document.getElementById('spl-doc-no').value;
+    const date = document.getElementById('spl-date').value;
+    const startTime = document.getElementById('spl-start-time').value;
+    const endTime = document.getElementById('spl-end-time').value;
+    const area = document.getElementById('spl-area-select').value;
+    const location = document.getElementById('spl-location-select').value;
+    const reason = document.getElementById('spl-reason').value.trim();
+
+    // Check selected employees
+    const checkboxes = document.querySelectorAll('input[name="spl_emp_check"]:checked');
+    const selectedEmps = Array.from(checkboxes).map(cb => {
+        const [persNo, name] = cb.value.split('|');
+        return { persNo, name };
+    });
+
+    if (!date || !startTime || !endTime) {
+        alert('Mohon lengkapi tanggal dan jam lembur!');
+        return;
+    }
+
+    if (!area || !location) {
+        alert('Mohon pilih WH Area dan Lokasi!');
+        return;
+    }
+
+    if (selectedEmps.length === 0) {
+        alert('Pilih minimal 1 orang karyawan yang ditugaskan lembur!');
+        return;
+    }
+
+    if (!reason) {
+        alert('Mohon isi uraian pekerjaan / alasan lembur!');
+        return;
+    }
+
+    // Approver details
+    const kasieName = document.getElementById('spl-app-kasie-name').textContent;
+    const kasieNo = document.getElementById('spl-app-kasie-no').textContent.replace('NIK: ', '');
+    const kabagName = document.getElementById('spl-app-kabag-name').textContent;
+    const kabagNo = document.getElementById('spl-app-kabag-no').textContent.replace('NIK: ', '');
+    const mgrName = document.getElementById('spl-app-mgr-name').textContent;
+    const mgrNo = document.getElementById('spl-app-mgr-no').textContent.replace('NIK: ', '');
+
+    // Calculate duration
+    const [sH, sM] = startTime.split(':').map(Number);
+    const [eH, eM] = endTime.split(':').map(Number);
+    let startMin = sH * 60 + sM;
+    let endMin = eH * 60 + eM;
+    if (endMin < startMin) endMin += 24 * 60;
+    const durationHours = parseFloat(((endMin - startMin) / 60).toFixed(1));
+
+    const newSpl = {
+        id: 'SPL-' + Date.now(),
+        splNo: splNo,
+        date: date,
+        startTime: startTime,
+        endTime: endTime,
+        duration: durationHours,
+        area: area,
+        location: location,
+        employees: selectedEmps,
+        reason: reason,
+        kasie: { no: kasieNo, name: kasieName, status: 'approved', date: new Date().toLocaleString('id-ID') },
+        kabag: { no: kabagNo, name: kabagName, status: 'pending', date: null },
+        manager: { no: mgrNo, name: mgrName, status: 'pending', date: null },
+        finalStatus: 'Menunggu Kabag'
+    };
+
+    const list = getStoredSplList();
+    list.unshift(newSpl);
+    saveSplList(list);
+
+    alert(`Surat Perintah Lembur ${splNo} berhasil dibuat & diajukan ke Kepala Bagian (${kabagName})!`);
+
+    // Reset Form
+    document.getElementById('spl-reason').value = '';
+    document.querySelectorAll('input[name="spl_emp_check"]').forEach(cb => cb.checked = false);
+    generateNextSplNumber();
+
+    // Re-render Slide 2 and switch tab
+    renderSplHistoryList();
+    switchCustomSlide(2);
+}
+
+// Render Slide 2 SPL History & Tracking
+function renderSplHistoryList(filterStatus = 'all') {
+    const container = document.getElementById('spl-history-container');
+    const badgeCount = document.getElementById('spl-pending-badge');
+    if (!container) return;
+
+    const list = getStoredSplList();
+    
+    // Update pending count
+    const pendingCount = list.filter(item => item.finalStatus !== 'Disetujui' && item.finalStatus !== 'Ditolak').length;
+    if (badgeCount) {
+        badgeCount.textContent = pendingCount;
+        badgeCount.style.display = pendingCount > 0 ? 'inline-block' : 'none';
+    }
+
+    let filtered = list;
+    if (filterStatus === 'pending') {
+        filtered = list.filter(item => item.finalStatus.includes('Menunggu'));
+    } else if (filterStatus === 'approved') {
+        filtered = list.filter(item => item.finalStatus === 'Disetujui');
+    }
+
+    if (filtered.length === 0) {
+        container.innerHTML = `
+            <div style="text-align: center; padding: 30px 10px; color: #94a3b8;">
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin-bottom: 8px; opacity: 0.7;">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                    <polyline points="14 2 14 8 20 8"></polyline>
+                </svg>
+                <div style="font-size: 0.9rem; font-weight: 500;">Belum ada Surat Perintah Lembur</div>
+                <div style="font-size: 0.78rem;">Buat pengajuan baru di Slide 1</div>
+            </div>
+        `;
+        return;
+    }
+
+    container.innerHTML = '';
+    filtered.forEach(item => {
+        const card = document.createElement('div');
+        card.style.cssText = 'background: #ffffff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 16px; margin-bottom: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); font-family: "Inter", sans-serif;';
+
+        const isApproved = item.finalStatus === 'Disetujui';
+        const statusBg = isApproved ? '#dcfce7' : '#fef3c7';
+        const statusColor = isApproved ? '#15803d' : '#b45309';
+
+        const empNames = item.employees.map(e => e.name).join(', ');
+
+        card.innerHTML = `
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
+                <div>
+                    <span style="font-weight: 700; font-size: 0.88rem; color: #0f172a;">${item.splNo}</span>
+                    <div style="font-size: 0.75rem; color: #64748b;">${item.area} • ${item.location} • ${item.date}</div>
+                </div>
+                <span style="background: ${statusBg}; color: ${statusColor}; font-size: 0.72rem; font-weight: 700; padding: 3px 8px; border-radius: 99px;">
+                    ${item.finalStatus}
+                </span>
+            </div>
+
+            <div style="font-size: 0.8rem; color: #334155; margin-bottom: 8px; background: #f8fafc; padding: 8px 10px; border-radius: 8px; border: 1px solid #f1f5f9;">
+                <div><strong>Karyawan (${item.employees.length}):</strong> ${empNames}</div>
+                <div style="margin-top: 4px;"><strong>Waktu:</strong> ${item.startTime} - ${item.endTime} (${item.duration} Jam)</div>
+                <div style="margin-top: 4px; color: #64748b; font-style: italic;">"${item.reason}"</div>
+            </div>
+
+            <!-- Approval Stepper -->
+            <div style="display: flex; align-items: center; justify-content: space-between; margin: 12px 0 10px; padding: 8px 10px; background: #ffffff; border: 1px dashed #cbd5e1; border-radius: 10px; font-size: 0.7rem;">
+                <!-- Kasie Step -->
+                <div style="display: flex; flex-direction: column; align-items: center; text-align: center; flex: 1;">
+                    <div style="width: 22px; height: 22px; border-radius: 50%; background: #16a34a; color: white; display: flex; align-items: center; justify-content: center; font-size: 0.65rem; font-weight: bold; margin-bottom: 2px;">✓</div>
+                    <span style="font-weight: 600; color: #0f172a;">Kasie (Created)</span>
+                    <span style="color: #64748b; font-size: 0.65rem;">${item.kasie.name.split(',')[0]}</span>
+                </div>
+                <div style="height: 2px; background: ${item.kabag.status === 'approved' ? '#16a34a' : '#cbd5e1'}; flex: 0.5;"></div>
+
+                <!-- Kabag Step -->
+                <div style="display: flex; flex-direction: column; align-items: center; text-align: center; flex: 1;">
+                    <div style="width: 22px; height: 22px; border-radius: 50%; background: ${item.kabag.status === 'approved' ? '#16a34a' : '#f59e0b'}; color: white; display: flex; align-items: center; justify-content: center; font-size: 0.65rem; font-weight: bold; margin-bottom: 2px;">
+                        ${item.kabag.status === 'approved' ? '✓' : '⌛'}
+                    </div>
+                    <span style="font-weight: 600; color: #0f172a;">Kabag</span>
+                    <span style="color: #64748b; font-size: 0.65rem;">${item.kabag.name.split(',')[0]}</span>
+                </div>
+                <div style="height: 2px; background: ${item.manager.status === 'approved' ? '#16a34a' : '#cbd5e1'}; flex: 0.5;"></div>
+
+                <!-- Manager Step -->
+                <div style="display: flex; flex-direction: column; align-items: center; text-align: center; flex: 1;">
+                    <div style="width: 22px; height: 22px; border-radius: 50%; background: ${item.manager.status === 'approved' ? '#16a34a' : (item.kabag.status === 'approved' ? '#f59e0b' : '#cbd5e1')}; color: white; display: flex; align-items: center; justify-content: center; font-size: 0.65rem; font-weight: bold; margin-bottom: 2px;">
+                        ${item.manager.status === 'approved' ? '✓' : (item.kabag.status === 'approved' ? '⌛' : '○')}
+                    </div>
+                    <span style="font-weight: 600; color: #0f172a;">Manager</span>
+                    <span style="color: #64748b; font-size: 0.65rem;">${item.manager.name}</span>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div style="display: flex; gap: 8px; justify-content: flex-end; align-items: center; margin-top: 8px; border-top: 1px solid #f1f5f9; padding-top: 8px;">
+                ${item.finalStatus !== 'Disetujui' ? `
+                    <button onclick="simulateApproveSpl('${item.id}')" style="background: #18181b; color: #ffffff; border: none; padding: 5px 12px; border-radius: 8px; font-size: 0.75rem; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;">
+                        <span>✓ Setujui (Simulasi)</span>
+                    </button>
+                ` : ''}
+
+                <button onclick="printSplDocument('${item.id}')" style="background: #f1f5f9; color: #0f172a; border: 1px solid #e2e8f0; padding: 5px 12px; border-radius: 8px; font-size: 0.75rem; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9V2h12v7"></path><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+                    <span>Cetak SPL</span>
+                </button>
+
+                <button onclick="deleteSpl('${item.id}')" title="Hapus SPL" style="background: transparent; color: #ef4444; border: none; padding: 5px 8px; border-radius: 6px; font-size: 0.75rem; cursor: pointer;">
+                    ✕
+                </button>
+            </div>
+        `;
+
+        container.appendChild(card);
+    });
+}
+
+// Interactive Simulation Approval
+function simulateApproveSpl(id) {
+    const list = getStoredSplList();
+    const item = list.find(s => s.id === id);
+    if (!item) return;
+
+    if (item.kabag.status === 'pending') {
+        item.kabag.status = 'approved';
+        item.kabag.date = new Date().toLocaleString('id-ID');
+        item.finalStatus = 'Menunggu Manager';
+        alert(`SPL ${item.splNo} berhasil disetujui oleh Kepala Bagian (${item.kabag.name}). Menunggu persetujuan Manager (${item.manager.name})`);
+    } else if (item.manager.status === 'pending') {
+        item.manager.status = 'approved';
+        item.manager.date = new Date().toLocaleString('id-ID');
+        item.finalStatus = 'Disetujui';
+        alert(`SPL ${item.splNo} TELAH SELESAI DISETUJUI oleh Manager (${item.manager.name})! Siap dicetak/diarsipkan.`);
+    }
+
+    saveSplList(list);
+    renderSplHistoryList();
+}
+
+function deleteSpl(id) {
+    if (!confirm('Yakin ingin menghapus dokumen SPL ini?')) return;
+    let list = getStoredSplList();
+    list = list.filter(s => s.id !== id);
+    saveSplList(list);
+    renderSplHistoryList();
+}
+
+// Print / View Official SPL Document Format
+function printSplDocument(id) {
+    const list = getStoredSplList();
+    const item = list.find(s => s.id === id);
+    if (!item) return;
+
+    const printWindow = window.open('', '_blank', 'width=850,height=900');
+    if (!printWindow) {
+        alert('Izinkan popup browser untuk mencetak SPL!');
+        return;
+    }
+
+    const employeeRows = item.employees.map((e, idx) => `
+        <tr>
+            <td style="border: 1px solid #333; padding: 6px 10px; text-align: center;">${idx + 1}</td>
+            <td style="border: 1px solid #333; padding: 6px 10px; text-align: center;">${e.persNo}</td>
+            <td style="border: 1px solid #333; padding: 6px 10px;">${e.name}</td>
+            <td style="border: 1px solid #333; padding: 6px 10px; text-align: center;">${item.area} / ${item.location}</td>
+            <td style="border: 1px solid #333; padding: 6px 10px; text-align: center;">${item.startTime} - ${item.endTime}</td>
+            <td style="border: 1px solid #333; padding: 6px 10px; text-align: center;">${item.duration} Jam</td>
+        </tr>
+    `).join('');
+
+    const htmlContent = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Cetak ${item.splNo}</title>
+            <style>
+                body { font-family: Arial, sans-serif; margin: 30px; color: #111; line-height: 1.4; font-size: 13px; }
+                .header-table { width: 100%; border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 16px; }
+                .title { text-align: center; font-size: 18px; font-weight: bold; text-decoration: underline; margin-bottom: 4px; }
+                .subtitle { text-align: center; font-size: 13px; margin-bottom: 20px; font-weight: 500; }
+                .meta-table { width: 100%; margin-bottom: 16px; border-collapse: collapse; }
+                .meta-table td { padding: 4px 6px; }
+                .emp-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+                .emp-table th { border: 1px solid #333; background: #f0f0f0; padding: 8px 6px; font-size: 12px; }
+                .sign-table { width: 100%; margin-top: 30px; text-align: center; border-collapse: collapse; }
+                .sign-table td { width: 33.3%; padding: 6px; vertical-align: top; }
+                .stamp { color: #16a34a; font-weight: bold; border: 2px solid #16a34a; display: inline-block; padding: 3px 8px; border-radius: 4px; font-size: 11px; transform: rotate(-5deg); margin: 6px 0; }
+                @media print {
+                    button { display: none; }
+                }
+            </style>
+        </head>
+        <body>
+            <table class="header-table">
+                <tr>
+                    <td style="font-size: 18px; font-weight: bold; letter-spacing: 0.5px;">PT GREAT GIANT PINEAPPLE</td>
+                    <td style="text-align: right; font-size: 12px; color: #555;">WAREHOUSE & LOGISTICS DIVISION</td>
+                </tr>
+            </table>
+
+            <div class="title">SURAT PERINTAH LEMBUR (SPL)</div>
+            <div class="subtitle">Nomor: <strong>${item.splNo}</strong></div>
+
+            <table class="meta-table">
+                <tr>
+                    <td style="width: 140px;"><strong>WH Area (Sub-Dept)</strong></td>
+                    <td style="width: 10px;">:</td>
+                    <td>${item.area}</td>
+                    <td style="width: 120px;"><strong>Tanggal Lembur</strong></td>
+                    <td style="width: 10px;">:</td>
+                    <td>${item.date}</td>
+                </tr>
+                <tr>
+                    <td><strong>Lokasi Kerja</strong></td>
+                    <td>:</td>
+                    <td>${item.location}</td>
+                    <td><strong>Jam Kerja Lembur</strong></td>
+                    <td>:</td>
+                    <td>${item.startTime} s/d ${item.endTime} (${item.duration} Jam)</td>
+                </tr>
+                <tr>
+                    <td><strong>Uraian Pekerjaan</strong></td>
+                    <td>:</td>
+                    <td colspan="4">${item.reason}</td>
+                </tr>
+            </table>
+
+            <div style="font-weight: bold; margin-bottom: 8px;">Daftar Karyawan yang Ditugaskan:</div>
+            <table class="emp-table">
+                <thead>
+                    <tr>
+                        <th style="width: 35px;">No</th>
+                        <th style="width: 100px;">NIK / Pers.No</th>
+                        <th>Nama Karyawan</th>
+                        <th style="width: 150px;">Area / Lokasi</th>
+                        <th style="width: 120px;">Jam Lembur</th>
+                        <th style="width: 80px;">Durasi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${employeeRows}
+                </tbody>
+            </table>
+
+            <!-- Tanda Tangan Hierarki Approval -->
+            <table class="sign-table">
+                <tr>
+                    <td>
+                        <div>Dibuat Oleh:</div>
+                        <div style="font-weight: 600; font-size: 12px; margin-top: 2px;">Kepala Seksi (Kasie)</div>
+                        <div style="height: 60px; display: flex; align-items: center; justify-content: center;">
+                            <div class="stamp">DIGITALLY SIGNED<br><span style="font-size: 9px;">${item.kasie.date || ''}</span></div>
+                        </div>
+                        <div style="font-weight: bold; text-decoration: underline;">${item.kasie.name}</div>
+                        <div style="font-size: 11px; color: #555;">NIK: ${item.kasie.no}</div>
+                    </td>
+                    <td>
+                        <div>Disetujui Oleh (1):</div>
+                        <div style="font-weight: 600; font-size: 12px; margin-top: 2px;">Kepala Bagian (Kabag)</div>
+                        <div style="height: 60px; display: flex; align-items: center; justify-content: center;">
+                            ${item.kabag.status === 'approved' ? `
+                                <div class="stamp">DIGITALLY SIGNED<br><span style="font-size: 9px;">${item.kabag.date || ''}</span></div>
+                            ` : '<div style="color: #999; font-style: italic;">[Menunggu Approval]</div>'}
+                        </div>
+                        <div style="font-weight: bold; text-decoration: underline;">${item.kabag.name}</div>
+                        <div style="font-size: 11px; color: #555;">NIK: ${item.kabag.no}</div>
+                    </td>
+                    <td>
+                        <div>Disetujui Oleh (2):</div>
+                        <div style="font-weight: 600; font-size: 12px; margin-top: 2px;">Manager Warehouse</div>
+                        <div style="height: 60px; display: flex; align-items: center; justify-content: center;">
+                            ${item.manager.status === 'approved' ? `
+                                <div class="stamp">DIGITALLY SIGNED<br><span style="font-size: 9px;">${item.manager.date || ''}</span></div>
+                            ` : '<div style="color: #999; font-style: italic;">[Menunggu Approval]</div>'}
+                        </div>
+                        <div style="font-weight: bold; text-decoration: underline;">${item.manager.name}</div>
+                        <div style="font-size: 11px; color: #555;">NIK: ${item.manager.no}</div>
+                    </td>
+                </tr>
+            </table>
+
+            <div style="margin-top: 30px; text-align: center;">
+                <button onclick="window.print()" style="padding: 10px 24px; font-size: 14px; font-weight: bold; background: #007AFF; color: white; border: none; border-radius: 6px; cursor: pointer;">
+                    🖨️ Cetak / Simpan PDF
+                </button>
+            </div>
+        </body>
+        </html>
+    `;
+
+    printWindow.document.write(htmlContent);
+    printWindow.document.close();
+}
+
+// Expose globals for HTML
+window.initSplModule = initSplModule;
+window.onSplAreaChange = onSplAreaChange;
+window.onSplLocationChange = onSplLocationChange;
+window.handleSplSubmit = handleSplSubmit;
+window.renderSplHistoryList = renderSplHistoryList;
+window.simulateApproveSpl = simulateApproveSpl;
+window.deleteSpl = deleteSpl;
+window.printSplDocument = printSplDocument;

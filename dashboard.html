@@ -35,6 +35,7 @@
         }
     </script>
     <script src="worksheetData.js"></script>
+    <script src="spl-module.js"></script>
 </head>
 
 <body>
@@ -154,14 +155,18 @@
             </style>
             
             <header class="topbar" style="display: flex; justify-content: space-between; align-items: center; padding: 16px 0; margin-bottom: 24px;">
-                <!-- Left: Sidebar Trigger (Menggantikan tulisan Administrasi) -->
-                <button id="custom-sidebar-trigger" onclick="toggleCustomSidebar()" title="Buka Sidebar Navigasi" style="background: #ffffff; padding: 10px 18px; border-radius: 99px; font-weight: 600; font-size: 0.95rem; color: #1e293b; display: inline-flex; align-items: center; gap: 10px; border: 1px solid #e2e8f0; cursor: pointer; box-shadow: 0 4px 14px rgba(0,0,0,0.04); transition: all 0.25s ease; font-family: 'Inter', sans-serif;">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                        <line x1="3" y1="12" x2="21" y2="12"></line>
-                        <line x1="3" y1="6" x2="21" y2="6"></line>
-                        <line x1="3" y1="18" x2="21" y2="18"></line>
-                    </svg>
-                    <span>Sidebar</span>
+                <!-- Left: SPL Digital Trigger (Menggantikan tulisan Administrasi) -->
+                <button id="custom-sidebar-trigger" onclick="toggleCustomSidebar()" title="Surat Perintah Lembur (SPL)" style="background: #ffffff; padding: 9px 18px; border-radius: 99px; font-weight: 600; font-size: 0.95rem; color: #1e293b; display: inline-flex; align-items: center; gap: 10px; border: 1px solid #e2e8f0; cursor: pointer; box-shadow: 0 4px 14px rgba(0,0,0,0.04); transition: all 0.25s ease; font-family: 'Inter', sans-serif;">
+                    <div style="width: 26px; height: 26px; border-radius: 8px; background: #18181b; color: white; display: flex; align-items: center; justify-content: center;">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                            <polyline points="14 2 14 8 20 8"></polyline>
+                            <line x1="16" y1="13" x2="8" y2="13"></line>
+                            <line x1="16" y1="17" x2="8" y2="17"></line>
+                        </svg>
+                    </div>
+                    <span>SPL Digital</span>
+                    <span id="spl-top-badge" style="background: #ef4444; color: white; font-size: 0.72rem; font-weight: 700; padding: 2px 7px; border-radius: 99px;">1</span>
                 </button>
 
                 <!-- Right Side Container (Menu + Icons) -->
@@ -2068,6 +2073,9 @@ document.addEventListener("DOMContentLoaded", function() {
                 sidebar.classList.add('open');
                 overlay.classList.add('open');
                 document.body.style.overflow = 'hidden';
+                if (typeof window.initSplModule === 'function') {
+                    window.initSplModule();
+                }
             }
         }
 
@@ -2097,14 +2105,9 @@ document.addEventListener("DOMContentLoaded", function() {
                 tab1.classList.remove('active');
                 slide2.style.display = 'block';
                 slide1.style.display = 'none';
-            }
-        }
-
-        function jumpToNav(target) {
-            closeCustomSidebar();
-            const navItem = document.querySelector(`.nav-menu.horizontal .nav-item[data-target="${target}"]`);
-            if (navItem) {
-                navItem.click();
+                if (typeof window.renderSplHistoryList === 'function') {
+                    window.renderSplHistoryList();
+                }
             }
         }
 
@@ -2114,26 +2117,35 @@ document.addEventListener("DOMContentLoaded", function() {
                 closeCustomSidebar();
             }
         });
+
+        // Initialize SPL badge on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            if (typeof window.initSplModule === 'function') {
+                window.initSplModule();
+            }
+        });
     </script>
 
     <!-- Custom Floating Sidebar Overlay -->
     <div id="custom-sidebar-overlay" onclick="closeCustomSidebar()" style="position: fixed; inset: 0; background: rgba(15, 23, 42, 0.45); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); z-index: 9998; opacity: 0; visibility: hidden; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);"></div>
 
-    <!-- Custom Floating Sidebar Drawer -->
-    <aside id="custom-floating-sidebar" style="position: fixed; top: 16px; left: 16px; bottom: 16px; width: 380px; max-width: calc(100vw - 32px); background: #ffffff; border-radius: 24px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); z-index: 9999; transform: translateX(-120%); transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1); display: flex; flex-direction: column; overflow: hidden; border: 1px solid rgba(226, 232, 240, 0.9); font-family: 'Inter', sans-serif;">
+    <!-- Custom Floating Sidebar Drawer: DIGITALISASI SURAT PERINTAH LEMBUR (SPL) -->
+    <aside id="custom-floating-sidebar" style="position: fixed; top: 16px; left: 16px; bottom: 16px; width: 480px; max-width: calc(100vw - 32px); background: #ffffff; border-radius: 24px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); z-index: 9999; transform: translateX(-120%); transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1); display: flex; flex-direction: column; overflow: hidden; border: 1px solid rgba(226, 232, 240, 0.9); font-family: 'Inter', sans-serif;">
+        
         <!-- Header -->
-        <div style="padding: 20px 22px 16px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #f1f5f9;">
+        <div style="padding: 18px 22px 14px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #f1f5f9; background: #ffffff;">
             <div style="display: flex; align-items: center; gap: 12px;">
-                <div style="width: 38px; height: 38px; border-radius: 12px; background: #18181b; display: flex; align-items: center; justify-content: center; color: white;">
+                <div style="width: 40px; height: 40px; border-radius: 12px; background: #18181b; display: flex; align-items: center; justify-content: center; color: white;">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                        <line x1="3" y1="12" x2="21" y2="12"></line>
-                        <line x1="3" y1="6" x2="21" y2="6"></line>
-                        <line x1="3" y1="18" x2="21" y2="18"></line>
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                        <polyline points="14 2 14 8 20 8"></polyline>
+                        <line x1="16" y1="13" x2="8" y2="13"></line>
+                        <line x1="16" y1="17" x2="8" y2="17"></line>
                     </svg>
                 </div>
                 <div>
-                    <h4 style="margin: 0; font-size: 1.05rem; font-weight: 700; color: #0f172a; letter-spacing: -0.3px;">Sidebar Panel</h4>
-                    <p style="margin: 2px 0 0 0; font-size: 0.75rem; color: #64748b;">Administrasi Navigasi & Data</p>
+                    <h4 style="margin: 0; font-size: 1.05rem; font-weight: 700; color: #0f172a; letter-spacing: -0.3px;">Surat Perintah Lembur (SPL)</h4>
+                    <p style="margin: 2px 0 0 0; font-size: 0.75rem; color: #64748b;">Digitalisasi & Hierarki Persetujuan Warehouse</p>
                 </div>
             </div>
             <button onclick="closeCustomSidebar()" title="Tutup" style="background: #f1f5f9; border: none; width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #475569; transition: all 0.2s;">
@@ -2145,13 +2157,16 @@ document.addEventListener("DOMContentLoaded", function() {
         </div>
 
         <!-- 2 Slide Segmented Tabs -->
-        <div style="padding: 16px 20px 8px;">
+        <div style="padding: 14px 20px 8px; background: #ffffff;">
             <div style="display: flex; background: #f1f5f9; padding: 4px; border-radius: 12px; gap: 4px;">
-                <button id="slide-tab-1" onclick="switchCustomSlide(1)" class="sidebar-slide-tab active" style="flex: 1; padding: 9px 12px; border: none; border-radius: 9px; font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: all 0.2s;">
-                    Slide 1: Operasional
+                <button id="slide-tab-1" onclick="switchCustomSlide(1)" class="sidebar-slide-tab active" style="flex: 1; padding: 9px 12px; border: none; border-radius: 9px; font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 6px;">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+                    <span>Slide 1: Buat SPL</span>
                 </button>
-                <button id="slide-tab-2" onclick="switchCustomSlide(2)" class="sidebar-slide-tab" style="flex: 1; padding: 9px 12px; border: none; border-radius: 9px; font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: all 0.2s;">
-                    Slide 2: Tools & Data
+                <button id="slide-tab-2" onclick="switchCustomSlide(2)" class="sidebar-slide-tab" style="flex: 1; padding: 9px 12px; border: none; border-radius: 9px; font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 6px;">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+                    <span>Slide 2: Riwayat & Approval</span>
+                    <span id="spl-pending-badge" style="background: #f59e0b; color: white; font-size: 0.68rem; font-weight: 700; padding: 1px 6px; border-radius: 99px;">1</span>
                 </button>
             </div>
         </div>
@@ -2159,156 +2174,154 @@ document.addEventListener("DOMContentLoaded", function() {
         <!-- Slides Scroll Area -->
         <div style="flex: 1; position: relative; overflow-y: auto; overflow-x: hidden; padding: 12px 20px 20px;">
             
-            <!-- SLIDE 1 PANE -->
+            <!-- ============================================== -->
+            <!-- SLIDE 1 PANE: FORM PEMBUATAN SPL BARU          -->
+            <!-- ============================================== -->
             <div id="sidebar-slide-1" class="sidebar-slide-pane">
-                <div style="margin-bottom: 16px;">
-                    <div style="font-size: 0.75rem; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px;">Akses Menu Cepat</div>
+                <form id="form-create-spl" onsubmit="handleSplSubmit(event)" style="display: flex; flex-direction: column; gap: 14px;">
                     
-                    <button class="sidebar-menu-btn" onclick="jumpToNav('dashboard')">
-                        <div class="icon-box" style="background: #e0f2fe; color: #0284c7;">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <rect x="3" y="3" width="7" height="7"></rect>
-                                <rect x="14" y="3" width="7" height="7"></rect>
-                                <rect x="14" y="14" width="7" height="7"></rect>
-                                <rect x="3" y="14" width="7" height="7"></rect>
-                            </svg>
+                    <!-- Row 1: No SPL & Tanggal -->
+                    <div style="display: flex; gap: 10px;">
+                        <div style="flex: 1.2;">
+                            <label style="display: block; font-size: 0.75rem; font-weight: 700; color: #475569; margin-bottom: 4px;">No. Dokumen SPL</label>
+                            <input type="text" id="spl-doc-no" readonly style="width: 100%; box-sizing: border-box; padding: 8px 10px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 0.82rem; font-weight: 600; color: #0f172a;">
                         </div>
                         <div style="flex: 1;">
-                            <div style="font-weight: 600; font-size: 0.88rem; color: #0f172a;">Dashboard Utama</div>
-                            <div style="font-size: 0.75rem; color: #64748b;">Statistik KPI & Presensi</div>
+                            <label style="display: block; font-size: 0.75rem; font-weight: 700; color: #475569; margin-bottom: 4px;">Tanggal Lembur</label>
+                            <input type="date" id="spl-date" required style="width: 100%; box-sizing: border-box; padding: 8px 10px; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.82rem; font-weight: 500; color: #0f172a;">
                         </div>
-                    </button>
-
-                    <button class="sidebar-menu-btn" onclick="jumpToNav('upload')">
-                        <div class="icon-box" style="background: #fef3c7; color: #d97706;">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                                <polyline points="17 8 12 3 7 8"></polyline>
-                                <line x1="12" y1="3" x2="12" y2="15"></line>
-                            </svg>
-                        </div>
-                        <div style="flex: 1;">
-                            <div style="font-weight: 600; font-size: 0.88rem; color: #0f172a;">Upload Data</div>
-                            <div style="font-size: 0.75rem; color: #64748b;">Sinkronisasi file Excel / CSV</div>
-                        </div>
-                    </button>
-
-                    <button class="sidebar-menu-btn" onclick="jumpToNav('stock')">
-                        <div class="icon-box" style="background: #dcfce7; color: #16a34a;">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                                <circle cx="9" cy="7" r="4"></circle>
-                                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-                                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-                            </svg>
-                        </div>
-                        <div style="flex: 1;">
-                            <div style="font-weight: 600; font-size: 0.88rem; color: #0f172a;">Master Employee</div>
-                            <div style="font-size: 0.75rem; color: #64748b;">Data hierarki & member team</div>
-                        </div>
-                    </button>
-                    
-                    <button class="sidebar-menu-btn" onclick="jumpToNav('mb51')">
-                        <div class="icon-box" style="background: #ede9fe; color: #7c3aed;">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-                                <line x1="16" y1="2" x2="16" y2="6"></line>
-                                <line x1="8" y1="2" x2="8" y2="6"></line>
-                                <line x1="3" y1="10" x2="21" y2="10"></line>
-                            </svg>
-                        </div>
-                        <div style="flex: 1;">
-                            <div style="font-weight: 600; font-size: 0.88rem; color: #0f172a;">Work Days</div>
-                            <div style="font-size: 0.75rem; color: #64748b;">Data hari kerja & presensi</div>
-                        </div>
-                    </button>
-                </div>
-
-                <!-- Info Card Placeholder -->
-                <div style="background: #f8fafc; border-radius: 16px; padding: 14px 16px; border: 1px solid #e2e8f0; margin-top: 14px;">
-                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
-                        <span style="font-size: 0.8rem; font-weight: 700; color: #334155;">Status Sistem</span>
-                        <span style="font-size: 0.7rem; background: #dcfce7; color: #15803d; padding: 2px 8px; border-radius: 99px; font-weight: 600;">Aktif</span>
                     </div>
-                    <div style="font-size: 0.78rem; color: #64748b; line-height: 1.4;">
-                        Supabase Database terhubung. Data presensi dan absensi warehouse tersinkronisasi otomatis.
+
+                    <!-- Row 2: Jam Mulai, Jam Selesai & Estimasi Jam -->
+                    <div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                            <label style="font-size: 0.75rem; font-weight: 700; color: #475569;">Waktu Kerja Lembur</label>
+                            <span id="spl-calc-duration" style="font-size: 0.75rem; font-weight: 700; color: #0284c7; background: #e0f2fe; padding: 2px 8px; border-radius: 6px;">4 Jam</span>
+                        </div>
+                        <div style="display: flex; gap: 10px; align-items: center;">
+                            <input type="time" id="spl-start-time" value="17:00" required style="flex: 1; padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.82rem; font-weight: 500; text-align: center;">
+                            <span style="font-size: 0.75rem; color: #94a3b8; font-weight: bold;">s/d</span>
+                            <input type="time" id="spl-end-time" value="21:00" required style="flex: 1; padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.82rem; font-weight: 500; text-align: center;">
+                        </div>
                     </div>
-                </div>
+
+                    <!-- Row 3: WH Area & Lokasi (Dinamis dari Master Employee1.csv) -->
+                    <div style="display: flex; gap: 10px;">
+                        <div style="flex: 1;">
+                            <label style="display: block; font-size: 0.75rem; font-weight: 700; color: #475569; margin-bottom: 4px;">WH Area (Sub-Dept)</label>
+                            <select id="spl-area-select" onchange="onSplAreaChange()" required style="width: 100%; box-sizing: border-box; padding: 8px 10px; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.82rem; font-weight: 500; color: #0f172a; cursor: pointer;">
+                                <option value="">-- Pilih WH Area --</option>
+                            </select>
+                        </div>
+                        <div style="flex: 1;">
+                            <label style="display: block; font-size: 0.75rem; font-weight: 700; color: #475569; margin-bottom: 4px;">Lokasi Kerja</label>
+                            <select id="spl-location-select" onchange="onSplLocationChange()" required style="width: 100%; box-sizing: border-box; padding: 8px 10px; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.82rem; font-weight: 500; color: #0f172a; cursor: pointer;">
+                                <option value="">-- Pilih Lokasi --</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Row 4: Member Team Checkbox List -->
+                    <div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                            <label style="font-size: 0.75rem; font-weight: 700; color: #475569;">Pilih Karyawan Ditugaskan</label>
+                            <span style="font-size: 0.7rem; color: #64748b;">(Bisa pilih lebih dari 1)</span>
+                        </div>
+                        <div id="spl-employee-list-container" style="max-height: 130px; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 8px;">
+                            <div style="color: #94a3b8; font-size: 0.8rem; font-style: italic; text-align: center; padding: 10px;">Pilih WH Area & Lokasi terlebih dahulu</div>
+                        </div>
+                    </div>
+
+                    <!-- Row 5: Hierarki Approval Otomatis Card -->
+                    <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 12px;">
+                        <div style="font-size: 0.72rem; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">Alur Hierarki Persetujuan (Auto-Linked)</div>
+                        
+                        <div style="display: flex; flex-direction: column; gap: 8px;">
+                            <!-- Kasie -->
+                            <div style="display: flex; align-items: center; justify-content: space-between; font-size: 0.78rem;">
+                                <div style="display: flex; align-items: center; gap: 6px;">
+                                    <span style="width: 20px; height: 20px; border-radius: 50%; background: #16a34a; color: white; display: flex; align-items: center; justify-content: center; font-size: 0.65rem; font-weight: bold;">1</span>
+                                    <span style="color: #334155; font-weight: 600;">Create SPL (Kasie):</span>
+                                </div>
+                                <div style="text-align: right;">
+                                    <div id="spl-app-kasie-name" style="font-weight: 700; color: #0f172a;">-</div>
+                                    <div id="spl-app-kasie-no" style="font-size: 0.68rem; color: #64748b;"></div>
+                                </div>
+                            </div>
+
+                            <!-- Kabag -->
+                            <div style="display: flex; align-items: center; justify-content: space-between; font-size: 0.78rem;">
+                                <div style="display: flex; align-items: center; gap: 6px;">
+                                    <span style="width: 20px; height: 20px; border-radius: 50%; background: #f59e0b; color: white; display: flex; align-items: center; justify-content: center; font-size: 0.65rem; font-weight: bold;">2</span>
+                                    <span style="color: #334155; font-weight: 600;">Approver 1 (Kabag):</span>
+                                </div>
+                                <div style="text-align: right;">
+                                    <div id="spl-app-kabag-name" style="font-weight: 700; color: #0f172a;">-</div>
+                                    <div id="spl-app-kabag-no" style="font-size: 0.68rem; color: #64748b;"></div>
+                                </div>
+                            </div>
+
+                            <!-- Manager -->
+                            <div style="display: flex; align-items: center; justify-content: space-between; font-size: 0.78rem;">
+                                <div style="display: flex; align-items: center; gap: 6px;">
+                                    <span style="width: 20px; height: 20px; border-radius: 50%; background: #3b82f6; color: white; display: flex; align-items: center; justify-content: center; font-size: 0.65rem; font-weight: bold;">3</span>
+                                    <span style="color: #334155; font-weight: 600;">Approver 2 (Manager):</span>
+                                </div>
+                                <div style="text-align: right;">
+                                    <div id="spl-app-mgr-name" style="font-weight: 700; color: #0f172a;">Wawan Kurniawan</div>
+                                    <div id="spl-app-mgr-no" style="font-size: 0.68rem; color: #64748b;">NIK: 5078</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Row 6: Alasan Lembur -->
+                    <div>
+                        <label style="display: block; font-size: 0.75rem; font-weight: 700; color: #475569; margin-bottom: 4px;">Uraian Pekerjaan / Alasan Lembur</label>
+                        <textarea id="spl-reason" rows="2" required placeholder="Contoh: Bongkar muat kontainer ekspor mendesak..." style="width: 100%; box-sizing: border-box; padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.82rem; font-family: 'Inter', sans-serif; resize: none;"></textarea>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <button type="submit" style="width: 100%; background: #18181b; color: #ffffff; padding: 12px; border-radius: 12px; font-weight: 700; font-size: 0.92rem; border: none; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 14px rgba(24,24,27,0.25); display: flex; align-items: center; justify-content: center; gap: 8px;">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                        <span>Ajukan Surat Perintah Lembur</span>
+                    </button>
+                </form>
             </div>
 
-            <!-- SLIDE 2 PANE -->
+            <!-- ============================================== -->
+            <!-- SLIDE 2 PANE: RIWAYAT & TRACKING APPROVAL SPL  -->
+            <!-- ============================================== -->
             <div id="sidebar-slide-2" class="sidebar-slide-pane" style="display: none;">
-                <div style="margin-bottom: 16px;">
-                    <div style="font-size: 0.75rem; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px;">Alat & Ekspor Data</div>
-                    
-                    <button class="sidebar-menu-btn" onclick="alert('Fitur Ekspor Laporan Presensi siap diimplementasikan.');">
-                        <div class="icon-box" style="background: #fee2e2; color: #ef4444;">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                                <polyline points="14 2 14 8 20 8"></polyline>
-                                <line x1="16" y1="13" x2="8" y2="13"></line>
-                                <line x1="16" y1="17" x2="8" y2="17"></line>
-                                <polyline points="10 9 9 9 8 9"></polyline>
-                            </svg>
-                        </div>
-                        <div style="flex: 1;">
-                            <div style="font-weight: 600; font-size: 0.88rem; color: #0f172a;">Ekspor Laporan PDF/CSV</div>
-                            <div style="font-size: 0.75rem; color: #64748b;">Download rekap kehadiran warehouse</div>
-                        </div>
-                    </button>
-
-                    <button class="sidebar-menu-btn" onclick="alert('Memuat filter cepat...'); closeCustomSidebar();">
-                        <div class="icon-box" style="background: #e0e7ff; color: #4f46e5;">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
-                            </svg>
-                        </div>
-                        <div style="flex: 1;">
-                            <div style="font-weight: 600; font-size: 0.88rem; color: #0f172a;">Filter Karyawan Cepat</div>
-                            <div style="font-size: 0.75rem; color: #64748b;">Filter Permanent, Kontrak, OS</div>
-                        </div>
-                    </button>
-
-                    <button class="sidebar-menu-btn" onclick="window.applyFilters ? window.applyFilters() : null; closeCustomSidebar();">
-                        <div class="icon-box" style="background: #ccfbf1; color: #0d9488;">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <polyline points="23 4 23 10 17 10"></polyline>
-                                <polyline points="1 20 1 14 7 14"></polyline>
-                                <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
-                            </svg>
-                        </div>
-                        <div style="flex: 1;">
-                            <div style="font-weight: 600; font-size: 0.88rem; color: #0f172a;">Segarkan Data</div>
-                            <div style="font-size: 0.75rem; color: #64748b;">Reload query database & visual</div>
-                        </div>
-                    </button>
+                
+                <!-- Filter Pills -->
+                <div style="display: flex; gap: 6px; margin-bottom: 12px; overflow-x: auto; padding-bottom: 4px;">
+                    <button onclick="renderSplHistoryList('all')" style="background: #18181b; color: white; border: none; padding: 5px 12px; border-radius: 99px; font-size: 0.75rem; font-weight: 600; cursor: pointer; white-space: nowrap;">Semua</button>
+                    <button onclick="renderSplHistoryList('pending')" style="background: #f1f5f9; color: #475569; border: 1px solid #e2e8f0; padding: 5px 12px; border-radius: 99px; font-size: 0.75rem; font-weight: 600; cursor: pointer; white-space: nowrap;">Menunggu Approval</button>
+                    <button onclick="renderSplHistoryList('approved')" style="background: #f1f5f9; color: #475569; border: 1px solid #e2e8f0; padding: 5px 12px; border-radius: 99px; font-size: 0.75rem; font-weight: 600; cursor: pointer; white-space: nowrap;">Disetujui</button>
                 </div>
 
-                <!-- Slide 2 Setting Placeholder -->
-                <div style="background: #f8fafc; border-radius: 16px; padding: 14px 16px; border: 1px solid #e2e8f0; margin-top: 14px;">
-                    <div style="font-size: 0.8rem; font-weight: 700; color: #334155; margin-bottom: 6px;">Informasi Versi</div>
-                    <div style="font-size: 0.76rem; color: #64748b; line-height: 1.5;">
-                        <div>• Versi App: <strong>v2.6 Stable</strong></div>
-                        <div>• Warehouse: <strong>CEN5 Aging & Presensi</strong></div>
-                    </div>
+                <!-- Container List SPL -->
+                <div id="spl-history-container">
+                    <!-- Populated by spl-module.js -->
                 </div>
             </div>
 
         </div>
 
         <!-- Sidebar Footer -->
-        <div style="padding: 16px 20px; border-top: 1px solid #f1f5f9; background: #fafafa; display: flex; align-items: center; justify-content: space-between;">
+        <div style="padding: 14px 20px; border-top: 1px solid #f1f5f9; background: #fafafa; display: flex; align-items: center; justify-content: space-between;">
             <div style="display: flex; align-items: center; gap: 10px;">
-                <div style="width: 34px; height: 34px; border-radius: 50%; background: #18181b; color: white; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 700;">
-                    AD
+                <div style="width: 32px; height: 32px; border-radius: 50%; background: #18181b; color: white; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 700;">
+                    SPL
                 </div>
                 <div>
-                    <div style="font-size: 0.85rem; font-weight: 600; color: #0f172a;">Administrator</div>
-                    <div style="font-size: 0.72rem; color: #16a34a; font-weight: 500;">● Online</div>
+                    <div style="font-size: 0.82rem; font-weight: 600; color: #0f172a;">Digital SPL System</div>
+                    <div style="font-size: 0.7rem; color: #16a34a; font-weight: 500;">● Terhubung Master Employee 1</div>
                 </div>
             </div>
-            <button onclick="logout()" title="Logout" style="background: #ffffff; border: 1px solid #e2e8f0; padding: 6px 12px; border-radius: 8px; font-size: 0.75rem; font-weight: 600; color: #ef4444; cursor: pointer; transition: all 0.2s;">
-                Keluar
+            <button onclick="closeCustomSidebar()" style="background: #ffffff; border: 1px solid #e2e8f0; padding: 6px 12px; border-radius: 8px; font-size: 0.75rem; font-weight: 600; color: #64748b; cursor: pointer; transition: all 0.2s;">
+                Tutup
             </button>
         </div>
     </aside>
