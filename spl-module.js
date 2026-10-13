@@ -588,7 +588,7 @@ function getEmailJsConfig() {
     }
     return {
         serviceId: 'service_ggqdruv',
-        templateId: 'template_spl_approval',
+        templateId: 'template_o5mvd66',
         publicKey: '',
         enabled: true
     };
@@ -618,7 +618,9 @@ function dispatchSplEmailNotification(spl) {
         creator_name: spl.kasie.name,
         creator_nik: spl.kasie.no,
         wh_area: spl.area,
+        bagian: spl.area,
         wh_location: spl.location,
+        lokasi: spl.location,
         overtime_date: spl.date,
         overtime_time: `${spl.startTime} s/d ${spl.endTime} (${spl.duration} Jam)`,
         employee_count: spl.employees.length,
@@ -1393,8 +1395,10 @@ async function runDirectEmailTest() {
                 to_manager_name: 'Test Manager',
                 creator_name: 'Nur Tri Ayatullah, S.T',
                 creator_nik: '209113',
-                wh_area: 'Traffic',
-                wh_location: 'Way Lunik',
+                wh_area: 'Packaging',
+                bagian: 'Packaging',
+                wh_location: 'Central',
+                lokasi: 'Central',
                 overtime_date: new Date().toLocaleDateString('id-ID'),
                 overtime_time: '17:00 s/d 21:00 (4 Jam)',
                 employee_count: 2,
