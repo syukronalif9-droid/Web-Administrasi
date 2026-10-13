@@ -451,7 +451,7 @@ function populateSplAreas() {
     if (!areaSelect) return;
 
     const areas = [...new Set(SPL_MASTER_DATA.map(d => d.area))];
-    areaSelect.innerHTML = '<option value="">-- Pilih WH Area --</option>';
+    areaSelect.innerHTML = '<option value="">-- Pilih Bagian --</option>';
     areas.forEach(area => {
         const opt = document.createElement('option');
         opt.value = area;
