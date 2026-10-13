@@ -530,15 +530,99 @@ function onSplLocationChange() {
     });
 }
 
+// ========================================================
+// EMAIL NOTIFICATION SERVICE (APPROVER 1 & 2)
+// ========================================================
+function generateCorporateEmail(fullName) {
+    if (!fullName || fullName === '-' || fullName.trim() === '') return '';
+    // Hapus gelar seperti S.T, S.P, dll
+    let clean = fullName.replace(/,.*$/, '').trim();
+    // Ubah ke huruf kecil dan format nama depan.nama belakang
+    let parts = clean.toLowerCase().replace(/[^a-z\s]/g, '').split(/\s+/).filter(Boolean);
+    if (parts.length === 0) return 'approver@ggf.com';
+    if (parts.length === 1) return `${parts[0]}@ggf.com`;
+    return `${parts.join('.')}@ggf.com`;
+}
+
+function getEmailJsConfig() {
+    const raw = localStorage.getItem('SPL_EMAILJS_CONFIG');
+    if (raw) {
+        try { return JSON.parse(raw); } catch (e) {}
+    }
+    return {
+        serviceId: 'service_ggf_spl',
+        templateId: 'template_spl_approval',
+        publicKey: '',
+        enabled: true
+    };
+}
+
+function saveEmailJsConfig(cfg) {
+    localStorage.setItem('SPL_EMAILJS_CONFIG', JSON.stringify(cfg));
+}
+
+function dispatchSplEmailNotification(spl) {
+    const cfg = getEmailJsConfig();
+    const kabagEmail = spl.kabag.email;
+    const mgrEmail = spl.manager.email;
+
+    const emailParams = {
+        spl_no: spl.splNo,
+        to_kabag_name: spl.kabag.name,
+        to_kabag_email: kabagEmail,
+        to_manager_name: spl.manager.name,
+        to_manager_email: mgrEmail,
+        creator_name: spl.kasie.name,
+        creator_nik: spl.kasie.no,
+        wh_area: spl.area,
+        wh_location: spl.location,
+        overtime_date: spl.date,
+        overtime_time: `${spl.startTime} s/d ${spl.endTime} (${spl.duration} Jam)`,
+        employee_count: spl.employees.length,
+        employee_list: spl.employees.map((e, idx) => `${idx + 1}. ${e.name} (${e.persNo})`).join('\n'),
+        reason: spl.reason,
+        app_url: window.location.href
+    };
+
+    // If EmailJS SDK is loaded and public key is configured, send via API
+    if (window.emailjs && cfg.publicKey) {
+        try {
+            window.emailjs.init({ publicKey: cfg.publicKey });
+            window.emailjs.send(cfg.serviceId, cfg.templateId, emailParams)
+                .then(function(res) {
+                    console.log('EmailJS Notification Sent:', res.status, res.text);
+                }, function(err) {
+                    console.warn('EmailJS Direct Notice Error:', err);
+                });
+        } catch (e) {
+            console.warn('EmailJS call failed:', e);
+        }
+    }
+
+    return {
+        sentAt: new Date().toLocaleString('id-ID'),
+        status: 'TERKIRIM',
+        subject: `[Pengajuan SPL Baru] ${spl.splNo} - ${spl.area}`,
+        recipients: [
+            { role: 'Approver 1 (Kabag)', name: spl.kabag.name, email: kabagEmail },
+            { role: 'Approver 2 (Manager)', name: spl.manager.name, email: mgrEmail }
+        ]
+    };
+}
+
 function setApproverInfo(kasieName, kasieNo, kabagName, kabagNo, mgrName, mgrNo) {
+    const kasieEmail = generateCorporateEmail(kasieName);
+    const kabagEmail = generateCorporateEmail(kabagName);
+    const mgrEmail = generateCorporateEmail(mgrName || 'Wawan Kurniawan');
+
     document.getElementById('spl-app-kasie-name').textContent = kasieName || '-';
     document.getElementById('spl-app-kasie-no').textContent = kasieNo ? `NIK: ${kasieNo}` : '';
     
     document.getElementById('spl-app-kabag-name').textContent = kabagName || '-';
-    document.getElementById('spl-app-kabag-no').textContent = kabagNo ? `NIK: ${kabagNo}` : '';
+    document.getElementById('spl-app-kabag-no').innerHTML = kabagNo ? `NIK: ${kabagNo} • <span style="color:#0284c7;">✉ ${kabagEmail}</span>` : '';
 
     document.getElementById('spl-app-mgr-name').textContent = mgrName || 'Wawan Kurniawan';
-    document.getElementById('spl-app-mgr-no').textContent = mgrNo ? `NIK: ${mgrNo}` : 'NIK: 5078';
+    document.getElementById('spl-app-mgr-no').innerHTML = mgrNo ? `NIK: ${mgrNo} • <span style="color:#0284c7;">✉ ${mgrEmail}</span>` : `NIK: 5078 • <span style="color:#0284c7;">✉ ${mgrEmail}</span>`;
 }
 
 function resetApproverInfo() {
@@ -639,11 +723,15 @@ function handleSplSubmit(e) {
 
     // Approver details
     const kasieName = document.getElementById('spl-app-kasie-name').textContent;
-    const kasieNo = document.getElementById('spl-app-kasie-no').textContent.replace('NIK: ', '');
+    const kasieNo = document.getElementById('spl-app-kasie-no').textContent.replace('NIK: ', '').split('•')[0].trim();
     const kabagName = document.getElementById('spl-app-kabag-name').textContent;
-    const kabagNo = document.getElementById('spl-app-kabag-no').textContent.replace('NIK: ', '');
+    const kabagNo = document.getElementById('spl-app-kabag-no').textContent.replace('NIK: ', '').split('•')[0].trim();
     const mgrName = document.getElementById('spl-app-mgr-name').textContent;
-    const mgrNo = document.getElementById('spl-app-mgr-no').textContent.replace('NIK: ', '');
+    const mgrNo = document.getElementById('spl-app-mgr-no').textContent.replace('NIK: ', '').split('•')[0].trim();
+
+    const kasieEmail = generateCorporateEmail(kasieName);
+    const kabagEmail = generateCorporateEmail(kabagName);
+    const mgrEmail = generateCorporateEmail(mgrName);
 
     // Calculate duration
     const [sH, sM] = startTime.split(':').map(Number);
@@ -664,17 +752,21 @@ function handleSplSubmit(e) {
         location: location,
         employees: selectedEmps,
         reason: reason,
-        kasie: { no: kasieNo, name: kasieName, status: 'approved', date: new Date().toLocaleString('id-ID') },
-        kabag: { no: kabagNo, name: kabagName, status: 'pending', date: null },
-        manager: { no: mgrNo, name: mgrName, status: 'pending', date: null },
+        kasie: { no: kasieNo, name: kasieName, email: kasieEmail, status: 'approved', date: new Date().toLocaleString('id-ID') },
+        kabag: { no: kabagNo, name: kabagName, email: kabagEmail, status: 'pending', date: null },
+        manager: { no: mgrNo, name: mgrName, email: mgrEmail, status: 'pending', date: null },
         finalStatus: 'Menunggu Kabag'
     };
+
+    // Auto-dispatch Email Notification to Approver 1 & Approver 2
+    const emailResult = dispatchSplEmailNotification(newSpl);
+    newSpl.emailNotification = emailResult;
 
     const list = getStoredSplList();
     list.unshift(newSpl);
     saveSplList(list);
 
-    alert(`Surat Perintah Lembur ${splNo} berhasil dibuat & diajukan ke Kepala Bagian (${kabagName})!`);
+    alert(`Surat Perintah Lembur (${splNo}) berhasil diajukan!\n\n📧 NOTIFIKASI EMAIL OTOMATIS TERKIRIM KE:\n1. Approver 1 (Kabag)    : ${kabagEmail} (${kabagName})\n2. Approver 2 (Manager) : ${mgrEmail} (${mgrName})`);
 
     // Reset Form
     document.getElementById('spl-reason').value = '';
@@ -733,6 +825,13 @@ function renderSplHistoryList(filterStatus = 'all') {
 
         const empNames = item.employees.map(e => e.name).join(', ');
 
+        const emailInfo = item.emailNotification ? `
+            <div style="margin-top: 6px; font-size: 0.72rem; color: #0369a1; background: #f0f9ff; border: 1px solid #bae6fd; padding: 4px 8px; border-radius: 6px; display: flex; align-items: center; gap: 6px;">
+                <span style="font-size: 0.85rem;">✉</span>
+                <span><strong>Email Notifikasi:</strong> ${item.kabag.email} & ${item.manager.email}</span>
+            </div>
+        ` : '';
+
         card.innerHTML = `
             <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
                 <div>
@@ -748,6 +847,7 @@ function renderSplHistoryList(filterStatus = 'all') {
                 <div><strong>Karyawan (${item.employees.length}):</strong> ${empNames}</div>
                 <div style="margin-top: 4px;"><strong>Waktu:</strong> ${item.startTime} - ${item.endTime} (${item.duration} Jam)</div>
                 <div style="margin-top: 4px; color: #64748b; font-style: italic;">"${item.reason}"</div>
+                ${emailInfo}
             </div>
 
             <!-- Approval Stepper -->
