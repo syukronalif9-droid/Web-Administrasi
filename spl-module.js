@@ -351,6 +351,9 @@ function performSplVerification(explicitNik) {
         // Otomatis refresh opsi Bagian dan Lokasi sesuai otoritas user
         populateSplAreas();
 
+        // Langsung tampilkan daftar bawahan & info Kabag tanpa harus pilih manual
+        autoPopulateEmployees();
+
         // Tampilkan pesan sukses jelas
         alert(`✅ Verifikasi Berhasil!\n\nNama: ${employee.name}\nJabatan: ${employee.title}\nNIK: ${employee.persNo}\nBagian: ${employee.area || 'Warehouse'}\n\nDaftar nama karyawan bawahan langsung ditampilkan di bawah.`);
     } else {
@@ -442,8 +445,8 @@ function populateSplAreas() {
         areaSelect.appendChild(opt);
     });
 
-    // Otomatis pilih jika hanya 1 bagian
-    if (areas.length === 1) {
+    // Otomatis pilih area pertama dan langsung tampilkan daftar karyawan bawahan
+    if (areas.length >= 1) {
         areaSelect.value = areas[0];
         onSplAreaChange();
     }
@@ -1706,6 +1709,83 @@ async function runDirectEmailTest() {
     }, 600);
 }
 
+// ========================================================
+// AUTO-POPULATE EMPLOYEES - Langsung tampilkan bawahan setelah verifikasi NIK
+// ========================================================
+function autoPopulateEmployees() {
+    const user = getCurrentUserSession();
+    if (!user || !user.canCreateSpl) return;
+
+    const areaSelect = document.getElementById('spl-area-select');
+    const locSelect = document.getElementById('spl-location-select');
+    const empContainer = document.getElementById('spl-employee-list-container');
+    if (!empContainer) return;
+
+    // Tentukan daftar bawahan berdasarkan role
+    let members = [];
+    if (user.role === 'MANAGER') {
+        // Manager: tampilkan semua karyawan dari area yang sedang dipilih
+        const selectedArea = areaSelect ? areaSelect.value : '';
+        const selectedLoc = locSelect ? locSelect.value : '';
+        if (selectedArea && selectedLoc) {
+            members = SPL_MASTER_DATA.filter(d =>
+                String(d.area).trim().toLowerCase() === String(selectedArea).trim().toLowerCase() &&
+                String(d.location).trim().toLowerCase() === String(selectedLoc).trim().toLowerCase()
+            );
+        } else if (selectedArea) {
+            members = SPL_MASTER_DATA.filter(d =>
+                String(d.area).trim().toLowerCase() === String(selectedArea).trim().toLowerCase()
+            );
+        } else {
+            members = [...SPL_MASTER_DATA];
+        }
+    } else if (user.role === 'KABAG') {
+        // Kabag: tampilkan semua karyawan di bawah kabag ini
+        members = SPL_MASTER_DATA.filter(d => String(d.kabagNo).trim() === String(user.persNo).trim());
+    } else if (user.role === 'KASIE') {
+        // Kasie: tampilkan semua karyawan di bawah kasie ini
+        members = SPL_MASTER_DATA.filter(d => String(d.kasieNo).trim() === String(user.persNo).trim());
+    }
+
+    if (members.length === 0) {
+        empContainer.innerHTML = '<div style="color: #ef4444; font-size: 0.8rem; text-align: center; padding: 12px;">Tidak ada karyawan bawahan yang terdaftar untuk pejabat ini</div>';
+        return;
+    }
+
+    // Render Employee Checkboxes langsung
+    empContainer.innerHTML = '';
+
+    // Tambahkan header info jumlah bawahan
+    const headerInfo = document.createElement('div');
+    headerInfo.style.cssText = 'padding: 8px 12px; background: #e0f2fe; border-radius: 8px; margin-bottom: 6px; font-size: 0.82rem; color: #0369a1; font-weight: 600; text-align: center;';
+    headerInfo.textContent = `📋 ${members.length} karyawan bawahan ditemukan`;
+    empContainer.appendChild(headerInfo);
+
+    members.forEach((m, idx) => {
+        const item = document.createElement('label');
+        item.style.cssText = 'display: flex; align-items: center; gap: 10px; padding: 9px 14px; background: #ffffff; border: 1.5px solid #cbd5e1; border-radius: 10px; font-size: 0.92rem; cursor: pointer; transition: all 0.15s; user-select: none; margin-bottom: 4px;';
+        item.onmouseenter = () => item.style.background = '#f1f5f9';
+        item.onmouseleave = () => item.style.background = '#ffffff';
+
+        item.innerHTML = `
+            <input type="checkbox" name="spl_emp_check" value="${m.persNo}|${m.name}" style="width: 18px; height: 18px; accent-color: #18181b; cursor: pointer;">
+            <div style="flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                <strong style="color: #0f172a; font-size: 0.92rem;">${m.name}</strong>
+                <span style="color: #475569; font-size: 0.82rem; margin-left: 6px; font-weight: 500;">(NIK: ${m.persNo})</span>
+            </div>
+        `;
+        empContainer.appendChild(item);
+    });
+
+    // Set Approvers dari member pertama yang ditemukan
+    try {
+        const ref = members[0];
+        setApproverInfo(ref.kasieName, ref.kasieNo, ref.kabagName, ref.kabagNo, ref.mgrName, ref.mgrNo);
+    } catch (err) {
+        console.warn('Error setting approver info:', err);
+    }
+}
+
 // Expose globals for HTML
 window.initSplModule = initSplModule;
 window.onSplAreaChange = onSplAreaChange;
@@ -1729,4 +1809,5 @@ window.testSendSplEmail = testSendSplEmail;
 window.previewSampleEmailContent = previewSampleEmailContent;
 window.runDirectEmailTest = runDirectEmailTest;
 window.manualRefreshSpl = manualRefreshSpl;
+window.autoPopulateEmployees = autoPopulateEmployees;
 
