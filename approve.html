@@ -198,22 +198,30 @@
 
             let targetSpl = localList.find(s => s.id === splId || s.splNo === splId);
 
-            // 2. Ambil dari Supabase jika ada
+            // Helper timeout agar tidak loading lama jika tabel Supabase belum ada / lambat
+            const withTimeout = (promise, ms = 1200) => {
+                const timer = new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout')), ms));
+                return Promise.race([promise, timer]);
+            };
+
+            // 2. Ambil dari Supabase jika ada (dengan batas waktu 1.2 detik)
             if (supabase && (!targetSpl || !localList.length)) {
                 try {
-                    const { data, error } = await supabase.from('digital_spl').select('*').or(`id.eq.${splId},spl_no.eq.${splId}`).maybeSingle();
-                    if (data && !error) {
+                    const res = await withTimeout(
+                        supabase.from('digital_spl').select('*').or(`id.eq.${splId},spl_no.eq.${splId}`).maybeSingle()
+                    );
+                    if (res && res.data) {
                         targetSpl = {
-                            id: data.id,
-                            splNo: data.spl_no,
-                            kasie: data.kasie || {},
-                            kabag: data.kabag || {},
-                            manager: data.manager || {},
-                            finalStatus: data.final_status
+                            id: res.data.id,
+                            splNo: res.data.spl_no,
+                            kasie: res.data.kasie || {},
+                            kabag: res.data.kabag || {},
+                            manager: res.data.manager || {},
+                            finalStatus: res.data.final_status
                         };
                     }
                 } catch (err) {
-                    console.warn('Supabase query error:', err);
+                    // Timeout atau tabel belum dibuat di Supabase, langsung lanjut tanpa gantung
                 }
             }
 
@@ -268,20 +276,18 @@
             }
             localStorage.setItem('DIGITAL_SPL_DATA', JSON.stringify(localList));
 
-            // Simpan perubahan ke Supabase
+            // Simpan perubahan ke Supabase secara background (tanpa memblokir UI)
             if (supabase) {
-                try {
-                    await supabase.from('digital_spl').upsert({
+                withTimeout(
+                    supabase.from('digital_spl').upsert({
                         id: targetSpl.id,
                         spl_no: targetSpl.splNo,
                         kabag: targetSpl.kabag,
                         manager: targetSpl.manager,
                         final_status: targetSpl.finalStatus,
                         updated_at: new Date().toISOString()
-                    });
-                } catch (e) {
-                    console.warn('Supabase upsert error:', e);
-                }
+                    })
+                ).catch(() => {});
             }
 
             // Tampilkan Hasil
