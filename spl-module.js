@@ -609,10 +609,15 @@ async function dispatchSplEmailNotification(spl) {
         baseUrl = 'https://genadm.vercel.app/';
     }
 
-    const kabagApproveUrl = `${baseUrl}approve.html?id=${encodeURIComponent(spl.id)}&role=kabag&action=approve`;
-    const kabagRejectUrl = `${baseUrl}approve.html?id=${encodeURIComponent(spl.id)}&role=kabag&action=reject`;
-    const mgrApproveUrl = `${baseUrl}approve.html?id=${encodeURIComponent(spl.id)}&role=manager&action=approve`;
-    const mgrRejectUrl = `${baseUrl}approve.html?id=${encodeURIComponent(spl.id)}&role=manager&action=reject`;
+    const encodedNo = encodeURIComponent(spl.splNo);
+    const encodedKabag = encodeURIComponent(spl.kabag.name);
+    const encodedMgr = encodeURIComponent(spl.manager.name);
+    const encodedArea = encodeURIComponent(spl.area || '');
+
+    const kabagApproveUrl = `${baseUrl}approve.html?id=${encodeURIComponent(spl.id)}&spl_no=${encodedNo}&approver=${encodedKabag}&area=${encodedArea}&role=kabag&action=approve`;
+    const kabagRejectUrl = `${baseUrl}approve.html?id=${encodeURIComponent(spl.id)}&spl_no=${encodedNo}&approver=${encodedKabag}&area=${encodedArea}&role=kabag&action=reject`;
+    const mgrApproveUrl = `${baseUrl}approve.html?id=${encodeURIComponent(spl.id)}&spl_no=${encodedNo}&approver=${encodedMgr}&area=${encodedArea}&role=manager&action=approve`;
+    const mgrRejectUrl = `${baseUrl}approve.html?id=${encodeURIComponent(spl.id)}&spl_no=${encodedNo}&approver=${encodedMgr}&area=${encodedArea}&role=manager&action=reject`;
 
     const emailParams = {
         spl_no: spl.splNo,
@@ -1553,8 +1558,8 @@ async function runDirectEmailTest() {
     if (window.location.protocol === 'file:') {
         baseUrl = 'https://genadm.vercel.app/';
     }
-    const sampleApproveUrl = `${baseUrl}approve.html?id=SPL-TEST-EMAIL&role=kabag&action=approve`;
-    const sampleRejectUrl = `${baseUrl}approve.html?id=SPL-TEST-EMAIL&role=kabag&action=reject`;
+    const sampleApproveUrl = `${baseUrl}approve.html?id=SPL-TEST-EMAIL&spl_no=SPL%2FWH%2F2026%2F04%2FTEST&approver=Test%20Approver&role=kabag&action=approve`;
+    const sampleRejectUrl = `${baseUrl}approve.html?id=SPL-TEST-EMAIL&spl_no=SPL%2FWH%2F2026%2F04%2FTEST&approver=Test%20Approver&role=kabag&action=reject`;
 
     if (window.emailjs && publicKey) {
         try {

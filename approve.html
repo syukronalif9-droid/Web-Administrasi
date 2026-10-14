@@ -172,9 +172,11 @@
         const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJhdmFjdWFxYmJ3bnFicmNsZHNqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA4ODc2MjMsImV4cCI6MjEwNjQ2MzYyM30.2KTBo_y89dexhQUq70VECQvl03iho2_Bx06qDu3IETc';
         const supabase = window.supabase ? window.supabase.createClient(supabaseUrl, supabaseKey) : null;
 
-        // Parse query params: ?id=SPL-xxx&role=kabag|manager&action=approve|reject
+        // Parse query params: ?id=SPL-xxx&spl_no=SPL/WH/...&approver=Nama&role=kabag|manager&action=approve|reject
         const urlParams = new URLSearchParams(window.location.search);
         const splId = urlParams.get('id');
+        const paramSplNo = urlParams.get('spl_no');
+        const paramApprover = urlParams.get('approver');
         const role = (urlParams.get('role') || 'kabag').toLowerCase();
         const action = (urlParams.get('action') || 'approve').toLowerCase();
 
@@ -189,25 +191,25 @@
                 localList = [];
             }
 
-            let targetSpl = localList.find(s => s.id === splId || s.splNo === splId);
+            let targetSpl = localList.find(s => s.id === splId || s.splNo === splId || (paramSplNo && s.splNo === paramSplNo));
 
             // Eksekusi Update Status secara Instan (0 detik)
-            let approverName = role === 'manager' ? 'Wawan Kurniawan (Manager)' : 'Kepala Bagian';
+            let approverName = paramApprover || (role === 'manager' ? 'Wawan Kurniawan (Manager)' : 'Kepala Bagian');
             let isApproved = action === 'approve';
 
             if (!targetSpl) {
                 targetSpl = {
                     id: splId || 'SPL-DEMO',
-                    splNo: splId || 'SPL/WH/2026/04/001',
+                    splNo: paramSplNo || splId || 'SPL/WH/2026/04/001',
                     kasie: { name: 'Kasie Warehouse', status: 'approved' },
-                    kabag: { name: 'Kepala Bagian', status: 'pending' },
-                    manager: { name: 'Wawan Kurniawan', status: 'pending' },
+                    kabag: { name: (role === 'kabag' && paramApprover) ? paramApprover : 'Kepala Bagian', status: 'pending' },
+                    manager: { name: (role === 'manager' && paramApprover) ? paramApprover : 'Wawan Kurniawan', status: 'pending' },
                     finalStatus: 'Menunggu Kabag'
                 };
             }
 
             if (role === 'kabag') {
-                approverName = targetSpl.kabag?.name || 'Kepala Bagian';
+                approverName = targetSpl.kabag?.name || paramApprover || 'Kepala Bagian';
                 targetSpl.kabag = {
                     ...targetSpl.kabag,
                     status: isApproved ? 'approved' : 'rejected',
