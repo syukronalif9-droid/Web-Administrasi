@@ -138,31 +138,24 @@
 <body>
 
     <div class="card" id="app-card">
-        <!-- Loading State -->
-        <div id="state-loading">
-            <div class="spinner" style="margin-bottom: 20px;"></div>
-            <h1>Memproses Approval SPL...</h1>
-            <p>Mohon tunggu sebentar, sistem sedang memverifikasi tanda tangan digital Anda.</p>
-        </div>
-
-        <!-- Success State -->
-        <div id="state-result" style="display: none;">
-            <div id="result-icon" class="status-icon">✓</div>
-            <h1 id="result-title">SPL Berhasil Disetujui</h1>
-            <p id="result-desc">Tanda tangan digital Anda telah tersimpan ke dalam sistem.</p>
+        <!-- Result State (Tampil langsung 100% Instan tanpa jeda spinner) -->
+        <div id="state-result">
+            <div id="result-icon" class="status-icon icon-success">✓</div>
+            <h1 id="result-title">Surat Perintah Lembur Disetujui!</h1>
+            <p id="result-desc">Persetujuan digital berhasil dicatat ke dalam sistem.</p>
 
             <div class="spl-detail" id="spl-info-box">
                 <div class="spl-detail-row">
                     <span class="spl-detail-label">No. SPL</span>
-                    <span class="spl-detail-val" id="disp-spl-no">-</span>
+                    <span class="spl-detail-val" id="disp-spl-no">SPL/WH/2026/04/001</span>
                 </div>
                 <div class="spl-detail-row">
                     <span class="spl-detail-label">Approver</span>
-                    <span class="spl-detail-val" id="disp-approver-name">-</span>
+                    <span class="spl-detail-val" id="disp-approver-name">Kepala Bagian</span>
                 </div>
                 <div class="spl-detail-row">
                     <span class="spl-detail-label">Status Akhir</span>
-                    <span class="spl-detail-val" id="disp-status">-</span>
+                    <span class="spl-detail-val" id="disp-status"><span class="badge badge-success">Disetujui</span></span>
                 </div>
                 <div class="spl-detail-row">
                     <span class="spl-detail-label">Waktu Eksekusi</span>
@@ -255,7 +248,6 @@
             }
 
             // Tampilkan Hasil Langsung!
-            document.getElementById('state-loading').style.display = 'none';
             const resultBox = document.getElementById('state-result');
             const icon = document.getElementById('result-icon');
             const title = document.getElementById('result-title');
