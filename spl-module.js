@@ -588,7 +588,7 @@ function getEmailJsConfig() {
     }
     return {
         serviceId: 'service_ggqdruv',
-        templateId: '2sima0k',
+        templateId: 'template_o5mvd66',
         publicKey: '',
         enabled: true
     };
