@@ -598,7 +598,7 @@ function saveEmailJsConfig(cfg) {
     localStorage.setItem('SPL_EMAILJS_CONFIG', JSON.stringify(cfg));
 }
 
-function dispatchSplEmailNotification(spl) {
+async function dispatchSplEmailNotification(spl) {
     const cfg = getEmailJsConfig();
     const kabagEmail = spl.kabag.email;
     const mgrEmail = spl.manager.email;
