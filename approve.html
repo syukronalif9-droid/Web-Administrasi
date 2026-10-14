@@ -196,36 +196,10 @@
                 localList = [];
             }
 
-            let targetSpl = localList.find(s => s.id === splId || s.splNo === splId);
+            // Eksekusi Update Status secara Instan (0 detik)
+            let approverName = role === 'manager' ? 'Wawan Kurniawan (Manager)' : 'Kepala Bagian';
+            let isApproved = action === 'approve';
 
-            // Helper timeout agar tidak loading lama jika tabel Supabase belum ada / lambat
-            const withTimeout = (promise, ms = 1200) => {
-                const timer = new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout')), ms));
-                return Promise.race([promise, timer]);
-            };
-
-            // 2. Ambil dari Supabase jika ada (dengan batas waktu 1.2 detik)
-            if (supabase && (!targetSpl || !localList.length)) {
-                try {
-                    const res = await withTimeout(
-                        supabase.from('digital_spl').select('*').or(`id.eq.${splId},spl_no.eq.${splId}`).maybeSingle()
-                    );
-                    if (res && res.data) {
-                        targetSpl = {
-                            id: res.data.id,
-                            splNo: res.data.spl_no,
-                            kasie: res.data.kasie || {},
-                            kabag: res.data.kabag || {},
-                            manager: res.data.manager || {},
-                            finalStatus: res.data.final_status
-                        };
-                    }
-                } catch (err) {
-                    // Timeout atau tabel belum dibuat di Supabase, langsung lanjut tanpa gantung
-                }
-            }
-
-            // Jika SPL tidak ditemukan (buat mock fallback agar reviewer tetap bisa approve dari link demo)
             if (!targetSpl) {
                 targetSpl = {
                     id: splId || 'SPL-DEMO',
@@ -236,6 +210,76 @@
                     finalStatus: 'Menunggu Kabag'
                 };
             }
+
+            if (role === 'kabag') {
+                approverName = targetSpl.kabag?.name || 'Kepala Bagian';
+                targetSpl.kabag = {
+                    ...targetSpl.kabag,
+                    status: isApproved ? 'approved' : 'rejected',
+                    date: nowStr
+                };
+                targetSpl.finalStatus = isApproved ? 'Menunggu Manager' : 'Ditolak Kabag';
+            } else if (role === 'manager') {
+                approverName = targetSpl.manager?.name || 'Wawan Kurniawan (Manager)';
+                targetSpl.manager = {
+                    ...targetSpl.manager,
+                    status: isApproved ? 'approved' : 'rejected',
+                    date: nowStr
+                };
+                targetSpl.finalStatus = isApproved ? 'Disetujui' : 'Ditolak Manager';
+            }
+
+            // Simpan perubahan ke LocalStorage
+            const existIdx = localList.findIndex(s => s.id === targetSpl.id);
+            if (existIdx >= 0) {
+                localList[existIdx] = targetSpl;
+            } else {
+                localList.unshift(targetSpl);
+            }
+            try {
+                localStorage.setItem('DIGITAL_SPL_DATA', JSON.stringify(localList));
+            } catch(e) {}
+
+            // Background async sync (tidak ditunggu / non-blocking)
+            if (supabase) {
+                supabase.from('digital_spl').upsert({
+                    id: targetSpl.id,
+                    spl_no: targetSpl.splNo,
+                    kabag: targetSpl.kabag,
+                    manager: targetSpl.manager,
+                    final_status: targetSpl.finalStatus,
+                    updated_at: new Date().toISOString()
+                }).then(() => {}).catch(() => {});
+            }
+
+            // Tampilkan Hasil Langsung!
+            document.getElementById('state-loading').style.display = 'none';
+            const resultBox = document.getElementById('state-result');
+            const icon = document.getElementById('result-icon');
+            const title = document.getElementById('result-title');
+            const desc = document.getElementById('result-desc');
+
+            if (isApproved) {
+                icon.className = 'status-icon icon-success';
+                icon.textContent = '✓';
+                title.textContent = 'Surat Perintah Lembur Disetujui!';
+                desc.textContent = `Persetujuan berhasil dicatat atas nama ${approverName} (${role.toUpperCase()}).`;
+            } else {
+                icon.className = 'status-icon icon-danger';
+                icon.textContent = '✕';
+                title.textContent = 'Surat Perintah Lembur Ditolak';
+                desc.textContent = `Penolakan resmi telah dicatat oleh ${approverName} (${role.toUpperCase()}).`;
+            }
+
+            document.getElementById('disp-spl-no').textContent = targetSpl.splNo;
+            document.getElementById('disp-approver-name').textContent = approverName;
+            document.getElementById('disp-status').innerHTML = isApproved 
+                ? `<span class="badge badge-success">${targetSpl.finalStatus}</span>` 
+                : `<span class="badge badge-danger">${targetSpl.finalStatus}</span>`;
+            document.getElementById('disp-time').textContent = nowStr;
+
+            resultBox.style.display = 'block';
+            return;
 
             // Eksekusi Update Status
             let approverName = '-';
@@ -253,72 +297,7 @@
                 } else {
                     targetSpl.finalStatus = 'Ditolak Kabag';
                 }
-            } else if (role === 'manager') {
-                approverName = targetSpl.manager?.name || 'Wawan Kurniawan (Manager)';
-                targetSpl.manager = {
-                    ...targetSpl.manager,
-                    status: isApproved ? 'approved' : 'rejected',
-                    date: nowStr
-                };
-                if (isApproved) {
-                    targetSpl.finalStatus = 'Disetujui';
-                } else {
-                    targetSpl.finalStatus = 'Ditolak Manager';
-                }
-            }
-
-            // Simpan perubahan ke LocalStorage
-            const existIdx = localList.findIndex(s => s.id === targetSpl.id);
-            if (existIdx >= 0) {
-                localList[existIdx] = targetSpl;
-            } else {
-                localList.unshift(targetSpl);
-            }
-            localStorage.setItem('DIGITAL_SPL_DATA', JSON.stringify(localList));
-
-            // Simpan perubahan ke Supabase secara background (tanpa memblokir UI)
-            if (supabase) {
-                withTimeout(
-                    supabase.from('digital_spl').upsert({
-                        id: targetSpl.id,
-                        spl_no: targetSpl.splNo,
-                        kabag: targetSpl.kabag,
-                        manager: targetSpl.manager,
-                        final_status: targetSpl.finalStatus,
-                        updated_at: new Date().toISOString()
-                    })
-                ).catch(() => {});
-            }
-
-            // Tampilkan Hasil
-            setTimeout(() => {
-                document.getElementById('state-loading').style.display = 'none';
-                const resultBox = document.getElementById('state-result');
-                const icon = document.getElementById('result-icon');
-                const title = document.getElementById('result-title');
-                const desc = document.getElementById('result-desc');
-
-                if (isApproved) {
-                    icon.className = 'status-icon icon-success';
-                    icon.textContent = '✓';
-                    title.textContent = 'Surat Perintah Lembur Disetujui!';
-                    desc.textContent = `Persetujuan berhasil dicatat atas nama ${approverName} (${role.toUpperCase()}).`;
-                } else {
-                    icon.className = 'status-icon icon-danger';
-                    icon.textContent = '✕';
-                    title.textContent = 'Surat Perintah Lembur Ditolak';
-                    desc.textContent = `Penolakan resmi telah dicatat oleh ${approverName} (${role.toUpperCase()}).`;
-                }
-
-                document.getElementById('disp-spl-no').textContent = targetSpl.splNo;
-                document.getElementById('disp-approver-name').textContent = approverName;
-                document.getElementById('disp-status').innerHTML = isApproved 
-                    ? `<span class="badge badge-success">${targetSpl.finalStatus}</span>` 
-                    : `<span class="badge badge-danger">${targetSpl.finalStatus}</span>`;
-                document.getElementById('disp-time').textContent = nowStr;
-
-                resultBox.style.display = 'block';
-            }, 600);
+            resultBox.style.display = 'block';
         }
 
         window.addEventListener('DOMContentLoaded', processApproval);
