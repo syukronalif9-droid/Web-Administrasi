@@ -603,10 +603,10 @@ async function dispatchSplEmailNotification(spl) {
     const kabagEmail = spl.kabag.email;
     const mgrEmail = spl.manager.email;
 
-    // Jika dibuka dari file lokal (file:///), gunakan alamat GitHub Pages agar link di Gmail bisa langsung diklik
+    // Jika dibuka dari file lokal (file:///), gunakan alamat Vercel agar link di Gmail bisa langsung diklik
     let baseUrl = window.location.origin + window.location.pathname.replace('dashboard.html', '');
     if (window.location.protocol === 'file:') {
-        baseUrl = 'https://syukronalif9-droid.github.io/Web-Administrasi/';
+        baseUrl = 'https://genadm.vercel.app/';
     }
 
     const kabagApproveUrl = `${baseUrl}approve.html?id=${encodeURIComponent(spl.id)}&role=kabag&action=approve`;
@@ -1518,7 +1518,7 @@ async function runDirectEmailTest() {
 
     let baseUrl = window.location.origin + window.location.pathname.replace('dashboard.html', '');
     if (window.location.protocol === 'file:') {
-        baseUrl = 'https://syukronalif9-droid.github.io/Web-Administrasi/';
+        baseUrl = 'https://genadm.vercel.app/';
     }
     const sampleApproveUrl = `${baseUrl}approve.html?id=SPL-TEST-EMAIL&role=kabag&action=approve`;
     const sampleRejectUrl = `${baseUrl}approve.html?id=SPL-TEST-EMAIL&role=kabag&action=reject`;
