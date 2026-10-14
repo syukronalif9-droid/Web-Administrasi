@@ -348,17 +348,11 @@ function performSplVerification(explicitNik) {
         if (errorBox) errorBox.style.display = 'none';
         updateSplAccessControlUI();
 
-        // Otomatis arahkan Bagian jika user punya area spesifik
-        if (employee.area && employee.area !== 'Semua Area Warehouse') {
-            const areaSel = document.getElementById('spl-area-select');
-            if (areaSel) {
-                areaSel.value = employee.area;
-                onSplAreaChange();
-            }
-        }
+        // Otomatis refresh opsi Bagian dan Lokasi sesuai otoritas user
+        populateSplAreas();
 
         // Tampilkan pesan sukses jelas
-        alert(`✅ Verifikasi Berhasil!\n\nNama: ${employee.name}\nJabatan: ${employee.title}\nNIK: ${employee.persNo}\nBagian: ${employee.area || 'Warehouse'}\n\nSilakan lanjutkan pengisian form SPL di bawah.`);
+        alert(`✅ Verifikasi Berhasil!\n\nNama: ${employee.name}\nJabatan: ${employee.title}\nNIK: ${employee.persNo}\nBagian: ${employee.area || 'Warehouse'}\n\nDaftar nama karyawan bawahan langsung ditampilkan di bawah.`);
     } else {
         // Gagal / Ditolak karena level Staff atau Member Team
         localStorage.removeItem('SPL_CURRENT_USER_PERS_NO');
@@ -476,8 +470,16 @@ function onSplAreaChange() {
         locSelect.appendChild(opt);
     });
 
-    // Auto-select if only 1 location
-    if (locations.length === 1) {
+    // Auto-select location: jika user punya preferred location atau hanya ada 1 lokasi
+    const user = getCurrentUserSession();
+    if (user && user.location && locations.includes(user.location)) {
+        locSelect.value = user.location;
+        onSplLocationChange();
+    } else if (locations.length === 1) {
+        locSelect.value = locations[0];
+        onSplLocationChange();
+    } else if (locations.length > 0 && !locSelect.value) {
+        // Default ke lokasi pertama agar daftar bawahan langsung muncul tanpa perlu klik tambahan
         locSelect.value = locations[0];
         onSplLocationChange();
     }

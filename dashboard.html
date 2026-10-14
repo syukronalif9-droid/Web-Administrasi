@@ -2266,13 +2266,20 @@ document.addEventListener("DOMContentLoaded", function() {
                             return;
                         }
 
+                        // Simpan sesi login user
+                        localStorage.setItem('SPL_CURRENT_USER_PERS_NO', nik);
+
                         // Panggil modul utama jika sudah ready
                         if (window.performSplVerification) {
                             window.performSplVerification(nik);
+                            // Otomatis picu pemilihan bagian & lokasi agar nama bawahan langsung keluar
+                            if (window.populateSplAreas) {
+                                window.populateSplAreas();
+                            }
                             return;
                         }
 
-                        // Fallback langsung dalam dashboard jika modul terhambat
+                        // Fallback jika modul utama belum selesai dimuat
                         let name = 'Karyawan', role = 'Pejabat', area = 'Gen. Adm';
                         if (nik === '3152137') {
                             name = 'Setiawan';
@@ -2288,7 +2295,6 @@ document.addEventListener("DOMContentLoaded", function() {
                             area = 'Semua Area';
                         }
 
-                        localStorage.setItem('SPL_CURRENT_USER_PERS_NO', nik);
                         const statusBox = document.getElementById('spl-creator-active-status');
                         const activeName = document.getElementById('spl-creator-active-name');
                         const activeRole = document.getElementById('spl-creator-active-role');
@@ -2305,6 +2311,15 @@ document.addEventListener("DOMContentLoaded", function() {
                                 if (window.onSplAreaChange) window.onSplAreaChange();
                             }
                         }
+
+                        // Pastikan lokasi dan daftar bawahan langsung tampil otomatis
+                        setTimeout(() => {
+                            const locSel = document.getElementById('spl-location-select');
+                            if (locSel && locSel.options.length > 1 && !locSel.value) {
+                                locSel.value = locSel.options[1].value;
+                                if (window.onSplLocationChange) window.onSplLocationChange();
+                            }
+                        }, 50);
 
                         alert(`✅ Verifikasi Berhasil!\n\nNama: ${name}\nJabatan: ${role}\nNIK: ${nik}\nBagian: ${area}\n\nSilakan pilih karyawan bawahan Anda di bawah.`);
                     }
