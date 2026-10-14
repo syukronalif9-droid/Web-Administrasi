@@ -194,15 +194,27 @@
             let targetSpl = localList.find(s => s.id === splId || s.splNo === splId || (paramSplNo && s.splNo === paramSplNo));
 
             // Eksekusi Update Status secara Instan (0 detik)
-            let approverName = paramApprover || (role === 'manager' ? 'Wawan Kurniawan (Manager)' : 'Kepala Bagian');
             let isApproved = action === 'approve';
+            let approverName = paramApprover || (role === 'manager' ? 'Wawan Kurniawan (Manager)' : 'Kepala Bagian');
+            // Ambil dari Supabase jika di lokal HP belum ada
+            if (!targetSpl && supabase && (splId || paramSplNo)) {
+                try {
+                    const query = splId ? supabase.from('digital_spl').select('*').eq('id', splId) : supabase.from('digital_spl').select('*').eq('spl_no', paramSplNo);
+                    const { data: dbData } = await query.maybeSingle();
+                    if (dbData && dbData.data) {
+                        targetSpl = dbData.data;
+                    } else if (dbData) {
+                        targetSpl = dbData;
+                    }
+                } catch(e) {}
+            }
 
             if (!targetSpl) {
                 targetSpl = {
-                    id: splId || 'SPL-DEMO',
-                    splNo: paramSplNo || splId || 'SPL/WH/2026/04/001',
+                    id: splId || 'SPL-' + Date.now(),
+                    splNo: paramSplNo || 'SPL/WH/2026/04/006',
                     kasie: { name: 'Kasie Warehouse', status: 'approved' },
-                    kabag: { name: (role === 'kabag' && paramApprover) ? paramApprover : 'Kepala Bagian', status: 'pending' },
+                    kabag: { name: (role === 'kabag' && paramApprover) ? paramApprover : 'Setiawan', status: 'pending' },
                     manager: { name: (role === 'manager' && paramApprover) ? paramApprover : 'Wawan Kurniawan', status: 'pending' },
                     finalStatus: 'Menunggu Kabag'
                 };

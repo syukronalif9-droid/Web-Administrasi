@@ -892,6 +892,31 @@ async function renderSplHistoryList(filterStatus = 'all') {
             console.warn('Supabase sync notice:', e);
         }
     }
+    return supabaseUpdated;
+}
+
+async function manualRefreshSpl() {
+    const btn = document.getElementById('btn-spl-refresh');
+    if (btn) {
+        btn.textContent = '⏳ Memuat...';
+        btn.style.opacity = '0.7';
+    }
+    try {
+        const hasUpdate = await renderSplHistoryList();
+        if (btn) {
+            btn.textContent = hasUpdate ? '✅ Data Terupdate!' : '✓ Sudah Terbaru';
+            setTimeout(() => {
+                btn.textContent = '🔄 Segarkan Data';
+                btn.style.opacity = '1';
+            }, 1500);
+        }
+    } catch (e) {
+        if (btn) {
+            btn.textContent = '🔄 Segarkan Data';
+            btn.style.opacity = '1';
+        }
+    }
+}
     
     // Update pending count
     const pendingCount = list.filter(item => item.finalStatus !== 'Disetujui' && item.finalStatus !== 'Ditolak').length;
@@ -1641,4 +1666,5 @@ window.openSplEmailConfigModal = openSplEmailConfigModal;
 window.saveSplEmailConfig = saveSplEmailConfig;
 window.previewSampleEmailContent = previewSampleEmailContent;
 window.runDirectEmailTest = runDirectEmailTest;
+window.manualRefreshSpl = manualRefreshSpl;
 
