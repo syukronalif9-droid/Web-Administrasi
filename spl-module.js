@@ -685,18 +685,40 @@ async function dispatchSplEmailNotification(spl) {
 }
 
 function setApproverInfo(kasieName, kasieNo, kabagName, kabagNo, mgrName, mgrNo) {
+    const user = getCurrentUserSession();
     const kasieEmail = getApproverEmailByPersNo(kasieNo, kasieName);
     const kabagEmail = getApproverEmailByPersNo(kabagNo, kabagName);
     const mgrEmail = getApproverEmailByPersNo(mgrNo || '5078', mgrName || 'Wawan Kurniawan');
 
-    document.getElementById('spl-app-kasie-name').textContent = kasieName || '-';
-    document.getElementById('spl-app-kasie-no').textContent = kasieNo ? `NIK: ${kasieNo}` : '';
-    
-    document.getElementById('spl-app-kabag-name').textContent = kabagName || '-';
-    document.getElementById('spl-app-kabag-no').innerHTML = kabagNo ? `NIK: ${kabagNo} • <span style="color:#0284c7;">✉ ${kabagEmail}</span>` : '';
+    const kasieNameEl = document.getElementById('spl-app-kasie-name');
+    const kasieNoEl = document.getElementById('spl-app-kasie-no');
+    const kabagNameEl = document.getElementById('spl-app-kabag-name');
+    const kabagNoEl = document.getElementById('spl-app-kabag-no');
+    const mgrNameEl = document.getElementById('spl-app-mgr-name');
+    const mgrNoEl = document.getElementById('spl-app-mgr-no');
 
-    document.getElementById('spl-app-mgr-name').textContent = mgrName || 'Wawan Kurniawan';
-    document.getElementById('spl-app-mgr-no').innerHTML = mgrNo ? `NIK: ${mgrNo} • <span style="color:#0284c7;">✉ ${mgrEmail}</span>` : `NIK: 5078 • <span style="color:#0284c7;">✉ ${mgrEmail}</span>`;
+    if (!kasieNameEl || !kabagNameEl || !mgrNameEl) return;
+
+    if (user && user.role === 'KABAG') {
+        // Jika yang membuat adalah Kabag langsung (seperti Setiawan)
+        kasieNameEl.textContent = `${user.name} (Kabag - Pembuat Langsung)`;
+        kasieNoEl.innerHTML = `NIK: ${user.persNo} • <span style="color:#16a34a; font-weight:600;">✓ Otomatis Disetujui</span>`;
+
+        kabagNameEl.textContent = `${user.name} (Disetujui Sendiri)`;
+        kabagNoEl.innerHTML = `NIK: ${user.persNo} • <span style="color:#16a34a; font-weight:600;">✓ Approver 1 Selesai</span>`;
+
+        mgrNameEl.textContent = mgrName || 'Wawan Kurniawan';
+        mgrNoEl.innerHTML = mgrNo ? `NIK: ${mgrNo} • <span style="color:#0284c7;">✉ ${mgrEmail}</span> <span style="color:#f59e0b; font-weight:600;">(Menunggu Approval)</span>` : `NIK: 5078 • <span style="color:#0284c7;">✉ ${mgrEmail}</span> <span style="color:#f59e0b; font-weight:600;">(Menunggu Approval)</span>`;
+    } else {
+        kasieNameEl.textContent = kasieName || '-';
+        kasieNoEl.textContent = kasieNo ? `NIK: ${kasieNo}` : '';
+        
+        kabagNameEl.textContent = kabagName || '-';
+        kabagNoEl.innerHTML = kabagNo ? `NIK: ${kabagNo} • <span style="color:#0284c7;">✉ ${kabagEmail}</span>` : '';
+
+        mgrNameEl.textContent = mgrName || 'Wawan Kurniawan';
+        mgrNoEl.innerHTML = mgrNo ? `NIK: ${mgrNo} • <span style="color:#0284c7;">✉ ${mgrEmail}</span>` : `NIK: 5078 • <span style="color:#0284c7;">✉ ${mgrEmail}</span>`;
+    }
 }
 
 function resetApproverInfo() {
@@ -808,6 +830,10 @@ async function handleSplSubmit(e) {
     if (endMin < startMin) endMin += 24 * 60;
     const durationHours = parseFloat(((endMin - startMin) / 60).toFixed(1));
 
+    // Periksa role user saat submit
+    const currentUser = getCurrentUserSession();
+    const isKabagCreator = currentUser && currentUser.role === 'KABAG';
+
     const newSpl = {
         id: 'SPL-' + Date.now(),
         splNo: splNo,
@@ -819,10 +845,22 @@ async function handleSplSubmit(e) {
         location: location,
         employees: selectedEmps,
         reason: reason,
-        kasie: { no: kasieNo, name: kasieName, email: kasieEmail, status: 'approved', date: new Date().toLocaleString('id-ID') },
-        kabag: { no: kabagNo, name: kabagName, email: kabagEmail, status: 'pending', date: null },
+        kasie: { 
+            no: isKabagCreator ? currentUser.persNo : kasieNo, 
+            name: isKabagCreator ? currentUser.name : kasieName, 
+            email: isKabagCreator ? getApproverEmailByPersNo(currentUser.persNo, currentUser.name) : kasieEmail, 
+            status: 'approved', 
+            date: new Date().toLocaleString('id-ID') 
+        },
+        kabag: { 
+            no: isKabagCreator ? currentUser.persNo : kabagNo, 
+            name: isKabagCreator ? currentUser.name : kabagName, 
+            email: isKabagCreator ? getApproverEmailByPersNo(currentUser.persNo, currentUser.name) : kabagEmail, 
+            status: isKabagCreator ? 'approved' : 'pending', 
+            date: isKabagCreator ? new Date().toLocaleString('id-ID') : null 
+        },
         manager: { no: mgrNo, name: mgrName, email: mgrEmail, status: 'pending', date: null },
-        finalStatus: 'Menunggu Kabag'
+        finalStatus: isKabagCreator ? 'Menunggu Manager' : 'Menunggu Kabag'
     };
 
     // Auto-dispatch Email Notification to Approver 1 & Approver 2
@@ -844,7 +882,11 @@ async function handleSplSubmit(e) {
         }).then(() => {}).catch(() => {});
     }
 
-    alert(`Surat Perintah Lembur (${splNo}) berhasil diajukan!\n\n📧 NOTIFIKASI EMAIL OTOMATIS TERKIRIM KE:\n1. Approver 1 (Kabag)    : ${kabagEmail} (${kabagName})\n2. Approver 2 (Manager) : ${mgrEmail} (${mgrName})`);
+    if (isKabagCreator) {
+        alert(`Surat Perintah Lembur (${splNo}) berhasil diajukan oleh Kabag (${currentUser.name})!\n\nStatus: Langsung disetujui Kabag & diteruskan ke Manager.\n\n📧 NOTIFIKASI EMAIL TERKIRIM KE:\n• Approver 2 (Manager) : ${mgrEmail} (${mgrName})`);
+    } else {
+        alert(`Surat Perintah Lembur (${splNo}) berhasil diajukan!\n\n📧 NOTIFIKASI EMAIL OTOMATIS TERKIRIM KE:\n1. Approver 1 (Kabag)    : ${kabagEmail} (${kabagName})\n2. Approver 2 (Manager) : ${mgrEmail} (${mgrName})`);
+    }
 
     // Reset Form
     document.getElementById('spl-reason').value = '';
