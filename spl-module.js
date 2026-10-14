@@ -333,23 +333,27 @@ function performSplVerification(explicitNik) {
         localStorage.setItem('SPL_CURRENT_USER_PERS_NO', employee.persNo);
         if (errorBox) errorBox.style.display = 'none';
         updateSplAccessControlUI();
+
+        // Otomatis arahkan Bagian jika user punya area spesifik
+        if (employee.area && employee.area !== 'Semua Area Warehouse') {
+            const areaSel = document.getElementById('spl-area-select');
+            if (areaSel) {
+                areaSel.value = employee.area;
+                onSplAreaChange();
+            }
+        }
     } else {
         // Gagal / Ditolak karena level Staff atau Member Team
         localStorage.removeItem('SPL_CURRENT_USER_PERS_NO');
-        if (errorBox && errorMsg) {
-            errorBox.style.display = 'block';
-            errorMsg.innerHTML = `
-                <div><strong>Akses Pembuatan Ditolak!</strong></div>
-                <div style="margin-top: 4px; font-size: 0.78rem;">
-                    NIK <strong>${employee.persNo}</strong> (${employee.name}) terdaftar sebagai <strong>${employee.title}</strong> di ${employee.area || 'Warehouse'}.
-                </div>
-                <div style="margin-top: 6px; font-size: 0.74rem; opacity: 0.9;">
-                    Sesuai ketentuan, pembuatan Surat Perintah Lembur (SPL) hanya dapat dilakukan oleh level <strong>Kepala Seksi, Kepala Bagian, atau Manager</strong>.
-                </div>
-            `;
-        }
+        alert(`Akses Pembuatan Ditolak!\nNIK ${employee.persNo} (${employee.name}) terdaftar sebagai ${employee.title}.\nPembuatan SPL khusus level Kepala Seksi, Kepala Bagian, atau Manager.`);
         updateSplAccessControlUI();
     }
+}
+
+function quickSelectCreator(nik) {
+    const inputField = document.getElementById('spl-verify-nik-input');
+    if (inputField) inputField.value = nik;
+    performSplVerification(nik);
 }
 
 function resetSplVerification() {
@@ -373,20 +377,22 @@ function updateSplAccessControlUI() {
     const user = getCurrentUserSession();
 
     // DOM Elements
-    const verifyBox = document.getElementById('spl-verify-box');
-    const verifiedCard = document.getElementById('spl-verified-card');
-    const verifiedName = document.getElementById('spl-verified-name');
-    const verifiedRole = document.getElementById('spl-verified-role');
-    const verifiedNik = document.getElementById('spl-verified-nik');
-    const verifiedRoleBadge = document.getElementById('spl-verified-role-badge');
     const formElem = document.getElementById('form-create-spl');
-    const topBadge = document.getElementById('spl-user-role-badge');
-    const topNameLabel = document.getElementById('spl-user-name-label');
-    const topNikLabel = document.getElementById('spl-user-nik-label');
+    const statusBox = document.getElementById('spl-creator-active-status');
+    const activeName = document.getElementById('spl-creator-active-name');
+    const activeRole = document.getElementById('spl-creator-active-role');
+    const inputField = document.getElementById('spl-verify-nik-input');
 
     if (formElem) formElem.style.display = 'flex';
-    if (verifyBox) verifyBox.style.display = 'none';
-    if (verifiedCard) verifiedCard.style.display = 'none';
+
+    if (user && user.canCreateSpl) {
+        if (statusBox) statusBox.style.display = 'block';
+        if (activeName) activeName.textContent = user.name;
+        if (activeRole) activeRole.textContent = `${user.title} (NIK: ${user.persNo})`;
+        if (inputField) inputField.value = user.persNo;
+    } else {
+        if (statusBox) statusBox.style.display = 'none';
+    }
 }
 
 // Module Initializer
@@ -1614,8 +1620,10 @@ window.setCurrentUserSession = setCurrentUserSession;
 window.updateSplAccessControlUI = updateSplAccessControlUI;
 window.performSplVerification = performSplVerification;
 window.resetSplVerification = resetSplVerification;
+window.quickSelectCreator = quickSelectCreator;
 window.openSplEmailConfigModal = openSplEmailConfigModal;
 window.saveSplEmailConfig = saveSplEmailConfig;
+window.testSendSplEmail = testSendSplEmail;
 window.previewSampleEmailContent = previewSampleEmailContent;
 window.runDirectEmailTest = runDirectEmailTest;
 window.manualRefreshSpl = manualRefreshSpl;
