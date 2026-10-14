@@ -243,6 +243,20 @@ function getEmployeeRoleByPersNo(inputPersNo) {
     }
 
     // 2. Cek Kepala Bagian / Kabag (Approver 1)
+    if (cleanNo === '3152137') {
+        return {
+            persNo: '3152137',
+            name: 'Setiawan',
+            role: 'KABAG',
+            title: 'Kepala Bagian (Kabag)',
+            canCreateSpl: true,
+            canApproveSpl: true,
+            approvalLevel: 1,
+            area: 'Packaging',
+            location: 'Central'
+        };
+    }
+
     const kabagMatch = SPL_MASTER_DATA.find(d => String(d.kabagNo).trim() === cleanNo);
     if (kabagMatch) {
         return {
@@ -342,6 +356,9 @@ function performSplVerification(explicitNik) {
                 onSplAreaChange();
             }
         }
+
+        // Tampilkan pesan sukses jelas
+        alert(`✅ Verifikasi Berhasil!\n\nNama: ${employee.name}\nJabatan: ${employee.title}\nNIK: ${employee.persNo}\nBagian: ${employee.area || 'Warehouse'}\n\nSilakan lanjutkan pengisian form SPL di bawah.`);
     } else {
         // Gagal / Ditolak karena level Staff atau Member Team
         localStorage.removeItem('SPL_CURRENT_USER_PERS_NO');

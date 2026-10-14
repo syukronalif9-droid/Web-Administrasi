@@ -2223,8 +2223,8 @@ document.addEventListener("DOMContentLoaded", function() {
                     </div>
                     
                     <div style="display: flex; gap: 8px; margin-bottom: 10px;">
-                        <input type="text" id="spl-verify-nik-input" placeholder="Masukkan Pers.No / NIK..." style="flex: 1; padding: 10px 14px; border: 1.5px solid #cbd5e1; border-radius: 10px; font-size: 0.92rem; outline: none;">
-                        <button type="button" onclick="performSplVerification()" style="background: #18181b; color: white; border: none; border-radius: 10px; padding: 0 18px; font-size: 0.88rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 6px;">
+                        <input type="text" id="spl-verify-nik-input" onkeydown="if(event.key==='Enter'){event.preventDefault();document.getElementById('btn-spl-do-verify').click();}" placeholder="Masukkan Pers.No / NIK..." style="flex: 1; padding: 10px 14px; border: 1.5px solid #cbd5e1; border-radius: 10px; font-size: 0.92rem; outline: none;">
+                        <button type="button" id="btn-spl-do-verify" onclick="if(window.performSplVerification){window.performSplVerification();}else if(typeof performSplVerification==='function'){performSplVerification();}" style="background: #18181b; color: white; border: none; border-radius: 10px; padding: 0 18px; font-size: 0.88rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 6px;">
                             <span>Verifikasi</span>
                             <span style="font-size: 1rem;">›</span>
                         </button>
@@ -2232,13 +2232,13 @@ document.addEventListener("DOMContentLoaded", function() {
 
                     <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
                         <span style="font-size: 0.78rem; color: #64748b; font-weight: 600;">Pilih Cepat:</span>
-                        <button type="button" onclick="quickSelectCreator('3152137')" style="background: #18181b; color: white; border: none; border-radius: 8px; padding: 5px 10px; font-size: 0.76rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 4px;">
+                        <button type="button" onclick="if(window.quickSelectCreator){window.quickSelectCreator('3152137');}else{quickSelectCreator('3152137');}" style="background: #18181b; color: white; border: none; border-radius: 8px; padding: 5px 10px; font-size: 0.76rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 4px;">
                             <span>⚡ Setiawan (Kabag Packaging: 3152137)</span>
                         </button>
-                        <button type="button" onclick="quickSelectCreator('209113')" style="background: #f1f5f9; color: #334155; border: 1px solid #cbd5e1; border-radius: 8px; padding: 5px 10px; font-size: 0.76rem; font-weight: 600; cursor: pointer;">
+                        <button type="button" onclick="if(window.quickSelectCreator){window.quickSelectCreator('209113');}else{quickSelectCreator('209113');}" style="background: #f1f5f9; color: #334155; border: 1px solid #cbd5e1; border-radius: 8px; padding: 5px 10px; font-size: 0.76rem; font-weight: 600; cursor: pointer;">
                             209113 (Kasie Traffic)
                         </button>
-                        <button type="button" onclick="quickSelectCreator('5078')" style="background: #f1f5f9; color: #334155; border: 1px solid #cbd5e1; border-radius: 8px; padding: 5px 10px; font-size: 0.76rem; font-weight: 600; cursor: pointer;">
+                        <button type="button" onclick="if(window.quickSelectCreator){window.quickSelectCreator('5078');}else{quickSelectCreator('5078');}" style="background: #f1f5f9; color: #334155; border: 1px solid #cbd5e1; border-radius: 8px; padding: 5px 10px; font-size: 0.76rem; font-weight: 600; cursor: pointer;">
                             5078 (Manager)
                         </button>
                     </div>
