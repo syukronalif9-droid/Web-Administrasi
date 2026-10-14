@@ -384,53 +384,9 @@ function updateSplAccessControlUI() {
     const topNameLabel = document.getElementById('spl-user-name-label');
     const topNikLabel = document.getElementById('spl-user-nik-label');
 
-    if (user && user.canCreateSpl) {
-        // STATE 1: TERVERIFIKASI & MEMILIKI WEWENANG
-        if (verifyBox) verifyBox.style.display = 'none';
-        if (verifiedCard) verifiedCard.style.display = 'block';
-        if (formElem) formElem.style.display = 'flex';
-
-        if (verifiedName) verifiedName.textContent = user.name;
-        if (verifiedRole) verifiedRole.textContent = user.title;
-        if (verifiedNik) verifiedNik.textContent = `NIK: ${user.persNo}`;
-
-        if (verifiedRoleBadge) {
-            verifiedRoleBadge.textContent = user.role;
-            if (user.role === 'MANAGER') verifiedRoleBadge.style.background = '#3b82f6';
-            else if (user.role === 'KABAG') verifiedRoleBadge.style.background = '#f59e0b';
-            else verifiedRoleBadge.style.background = '#10b981';
-        }
-
-        // Header Drawer info
-        if (topNameLabel) topNameLabel.textContent = user.name;
-        if (topNikLabel) topNikLabel.textContent = `NIK: ${user.persNo} • ${user.title}`;
-        if (topBadge) {
-            topBadge.textContent = user.role;
-            if (user.role === 'MANAGER') topBadge.style.background = '#3b82f6';
-            else if (user.role === 'KABAG') topBadge.style.background = '#f59e0b';
-            else topBadge.style.background = '#10b981';
-        }
-
-        // Auto-select area if specific
-        const areaSelect = document.getElementById('spl-area-select');
-        if (areaSelect && user.area && user.area !== 'Semua Area Warehouse' && !areaSelect.value) {
-            areaSelect.value = user.area;
-            onSplAreaChange();
-        }
-
-    } else {
-        // STATE 2: BELUM VERIFIKASI ATAU DITOLAK
-        if (verifyBox) verifyBox.style.display = 'block';
-        if (verifiedCard) verifiedCard.style.display = 'none';
-        if (formElem) formElem.style.display = 'none';
-
-        if (topNameLabel) topNameLabel.textContent = 'Belum Verifikasi';
-        if (topNikLabel) topNikLabel.textContent = 'Masukkan NIK untuk membuat SPL';
-        if (topBadge) {
-            topBadge.textContent = 'GUEST';
-            topBadge.style.background = '#94a3b8';
-        }
-    }
+    if (formElem) formElem.style.display = 'flex';
+    if (verifyBox) verifyBox.style.display = 'none';
+    if (verifiedCard) verifiedCard.style.display = 'none';
 }
 
 // Module Initializer
@@ -744,13 +700,6 @@ function generateNextSplNumber() {
 // Submit Form Action
 async function handleSplSubmit(e) {
     if (e) e.preventDefault();
-
-    // Strict Pers.No Role Guard Check
-    const user = getCurrentUserSession();
-    if (!user.canCreateSpl) {
-        alert(`Akses Ditolak!\nNIK: ${user.persNo} (${user.name})\nJabatan: ${user.title}\n\nHanya level Kepala Seksi, Kepala Bagian, atau Manager yang memiliki wewenang membuat Surat Perintah Lembur (SPL).`);
-        return;
-    }
 
     const splNo = document.getElementById('spl-doc-no').value;
     const date = document.getElementById('spl-date').value;
