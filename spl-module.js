@@ -423,6 +423,12 @@ function initSplModule() {
         const today = new Date().toISOString().split('T')[0];
         dateInput.value = today;
     }
+
+    // Jika user sudah terverifikasi sebelumnya, langsung tampilkan bawahan
+    const user = getCurrentUserSession();
+    if (user && user.canCreateSpl) {
+        autoPopulateEmployees();
+    }
 }
 
 function populateSplAreas() {
@@ -954,32 +960,7 @@ async function renderSplHistoryList(filterStatus = 'all') {
             console.warn('Supabase sync notice:', e);
         }
     }
-    return supabaseUpdated;
-}
 
-async function manualRefreshSpl() {
-    const btn = document.getElementById('btn-spl-refresh');
-    if (btn) {
-        btn.textContent = '⏳ Memuat...';
-        btn.style.opacity = '0.7';
-    }
-    try {
-        const hasUpdate = await renderSplHistoryList();
-        if (btn) {
-            btn.textContent = hasUpdate ? '✅ Data Terupdate!' : '✓ Sudah Terbaru';
-            setTimeout(() => {
-                btn.textContent = '🔄 Segarkan Data';
-                btn.style.opacity = '1';
-            }, 1500);
-        }
-    } catch (e) {
-        if (btn) {
-            btn.textContent = '🔄 Segarkan Data';
-            btn.style.opacity = '1';
-        }
-    }
-}
-    
     // Update pending count
     const pendingCount = list.filter(item => item.finalStatus !== 'Disetujui' && item.finalStatus !== 'Ditolak').length;
     if (badgeCount) {
@@ -1095,6 +1076,31 @@ async function manualRefreshSpl() {
 
         container.appendChild(card);
     });
+
+    return supabaseUpdated;
+}
+
+async function manualRefreshSpl() {
+    const btn = document.getElementById('btn-spl-refresh');
+    if (btn) {
+        btn.textContent = '⏳ Memuat...';
+        btn.style.opacity = '0.7';
+    }
+    try {
+        const hasUpdate = await renderSplHistoryList();
+        if (btn) {
+            btn.textContent = hasUpdate ? '✅ Data Terupdate!' : '✓ Sudah Terbaru';
+            setTimeout(() => {
+                btn.textContent = '🔄 Segarkan Data';
+                btn.style.opacity = '1';
+            }, 1500);
+        }
+    } catch (e) {
+        if (btn) {
+            btn.textContent = '🔄 Segarkan Data';
+            btn.style.opacity = '1';
+        }
+    }
 }
 
 // Interactive Simulation Approval
@@ -1805,7 +1811,7 @@ window.resetSplVerification = resetSplVerification;
 window.quickSelectCreator = quickSelectCreator;
 window.openSplEmailConfigModal = openSplEmailConfigModal;
 window.saveSplEmailConfig = saveSplEmailConfig;
-window.testSendSplEmail = testSendSplEmail;
+window.testSendSplEmail = runDirectEmailTest;
 window.previewSampleEmailContent = previewSampleEmailContent;
 window.runDirectEmailTest = runDirectEmailTest;
 window.manualRefreshSpl = manualRefreshSpl;

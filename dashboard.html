@@ -36,7 +36,7 @@
         }
     </script>
     <script src="worksheetData.js"></script>
-    <script src="spl-module.js"></script>
+    <script src="spl-module.js?v=27"></script>
 </head>
 
 <body>
@@ -2276,19 +2276,60 @@ document.addEventListener("DOMContentLoaded", function() {
                         }
 
                         // Fallback jika modul utama belum selesai dimuat
-                        let name = 'Karyawan', role = 'Pejabat', area = 'Gen. Adm';
+                        let name = 'Karyawan', role = 'Pejabat', area = 'Gen. Adm', location = 'Central';
+                        let subordinates = [];
+                        let kasieInfo = { name: '-', no: '' };
+                        let kabagInfo = { name: '-', no: '' };
+                        let mgrInfo = { name: 'Wawan Kurniawan', no: 'NIK: 5078' };
+
                         if (nik === '3152137') {
                             name = 'Setiawan';
                             role = 'Kepala Bagian (Kabag)';
                             area = 'Gen. Adm';
+                            location = 'Central';
+                            subordinates = [
+                                { persNo: '7318', name: 'Sri Ngatun' },
+                                { persNo: '90101538', name: 'Edi Prayoga' },
+                                { persNo: '90101534', name: 'Joni Saputra' },
+                                { persNo: '90101539', name: 'Gusti Madewan Se' },
+                                { persNo: '90101699', name: 'Ahmad Novaldi' },
+                                { persNo: '90101706', name: 'Rieffed Gilang Nugroho' },
+                                { persNo: '1905', name: 'Mei Ida Astuti' }
+                            ];
+                            kasieInfo = { name: 'Setiawan (Kabag - Pembuat Langsung)', no: 'NIK: 3152137 • ✓ Otomatis Disetujui' };
+                            kabagInfo = { name: 'Setiawan (Disetujui Sendiri)', no: 'NIK: 3152137 • ✓ Approver 1 Selesai' };
                         } else if (nik === '209113') {
                             name = 'Nur Tri Ayatullah, S.T';
                             role = 'Kepala Seksi (Kasie)';
                             area = 'Traffic';
+                            location = 'Way Lunik';
+                            subordinates = [
+                                { persNo: '7339', name: 'Sakri' },
+                                { persNo: '10041846', name: 'Fedriyan Hertanto' },
+                                { persNo: '90074507', name: 'Ryanto Fransiskus Sirait' },
+                                { persNo: '90074534', name: 'Andriyanto' },
+                                { persNo: '10027886', name: 'Agus Rianto' },
+                                { persNo: '90095961', name: 'Atang Sanjaya' },
+                                { persNo: '85044272', name: 'Dear Rizky Ramadhan Sinaga' }
+                            ];
+                            kasieInfo = { name: 'Nur Tri Ayatullah, S.T', no: 'NIK: 209113' };
+                            kabagInfo = { name: 'Andriyanto', no: 'NIK: 10039299' };
                         } else if (nik === '5078') {
                             name = 'Wawan Kurniawan';
                             role = 'Manager Warehouse';
                             area = 'Semua Area';
+                            location = 'Semua Lokasi';
+                            subordinates = [
+                                { persNo: '7318', name: 'Sri Ngatun' },
+                                { persNo: '90101538', name: 'Edi Prayoga' },
+                                { persNo: '7339', name: 'Sakri' },
+                                { persNo: '10041846', name: 'Fedriyan Hertanto' },
+                                { persNo: '4818', name: 'Sumiyati' },
+                                { persNo: '90101544', name: 'Bibit Pranoto' }
+                            ];
+                            kasieInfo = { name: 'Pejabat Pembuat', no: '-' };
+                            kabagInfo = { name: 'Kabag Terkait', no: '-' };
+                            mgrInfo = { name: 'Wawan Kurniawan (Disetujui Sendiri)', no: 'NIK: 5078 • ✓ Approver 2 Selesai' };
                         }
 
                         const statusBox = document.getElementById('spl-creator-active-status');
@@ -2298,28 +2339,54 @@ document.addEventListener("DOMContentLoaded", function() {
                         if (activeName) activeName.textContent = name;
                         if (activeRole) activeRole.textContent = `${role} (NIK: ${nik})`;
 
-                        // Eksekusi pengisian langsung daftar bawahan
-                        if (window.populateSplAreas) {
-                            window.populateSplAreas();
-                        } else {
-                            const areaSel = document.getElementById('spl-area-select');
-                            if (areaSel) {
-                                areaSel.innerHTML = `<option value="${area}">${area}</option>`;
-                                areaSel.value = area;
-                            }
-                            const locSel = document.getElementById('spl-location-select');
-                            if (locSel) {
-                                locSel.innerHTML = '<option value="Central">Central</option>';
-                                locSel.value = 'Central';
-                            }
+                        // Set dropdown Bagian & Lokasi
+                        const areaSel = document.getElementById('spl-area-select');
+                        if (areaSel) {
+                            areaSel.innerHTML = `<option value="${area}">${area}</option>`;
+                            areaSel.value = area;
                         }
-                        if (window.onSplLocationChange) {
-                            window.onSplLocationChange();
+                        const locSel = document.getElementById('spl-location-select');
+                        if (locSel) {
+                            locSel.innerHTML = `<option value="${location}">${location}</option>`;
+                            locSel.value = location;
                         }
-                        // Langsung tampilkan bawahan & info Kabag
-                        if (window.autoPopulateEmployees) {
-                            window.autoPopulateEmployees();
+
+                        // Render karyawan bawahan langsung ke container
+                        const empContainer = document.getElementById('spl-employee-list-container');
+                        if (empContainer && subordinates.length > 0) {
+                            empContainer.innerHTML = '';
+                            const headerInfo = document.createElement('div');
+                            headerInfo.style.cssText = 'padding: 8px 12px; background: #e0f2fe; border-radius: 8px; margin-bottom: 6px; font-size: 0.82rem; color: #0369a1; font-weight: 600; text-align: center;';
+                            headerInfo.textContent = `📋 ${subordinates.length} karyawan bawahan ditemukan (${area} - ${location})`;
+                            empContainer.appendChild(headerInfo);
+
+                            subordinates.forEach(m => {
+                                const item = document.createElement('label');
+                                item.style.cssText = 'display: flex; align-items: center; gap: 10px; padding: 9px 14px; background: #ffffff; border: 1.5px solid #cbd5e1; border-radius: 10px; font-size: 0.92rem; cursor: pointer; transition: all 0.15s; user-select: none; margin-bottom: 4px;';
+                                item.innerHTML = `
+                                    <input type="checkbox" name="spl_emp_check" value="${m.persNo}|${m.name}" style="width: 18px; height: 18px; accent-color: #18181b; cursor: pointer;">
+                                    <div style="flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                                        <strong style="color: #0f172a; font-size: 0.92rem;">${m.name}</strong>
+                                        <span style="color: #475569; font-size: 0.82rem; margin-left: 6px; font-weight: 500;">(NIK: ${m.persNo})</span>
+                                    </div>
+                                `;
+                                empContainer.appendChild(item);
+                            });
                         }
+
+                        // Update tampilan hierarki approval
+                        const kNameEl = document.getElementById('spl-app-kasie-name');
+                        const kNoEl = document.getElementById('spl-app-kasie-no');
+                        const kbNameEl = document.getElementById('spl-app-kabag-name');
+                        const kbNoEl = document.getElementById('spl-app-kabag-no');
+                        const mNameEl = document.getElementById('spl-app-mgr-name');
+                        const mNoEl = document.getElementById('spl-app-mgr-no');
+                        if (kNameEl) kNameEl.textContent = kasieInfo.name;
+                        if (kNoEl) kNoEl.innerHTML = kasieInfo.no;
+                        if (kbNameEl) kbNameEl.textContent = kabagInfo.name;
+                        if (kbNoEl) kbNoEl.innerHTML = kabagInfo.no;
+                        if (mNameEl) mNameEl.textContent = mgrInfo.name;
+                        if (mNoEl) mNoEl.innerHTML = mgrInfo.no;
 
                         alert(`✅ Verifikasi Berhasil!\n\nNama: ${name}\nJabatan: ${role}\nNIK: ${nik}\nBagian: ${area}\n\nDaftar nama karyawan bawahan langsung ditampilkan di bawah.`);
                     }
