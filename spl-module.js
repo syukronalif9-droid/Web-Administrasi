@@ -315,7 +315,7 @@ function performSplVerification(explicitNik) {
     if (explicitNik && inputField) {
         inputField.value = explicitNik;
     }
-    const persNo = explicitNik || (inputField ? inputField.value.trim() : '');
+    let persNo = explicitNik || (inputField ? inputField.value.trim() : '');
 
     const errorBox = document.getElementById('spl-verify-error-box');
     const errorMsg = document.getElementById('spl-verify-error-msg');
