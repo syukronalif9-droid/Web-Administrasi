@@ -445,7 +445,9 @@ function populateSplAreas() {
     // Otomatis pilih jika hanya 1 bagian
     if (areas.length === 1) {
         areaSelect.value = areas[0];
-        onSplAreaChange();
+        setTimeout(() => {
+            onSplAreaChange();
+        }, 10);
     }
 }
 

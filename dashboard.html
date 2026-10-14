@@ -2302,26 +2302,28 @@ document.addEventListener("DOMContentLoaded", function() {
                         if (activeName) activeName.textContent = name;
                         if (activeRole) activeRole.textContent = `${role} (NIK: ${nik})`;
 
-                        if (window.populateSplAreas) {
-                            window.populateSplAreas();
-                        } else {
-                            const areaSel = document.getElementById('spl-area-select');
-                            if (areaSel) {
-                                areaSel.value = area;
-                                if (window.onSplAreaChange) window.onSplAreaChange();
-                            }
-                        }
-
-                        // Pastikan lokasi dan daftar bawahan langsung tampil otomatis
+                        // Eksekusi pengisian langsung daftar bawahan
                         setTimeout(() => {
-                            const locSel = document.getElementById('spl-location-select');
-                            if (locSel && locSel.options.length > 1 && !locSel.value) {
-                                locSel.value = locSel.options[1].value;
-                                if (window.onSplLocationChange) window.onSplLocationChange();
+                            if (window.populateSplAreas) {
+                                window.populateSplAreas();
+                            } else {
+                                const areaSel = document.getElementById('spl-area-select');
+                                if (areaSel) {
+                                    areaSel.innerHTML = `<option value="${area}">${area}</option>`;
+                                    areaSel.value = area;
+                                }
+                                const locSel = document.getElementById('spl-location-select');
+                                if (locSel) {
+                                    locSel.innerHTML = '<option value="Central">Central</option>';
+                                    locSel.value = 'Central';
+                                }
+                            }
+                            if (window.onSplLocationChange) {
+                                window.onSplLocationChange();
                             }
                         }, 50);
 
-                        alert(`✅ Verifikasi Berhasil!\n\nNama: ${name}\nJabatan: ${role}\nNIK: ${nik}\nBagian: ${area}\n\nSilakan pilih karyawan bawahan Anda di bawah.`);
+                        alert(`✅ Verifikasi Berhasil!\n\nNama: ${name}\nJabatan: ${role}\nNIK: ${nik}\nBagian: ${area}\n\nDaftar nama karyawan bawahan langsung ditampilkan di bawah.`);
                     }
                 </script>
 
@@ -2359,15 +2361,6 @@ document.addEventListener("DOMContentLoaded", function() {
                             <label style="display: block; font-size: 0.85rem; font-weight: 700; color: #334155; margin-bottom: 6px;">Bagian</label>
                             <select id="spl-area-select" onchange="onSplAreaChange()" required style="width: 100%; box-sizing: border-box; padding: 10px 12px; background: #ffffff; border: 1.5px solid #cbd5e1; border-radius: 10px; font-size: 0.92rem; font-weight: 500; color: #0f172a; cursor: pointer;">
                                 <option value="">-- Pilih Bagian --</option>
-                                <option value="Packaging">Packaging</option>
-                                <option value="Traffic">Traffic</option>
-                                <option value="Gen. Adm">Gen. Adm</option>
-                                <option value="Inv. Control">Inv. Control</option>
-                                <option value="Sppt, Lubr & Other M">Sppt, Lubr & Other M</option>
-                                <option value="Fertilizer">Fertilizer</option>
-                                <option value="Finished Goods">Finished Goods</option>
-                                <option value="PG3">PG3</option>
-                                <option value="PG4">PG4</option>
                             </select>
                         </div>
                         <div style="flex: 1;">
