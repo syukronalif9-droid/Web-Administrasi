@@ -867,11 +867,17 @@ async function renderSplHistoryList(filterStatus = 'all') {
             if (data && data.length) {
                 let changed = false;
                 data.forEach(remote => {
-                    const localItem = list.find(s => s.id === remote.id || s.splNo === remote.spl_no);
-                    if (localItem && remote.final_status && localItem.finalStatus !== remote.final_status) {
-                        localItem.finalStatus = remote.final_status;
-                        if (remote.kabag) localItem.kabag = remote.kabag;
-                        if (remote.manager) localItem.manager = remote.manager;
+                    let localItem = list.find(s => s.id === remote.id || s.splNo === remote.spl_no);
+                    if (localItem) {
+                        if (remote.final_status && localItem.finalStatus !== remote.final_status) {
+                            localItem.finalStatus = remote.final_status;
+                            changed = true;
+                        }
+                        if (remote.kabag) { localItem.kabag = remote.kabag; changed = true; }
+                        if (remote.manager) { localItem.manager = remote.manager; changed = true; }
+                    } else if (remote.data) {
+                        // Tambahkan data dari cloud jika belum ada di lokal
+                        list.unshift(remote.data);
                         changed = true;
                     }
                 });
@@ -879,7 +885,9 @@ async function renderSplHistoryList(filterStatus = 'all') {
                     saveSplList(list);
                 }
             }
-        } catch(e) {}
+        } catch(e) {
+            console.warn('Supabase sync notice:', e);
+        }
     }
     
     // Update pending count
