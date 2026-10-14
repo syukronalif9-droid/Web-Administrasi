@@ -237,16 +237,22 @@
                 localStorage.setItem('DIGITAL_SPL_DATA', JSON.stringify(localList));
             } catch(e) {}
 
-            // Background async sync (tidak ditunggu / non-blocking)
+            // Background async sync ke Supabase
             if (supabase) {
-                supabase.from('digital_spl').upsert({
-                    id: targetSpl.id,
-                    spl_no: targetSpl.splNo,
-                    kabag: targetSpl.kabag,
-                    manager: targetSpl.manager,
-                    final_status: targetSpl.finalStatus,
-                    updated_at: new Date().toISOString()
-                }).then(() => {}).catch(() => {});
+                try {
+                    await supabase.from('digital_spl').upsert({
+                        id: targetSpl.id,
+                        spl_no: targetSpl.splNo,
+                        kabag: targetSpl.kabag,
+                        manager: targetSpl.manager,
+                        final_status: targetSpl.finalStatus,
+                        data: targetSpl,
+                        updated_at: new Date().toISOString()
+                    });
+                    console.log('Supabase sync success for:', targetSpl.splNo);
+                } catch(err) {
+                    console.error('Supabase sync error:', err);
+                }
             }
 
             // Tampilkan Hasil Langsung!

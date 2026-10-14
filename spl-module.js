@@ -861,9 +861,10 @@ async function renderSplHistoryList(filterStatus = 'all') {
     let list = getStoredSplList();
 
     // Cek update status dari Supabase jika ada approval dari link email
+    let supabaseUpdated = false;
     if (window.supabaseClient) {
         try {
-            const { data } = await window.supabaseClient.from('digital_spl').select('*').limit(50);
+            const { data, error } = await window.supabaseClient.from('digital_spl').select('*').limit(50);
             if (data && data.length) {
                 let changed = false;
                 data.forEach(remote => {
@@ -872,6 +873,7 @@ async function renderSplHistoryList(filterStatus = 'all') {
                         if (remote.final_status && localItem.finalStatus !== remote.final_status) {
                             localItem.finalStatus = remote.final_status;
                             changed = true;
+                            supabaseUpdated = true;
                         }
                         if (remote.kabag) { localItem.kabag = remote.kabag; changed = true; }
                         if (remote.manager) { localItem.manager = remote.manager; changed = true; }
@@ -879,6 +881,7 @@ async function renderSplHistoryList(filterStatus = 'all') {
                         // Tambahkan data dari cloud jika belum ada di lokal
                         list.unshift(remote.data);
                         changed = true;
+                        supabaseUpdated = true;
                     }
                 });
                 if (changed) {
