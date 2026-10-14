@@ -2233,7 +2233,7 @@ document.addEventListener("DOMContentLoaded", function() {
                     <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
                         <span style="font-size: 0.78rem; color: #64748b; font-weight: 600;">Pilih Cepat:</span>
                         <button type="button" onclick="runLocalQuickSelect('3152137')" style="background: #18181b; color: white; border: none; border-radius: 8px; padding: 6px 12px; font-size: 0.78rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 4px;">
-                            <span>⚡ Setiawan (Kabag Packaging: 3152137)</span>
+                            <span>⚡ Setiawan (Kabag Gen. Adm: 3152137)</span>
                         </button>
                         <button type="button" onclick="runLocalQuickSelect('209113')" style="background: #f1f5f9; color: #334155; border: 1px solid #cbd5e1; border-radius: 8px; padding: 6px 12px; font-size: 0.78rem; font-weight: 600; cursor: pointer;">
                             209113 (Kasie Traffic)
@@ -2273,11 +2273,11 @@ document.addEventListener("DOMContentLoaded", function() {
                         }
 
                         // Fallback langsung dalam dashboard jika modul terhambat
-                        let name = 'Karyawan', role = 'Pejabat', area = 'Packaging';
+                        let name = 'Karyawan', role = 'Pejabat', area = 'Gen. Adm';
                         if (nik === '3152137') {
                             name = 'Setiawan';
                             role = 'Kepala Bagian (Kabag)';
-                            area = 'Packaging';
+                            area = 'Gen. Adm';
                         } else if (nik === '209113') {
                             name = 'Nur Tri Ayatullah, S.T';
                             role = 'Kepala Seksi (Kasie)';
@@ -2285,7 +2285,7 @@ document.addEventListener("DOMContentLoaded", function() {
                         } else if (nik === '5078') {
                             name = 'Wawan Kurniawan';
                             role = 'Manager Warehouse';
-                            area = 'Traffic';
+                            area = 'Semua Area';
                         }
 
                         localStorage.setItem('SPL_CURRENT_USER_PERS_NO', nik);
@@ -2296,13 +2296,17 @@ document.addEventListener("DOMContentLoaded", function() {
                         if (activeName) activeName.textContent = name;
                         if (activeRole) activeRole.textContent = `${role} (NIK: ${nik})`;
 
-                        const areaSel = document.getElementById('spl-area-select');
-                        if (areaSel) {
-                            areaSel.value = area;
-                            if (window.onSplAreaChange) window.onSplAreaChange();
+                        if (window.populateSplAreas) {
+                            window.populateSplAreas();
+                        } else {
+                            const areaSel = document.getElementById('spl-area-select');
+                            if (areaSel) {
+                                areaSel.value = area;
+                                if (window.onSplAreaChange) window.onSplAreaChange();
+                            }
                         }
 
-                        alert(`✅ Verifikasi Berhasil!\n\nNama: ${name}\nJabatan: ${role}\nNIK: ${nik}\nBagian: ${area}\n\nSilakan lanjutkan pengisian form SPL.`);
+                        alert(`✅ Verifikasi Berhasil!\n\nNama: ${name}\nJabatan: ${role}\nNIK: ${nik}\nBagian: ${area}\n\nSilakan pilih karyawan bawahan Anda di bawah.`);
                     }
                 </script>
 

@@ -252,7 +252,7 @@ function getEmployeeRoleByPersNo(inputPersNo) {
             canCreateSpl: true,
             canApproveSpl: true,
             approvalLevel: 1,
-            area: 'Packaging',
+            area: 'Gen. Adm',
             location: 'Central'
         };
     }
@@ -432,7 +432,14 @@ function populateSplAreas() {
     const areaSelect = document.getElementById('spl-area-select');
     if (!areaSelect) return;
 
-    const areas = [...new Set(SPL_MASTER_DATA.map(d => d.area))].filter(Boolean);
+    const user = getCurrentUserSession();
+    let areas = [...new Set(SPL_MASTER_DATA.map(d => d.area))].filter(Boolean);
+
+    // Jika pembuat adalah Kabag atau Kasie, batasi pilihan hanya bagian miliknya
+    if (user && user.area && user.role !== 'MANAGER' && user.area !== 'Semua Area Warehouse') {
+        areas = [user.area];
+    }
+
     areaSelect.innerHTML = '<option value="">-- Pilih Bagian --</option>';
     areas.forEach(area => {
         const opt = document.createElement('option');
@@ -440,6 +447,12 @@ function populateSplAreas() {
         opt.textContent = area;
         areaSelect.appendChild(opt);
     });
+
+    // Otomatis pilih jika hanya 1 bagian
+    if (areas.length === 1) {
+        areaSelect.value = areas[0];
+        onSplAreaChange();
+    }
 }
 
 function onSplAreaChange() {
@@ -482,10 +495,26 @@ function onSplLocationChange() {
         return;
     }
 
-    const members = SPL_MASTER_DATA.filter(d => d.area === area && d.location === location);
+    const user = getCurrentUserSession();
+    let members = SPL_MASTER_DATA.filter(d => d.area === area && d.location === location);
+
+    // Jika yang membuat adalah Kabag, hanya tampilkan karyawan yang kabagNo-nya sama dengan Kabag tersebut
+    if (user && user.role === 'KABAG' && user.persNo) {
+        const kabagSubordinates = members.filter(d => String(d.kabagNo).trim() === String(user.persNo).trim());
+        if (kabagSubordinates.length > 0) {
+            members = kabagSubordinates;
+        }
+    }
+    // Jika yang membuat adalah Kasie, hanya tampilkan karyawan di bawah Kasie tersebut
+    else if (user && user.role === 'KASIE' && user.persNo) {
+        const kasieSubordinates = members.filter(d => String(d.kasieNo).trim() === String(user.persNo).trim());
+        if (kasieSubordinates.length > 0) {
+            members = kasieSubordinates;
+        }
+    }
 
     if (members.length === 0) {
-        empContainer.innerHTML = '<div style="color: #ef4444; font-size: 0.8rem;">Tidak ada karyawan di area & lokasi ini</div>';
+        empContainer.innerHTML = '<div style="color: #ef4444; font-size: 0.8rem;">Tidak ada karyawan bawahan yang terdaftar untuk pejabat ini</div>';
         resetApproverInfo();
         return;
     }
@@ -1635,6 +1664,7 @@ window.getEmployeeRoleByPersNo = getEmployeeRoleByPersNo;
 window.getCurrentUserSession = getCurrentUserSession;
 window.setCurrentUserSession = setCurrentUserSession;
 window.updateSplAccessControlUI = updateSplAccessControlUI;
+window.populateSplAreas = populateSplAreas;
 window.performSplVerification = performSplVerification;
 window.resetSplVerification = resetSplVerification;
 window.quickSelectCreator = quickSelectCreator;
