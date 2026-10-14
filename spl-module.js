@@ -635,7 +635,9 @@ async function dispatchSplEmailNotification(spl) {
         kabag_approve_url: kabagApproveUrl,
         kabag_reject_url: kabagRejectUrl,
         manager_approve_url: mgrApproveUrl,
-        manager_reject_url: mgrRejectUrl
+        manager_reject_url: mgrRejectUrl,
+        email_subject: `[Pengajuan SPL Baru] ${spl.splNo} - Bagian: ${spl.area}`,
+        clean_spl_no: spl.splNo
     };
 
     // If EmailJS SDK is loaded and public key is configured, send via API
@@ -1351,23 +1353,150 @@ function saveSplEmailConfig() {
 }
 
 function previewSampleEmailContent() {
-    const baseUrl = window.location.origin + window.location.pathname.replace('dashboard.html', '');
-    const kabagApproveUrl = `${baseUrl}approve.html?id=SPL-DEMO&role=kabag&action=approve`;
-    const kabagRejectUrl = `${baseUrl}approve.html?id=SPL-DEMO&role=kabag&action=reject`;
+    openEmailTemplateGuideModal();
+}
 
-    alert(
-        `CONTOH TAMPILAN EMAIL YANG DITERIMA APPROVER:\n\n` +
-        `Subjek: [Pengajuan SPL Baru] SPL/WH/2026/04/001 - Traffic\n` +
-        `Kepada: andriyanto@ggf.com (Kabag) & wawan.kurniawan@ggf.com (Manager)\n\n` +
-        `Rincian Lembur:\n` +
-        `- Pembuat: Nur Tri Ayatullah (Kasie)\n` +
-        `- Tanggal: 13/10/2026 (17:00 - 21:00, 4 Jam)\n` +
-        `- Lokasi: Traffic / Way Lunik\n` +
-        `- Karyawan: Sakri (7339), Fedriyan Hertanto (10041846)\n\n` +
-        `LINK APPROVAL 1-KLIK (Bisa langsung diklik dari inbox):\n` +
-        `🟢 Setujui: ${kabagApproveUrl}\n` +
-        `🔴 Tolak    : ${kabagRejectUrl}`
-    );
+function openEmailTemplateGuideModal() {
+    const existing = document.getElementById('spl-email-template-modal');
+    if (existing) existing.remove();
+
+    const templateHtml = `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <style>
+    body { font-family: 'Segoe UI', Arial, sans-serif; background-color: #f1f5f9; margin: 0; padding: 20px; color: #1e293b; }
+    .card { max-width: 580px; margin: 0 auto; background: #ffffff; border-radius: 16px; border: 1px solid #e2e8f0; overflow: hidden; box-shadow: 0 4px 14px rgba(0,0,0,0.06); }
+    .header { background: #18181b; color: #ffffff; padding: 24px; text-align: center; }
+    .header h2 { margin: 0; font-size: 20px; font-weight: 700; letter-spacing: -0.3px; }
+    .header p { margin: 6px 0 0; font-size: 13px; color: #94a3b8; }
+    .content { padding: 24px; }
+    .info-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 14px; }
+    .info-table td { padding: 8px 10px; border-bottom: 1px solid #f1f5f9; }
+    .info-table td.lbl { width: 35%; color: #64748b; font-weight: 600; }
+    .info-table td.val { color: #0f172a; font-weight: 700; }
+    .box { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 12px 14px; margin-bottom: 20px; font-size: 13px; }
+    .btn-approve { display: block; width: 100%; box-sizing: border-box; background-color: #16a34a; color: #ffffff !important; text-decoration: none; padding: 14px 20px; border-radius: 10px; font-weight: 700; font-size: 14px; text-align: center; margin-bottom: 10px; }
+    .btn-reject { display: block; width: 100%; box-sizing: border-box; background-color: #dc2626; color: #ffffff !important; text-decoration: none; padding: 14px 20px; border-radius: 10px; font-weight: 700; font-size: 14px; text-align: center; }
+    .footer { text-align: center; padding: 16px; background: #fafafa; border-top: 1px solid #f1f5f9; font-size: 12px; color: #94a3b8; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="header">
+      <h2>Pemberitahuan Surat Perintah Lembur (SPL)</h2>
+      <p>Digitalisasi & Alur Persetujuan Warehouse</p>
+    </div>
+    
+    <div class="content">
+      <p style="font-size: 14px; margin-top: 0;">Halo Bapak/Ibu <strong>{{to_kabag_name}}</strong> / <strong>{{to_manager_name}}</strong>,</p>
+      <p style="font-size: 14px; color: #475569;">Telah diajukan permohonan lembur baru yang memerlukan persetujuan Anda:</p>
+      
+      <table class="info-table">
+        <tr><td class="lbl">No. SPL</td><td class="val">{{{clean_spl_no}}}</td></tr>
+        <tr><td class="lbl">Pembuat SPL</td><td class="val">{{creator_name}} (NIK: {{creator_nik}})</td></tr>
+        <tr><td class="lbl">Bagian & Lokasi</td><td class="val">{{wh_area}} - {{wh_location}}</td></tr>
+        <tr><td class="lbl">Tanggal Lembur</td><td class="val">{{overtime_date}}</td></tr>
+        <tr><td class="lbl">Waktu Lembur</td><td class="val">{{overtime_time}}</td></tr>
+        <tr><td class="lbl">Jml Karyawan</td><td class="val">{{employee_count}} Orang</td></tr>
+      </table>
+
+      <div class="box">
+        <strong style="color: #334155;">Daftar Karyawan Ditugaskan:</strong>
+        <pre style="margin: 6px 0 0; font-family: inherit; font-size: 13px; white-space: pre-wrap; color: #0f172a;">{{employee_list}}</pre>
+      </div>
+
+      <div class="box">
+        <strong style="color: #334155;">Alasan / Uraian Pekerjaan:</strong>
+        <p style="margin: 6px 0 0; color: #0f172a;">{{reason}}</p>
+      </div>
+
+      <div style="margin-top: 25px; text-align: center;">
+        <p style="font-weight: 700; font-size: 12px; color: #64748b; letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 12px;">ONE-CLICK APPROVAL</p>
+        <a href="{{kabag_approve_url}}" class="btn-approve">✓ APPROVE</a>
+        <a href="{{kabag_reject_url}}" class="btn-reject">✕ REJECT</a>
+      </div>
+    </div>
+
+    <div class="footer">
+      Pesan otomatis sistem Digital SPL Warehouse • PT Great Giant Foods
+    </div>
+  </div>
+</body>
+</html>`;
+
+    const guideModal = document.createElement('div');
+    guideModal.id = 'spl-email-template-modal';
+    guideModal.style.cssText = 'position: fixed; inset: 0; background: rgba(15, 23, 42, 0.65); backdrop-filter: blur(4px); z-index: 10005; display: flex; align-items: center; justify-content: center; padding: 18px; font-family: "Inter", sans-serif;';
+
+    guideModal.innerHTML = `
+        <div style="background: #ffffff; max-width: 620px; width: 100%; border-radius: 20px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.3); border: 1px solid #e2e8f0; overflow: hidden; display: flex; flex-direction: column; max-height: 90vh;">
+            <div style="padding: 16px 22px; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center; background: #fafafa;">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <span style="font-size: 1.3rem;">📋</span>
+                    <h4 style="margin: 0; font-size: 1rem; font-weight: 700; color: #0f172a;">Template Email Siap Pakai untuk EmailJS</h4>
+                </div>
+                <button onclick="document.getElementById('spl-email-template-modal').remove()" style="background: transparent; border: none; font-size: 1.2rem; cursor: pointer; color: #94a3b8;">✕</button>
+            </div>
+
+            <div style="padding: 18px 22px; overflow-y: auto; font-size: 0.85rem; display: flex; flex-direction: column; gap: 14px;">
+                <div style="background: #e0f2fe; border: 1px solid #bae6fd; border-radius: 10px; padding: 12px; color: #0369a1; font-size: 0.8rem; line-height: 1.5;">
+                    <strong>Cara Pakai:</strong><br>
+                    1. Klik tombol hijau <strong>"📋 Salin Template HTML"</strong> di bawah.<br>
+                    2. Buka dashboard <a href="https://dashboard.emailjs.com/" target="_blank" style="color: #0284c7; font-weight: 700;">EmailJS</a> &rarr; <strong>Email Templates</strong> &rarr; Buka Template Anda.<br>
+                    3. Pada kolom <strong>Subject</strong>, ketik: <code style="background: #ffffff; padding: 2px 6px; border-radius: 4px; font-weight: bold;">{{{email_subject}}}</code><br>
+                    4. Klik tombol <strong>&lt;/&gt; (Source Code / HTML)</strong> pada body email di EmailJS, hapus isinya, lalu <strong>Paste (Ctrl + V)</strong>.<br>
+                    5. Klik <strong>Save</strong>. Selesai!
+                </div>
+
+                <div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                        <span style="font-weight: 700; color: #334155; font-size: 0.82rem;">Subject Email (Gunakan 3 kurung kurawal agar rapi tanpa &#x2F;):</span>
+                        <button type="button" onclick="navigator.clipboard.writeText('{{{email_subject}}}'); alert('Subject disalin!');" style="background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 6px; padding: 3px 8px; font-size: 0.72rem; cursor: pointer; font-weight: 600;">Salin Subject</button>
+                    </div>
+                    <input type="text" readonly value="{{{email_subject}}}" style="width: 100%; box-sizing: border-box; padding: 8px 10px; background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 8px; font-weight: 700; color: #0f172a;">
+                </div>
+
+                <div>
+                    <span style="font-weight: 700; color: #334155; font-size: 0.82rem; display: block; margin-bottom: 6px;">Kode HTML Template Email (Sudah tombol APPROVE & REJECT):</span>
+                    <textarea id="spl-template-code-box" readonly rows="8" style="width: 100%; box-sizing: border-box; padding: 10px; font-family: monospace; font-size: 0.75rem; border: 1.5px solid #cbd5e1; border-radius: 10px; background: #f8fafc; color: #334155; resize: none;">${templateHtml.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</textarea>
+                </div>
+            </div>
+
+            <div style="padding: 14px 22px; background: #fafafa; border-top: 1px solid #f1f5f9; display: flex; justify-content: flex-end; gap: 10px;">
+                <button onclick="document.getElementById('spl-email-template-modal').remove()" style="background: #f1f5f9; border: 1px solid #cbd5e1; color: #475569; padding: 8px 16px; border-radius: 8px; font-weight: 600; font-size: 0.82rem; cursor: pointer;">
+                    Tutup
+                </button>
+                <button type="button" id="btn-copy-tpl" onclick="copySplTemplateToClipboard()" style="background: #16a34a; color: white; border: none; padding: 8px 20px; border-radius: 8px; font-weight: 700; font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; gap: 6px;">
+                    <span>📋 Salin Template HTML</span>
+                </button>
+            </div>
+        </div>
+    `;
+
+    document.body.appendChild(guideModal);
+
+    window.copySplTemplateToClipboard = function() {
+        navigator.clipboard.writeText(templateHtml).then(() => {
+            const btn = document.getElementById('btn-copy-tpl');
+            if (btn) {
+                btn.innerHTML = '<span>✓ Berhasil Disalin!</span>';
+                btn.style.background = '#15803d';
+                setTimeout(() => {
+                    btn.innerHTML = '<span>📋 Salin Template HTML</span>';
+                    btn.style.background = '#16a34a';
+                }, 2000);
+            }
+            alert('Template HTML berhasil disalin ke clipboard! Silakan buka EmailJS dan Paste (Ctrl + V).');
+        }).catch(() => {
+            const box = document.getElementById('spl-template-code-box');
+            if (box) {
+                box.select();
+                document.execCommand('copy');
+                alert('Template HTML berhasil disalin!');
+            }
+        });
+    };
 }
 
 async function runDirectEmailTest() {
@@ -1415,7 +1544,9 @@ async function runDirectEmailTest() {
                 employee_list: '1. Sakri (7339)\n2. Fedriyan Hertanto (10041846)',
                 reason: 'Pengujian koneksi email otomatis Surat Perintah Lembur',
                 kabag_approve_url: sampleApproveUrl,
-                kabag_reject_url: sampleRejectUrl
+                kabag_reject_url: sampleRejectUrl,
+                email_subject: '[Pengajuan SPL Baru] SPL/WH/2026/04/TEST - Bagian: Packaging',
+                clean_spl_no: 'SPL/WH/2026/04/TEST'
             });
 
             statusBox.style.background = '#f0fdf4';
