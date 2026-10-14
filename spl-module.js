@@ -1225,7 +1225,7 @@ function openSplEmailConfigModal() {
 
     const modal = document.createElement('div');
     modal.id = 'spl-email-config-modal';
-    modal.style.cssText = 'position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); z-index: 10000; display: flex; align-items: center; justify-content: center; padding: 20px; font-family: "Inter", sans-serif;';
+    modal.style.cssText = 'position: fixed; inset: 0; background: rgba(15, 23, 42, 0.65); backdrop-filter: blur(4px); z-index: 10005; display: flex; align-items: center; justify-content: center; padding: 20px; font-family: "Inter", sans-serif;';
 
     modal.innerHTML = `
         <div style="background: #ffffff; max-width: 540px; width: 100%; border-radius: 20px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); border: 1px solid #e2e8f0; overflow: hidden;">
