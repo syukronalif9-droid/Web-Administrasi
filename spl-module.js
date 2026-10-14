@@ -848,12 +848,34 @@ async function handleSplSubmit(e) {
 }
 
 // Render Slide 2 SPL History & Tracking
-function renderSplHistoryList(filterStatus = 'all') {
+async function renderSplHistoryList(filterStatus = 'all') {
     const container = document.getElementById('spl-history-container');
     const badgeCount = document.getElementById('spl-pending-badge');
     if (!container) return;
 
-    const list = getStoredSplList();
+    let list = getStoredSplList();
+
+    // Cek update status dari Supabase jika ada approval dari link email
+    if (window.supabaseClient) {
+        try {
+            const { data } = await window.supabaseClient.from('digital_spl').select('*').limit(50);
+            if (data && data.length) {
+                let changed = false;
+                data.forEach(remote => {
+                    const localItem = list.find(s => s.id === remote.id || s.splNo === remote.spl_no);
+                    if (localItem && remote.final_status && localItem.finalStatus !== remote.final_status) {
+                        localItem.finalStatus = remote.final_status;
+                        if (remote.kabag) localItem.kabag = remote.kabag;
+                        if (remote.manager) localItem.manager = remote.manager;
+                        changed = true;
+                    }
+                });
+                if (changed) {
+                    saveSplList(list);
+                }
+            }
+        } catch(e) {}
+    }
     
     // Update pending count
     const pendingCount = list.filter(item => item.finalStatus !== 'Disetujui' && item.finalStatus !== 'Ditolak').length;

@@ -281,25 +281,6 @@
             document.getElementById('disp-time').textContent = nowStr;
 
             resultBox.style.display = 'block';
-            return;
-
-            // Eksekusi Update Status
-            let approverName = '-';
-            let isApproved = action === 'approve';
-
-            if (role === 'kabag') {
-                approverName = targetSpl.kabag?.name || 'Kepala Bagian';
-                targetSpl.kabag = {
-                    ...targetSpl.kabag,
-                    status: isApproved ? 'approved' : 'rejected',
-                    date: nowStr
-                };
-                if (isApproved) {
-                    targetSpl.finalStatus = 'Menunggu Manager';
-                } else {
-                    targetSpl.finalStatus = 'Ditolak Kabag';
-                }
-            resultBox.style.display = 'block';
         }
 
         window.addEventListener('DOMContentLoaded', processApproval);
