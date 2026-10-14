@@ -409,7 +409,7 @@ function populateSplAreas() {
     const areaSelect = document.getElementById('spl-area-select');
     if (!areaSelect) return;
 
-    const areas = [...new Set(SPL_MASTER_DATA.map(d => d.area))];
+    const areas = [...new Set(SPL_MASTER_DATA.map(d => d.area))].filter(Boolean);
     areaSelect.innerHTML = '<option value="">-- Pilih Bagian --</option>';
     areas.forEach(area => {
         const opt = document.createElement('option');
