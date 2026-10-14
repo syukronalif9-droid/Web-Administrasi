@@ -445,9 +445,7 @@ function populateSplAreas() {
     // Otomatis pilih jika hanya 1 bagian
     if (areas.length === 1) {
         areaSelect.value = areas[0];
-        setTimeout(() => {
-            onSplAreaChange();
-        }, 10);
+        onSplAreaChange();
     }
 }
 
@@ -472,35 +470,41 @@ function onSplAreaChange() {
         locSelect.appendChild(opt);
     });
 
-    // Auto-select location: jika user punya preferred location atau hanya ada 1 lokasi
+    // Auto-select location dan LANGSUNG render daftar karyawan bawahan
     const user = getCurrentUserSession();
     if (user && user.location && locations.includes(user.location)) {
         locSelect.value = user.location;
-        onSplLocationChange();
-    } else if (locations.length === 1) {
+    } else if (locations.length > 0) {
         locSelect.value = locations[0];
-        onSplLocationChange();
-    } else if (locations.length > 0 && !locSelect.value) {
-        // Default ke lokasi pertama agar daftar bawahan langsung muncul tanpa perlu klik tambahan
-        locSelect.value = locations[0];
+    }
+    
+    // Panggil onSplLocationChange langsung agar nama karyawan tidak tertahan!
+    if (locSelect.value) {
         onSplLocationChange();
     }
 }
 
 function onSplLocationChange() {
-    const area = document.getElementById('spl-area-select').value;
-    const location = document.getElementById('spl-location-select').value;
+    const areaSelect = document.getElementById('spl-area-select');
+    const locSelect = document.getElementById('spl-location-select');
     const empContainer = document.getElementById('spl-employee-list-container');
     
-    empContainer.innerHTML = '';
+    if (!empContainer) return;
+    
+    const area = areaSelect ? areaSelect.value : '';
+    const location = locSelect ? locSelect.value : '';
+
     if (!area || !location) {
-        empContainer.innerHTML = '<div style="color: #94a3b8; font-size: 0.8rem; font-style: italic;">Pilih Area & Lokasi terlebih dahulu</div>';
+        empContainer.innerHTML = '<div style="color: #94a3b8; font-size: 0.8rem; font-style: italic; text-align: center; padding: 12px;">Pilih Area & Lokasi terlebih dahulu</div>';
         resetApproverInfo();
         return;
     }
 
     const user = getCurrentUserSession();
-    let members = SPL_MASTER_DATA.filter(d => d.area === area && d.location === location);
+    let members = SPL_MASTER_DATA.filter(d => 
+        String(d.area).trim().toLowerCase() === String(area).trim().toLowerCase() && 
+        String(d.location).trim().toLowerCase() === String(location).trim().toLowerCase()
+    );
 
     // Jika yang membuat adalah Kabag, hanya tampilkan karyawan yang kabagNo-nya sama dengan Kabag tersebut
     if (user && user.role === 'KABAG' && user.persNo) {
@@ -518,31 +522,36 @@ function onSplLocationChange() {
     }
 
     if (members.length === 0) {
-        empContainer.innerHTML = '<div style="color: #ef4444; font-size: 0.8rem;">Tidak ada karyawan bawahan yang terdaftar untuk pejabat ini</div>';
+        empContainer.innerHTML = '<div style="color: #ef4444; font-size: 0.8rem; text-align: center; padding: 12px;">Tidak ada karyawan bawahan yang terdaftar untuk pejabat ini</div>';
         resetApproverInfo();
         return;
     }
 
-    // Set Approvers from the first matching member in this location
-    const ref = members[0];
-    setApproverInfo(ref.kasieName, ref.kasieNo, ref.kabagName, ref.kabagNo, ref.mgrName, ref.mgrNo);
-
-    // Render Employee Checkboxes
+    // Render Employee Checkboxes TERLEBIH DAHULU agar tampilan selalu muncul
+    empContainer.innerHTML = '';
     members.forEach((m, idx) => {
         const item = document.createElement('label');
-        item.style.cssText = 'display: flex; align-items: center; gap: 10px; padding: 9px 14px; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 10px; font-size: 0.92rem; cursor: pointer; transition: all 0.15s; user-select: none;';
+        item.style.cssText = 'display: flex; align-items: center; gap: 10px; padding: 9px 14px; background: #ffffff; border: 1.5px solid #cbd5e1; border-radius: 10px; font-size: 0.92rem; cursor: pointer; transition: all 0.15s; user-select: none; margin-bottom: 4px;';
         item.onmouseenter = () => item.style.background = '#f1f5f9';
         item.onmouseleave = () => item.style.background = '#ffffff';
         
         item.innerHTML = `
-            <input type="checkbox" name="spl_emp_check" value="${m.persNo}|${m.name}" style="width: 17px; height: 17px; accent-color: #18181b; cursor: pointer;">
+            <input type="checkbox" name="spl_emp_check" value="${m.persNo}|${m.name}" style="width: 18px; height: 18px; accent-color: #18181b; cursor: pointer;">
             <div style="flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
                 <strong style="color: #0f172a; font-size: 0.92rem;">${m.name}</strong> 
-                <span style="color: #64748b; font-size: 0.82rem; margin-left: 4px;">(NIK: ${m.persNo})</span>
+                <span style="color: #475569; font-size: 0.82rem; margin-left: 6px; font-weight: 500;">(NIK: ${m.persNo})</span>
             </div>
         `;
         empContainer.appendChild(item);
     });
+
+    // Set Approvers from the first matching member in this location
+    try {
+        const ref = members[0];
+        setApproverInfo(ref.kasieName, ref.kasieNo, ref.kabagName, ref.kabagNo, ref.mgrName, ref.mgrNo);
+    } catch (err) {
+        console.warn('Error setting approver info:', err);
+    }
 }
 
 // ========================================================

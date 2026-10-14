@@ -2303,25 +2303,23 @@ document.addEventListener("DOMContentLoaded", function() {
                         if (activeRole) activeRole.textContent = `${role} (NIK: ${nik})`;
 
                         // Eksekusi pengisian langsung daftar bawahan
-                        setTimeout(() => {
-                            if (window.populateSplAreas) {
-                                window.populateSplAreas();
-                            } else {
-                                const areaSel = document.getElementById('spl-area-select');
-                                if (areaSel) {
-                                    areaSel.innerHTML = `<option value="${area}">${area}</option>`;
-                                    areaSel.value = area;
-                                }
-                                const locSel = document.getElementById('spl-location-select');
-                                if (locSel) {
-                                    locSel.innerHTML = '<option value="Central">Central</option>';
-                                    locSel.value = 'Central';
-                                }
+                        if (window.populateSplAreas) {
+                            window.populateSplAreas();
+                        } else {
+                            const areaSel = document.getElementById('spl-area-select');
+                            if (areaSel) {
+                                areaSel.innerHTML = `<option value="${area}">${area}</option>`;
+                                areaSel.value = area;
                             }
-                            if (window.onSplLocationChange) {
-                                window.onSplLocationChange();
+                            const locSel = document.getElementById('spl-location-select');
+                            if (locSel) {
+                                locSel.innerHTML = '<option value="Central">Central</option>';
+                                locSel.value = 'Central';
                             }
-                        }, 50);
+                        }
+                        if (window.onSplLocationChange) {
+                            window.onSplLocationChange();
+                        }
 
                         alert(`✅ Verifikasi Berhasil!\n\nNama: ${name}\nJabatan: ${role}\nNIK: ${nik}\nBagian: ${area}\n\nDaftar nama karyawan bawahan langsung ditampilkan di bawah.`);
                     }
