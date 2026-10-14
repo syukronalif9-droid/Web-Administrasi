@@ -196,6 +196,8 @@
                 localList = [];
             }
 
+            let targetSpl = localList.find(s => s.id === splId || s.splNo === splId);
+
             // Eksekusi Update Status secara Instan (0 detik)
             let approverName = role === 'manager' ? 'Wawan Kurniawan (Manager)' : 'Kepala Bagian';
             let isApproved = action === 'approve';

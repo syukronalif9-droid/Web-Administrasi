@@ -824,6 +824,17 @@ async function handleSplSubmit(e) {
     list.unshift(newSpl);
     saveSplList(list);
 
+    // Sync ke Supabase (jika client tersedia)
+    if (window.supabaseClient) {
+        window.supabaseClient.from('digital_spl').upsert({
+            id: newSpl.id,
+            spl_no: newSpl.splNo,
+            data: newSpl,
+            final_status: newSpl.finalStatus,
+            updated_at: new Date().toISOString()
+        }).then(() => {}).catch(() => {});
+    }
+
     alert(`Surat Perintah Lembur (${splNo}) berhasil diajukan!\n\n📧 NOTIFIKASI EMAIL OTOMATIS TERKIRIM KE:\n1. Approver 1 (Kabag)    : ${kabagEmail} (${kabagName})\n2. Approver 2 (Manager) : ${mgrEmail} (${mgrName})`);
 
     // Reset Form
