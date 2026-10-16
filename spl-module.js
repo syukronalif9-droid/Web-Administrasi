@@ -583,16 +583,14 @@ function onSplLocationChange() {
 
     members.forEach((m, idx) => {
         const item = document.createElement('label');
-        const isLeader = m.roleBadge === 'Kabag' || m.roleBadge === 'Kasie' || m.roleBadge === 'Manager';
-        item.style.cssText = `display: flex; align-items: center; gap: 10px; padding: 9px 14px; background: ${isLeader ? '#f0fdf4' : '#ffffff'}; border: 1.5px solid ${isLeader ? '#16a34a' : '#cbd5e1'}; border-radius: 10px; font-size: 0.92rem; cursor: pointer; transition: all 0.15s; user-select: none; margin-bottom: 4px;`;
-        item.onmouseenter = () => item.style.background = isLeader ? '#dcfce7' : '#f1f5f9';
-        item.onmouseleave = () => item.style.background = isLeader ? '#f0fdf4' : '#ffffff';
+        item.style.cssText = `display: flex; align-items: center; gap: 10px; padding: 9px 14px; background: #ffffff; border: 1.5px solid #cbd5e1; border-radius: 10px; font-size: 0.92rem; cursor: pointer; transition: all 0.15s; user-select: none; margin-bottom: 4px;`;
+        item.onmouseenter = () => item.style.background = '#f1f5f9';
+        item.onmouseleave = () => item.style.background = '#ffffff';
         
         item.innerHTML = `
             <input type="checkbox" name="spl_emp_check" value="${m.persNo}|${m.name}" style="width: 18px; height: 18px; accent-color: #18181b; cursor: pointer;">
             <div style="flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
                 <strong style="color: #0f172a; font-size: 0.92rem;">${m.name}</strong> 
-                ${m.roleBadge ? `<span style="background: #16a34a; color: #ffffff; font-size: 0.72rem; font-weight: 700; padding: 2px 8px; border-radius: 6px; margin-left: 6px;">⭐ ${m.roleBadge}</span>` : ''}
                 <span style="color: #475569; font-size: 0.82rem; margin-left: 6px; font-weight: 500;">(NIK: ${m.persNo})</span>
             </div>
         `;
@@ -1990,16 +1988,14 @@ function autoPopulateEmployees() {
 
     members.forEach((m, idx) => {
         const item = document.createElement('label');
-        const isLeader = m.roleBadge === 'Kabag' || m.roleBadge === 'Kasie' || m.roleBadge === 'Manager';
-        item.style.cssText = `display: flex; align-items: center; gap: 10px; padding: 9px 14px; background: ${isLeader ? '#f0fdf4' : '#ffffff'}; border: 1.5px solid ${isLeader ? '#16a34a' : '#cbd5e1'}; border-radius: 10px; font-size: 0.92rem; cursor: pointer; transition: all 0.15s; user-select: none; margin-bottom: 4px;`;
-        item.onmouseenter = () => item.style.background = isLeader ? '#dcfce7' : '#f1f5f9';
-        item.onmouseleave = () => item.style.background = isLeader ? '#f0fdf4' : '#ffffff';
+        item.style.cssText = `display: flex; align-items: center; gap: 10px; padding: 9px 14px; background: #ffffff; border: 1.5px solid #cbd5e1; border-radius: 10px; font-size: 0.92rem; cursor: pointer; transition: all 0.15s; user-select: none; margin-bottom: 4px;`;
+        item.onmouseenter = () => item.style.background = '#f1f5f9';
+        item.onmouseleave = () => item.style.background = '#ffffff';
 
         item.innerHTML = `
             <input type="checkbox" name="spl_emp_check" value="${m.persNo}|${m.name}" style="width: 18px; height: 18px; accent-color: #18181b; cursor: pointer;">
             <div style="flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
                 <strong style="color: #0f172a; font-size: 0.92rem;">${m.name}</strong>
-                ${m.roleBadge ? `<span style="background: #16a34a; color: #ffffff; font-size: 0.72rem; font-weight: 700; padding: 2px 8px; border-radius: 6px; margin-left: 6px;">⭐ ${m.roleBadge}</span>` : ''}
                 <span style="color: #475569; font-size: 0.82rem; margin-left: 6px; font-weight: 500;">(NIK: ${m.persNo})</span>
             </div>
         `;
