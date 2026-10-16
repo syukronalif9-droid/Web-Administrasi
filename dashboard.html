@@ -36,7 +36,7 @@
         }
     </script>
     <script src="worksheetData.js"></script>
-    <script src="spl-module.js?v=35"></script>
+    <script src="spl-module.js?v=36"></script>
 </head>
 
 <body>
@@ -253,6 +253,55 @@
                     box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2) !important;
                     background: #ffffff !important;
                     outline: none !important;
+                }
+                .spl-filter-pill {
+                    padding: 8px 18px !important;
+                    border-radius: 99px !important;
+                    font-size: 0.84rem !important;
+                    font-weight: 600 !important;
+                    cursor: pointer !important;
+                    white-space: nowrap !important;
+                    border: 2px solid #cbd5e1 !important;
+                    background: #ffffff !important;
+                    color: #475569 !important;
+                    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+                    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04) !important;
+                    outline: none !important;
+                }
+                .spl-filter-pill:hover {
+                    border-color: #93c5fd !important;
+                    color: #2563eb !important;
+                    background: #f8faff !important;
+                    transform: translateY(-1px);
+                }
+                .spl-filter-pill.active {
+                    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%) !important;
+                    color: #ffffff !important;
+                    border-color: #1d4ed8 !important;
+                    font-weight: 700 !important;
+                    box-shadow: 0 4px 14px rgba(37, 99, 235, 0.32) !important;
+                    transform: translateY(0);
+                }
+                .spl-action-pill {
+                    padding: 8px 18px !important;
+                    border-radius: 99px !important;
+                    font-size: 0.84rem !important;
+                    font-weight: 700 !important;
+                    cursor: pointer !important;
+                    white-space: nowrap !important;
+                    background: #f0f9ff !important;
+                    color: #0284c7 !important;
+                    border: 2px solid #bae6fd !important;
+                    transition: all 0.2s ease !important;
+                    box-shadow: 0 1px 3px rgba(14, 165, 233, 0.08) !important;
+                    outline: none !important;
+                }
+                .spl-action-pill:hover {
+                    background: #e0f2fe !important;
+                    border-color: #38bdf8 !important;
+                    color: #0369a1 !important;
+                    transform: translateY(-1px);
+                    box-shadow: 0 4px 12px rgba(14, 165, 233, 0.2) !important;
                 }
                 .sidebar-slide-pane {
                     animation: fadeInSlide 0.25s ease forwards;
@@ -2525,6 +2574,20 @@ document.addEventListener("DOMContentLoaded", function() {
                         updateSplSelectedCount();
                     }
                     window.toggleSelectAllSplEmployees = toggleSelectAllSplEmployees;
+
+                    function setSplHistoryFilter(status, btn) {
+                        document.querySelectorAll('.spl-filter-pill').forEach(el => el.classList.remove('active'));
+                        if (btn) {
+                            btn.classList.add('active');
+                        } else {
+                            const target = document.querySelector(`.spl-filter-pill[data-filter="${status}"]`);
+                            if (target) target.classList.add('active');
+                        }
+                        if (typeof window.renderSplHistoryList === 'function') {
+                            window.renderSplHistoryList(status);
+                        }
+                    }
+                    window.setSplHistoryFilter = setSplHistoryFilter;
                 </script>
 
                 <!-- Form Pembuatan SPL Baru (Langsung Siap Pakai & Responsif) -->
@@ -2653,11 +2716,11 @@ document.addEventListener("DOMContentLoaded", function() {
                 <!-- Filter Pills & Test Email Button -->
                 <!-- Baris Tombol Filter & Aksi -->
                 <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 14px; flex-wrap: wrap;">
-                    <div style="display: flex; gap: 6px; overflow-x: auto; padding-bottom: 2px;">
-                        <button onclick="renderSplHistoryList('all')" style="background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%); color: white; border: none; padding: 7px 16px; border-radius: 99px; font-size: 0.82rem; font-weight: 600; cursor: pointer; white-space: nowrap; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);">Semua</button>
-                        <button onclick="renderSplHistoryList('pending')" style="background: #ffffff; color: #475569; border: 1px solid #e2e8f0; padding: 7px 16px; border-radius: 99px; font-size: 0.82rem; font-weight: 600; cursor: pointer; white-space: nowrap;">Menunggu Approval</button>
-                        <button onclick="renderSplHistoryList('approved')" style="background: #ffffff; color: #475569; border: 1px solid #e2e8f0; padding: 7px 16px; border-radius: 99px; font-size: 0.82rem; font-weight: 600; cursor: pointer; white-space: nowrap;">Disetujui</button>
-                        <button onclick="manualRefreshSpl()" id="btn-spl-refresh" title="Segarkan Data dari Cloud" style="background: #f0f9ff; color: #0284c7; border: 1.5px solid #bae6fd; padding: 7px 16px; border-radius: 99px; font-size: 0.82rem; font-weight: 700; cursor: pointer; white-space: nowrap;">🔄 Segarkan Data</button>
+                    <div style="display: flex; gap: 8px; overflow-x: auto; padding-bottom: 2px;">
+                        <button type="button" class="spl-filter-pill active" data-filter="all" onclick="setSplHistoryFilter('all', this)">Semua</button>
+                        <button type="button" class="spl-filter-pill" data-filter="pending" onclick="setSplHistoryFilter('pending', this)">Menunggu Approval</button>
+                        <button type="button" class="spl-filter-pill" data-filter="approved" onclick="setSplHistoryFilter('approved', this)">Disetujui</button>
+                        <button type="button" class="spl-action-pill" id="btn-spl-refresh" onclick="manualRefreshSpl()" title="Segarkan Data dari Cloud">🔄 Segarkan Data</button>
                     </div>
                     <button type="button" id="btn-spl-email-config" onclick="if(window.openSplEmailConfigModal) window.openSplEmailConfigModal();" style="background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%); color: #15803d; border: 1.5px solid #86efac; padding: 7px 16px; border-radius: 10px; font-size: 0.82rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 6px; white-space: nowrap; z-index: 10; position: relative; box-shadow: 0 2px 6px rgba(22, 163, 74, 0.12);">
                         <span>⚙️ Tes & Pengaturan Email</span>

@@ -1069,6 +1069,15 @@ async function renderSplHistoryList(filterStatus = 'all') {
         badgeCount.style.display = pendingCount > 0 ? 'inline-block' : 'none';
     }
 
+    // Sinkronkan active class pada tombol filter pill agar warna berpindah otomatis
+    document.querySelectorAll('.spl-filter-pill').forEach(btn => {
+        if (btn.getAttribute('data-filter') === filterStatus) {
+            btn.classList.add('active');
+        } else {
+            btn.classList.remove('active');
+        }
+    });
+
     let filtered = list;
     if (filterStatus === 'pending') {
         filtered = list.filter(item => item.finalStatus.includes('Menunggu'));
