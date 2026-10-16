@@ -53,6 +53,10 @@
             background-color: #e0f2fe;
             color: #0284c7;
         }
+        .icon-waiting {
+            background-color: #fef3c7;
+            color: #d97706;
+        }
         h1 {
             font-size: 1.25rem;
             color: #0f172a;
@@ -140,9 +144,9 @@
     <div class="card" id="app-card">
         <!-- Result State -->
         <div id="state-result">
-            <div id="result-icon" class="status-icon icon-loading">⏳</div>
-            <h1 id="result-title">Memproses Keputusan...</h1>
-            <p id="result-desc">Mohon tunggu sebentar, sistem sedang memproses status persetujuan.</p>
+            <div id="result-icon" class="status-icon icon-waiting">!</div>
+            <h1 id="result-title">Menunggu Konfirmasi</h1>
+            <p id="result-desc">Keputusan hanya disimpan setelah Anda menekan tombol Setujui atau Tolak di halaman ini.</p>
 
             <div class="spl-detail" id="spl-info-box">
                 <div class="spl-detail-row">
@@ -163,9 +167,9 @@
                 </div>
             </div>
 
-            <!-- Tombol Ubah / Eksekusi Keputusan Langsung -->
+            <!-- Keputusan email hanya diproses setelah approver menekan salah satu tombol ini. -->
             <div style="margin-bottom: 14px;">
-                <div style="font-size: 0.78rem; color: #64748b; margin-bottom: 8px; font-weight: 600;">Ubah atau Konfirmasi Keputusan Anda:</div>
+                <div style="font-size: 0.78rem; color: #64748b; margin-bottom: 8px; font-weight: 600;">Konfirmasi keputusan Anda secara manual:</div>
                 <div style="display: flex; gap: 8px;">
                     <button type="button" id="btn-do-approve" onclick="executeDecision(true)" style="flex: 1; background: #16a34a; color: white; border: none; padding: 10px 12px; border-radius: 10px; font-weight: 700; font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px;">
                         <span>✓ Setujui</span>
@@ -320,12 +324,16 @@
             }
         }
 
-        // Jalankan eksekusi awal sesuai parameter URL
         document.getElementById('disp-spl-no').textContent = paramSplNo || '-';
         document.getElementById('disp-approver-name').textContent = paramApprover || '-';
-        if (actionParam === 'approve' || isInitialReject) {
-            executeDecision(!isInitialReject);
-        }
+        document.getElementById('disp-status').textContent = 'Menunggu Konfirmasi';
+        document.getElementById('disp-time').textContent = '-';
+        document.getElementById('result-title').textContent = isInitialReject
+            ? 'Konfirmasi Penolakan'
+            : 'Konfirmasi Persetujuan';
+        document.getElementById('result-desc').textContent = isInitialReject
+            ? 'Tautan ini meminta penolakan. Keputusan belum disimpan; tekan Tolak untuk mengonfirmasi.'
+            : 'Tautan ini meminta persetujuan. Keputusan belum disimpan; tekan Setujui untuk mengonfirmasi.';
     </script>
 </body>
 </html>

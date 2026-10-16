@@ -571,18 +571,22 @@ function onSplLocationChange() {
     const user = getCurrentUserSession();
     let members = [];
 
-    // Jika yang membuat adalah Manager, selalu tampilkan HANYA nama Manager saja (Wawan Kurniawan)
+    // Manager tetap mengajukan SPL untuk area/lokasi yang dipilih dan membutuhkan Kabag terkait.
     if (user && user.role === 'MANAGER') {
+        const areaRef = SPL_MASTER_DATA.find(d =>
+            String(d.area).trim().toLowerCase() === String(area).trim().toLowerCase() &&
+            String(d.location).trim().toLowerCase() === String(location).trim().toLowerCase()
+        );
         members = [{
             persNo: user.persNo || '5078',
             name: user.name || 'Wawan Kurniawan',
             roleBadge: 'Manager',
-            area: area || 'Semua Area',
-            location: location || 'Semua Lokasi',
-            kabagNo: '-',
-            kabagName: '-',
-            kasieNo: '-',
-            kasieName: '-',
+            area,
+            location,
+            kabagNo: areaRef ? areaRef.kabagNo : '',
+            kabagName: areaRef ? areaRef.kabagName : '',
+            kasieNo: user.persNo || '5078',
+            kasieName: user.name || 'Wawan Kurniawan',
             mgrNo: user.persNo || '5078',
             mgrName: user.name || 'Wawan Kurniawan'
         }];
@@ -865,15 +869,16 @@ function setApproverInfo(kasieName, kasieNo, kabagName, kabagNo, mgrName, mgrNo)
     if (!kasieNameEl || !kabagNameEl || !mgrNameEl) return;
 
     if (user && user.role === 'MANAGER') {
-        // Jika yang membuat adalah Manager Warehouse langsung (Wawan Kurniawan)
         kasieNameEl.textContent = 'Pejabat Pembuat';
-        kasieNoEl.innerHTML = `NIK: ${user.persNo} • <span style="color:#16a34a; font-weight:600;">✓ Otomatis Disetujui</span>`;
+        kasieNoEl.innerHTML = `NIK: ${user.persNo} • <span style="color:#64748b; font-weight:600;">Pembuat SPL</span>`;
 
-        kabagNameEl.textContent = 'Kabag Terkait';
-        kabagNoEl.innerHTML = `- • <span style="color:#16a34a; font-weight:600;">✓ Disetujui Manager</span>`;
+        kabagNameEl.textContent = kabagName || 'Kabag Terkait';
+        kabagNoEl.innerHTML = kabagNo
+            ? `NIK: ${kabagNo} • <span style="color:#0284c7;">✉ ${kabagEmail}</span> <span style="color:#f59e0b; font-weight:600;">(Menunggu Approval)</span>`
+            : '<span style="color:#ef4444; font-weight:600;">Kabag untuk area ini tidak ditemukan</span>';
 
-        mgrNameEl.textContent = `${user.name} (Disetujui Sendiri)`;
-        mgrNoEl.innerHTML = `NIK: ${user.persNo} • <span style="color:#16a34a; font-weight:600;">✓ Approver 2 Selesai</span>`;
+        mgrNameEl.textContent = user.name;
+        mgrNoEl.innerHTML = `NIK: ${user.persNo} • <span style="color:#0284c7;">✉ ${mgrEmail}</span> <span style="color:#f59e0b; font-weight:600;">(Menunggu Approval)</span>`;
     } else if (user && user.role === 'KABAG') {
         // Jika yang membuat adalah Kabag langsung (seperti Setiawan)
         kasieNameEl.textContent = `${user.name} (Kabag - Pembuat Langsung)`;
@@ -1036,6 +1041,10 @@ async function handleSplSubmit(e) {
     const currentUser = getCurrentUserSession();
     const isKabagCreator = currentUser && currentUser.role === 'KABAG';
     const isManagerCreator = currentUser && currentUser.role === 'MANAGER';
+    if (isManagerCreator && (!kabagNo || !kabagName || kabagName === '-')) {
+        alert('Kabag untuk area/lokasi yang dipilih tidak ditemukan. Periksa data master SPL sebelum mengajukan.');
+        return;
+    }
 
     let creatorRole = 'KASIE';
     let kasieObj = { 
@@ -1070,22 +1079,13 @@ async function handleSplSubmit(e) {
             status: 'approved',
             date: new Date().toLocaleString('id-ID')
         };
-        // Jika Manager yang buat, tanda tangan tengah (Kabag) DIKOSONGKAN
-        kabagObj = {
-            no: '-',
-            name: '-',
-            email: '',
-            status: 'empty',
+        managerObj = {
+            no: mgrNo || currentUser.persNo || '5078',
+            name: mgrName || currentUser.name || 'Wawan Kurniawan',
+            email: mgrEmail || getApproverEmailByPersNo(currentUser.persNo, currentUser.name),
+            status: 'pending',
             date: null
         };
-        managerObj = {
-            no: currentUser.persNo || '5078',
-            name: currentUser.name || 'Wawan Kurniawan',
-            email: getApproverEmailByPersNo(currentUser.persNo, currentUser.name),
-            status: 'approved',
-            date: new Date().toLocaleString('id-ID')
-        };
-        finalStatus = 'Disetujui';
     } else if (isKabagCreator) {
         creatorRole = 'KABAG';
         kasieObj = {
@@ -1130,11 +1130,8 @@ async function handleSplSubmit(e) {
         finalStatus: finalStatus
     };
 
-    // Auto-dispatch Email Notification to Approver 1 & Approver 2 (jika diperlukan)
-    if (!isManagerCreator) {
-        const emailResult = await dispatchSplEmailNotification(newSpl);
-        newSpl.emailNotification = emailResult;
-    }
+    const emailResult = await dispatchSplEmailNotification(newSpl);
+    newSpl.emailNotification = emailResult;
 
     const list = getStoredSplList();
     list.unshift(newSpl);
@@ -1152,7 +1149,7 @@ async function handleSplSubmit(e) {
     }
 
     if (isManagerCreator) {
-        alert(`Surat Perintah Lembur (${splNo}) berhasil diajukan langsung oleh Manager (${currentUser.name})!\n\nStatus: Otomatis Disetujui Penuh.`);
+        alert(`Surat Perintah Lembur (${splNo}) berhasil diajukan oleh Manager (${currentUser.name})!\n\nStatus: Menunggu persetujuan Kabag, lalu Manager.\n\n📧 NOTIFIKASI EMAIL TERKIRIM KE:\n• Approver 1 (Kabag)    : ${kabagEmail} (${kabagName})\n• Approver 2 (Manager) : ${mgrEmail} (${mgrName})`);
     } else if (isKabagCreator) {
         alert(`Surat Perintah Lembur (${splNo}) berhasil diajukan oleh Kabag (${currentUser.name})!\n\nStatus: Langsung disetujui Kabag & diteruskan ke Manager.\n\n📧 NOTIFIKASI EMAIL TERKIRIM KE:\n• Approver 2 (Manager) : ${mgrEmail} (${mgrName})`);
     } else {
@@ -1294,29 +1291,30 @@ async function renderSplHistoryList(filterStatus = 'all') {
 
             <!-- Approval Stepper -->
             ${(() => {
-                const isManagerSpl = item.creatorRole === 'MANAGER' || 
-                                     (item.kasie && String(item.kasie.no).trim() === '5078') || 
-                                     (item.kasie && item.kasie.name && item.kasie.name.includes('Wawan')) ||
-                                     (item.kabag && (item.kabag.status === 'empty' || item.kabag.name === '-' || String(item.kabag.no).trim() === '5078'));
-                const isKabagSpl = !isManagerSpl && (item.creatorRole === 'KABAG' || (item.kasie && item.kabag && item.kasie.no === item.kabag.no));
+                const isManagerCreator = item.creatorRole === 'MANAGER' ||
+                                         (item.kasie && String(item.kasie.no).trim() === '5078') ||
+                                         (item.kasie && item.kasie.name && item.kasie.name.includes('Wawan'));
+                const isKabagSkipped = item.kabag &&
+                                       (item.kabag.status === 'empty' || item.kabag.name === '-' || String(item.kabag.no).trim() === '5078');
+                const isKabagSpl = !isKabagSkipped && (item.creatorRole === 'KABAG' || (item.kasie && item.kabag && item.kasie.no === item.kabag.no));
 
                 return `
                 <div style="display: flex; align-items: center; justify-content: space-between; margin: 14px 0 12px; padding: 12px 14px; background: #ffffff; border: 1.5px dashed #cbd5e1; border-radius: 12px; font-size: 0.8rem;">
                     <!-- Creator Step -->
                     <div style="display: flex; flex-direction: column; align-items: center; text-align: center; flex: 1;">
                         <div style="width: 28px; height: 28px; border-radius: 50%; background: #16a34a; color: white; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: bold; margin-bottom: 4px;">✓</div>
-                        <span style="font-weight: 700; color: #0f172a;">${isManagerSpl ? 'Manager (Dibuat)' : (isKabagSpl ? 'Kabag (Dibuat)' : 'Kasie (Dibuat)')}</span>
+                        <span style="font-weight: 700; color: #0f172a;">${isManagerCreator ? 'Manager (Dibuat)' : (isKabagSpl ? 'Kabag (Dibuat)' : 'Kasie (Dibuat)')}</span>
                         <span style="color: #64748b; font-size: 0.75rem;">${item.kasie ? item.kasie.name.split(',')[0] : '-'}</span>
                     </div>
-                    <div style="height: 3px; background: ${isManagerSpl ? '#e2e8f0' : (item.kabag && item.kabag.status === 'approved' ? '#16a34a' : (item.kabag && item.kabag.status === 'rejected' ? '#ef4444' : '#cbd5e1'))}; flex: 0.6;"></div>
+                    <div style="height: 3px; background: ${isKabagSkipped ? '#e2e8f0' : (item.kabag && item.kabag.status === 'approved' ? '#16a34a' : (item.kabag && item.kabag.status === 'rejected' ? '#ef4444' : '#cbd5e1'))}; flex: 0.6;"></div>
 
-                    <!-- Kabag Step (Dilewati jika dibuat oleh Manager) -->
-                    <div style="display: flex; flex-direction: column; align-items: center; text-align: center; flex: 1; ${isManagerSpl ? 'opacity: 0.45;' : ''}">
-                        <div style="width: 28px; height: 28px; border-radius: 50%; background: ${isManagerSpl ? '#94a3b8' : (item.kabag && item.kabag.status === 'approved' ? '#16a34a' : (item.kabag && item.kabag.status === 'rejected' ? '#ef4444' : '#f59e0b'))}; color: white; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: bold; margin-bottom: 4px;">
-                            ${isManagerSpl ? '-' : (item.kabag && item.kabag.status === 'approved' ? '✓' : (item.kabag && item.kabag.status === 'rejected' ? '✕' : '⌛'))}
+                    <!-- Kabag Step (Dilewati hanya untuk data SPL lama yang memang tidak memiliki approver Kabag) -->
+                    <div style="display: flex; flex-direction: column; align-items: center; text-align: center; flex: 1; ${isKabagSkipped ? 'opacity: 0.45;' : ''}">
+                        <div style="width: 28px; height: 28px; border-radius: 50%; background: ${isKabagSkipped ? '#94a3b8' : (item.kabag && item.kabag.status === 'approved' ? '#16a34a' : (item.kabag && item.kabag.status === 'rejected' ? '#ef4444' : '#f59e0b'))}; color: white; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: bold; margin-bottom: 4px;">
+                            ${isKabagSkipped ? '-' : (item.kabag && item.kabag.status === 'approved' ? '✓' : (item.kabag && item.kabag.status === 'rejected' ? '✕' : '⌛'))}
                         </div>
                         <span style="font-weight: 700; color: #0f172a;">Kabag</span>
-                        <span style="color: #64748b; font-size: 0.75rem;">${isManagerSpl ? '(Dilewati)' : (item.kabag ? item.kabag.name.split(',')[0] : '-')}</span>
+                        <span style="color: #64748b; font-size: 0.75rem;">${isKabagSkipped ? '(Dilewati)' : (item.kabag ? item.kabag.name.split(',')[0] : '-')}</span>
                     </div>
                     <div style="height: 3px; background: ${item.manager && item.manager.status === 'approved' ? '#16a34a' : (item.manager && item.manager.status === 'rejected' ? '#ef4444' : '#cbd5e1')}; flex: 0.6;"></div>
 
@@ -1334,15 +1332,6 @@ async function renderSplHistoryList(filterStatus = 'all') {
 
             <!-- Action Buttons -->
             <div style="display: flex; gap: 10px; justify-content: flex-end; align-items: center; margin-top: 10px; border-top: 1px solid #f1f5f9; padding-top: 10px; position: relative; z-index: 10; pointer-events: auto;">
-                ${item.finalStatus.includes('Menunggu') ? `
-                    <button type="button" onclick="simulateApproveSpl('${item.id}')" style="background: #16a34a; color: #ffffff; border: none; padding: 8px 14px; border-radius: 10px; font-size: 0.82rem; font-weight: 600; cursor: pointer !important; display: inline-flex; align-items: center; gap: 4px; pointer-events: auto !important; position: relative; z-index: 20;">
-                        <span>✓ Setujui</span>
-                    </button>
-                    <button type="button" onclick="simulateRejectSpl('${item.id}')" style="background: #ef4444; color: #ffffff; border: none; padding: 8px 14px; border-radius: 10px; font-size: 0.82rem; font-weight: 600; cursor: pointer !important; display: inline-flex; align-items: center; gap: 4px; pointer-events: auto !important; position: relative; z-index: 20;">
-                        <span>✕ Tolak</span>
-                    </button>
-                ` : ''}
-
                 <button type="button" onclick="printSplDocument('${item.id}')" style="background: #f1f5f9; color: #0f172a; border: 1px solid #cbd5e1; padding: 8px 16px; border-radius: 10px; font-size: 0.82rem; font-weight: 600; cursor: pointer !important; display: inline-flex; align-items: center; gap: 6px; pointer-events: auto !important; position: relative; z-index: 20;">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9V2h12v7"></path><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
                     <span>Cetak SPL</span>
@@ -1383,66 +1372,6 @@ async function manualRefreshSpl() {
     }
 }
 
-// Interactive Simulation Approval
-function simulateApproveSpl(id) {
-    const list = getStoredSplList();
-    const item = list.find(s => s.id === id);
-    if (!item) return;
-
-    if (item.kabag.status === 'pending') {
-        item.kabag.status = 'approved';
-        item.kabag.date = new Date().toLocaleString('id-ID');
-        item.finalStatus = 'Menunggu Manager';
-        alert(`SPL ${item.splNo} berhasil disetujui oleh Kepala Bagian (${item.kabag.name}). Menunggu persetujuan Manager (${item.manager.name})`);
-    } else if (item.manager.status === 'pending') {
-        item.manager.status = 'approved';
-        item.manager.date = new Date().toLocaleString('id-ID');
-        item.finalStatus = 'Disetujui';
-        alert(`SPL ${item.splNo} TELAH SELESAI DISETUJUI oleh Manager (${item.manager.name})! Siap dicetak/diarsipkan.`);
-    }
-
-    saveSplList(list);
-    renderSplHistoryList();
-}
-
-function simulateRejectSpl(id) {
-    const list = getStoredSplList();
-    const item = list.find(s => s.id === id);
-    if (!item) return;
-
-    if (!confirm(`Yakin ingin menolak permohonan lembur ${item.splNo}?`)) return;
-
-    const nowStr = new Date().toLocaleString('id-ID');
-
-    if (item.kabag.status === 'pending') {
-        item.kabag.status = 'rejected';
-        item.kabag.date = nowStr;
-        item.finalStatus = 'Ditolak Kabag';
-        alert(`SPL ${item.splNo} DITOLAK oleh Kepala Bagian (${item.kabag.name}).`);
-    } else if (item.manager.status === 'pending') {
-        item.manager.status = 'rejected';
-        item.manager.date = nowStr;
-        item.finalStatus = 'Ditolak Manager';
-        alert(`SPL ${item.splNo} DITOLAK oleh Manager (${item.manager.name}).`);
-    }
-
-    // Sync ke Supabase jika ada
-    if (window.supabaseClient) {
-        window.supabaseClient.from('digital_spl').upsert({
-            id: item.id,
-            spl_no: item.splNo,
-            kabag: item.kabag,
-            manager: item.manager,
-            final_status: item.finalStatus,
-            data: item,
-            updated_at: new Date().toISOString()
-        }).catch(err => console.warn('Supabase sync error:', err));
-    }
-
-    saveSplList(list);
-    renderSplHistoryList();
-}
-
 function deleteSpl(id) {
     if (!confirm('Yakin ingin menghapus dokumen SPL ini?')) return;
     let list = getStoredSplList();
@@ -1471,10 +1400,11 @@ function printSplDocument(id) {
     // Cek apakah SPL dibuat oleh Manager atau Kabag
     const isManagerCreated = item.creatorRole === 'MANAGER' || 
                              (item.kasie && String(item.kasie.no).trim() === '5078') || 
-                             (item.kasie && item.kasie.name && item.kasie.name.includes('Wawan')) ||
-                             (item.kabag && (item.kabag.status === 'empty' || item.kabag.name === '-' || String(item.kabag.no).trim() === '5078'));
+                             (item.kasie && item.kasie.name && item.kasie.name.includes('Wawan'));
 
     const isKabagCreated = !isManagerCreated && (item.creatorRole === 'KABAG' || (item.kasie && item.kabag && item.kasie.no === item.kabag.no));
+    const isKabagApprovalSkipped = item.kabag &&
+                                   (item.kabag.status === 'empty' || item.kabag.name === '-' || String(item.kabag.no).trim() === '5078');
 
     // Kolom 1 (Dibuat Oleh):
     let creatorTitle = 'Kepala Seksi (Kasie)';
@@ -1486,13 +1416,12 @@ function printSplDocument(id) {
     let creatorDate = item.kasie ? (item.kasie.date || item.date || '') : '';
 
     // Kolom 2 (Disetujui Oleh (1) / Kabag - TTD TENGAH):
-    // Jika Manager yang buat, yang TTD TENGAH KOSONGIN AJA!
     let middleTitle = 'Kepala Bagian (Kabag)';
     let middleStampHtml = '';
     let middleName = '-';
     let middleNo = '-';
 
-    if (isManagerCreated) {
+    if (isKabagApprovalSkipped) {
         middleStampHtml = '<div style="height: 60px; display: flex; align-items: center; justify-content: center; color: #cbd5e1; font-size: 20px;">-</div>';
         middleName = '-';
         middleNo = '-';
@@ -2286,8 +2215,6 @@ window.onSplAreaChange = onSplAreaChange;
 window.onSplLocationChange = onSplLocationChange;
 window.handleSplSubmit = handleSplSubmit;
 window.renderSplHistoryList = renderSplHistoryList;
-window.simulateApproveSpl = simulateApproveSpl;
-window.simulateRejectSpl = simulateRejectSpl;
 window.deleteSpl = deleteSpl;
 window.printSplDocument = printSplDocument;
 window.getEmployeeRoleByPersNo = getEmployeeRoleByPersNo;
@@ -2348,4 +2275,3 @@ if (!window.toggleSelectAllSplEmployees) {
         if (window.updateSplSelectedCount) window.updateSplSelectedCount();
     };
 }
-
