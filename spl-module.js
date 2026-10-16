@@ -1533,15 +1533,15 @@ function printSplDocument(id) {
             <style>
                 @page {
                     size: A4 portrait;
-                    margin: 0; /* Hapus otomatis header browser (tanggal & judul) dan footer (URL & halaman) */
+                    margin: 0 !important;
                 }
-                body { 
-                    font-family: Arial, sans-serif; 
-                    margin: 0; 
-                    padding: 16mm 18mm 14mm 18mm; 
-                    box-sizing: border-box; 
-                    color: #111; 
-                    line-height: 1.4; 
+                html, body {
+                    margin: 0 !important;
+                    padding: 16mm 18mm 14mm 18mm;
+                    box-sizing: border-box;
+                    font-family: Arial, sans-serif;
+                    color: #111;
+                    line-height: 1.4;
                     font-size: 13px;
                     -webkit-print-color-adjust: exact;
                     print-color-adjust: exact;
@@ -1557,12 +1557,20 @@ function printSplDocument(id) {
                 .sign-table td { width: 33.3%; padding: 6px; vertical-align: top; }
                 .stamp { color: #16a34a; font-weight: bold; border: 2px solid #16a34a; display: inline-block; padding: 3px 8px; border-radius: 4px; font-size: 11px; transform: rotate(-5deg); margin: 6px 0; }
                 @media print {
-                    button { display: none !important; }
-                    body { padding: 16mm 18mm 14mm 18mm; }
+                    .no-print { display: none !important; }
+                    body { padding: 16mm 18mm 14mm 18mm !important; }
                 }
             </style>
         </head>
         <body>
+            <div class="no-print" style="margin-bottom: 20px; background: #f0fdf4; border: 1.5px solid #86efac; border-radius: 8px; padding: 12px 18px; font-size: 13px; color: #166534; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.04);">
+                <div>
+                    <strong>💡 Tips Cetak Bersih:</strong> Pada panel printer Chrome di sebelah kanan, klik <strong>More settings</strong> ➔ lalu hilangkan centang di <strong>"Headers and footers"</strong> agar tulisan tanggal & <code>about:blank</code> tidak muncul.
+                </div>
+                <button onclick="window.print()" style="background: #16a34a; color: white; border: none; padding: 8px 18px; border-radius: 6px; font-weight: bold; cursor: pointer; white-space: nowrap; margin-left: 14px;">
+                    🖨️ Cetak Dokumen
+                </button>
+            </div>
             <table class="header-table">
                 <tr>
                     <td style="font-size: 18px; font-weight: bold; letter-spacing: 0.5px;">PT GREAT GIANT PINEAPPLE</td>
@@ -1647,7 +1655,7 @@ function printSplDocument(id) {
                 </tr>
             </table>
 
-            <div style="margin-top: 30px; text-align: center;">
+            <div class="no-print" style="margin-top: 30px; text-align: center;">
                 <button onclick="window.print()" style="padding: 10px 24px; font-size: 14px; font-weight: bold; background: #007AFF; color: white; border: none; border-radius: 6px; cursor: pointer;">
                     🖨️ Cetak / Simpan PDF
                 </button>
