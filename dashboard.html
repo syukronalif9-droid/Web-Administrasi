@@ -36,7 +36,7 @@
         }
     </script>
     <script src="worksheetData.js"></script>
-    <script src="spl-module.js?v=33"></script>
+    <script src="spl-module.js?v=34"></script>
 </head>
 
 <body>
@@ -2230,22 +2230,9 @@ document.addEventListener("DOMContentLoaded", function() {
                         </button>
                     </div>
 
-                    <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
-                        <span style="font-size: 0.78rem; color: #64748b; font-weight: 600;">Pilih Cepat:</span>
-                        <button type="button" onclick="runLocalQuickSelect('3152137')" style="background: #18181b; color: white; border: none; border-radius: 8px; padding: 6px 12px; font-size: 0.78rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 4px;">
-                            <span>⚡ Setiawan (Kabag Gen. Adm: 3152137)</span>
-                        </button>
-                        <button type="button" onclick="runLocalQuickSelect('209113')" style="background: #f1f5f9; color: #334155; border: 1px solid #cbd5e1; border-radius: 8px; padding: 6px 12px; font-size: 0.78rem; font-weight: 600; cursor: pointer;">
-                            209113 (Kasie Traffic)
-                        </button>
-                        <button type="button" onclick="runLocalQuickSelect('5078')" style="background: #f1f5f9; color: #334155; border: 1px solid #cbd5e1; border-radius: 8px; padding: 6px 12px; font-size: 0.78rem; font-weight: 600; cursor: pointer;">
-                            5078 (Manager)
-                        </button>
-                    </div>
-
-                    <!-- Status Verifikasi Aktif -->
-                    <div id="spl-creator-active-status" style="margin-top: 10px; padding: 10px 14px; background: #f0fdf4; border: 1.5px solid #86efac; border-radius: 10px; font-size: 0.85rem; color: #166534; display: none;">
-                        ✓ Pembuat aktif: <strong id="spl-creator-active-name">-</strong> (<span id="spl-creator-active-role">-</span>)
+                    <!-- Hidden Status Element to prevent JS null errors -->
+                    <div id="spl-creator-active-status" style="display: none !important;">
+                        <strong id="spl-creator-active-name">-</strong> (<span id="spl-creator-active-role">-</span>)
                     </div>
                 </div>
 
@@ -2332,7 +2319,7 @@ document.addEventListener("DOMContentLoaded", function() {
                         const statusBox = document.getElementById('spl-creator-active-status');
                         const activeName = document.getElementById('spl-creator-active-name');
                         const activeRole = document.getElementById('spl-creator-active-role');
-                        if (statusBox) statusBox.style.display = 'block';
+                        if (statusBox) statusBox.style.display = 'none';
                         if (activeName) activeName.textContent = name;
                         if (activeRole) activeRole.textContent = `${role} (NIK: ${nik})`;
 

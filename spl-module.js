@@ -400,7 +400,7 @@ function updateSplAccessControlUI() {
     if (formElem) formElem.style.display = 'flex';
 
     if (user && user.canCreateSpl) {
-        if (statusBox) statusBox.style.display = 'block';
+        if (statusBox) statusBox.style.display = 'none';
         if (activeName) activeName.textContent = user.name;
         if (activeRole) activeRole.textContent = `${user.title} (NIK: ${user.persNo})`;
         if (inputField) inputField.value = user.persNo;
