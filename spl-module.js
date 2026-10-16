@@ -510,47 +510,66 @@ function onSplLocationChange() {
     }
 
     const user = getCurrentUserSession();
-    let members = SPL_MASTER_DATA.filter(d => 
-        String(d.area).trim().toLowerCase() === String(area).trim().toLowerCase() && 
-        String(d.location).trim().toLowerCase() === String(location).trim().toLowerCase()
-    );
+    let members = [];
 
-    // Simpan referensi data sebelum filter bawahan
-    const areaRef = members[0];
+    // Jika yang membuat adalah Manager, selalu tampilkan HANYA nama Manager saja (Wawan Kurniawan)
+    if (user && user.role === 'MANAGER') {
+        members = [{
+            persNo: user.persNo || '5078',
+            name: user.name || 'Wawan Kurniawan',
+            roleBadge: 'Manager',
+            area: area || 'Semua Area',
+            location: location || 'Semua Lokasi',
+            kabagNo: '-',
+            kabagName: '-',
+            kasieNo: '-',
+            kasieName: '-',
+            mgrNo: user.persNo || '5078',
+            mgrName: user.name || 'Wawan Kurniawan'
+        }];
+    } else {
+        members = SPL_MASTER_DATA.filter(d => 
+            String(d.area).trim().toLowerCase() === String(area).trim().toLowerCase() && 
+            String(d.location).trim().toLowerCase() === String(location).trim().toLowerCase()
+        );
 
-    // Jika yang membuat adalah Kabag, hanya tampilkan karyawan yang kabagNo-nya sama dengan Kabag tersebut
-    if (user && user.role === 'KABAG' && user.persNo) {
-        const kabagSubordinates = members.filter(d => String(d.kabagNo).trim() === String(user.persNo).trim());
-        if (kabagSubordinates.length > 0) {
-            members = kabagSubordinates;
+        // Simpan referensi data sebelum filter bawahan
+        const areaRef = members[0];
+
+        // Jika yang membuat adalah Kabag, hanya tampilkan karyawan yang kabagNo-nya sama dengan Kabag tersebut
+        if (user && user.role === 'KABAG' && user.persNo) {
+            const kabagSubordinates = members.filter(d => String(d.kabagNo).trim() === String(user.persNo).trim());
+            if (kabagSubordinates.length > 0) {
+                members = kabagSubordinates;
+            }
         }
-    }
-    // Jika yang membuat adalah Kasie, hanya tampilkan karyawan di bawah Kasie tersebut
-    else if (user && user.role === 'KASIE' && user.persNo) {
-        const kasieSubordinates = members.filter(d => String(d.kasieNo).trim() === String(user.persNo).trim());
-        if (kasieSubordinates.length > 0) {
-            members = kasieSubordinates;
+        // Jika yang membuat adalah Kasie, hanya tampilkan karyawan di bawah Kasie tersebut
+        else if (user && user.role === 'KASIE' && user.persNo) {
+            const kasieSubordinates = members.filter(d => String(d.kasieNo).trim() === String(user.persNo).trim());
+            if (kasieSubordinates.length > 0) {
+                members = kasieSubordinates;
+            }
         }
-    }
 
-    // Sertakan juga Kabag terkait di urutan paling atas daftar agar Kabag bisa cuti / mengajukan SPL sendiri
-    const refKabagNo = (user && user.role === 'KABAG' && user.persNo) ? user.persNo : (areaRef ? areaRef.kabagNo : (members[0] ? members[0].kabagNo : ''));
-    const refKabagName = (user && user.role === 'KABAG' && user.name) ? user.name : (areaRef ? areaRef.kabagName : (members[0] ? members[0].kabagName : ''));
-    
-    if (refKabagNo && !members.some(m => String(m.persNo).trim() === String(refKabagNo).trim())) {
-        members.unshift({
-            persNo: refKabagNo,
-            name: refKabagName,
-            roleBadge: 'Kabag',
-            area: area,
-            location: location,
-            kabagNo: refKabagNo,
-            kabagName: refKabagName,
-            kasieNo: areaRef ? areaRef.kasieNo : '',
-            kasieName: areaRef ? areaRef.kasieName : '',
-            mgrNo: areaRef ? areaRef.mgrNo : '5078',
-            mgrName: areaRef ? areaRef.mgrName : 'Wawan Kurniawan'
-        });
+        // Sertakan juga Kabag terkait di urutan paling atas daftar agar Kabag bisa cuti / mengajukan SPL sendiri
+        const refKabagNo = (user && user.role === 'KABAG' && user.persNo) ? user.persNo : (areaRef ? areaRef.kabagNo : (members[0] ? members[0].kabagNo : ''));
+        const refKabagName = (user && user.role === 'KABAG' && user.name) ? user.name : (areaRef ? areaRef.kabagName : (members[0] ? members[0].kabagName : ''));
+        
+        if (refKabagNo && !members.some(m => String(m.persNo).trim() === String(refKabagNo).trim())) {
+            members.unshift({
+                persNo: refKabagNo,
+                name: refKabagName,
+                roleBadge: 'Kabag',
+                area: area,
+                location: location,
+                kabagNo: refKabagNo,
+                kabagName: refKabagName,
+                kasieNo: areaRef ? areaRef.kasieNo : '',
+                kasieName: areaRef ? areaRef.kasieName : '',
+                mgrNo: areaRef ? areaRef.mgrNo : '5078',
+                mgrName: areaRef ? areaRef.mgrName : 'Wawan Kurniawan'
+            });
+        }
     }
 
     if (members.length === 0) {
@@ -753,7 +772,17 @@ function setApproverInfo(kasieName, kasieNo, kabagName, kabagNo, mgrName, mgrNo)
 
     if (!kasieNameEl || !kabagNameEl || !mgrNameEl) return;
 
-    if (user && user.role === 'KABAG') {
+    if (user && user.role === 'MANAGER') {
+        // Jika yang membuat adalah Manager Warehouse langsung (Wawan Kurniawan)
+        kasieNameEl.textContent = 'Pejabat Pembuat';
+        kasieNoEl.innerHTML = `NIK: ${user.persNo} • <span style="color:#16a34a; font-weight:600;">✓ Otomatis Disetujui</span>`;
+
+        kabagNameEl.textContent = 'Kabag Terkait';
+        kabagNoEl.innerHTML = `- • <span style="color:#16a34a; font-weight:600;">✓ Disetujui Manager</span>`;
+
+        mgrNameEl.textContent = `${user.name} (Disetujui Sendiri)`;
+        mgrNoEl.innerHTML = `NIK: ${user.persNo} • <span style="color:#16a34a; font-weight:600;">✓ Approver 2 Selesai</span>`;
+    } else if (user && user.role === 'KABAG') {
         // Jika yang membuat adalah Kabag langsung (seperti Setiawan)
         kasieNameEl.textContent = `${user.name} (Kabag - Pembuat Langsung)`;
         kasieNoEl.innerHTML = `NIK: ${user.persNo} • <span style="color:#16a34a; font-weight:600;">✓ Otomatis Disetujui</span>`;
@@ -887,6 +916,7 @@ async function handleSplSubmit(e) {
     // Periksa role user saat submit
     const currentUser = getCurrentUserSession();
     const isKabagCreator = currentUser && currentUser.role === 'KABAG';
+    const isManagerCreator = currentUser && currentUser.role === 'MANAGER';
 
     const newSpl = {
         id: 'SPL-' + Date.now(),
@@ -900,21 +930,27 @@ async function handleSplSubmit(e) {
         employees: selectedEmps,
         reason: reason,
         kasie: { 
-            no: isKabagCreator ? currentUser.persNo : kasieNo, 
-            name: isKabagCreator ? currentUser.name : kasieName, 
-            email: isKabagCreator ? getApproverEmailByPersNo(currentUser.persNo, currentUser.name) : kasieEmail, 
+            no: (isManagerCreator || isKabagCreator) ? currentUser.persNo : kasieNo, 
+            name: (isManagerCreator || isKabagCreator) ? currentUser.name : kasieName, 
+            email: (isManagerCreator || isKabagCreator) ? getApproverEmailByPersNo(currentUser.persNo, currentUser.name) : kasieEmail, 
             status: 'approved', 
             date: new Date().toLocaleString('id-ID') 
         },
         kabag: { 
-            no: isKabagCreator ? currentUser.persNo : kabagNo, 
-            name: isKabagCreator ? currentUser.name : kabagName, 
-            email: isKabagCreator ? getApproverEmailByPersNo(currentUser.persNo, currentUser.name) : kabagEmail, 
-            status: isKabagCreator ? 'approved' : 'pending', 
-            date: isKabagCreator ? new Date().toLocaleString('id-ID') : null 
+            no: isManagerCreator ? currentUser.persNo : (isKabagCreator ? currentUser.persNo : kabagNo), 
+            name: isManagerCreator ? currentUser.name : (isKabagCreator ? currentUser.name : kabagName), 
+            email: (isManagerCreator || isKabagCreator) ? getApproverEmailByPersNo(currentUser.persNo, currentUser.name) : kabagEmail, 
+            status: (isManagerCreator || isKabagCreator) ? 'approved' : 'pending', 
+            date: (isManagerCreator || isKabagCreator) ? new Date().toLocaleString('id-ID') : null 
         },
-        manager: { no: mgrNo, name: mgrName, email: mgrEmail, status: 'pending', date: null },
-        finalStatus: isKabagCreator ? 'Menunggu Manager' : 'Menunggu Kabag'
+        manager: { 
+            no: isManagerCreator ? currentUser.persNo : (mgrNo || '5078'), 
+            name: isManagerCreator ? currentUser.name : (mgrName || 'Wawan Kurniawan'), 
+            email: isManagerCreator ? getApproverEmailByPersNo(currentUser.persNo, currentUser.name) : mgrEmail, 
+            status: isManagerCreator ? 'approved' : 'pending', 
+            date: isManagerCreator ? new Date().toLocaleString('id-ID') : null 
+        },
+        finalStatus: isManagerCreator ? 'Disetujui' : (isKabagCreator ? 'Menunggu Manager' : 'Menunggu Kabag')
     };
 
     // Auto-dispatch Email Notification to Approver 1 & Approver 2
@@ -1762,21 +1798,20 @@ function autoPopulateEmployees() {
     // Tentukan daftar bawahan berdasarkan role
     let members = [];
     if (user.role === 'MANAGER') {
-        // Manager: tampilkan semua karyawan dari area yang sedang dipilih
-        const selectedArea = areaSelect ? areaSelect.value : '';
-        const selectedLoc = locSelect ? locSelect.value : '';
-        if (selectedArea && selectedLoc) {
-            members = SPL_MASTER_DATA.filter(d =>
-                String(d.area).trim().toLowerCase() === String(selectedArea).trim().toLowerCase() &&
-                String(d.location).trim().toLowerCase() === String(selectedLoc).trim().toLowerCase()
-            );
-        } else if (selectedArea) {
-            members = SPL_MASTER_DATA.filter(d =>
-                String(d.area).trim().toLowerCase() === String(selectedArea).trim().toLowerCase()
-            );
-        } else {
-            members = [...SPL_MASTER_DATA];
-        }
+        // Manager: HANYA tampilkan nama Manager saja (Wawan Kurniawan)
+        members = [{
+            persNo: user.persNo || '5078',
+            name: user.name || 'Wawan Kurniawan',
+            roleBadge: 'Manager',
+            area: user.area || 'Semua Area Warehouse',
+            location: user.location || 'Semua Lokasi',
+            kabagNo: '-',
+            kabagName: '-',
+            kasieNo: '-',
+            kasieName: '-',
+            mgrNo: user.persNo || '5078',
+            mgrName: user.name || 'Wawan Kurniawan'
+        }];
     } else if (user.role === 'KABAG') {
         // Kabag: tampilkan semua karyawan di bawah kabag ini
         members = SPL_MASTER_DATA.filter(d => String(d.kabagNo).trim() === String(user.persNo).trim());
