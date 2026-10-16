@@ -1429,7 +1429,7 @@ function printSplDocument(id) {
         middleName = '-';
         middleNo = '-';
     } else if (item.kabag && item.kabag.status === 'approved') {
-        middleStampHtml = `<div class="stamp">DIGITALLY SIGNED<br><span style="font-size: 9px;">${item.kabag.date || ''}</span></div>`;
+        middleStampHtml = `<div class="stamp">APPROVE<br><span style="font-size: 9px;">${item.kabag.date || ''}</span></div>`;
         middleName = item.kabag.name;
         middleNo = item.kabag.no && item.kabag.no !== '-' ? `NIK: ${item.kabag.no}` : '-';
     } else {
@@ -1445,7 +1445,7 @@ function printSplDocument(id) {
     let rightNo = item.manager && item.manager.no && item.manager.no !== '-' ? `NIK: ${item.manager.no}` : 'NIK: 5078';
 
     if (item.manager && item.manager.status === 'approved') {
-        rightStampHtml = `<div class="stamp">DIGITALLY SIGNED<br><span style="font-size: 9px;">${item.manager.date || ''}</span></div>`;
+        rightStampHtml = `<div class="stamp">APPROVE<br><span style="font-size: 9px;">${item.manager.date || ''}</span></div>`;
     } else {
         rightStampHtml = '<div style="color: #999; font-style: italic;">[Menunggu Approval]</div>';
     }
@@ -1476,7 +1476,7 @@ function printSplDocument(id) {
             <table class="header-table">
                 <tr>
                     <td style="font-size: 18px; font-weight: bold; letter-spacing: 0.5px;">PT GREAT GIANT PINEAPPLE</td>
-                    <td style="text-align: right; font-size: 12px; color: #555;">WAREHOUSE & LOGISTICS DIVISION</td>
+                    <td style="text-align: right; font-size: 12px; color: #555;">WAREHOUSE & TRANSPORT DEPARTEMEN</td>
                 </tr>
             </table>
 
@@ -1485,7 +1485,7 @@ function printSplDocument(id) {
 
             <table class="meta-table">
                 <tr>
-                    <td style="width: 140px;"><strong>WH Area (Sub-Dept)</strong></td>
+                    <td style="width: 140px;"><strong>Bagian</strong></td>
                     <td style="width: 10px;">:</td>
                     <td>${item.area}</td>
                     <td style="width: 120px;"><strong>Tanggal Lembur</strong></td>
@@ -1531,7 +1531,7 @@ function printSplDocument(id) {
                         <div>Dibuat Oleh:</div>
                         <div style="font-weight: 600; font-size: 12px; margin-top: 2px;">${creatorTitle}</div>
                         <div style="height: 60px; display: flex; align-items: center; justify-content: center;">
-                            <div class="stamp">DIGITALLY SIGNED<br><span style="font-size: 9px;">${creatorDate}</span></div>
+                            <div class="stamp">APPROVE<br><span style="font-size: 9px;">${creatorDate}</span></div>
                         </div>
                         <div style="font-weight: bold; text-decoration: underline;">${creatorName}</div>
                         <div style="font-size: 11px; color: #555;">${creatorNo && creatorNo !== '-' ? `NIK: ${creatorNo}` : '-'}</div>
