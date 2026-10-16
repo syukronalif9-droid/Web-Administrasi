@@ -212,6 +212,39 @@ function getStoredSplList() {
                     }
                 }
             });
+
+            // Sinkronkan urutan penomoran per bulan agar selalu rapi & berurutan (001, 002, 003...)
+            // Setiap ganti bulan, urutan nomor otomatis terpisah dan mulai kembali dari 1
+            const groupsByMonth = {};
+            parsed.forEach(item => {
+                if (item && item.date && typeof item.date === 'string') {
+                    const ym = item.date.substring(0, 7); // Format: 'YYYY-MM'
+                    if (ym.length === 7) {
+                        if (!groupsByMonth[ym]) groupsByMonth[ym] = [];
+                        groupsByMonth[ym].push(item);
+                    }
+                }
+            });
+
+            Object.keys(groupsByMonth).forEach(ym => {
+                const [y, m] = ym.split('-');
+                const prefix = `SPL/WH/${y}/${m}/`;
+                const items = groupsByMonth[ym];
+                // Urutkan dokumen berdasarkan waktu pembuatan
+                items.sort((a, b) => {
+                    const timeA = a.id ? (parseInt(String(a.id).replace(/\D/g, ''), 10) || 0) : 0;
+                    const timeB = b.id ? (parseInt(String(b.id).replace(/\D/g, ''), 10) || 0) : 0;
+                    return timeA - timeB;
+                });
+                items.forEach((item, idx) => {
+                    const expectedNo = `${prefix}${String(idx + 1).padStart(3, '0')}`;
+                    if (item.splNo !== expectedNo) {
+                        item.splNo = expectedNo;
+                        modified = true;
+                    }
+                });
+            });
+
             if (modified) {
                 localStorage.setItem('DIGITAL_SPL_DATA', JSON.stringify(parsed));
             }
@@ -431,18 +464,24 @@ function updateSplAccessControlUI() {
 
 // Module Initializer
 function initSplModule() {
+    // Default date to today
+    const dateInput = document.getElementById('spl-date');
+    if (dateInput) {
+        if (!dateInput.value) {
+            const now = new Date();
+            const yStr = now.getFullYear();
+            const mStr = String(now.getMonth() + 1).padStart(2, '0');
+            const dStr = String(now.getDate()).padStart(2, '0');
+            dateInput.value = `${yStr}-${mStr}-${dStr}`;
+        }
+        dateInput.addEventListener('change', generateNextSplNumber);
+    }
+
     populateSplAreas();
     setupSplTimeCalculator();
     generateNextSplNumber();
     renderSplHistoryList();
     updateSplAccessControlUI();
-
-    // Default date to today
-    const dateInput = document.getElementById('spl-date');
-    if (dateInput && !dateInput.value) {
-        const today = new Date().toISOString().split('T')[0];
-        dateInput.value = today;
-    }
 
     // Jika user sudah terverifikasi sebelumnya, langsung tampilkan bawahan
     const user = getCurrentUserSession();
@@ -898,12 +937,39 @@ function setupSplTimeCalculator() {
 
 function generateNextSplNumber() {
     const list = getStoredSplList();
-    const count = list.length + 1;
-    const year = new Date().getFullYear();
-    const padded = String(count).padStart(3, '0');
+    const dateInput = document.getElementById('spl-date');
+    let targetDate = new Date();
+    if (dateInput && dateInput.value) {
+        const parts = dateInput.value.split('-');
+        if (parts.length === 3) {
+            targetDate = new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
+        }
+    }
+
+    const year = targetDate.getFullYear();
+    const month = String(targetDate.getMonth() + 1).padStart(2, '0');
+    const prefix = `SPL/WH/${year}/${month}/`;
+
+    // Cari nomor urut tertinggi untuk tahun & bulan ini saja (setiap bulan baru otomatis reset kembali ke 1)
+    let maxSeq = 0;
+    list.forEach(item => {
+        if (item && item.splNo && typeof item.splNo === 'string') {
+            if (item.splNo.startsWith(prefix)) {
+                const parts = item.splNo.split('/');
+                const lastPart = parts[parts.length - 1];
+                const seq = parseInt(lastPart, 10);
+                if (!isNaN(seq) && seq > maxSeq) {
+                    maxSeq = seq;
+                }
+            }
+        }
+    });
+
+    const nextSeq = maxSeq + 1;
+    const padded = String(nextSeq).padStart(3, '0');
     const noField = document.getElementById('spl-doc-no');
     if (noField) {
-        noField.value = `SPL/WH/${year}/04/${padded}`;
+        noField.value = `${prefix}${padded}`;
     }
 }
 
@@ -1382,6 +1448,7 @@ function deleteSpl(id) {
     let list = getStoredSplList();
     list = list.filter(s => s.id !== id);
     saveSplList(list);
+    if (typeof generateNextSplNumber === 'function') generateNextSplNumber();
     renderSplHistoryList();
 }
 
@@ -2166,6 +2233,7 @@ function autoPopulateEmployees() {
 
 // Expose globals for HTML
 window.initSplModule = initSplModule;
+window.generateNextSplNumber = generateNextSplNumber;
 window.onSplAreaChange = onSplAreaChange;
 window.onSplLocationChange = onSplLocationChange;
 window.handleSplSubmit = handleSplSubmit;
