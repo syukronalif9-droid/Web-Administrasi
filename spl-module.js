@@ -1206,11 +1206,27 @@ async function renderSplHistoryList(filterStatus = 'all') {
                 </span>
             </div>
 
-            <div style="font-size: 0.88rem; color: #334155; margin-bottom: 12px; background: #f8fafc; padding: 12px 14px; border-radius: 12px; border: 1.5px solid #cbd5e1; line-height: 1.5;">
-                <div><strong>Pembuat :</strong> ${creatorDisplayName}</div>
-                ${hasOtherEmployees ? `<div style="margin-top: 4px;"><strong>Karyawan (${item.employees.length}):</strong> ${empNames}</div>` : ''}
-                <div style="margin-top: 4px;"><strong>Waktu:</strong> ${item.startTime} - ${item.endTime} (${item.duration} Jam)</div>
-                <div style="margin-top: 4px; color: #64748b; font-style: italic;">"${item.reason}"</div>
+            <div style="font-size: 0.88rem; color: #334155; margin-bottom: 12px; background: #f8fafc; padding: 12px 14px; border-radius: 12px; border: 1.5px solid #cbd5e1; line-height: 1.6;">
+                <div style="display: flex; align-items: baseline; gap: 6px;">
+                    <span style="display: inline-block; width: 72px; font-weight: 700; color: #1e293b; flex-shrink: 0;">Pembuat</span>
+                    <span style="font-weight: 700; color: #64748b;">:</span>
+                    <span style="font-weight: 600; color: #0f172a;">${creatorDisplayName}</span>
+                </div>
+                ${hasOtherEmployees ? `
+                <div style="display: flex; align-items: baseline; gap: 6px; margin-top: 4px;">
+                    <span style="display: inline-block; width: 72px; font-weight: 700; color: #1e293b; flex-shrink: 0;">Karyawan</span>
+                    <span style="font-weight: 700; color: #64748b;">:</span>
+                    <span>${empNames} <span style="color: #64748b; font-size: 0.8rem;">(${item.employees.length} Orang)</span></span>
+                </div>
+                ` : ''}
+                <div style="display: flex; align-items: baseline; gap: 6px; margin-top: 4px;">
+                    <span style="display: inline-block; width: 72px; font-weight: 700; color: #1e293b; flex-shrink: 0;">Waktu</span>
+                    <span style="font-weight: 700; color: #64748b;">:</span>
+                    <span>${item.startTime} - ${item.endTime} (${item.duration} Jam)</span>
+                </div>
+                <div style="margin-top: 6px; padding-top: 6px; border-top: 1px dashed #e2e8f0; color: #64748b; font-style: italic;">
+                    "${item.reason}"
+                </div>
             </div>
 
             <!-- Approval Stepper -->

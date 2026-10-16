@@ -36,7 +36,7 @@
         }
     </script>
     <script src="worksheetData.js"></script>
-    <script src="spl-module.js?v=42"></script>
+    <script src="spl-module.js?v=43"></script>
 </head>
 
 <body>
@@ -2722,7 +2722,6 @@ document.addEventListener("DOMContentLoaded", function() {
                         <button type="button" class="spl-filter-pill active" data-filter="all" onclick="setSplHistoryFilter('all', this)">Semua</button>
                         <button type="button" class="spl-filter-pill" data-filter="pending" onclick="setSplHistoryFilter('pending', this)">Menunggu Approval</button>
                         <button type="button" class="spl-filter-pill" data-filter="approved" onclick="setSplHistoryFilter('approved', this)">Disetujui</button>
-                        <button type="button" class="spl-action-pill" id="btn-spl-refresh" onclick="manualRefreshSpl()" title="Segarkan Data dari Cloud">🔄 Segarkan Data</button>
                     </div>
                     <button type="button" id="btn-spl-email-config" onclick="if(window.openSplEmailConfigModal) window.openSplEmailConfigModal();" style="background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%); color: #15803d; border: 1.5px solid #86efac; padding: 7px 16px; border-radius: 10px; font-size: 0.82rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 6px; white-space: nowrap; z-index: 10; position: relative; box-shadow: 0 2px 6px rgba(22, 163, 74, 0.12);">
                         <span>⚙️ Tes & Pengaturan Email</span>
