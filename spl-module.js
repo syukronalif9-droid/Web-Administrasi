@@ -1193,13 +1193,6 @@ async function renderSplHistoryList(filterStatus = 'all') {
 
         const empNames = item.employees.map(e => e.name).join(', ');
 
-        const emailInfo = item.emailNotification ? `
-            <div style="margin-top: 8px; font-size: 0.82rem; color: #0369a1; background: #f0f9ff; border: 1.5px solid #bae6fd; padding: 6px 12px; border-radius: 8px; display: flex; align-items: center; gap: 8px;">
-                <span style="font-size: 1rem;">✉</span>
-                <span><strong>Email Notifikasi:</strong> ${item.kabag.email} & ${item.manager.email}</span>
-            </div>
-        ` : '';
-
         card.innerHTML = `
             <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px;">
                 <div>
@@ -1215,7 +1208,6 @@ async function renderSplHistoryList(filterStatus = 'all') {
                 <div><strong>Karyawan (${item.employees.length}):</strong> ${empNames}</div>
                 <div style="margin-top: 4px;"><strong>Waktu:</strong> ${item.startTime} - ${item.endTime} (${item.duration} Jam)</div>
                 <div style="margin-top: 4px; color: #64748b; font-style: italic;">"${item.reason}"</div>
-                ${emailInfo}
             </div>
 
             <!-- Approval Stepper -->
@@ -1537,7 +1529,7 @@ function printSplDocument(id) {
                         <div style="font-size: 11px; color: #555;">${creatorNo && creatorNo !== '-' ? `NIK: ${creatorNo}` : '-'}</div>
                     </td>
                     <td>
-                        <div>Disetujui Oleh (1):</div>
+                        <div>Disetujui Oleh :</div>
                         <div style="font-weight: 600; font-size: 12px; margin-top: 2px;">${middleTitle}</div>
                         <div style="height: 60px; display: flex; align-items: center; justify-content: center;">
                             ${middleStampHtml}
@@ -1546,7 +1538,7 @@ function printSplDocument(id) {
                         <div style="font-size: 11px; color: #555;">${middleNo}</div>
                     </td>
                     <td>
-                        <div>Disetujui Oleh (2):</div>
+                        <div>Disetujui Oleh :</div>
                         <div style="font-weight: 600; font-size: 12px; margin-top: 2px;">${rightTitle}</div>
                         <div style="height: 60px; display: flex; align-items: center; justify-content: center;">
                             ${rightStampHtml}
