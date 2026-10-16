@@ -585,14 +585,16 @@ function onSplLocationChange() {
         const item = document.createElement('label');
         item.className = 'spl-emp-card';
         item.innerHTML = `
-            <input type="checkbox" name="spl_emp_check" value="${m.persNo}|${m.name}" style="width: 18px; height: 18px; accent-color: #2563eb; cursor: pointer;">
-            <div style="flex: 1; display: flex; align-items: center; justify-content: space-between; overflow: hidden;">
-                <strong class="spl-emp-name" style="color: #0f172a; font-size: 0.92rem; transition: color 0.15s;">${m.name}</strong> 
-                <span class="spl-emp-nik" style="background: #f1f5f9; color: #475569; font-size: 0.78rem; font-weight: 600; padding: 3px 10px; border-radius: 6px; border: 1px solid #e2e8f0; transition: all 0.15s;">NIK: ${m.persNo}</span>
+            <input type="checkbox" name="spl_emp_check" value="${m.persNo}|${m.name}" class="spl-emp-checkbox" onchange="if(window.updateSplSelectedCount) window.updateSplSelectedCount();">
+            <div class="spl-emp-avatar">👤</div>
+            <div style="flex: 1; display: flex; align-items: center; justify-content: space-between; overflow: hidden; gap: 8px;">
+                <strong class="spl-emp-name">${m.name}</strong> 
+                <span class="spl-emp-nik">NIK: ${m.persNo}</span>
             </div>
         `;
         empContainer.appendChild(item);
     });
+    if (window.updateSplSelectedCount) window.updateSplSelectedCount();
 
     // Set Approvers from the matching member in this location
     try {
@@ -1091,7 +1093,7 @@ async function renderSplHistoryList(filterStatus = 'all') {
     container.innerHTML = '';
     filtered.forEach(item => {
         const card = document.createElement('div');
-        card.style.cssText = 'background: #ffffff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 16px; margin-bottom: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); font-family: "Inter", sans-serif;';
+        card.style.cssText = 'background: #ffffff; border: 2px solid #cbd5e1; border-radius: 16px; padding: 16px; margin-bottom: 12px; box-shadow: 0 4px 14px rgba(15,23,42,0.06); font-family: "Inter", sans-serif;';
 
         const isApproved = item.finalStatus === 'Disetujui';
         const isRejected = item.finalStatus.includes('Ditolak');
@@ -1101,7 +1103,7 @@ async function renderSplHistoryList(filterStatus = 'all') {
         const empNames = item.employees.map(e => e.name).join(', ');
 
         const emailInfo = item.emailNotification ? `
-            <div style="margin-top: 8px; font-size: 0.82rem; color: #0369a1; background: #f0f9ff; border: 1px solid #bae6fd; padding: 6px 12px; border-radius: 8px; display: flex; align-items: center; gap: 8px;">
+            <div style="margin-top: 8px; font-size: 0.82rem; color: #0369a1; background: #f0f9ff; border: 1.5px solid #bae6fd; padding: 6px 12px; border-radius: 8px; display: flex; align-items: center; gap: 8px;">
                 <span style="font-size: 1rem;">✉</span>
                 <span><strong>Email Notifikasi:</strong> ${item.kabag.email} & ${item.manager.email}</span>
             </div>
@@ -1118,7 +1120,7 @@ async function renderSplHistoryList(filterStatus = 'all') {
                 </span>
             </div>
 
-            <div style="font-size: 0.88rem; color: #334155; margin-bottom: 12px; background: #f8fafc; padding: 12px 14px; border-radius: 12px; border: 1px solid #f1f5f9; line-height: 1.5;">
+            <div style="font-size: 0.88rem; color: #334155; margin-bottom: 12px; background: #f8fafc; padding: 12px 14px; border-radius: 12px; border: 1.5px solid #cbd5e1; line-height: 1.5;">
                 <div><strong>Karyawan (${item.employees.length}):</strong> ${empNames}</div>
                 <div style="margin-top: 4px;"><strong>Waktu:</strong> ${item.startTime} - ${item.endTime} (${item.duration} Jam)</div>
                 <div style="margin-top: 4px; color: #64748b; font-style: italic;">"${item.reason}"</div>
@@ -1987,14 +1989,16 @@ function autoPopulateEmployees() {
         const item = document.createElement('label');
         item.className = 'spl-emp-card';
         item.innerHTML = `
-            <input type="checkbox" name="spl_emp_check" value="${m.persNo}|${m.name}" style="width: 18px; height: 18px; accent-color: #2563eb; cursor: pointer;">
-            <div style="flex: 1; display: flex; align-items: center; justify-content: space-between; overflow: hidden;">
-                <strong class="spl-emp-name" style="color: #0f172a; font-size: 0.92rem; transition: color 0.15s;">${m.name}</strong> 
-                <span class="spl-emp-nik" style="background: #f1f5f9; color: #475569; font-size: 0.78rem; font-weight: 600; padding: 3px 10px; border-radius: 6px; border: 1px solid #e2e8f0; transition: all 0.15s;">NIK: ${m.persNo}</span>
+            <input type="checkbox" name="spl_emp_check" value="${m.persNo}|${m.name}" class="spl-emp-checkbox" onchange="if(window.updateSplSelectedCount) window.updateSplSelectedCount();">
+            <div class="spl-emp-avatar">👤</div>
+            <div style="flex: 1; display: flex; align-items: center; justify-content: space-between; overflow: hidden; gap: 8px;">
+                <strong class="spl-emp-name">${m.name}</strong> 
+                <span class="spl-emp-nik">NIK: ${m.persNo}</span>
             </div>
         `;
         empContainer.appendChild(item);
     });
+    if (window.updateSplSelectedCount) window.updateSplSelectedCount();
 
     // Set Approvers dari member yang memiliki info approver lengkap
     try {
@@ -2030,4 +2034,47 @@ window.previewSampleEmailContent = previewSampleEmailContent;
 window.runDirectEmailTest = runDirectEmailTest;
 window.manualRefreshSpl = manualRefreshSpl;
 window.autoPopulateEmployees = autoPopulateEmployees;
+
+if (!window.updateSplSelectedCount) {
+    window.updateSplSelectedCount = function() {
+        const all = document.querySelectorAll('input[name="spl_emp_check"]');
+        const checked = document.querySelectorAll('input[name="spl_emp_check"]:checked').length;
+        const total = all.length;
+        const counterEl = document.getElementById('spl-selected-counter');
+        const selectAllBtn = document.getElementById('btn-spl-select-all');
+        if (counterEl) {
+            counterEl.textContent = `${checked} dari ${total} Dipilih`;
+            if (checked > 0) {
+                counterEl.style.background = '#dbeafe';
+                counterEl.style.color = '#1d4ed8';
+                counterEl.style.borderColor = '#93c5fd';
+            } else {
+                counterEl.style.background = '#e0f2fe';
+                counterEl.style.color = '#0284c7';
+                counterEl.style.borderColor = '#bae6fd';
+            }
+        }
+        if (selectAllBtn && total > 0) {
+            if (checked === total) {
+                selectAllBtn.textContent = '✕ Batal Semua';
+                selectAllBtn.style.color = '#dc2626';
+                selectAllBtn.style.borderColor = '#fca5a5';
+            } else {
+                selectAllBtn.textContent = '✓ Pilih Semua';
+                selectAllBtn.style.color = '#2563eb';
+                selectAllBtn.style.borderColor = '#cbd5e1';
+            }
+        }
+    };
+}
+
+if (!window.toggleSelectAllSplEmployees) {
+    window.toggleSelectAllSplEmployees = function() {
+        const all = document.querySelectorAll('input[name="spl_emp_check"]');
+        if (all.length === 0) return;
+        const allChecked = Array.from(all).every(cb => cb.checked);
+        all.forEach(cb => { cb.checked = !allChecked; });
+        if (window.updateSplSelectedCount) window.updateSplSelectedCount();
+    };
+}
 
