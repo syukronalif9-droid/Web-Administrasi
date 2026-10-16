@@ -1665,8 +1665,8 @@ function openEmailTemplateGuideModal() {
 
       <div style="margin-top: 25px; text-align: center;">
         <p style="font-weight: 700; font-size: 12px; color: #64748b; letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 12px;">ONE-CLICK APPROVAL</p>
-        <a href="{{kabag_approve_url}}" class="btn-approve">✓ APPROVE</a>
-        <a href="{{kabag_reject_url}}" class="btn-reject">✕ REJECT</a>
+        <a href="{{{kabag_approve_url}}}" class="btn-approve">✓ APPROVE</a>
+        <a href="{{{kabag_reject_url}}}" class="btn-reject">✕ REJECT</a>
       </div>
     </div>
 

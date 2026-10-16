@@ -163,6 +163,19 @@
                 </div>
             </div>
 
+            <!-- Tombol Ubah / Eksekusi Keputusan Langsung -->
+            <div style="margin-bottom: 14px;">
+                <div style="font-size: 0.78rem; color: #64748b; margin-bottom: 8px; font-weight: 600;">Ubah atau Konfirmasi Keputusan Anda:</div>
+                <div style="display: flex; gap: 8px;">
+                    <button type="button" id="btn-do-approve" onclick="executeDecision(true)" style="flex: 1; background: #16a34a; color: white; border: none; padding: 10px 12px; border-radius: 10px; font-weight: 700; font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px;">
+                        <span>✓ Setujui</span>
+                    </button>
+                    <button type="button" id="btn-do-reject" onclick="executeDecision(false)" style="flex: 1; background: #dc2626; color: white; border: none; padding: 10px 12px; border-radius: 10px; font-weight: 700; font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px;">
+                        <span>✕ Tolak (Reject)</span>
+                    </button>
+                </div>
+            </div>
+
             <a href="dashboard.html" class="btn-action">Buka Dashboard Monitoring</a>
         </div>
     </div>
@@ -172,19 +185,38 @@
         const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJhdmFjdWFxYmJ3bnFicmNsZHNqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA4ODc2MjMsImV4cCI6MjEwNjQ2MzYyM30.2KTBo_y89dexhQUq70VECQvl03iho2_Bx06qDu3IETc';
         const supabase = window.supabase ? window.supabase.createClient(supabaseUrl, supabaseKey) : null;
 
-        // Parse query params: ?id=SPL-xxx&spl_no=SPL/WH/...&approver=Nama&role=kabag|manager&action=approve|reject
-        const urlParams = new URLSearchParams(window.location.search);
-        const splId = urlParams.get('id');
-        const paramSplNo = urlParams.get('spl_no');
-        const paramApprover = urlParams.get('approver');
-        const role = (urlParams.get('role') || 'kabag').trim().toLowerCase();
-        const actionParam = (urlParams.get('action') || 'approve').trim().toLowerCase();
+        // Helper untuk ekstrak query parameter secara kebal terhadap &amp; dari EmailJS
+        function getQueryParam(key) {
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.has(key)) return urlParams.get(key);
+            if (urlParams.has('amp;' + key)) return urlParams.get('amp;' + key);
+            if (urlParams.has('amp%3B' + key)) return urlParams.get('amp%3B' + key);
+            
+            // Regex fallback pada raw search string
+            const regex = new RegExp('(?:[?&]|&amp;)' + key + '=([^&]+)', 'i');
+            const match = window.location.search.match(regex);
+            return match ? decodeURIComponent(match[1]) : null;
+        }
 
-        // Cek secara tegas apakah aksi adalah tolak / reject
-        const isReject = actionParam === 'reject' || actionParam === 'tolak' || actionParam === 'rejected';
-        const isApproved = !isReject;
+        const rawFullUrl = (window.location.href + ' ' + window.location.search).toLowerCase();
+        const splId = getQueryParam('id') || '';
+        const paramSplNo = getQueryParam('spl_no') || '';
+        const paramApprover = getQueryParam('approver') || '';
+        const role = (getQueryParam('role') || (rawFullUrl.includes('role=manager') ? 'manager' : 'kabag')).trim().toLowerCase();
+        const actionParam = (getQueryParam('action') || '').trim().toLowerCase();
 
-        function processApproval() {
+        // Deteksi secara mutlak jika aksi adalah tolak / reject
+        const isInitialReject = (
+            actionParam === 'reject' || 
+            actionParam === 'tolak' || 
+            actionParam === 'rejected' || 
+            rawFullUrl.includes('action=reject') || 
+            rawFullUrl.includes('action%3dreject') || 
+            rawFullUrl.includes('amp;action=reject') ||
+            rawFullUrl.includes('reject')
+        );
+
+        function executeDecision(isApproved) {
             const nowStr = new Date().toLocaleString('id-ID');
             
             // 1. Ambil data dari LocalStorage
@@ -195,7 +227,7 @@
                 localList = [];
             }
 
-            let targetSpl = localList.find(s => s.id === splId || s.splNo === splId || (paramSplNo && s.splNo === paramSplNo));
+            let targetSpl = localList.find(s => s && (s.id === splId || s.splNo === splId || (paramSplNo && s.splNo === paramSplNo)));
             let approverName = paramApprover || (role === 'manager' ? 'Wawan Kurniawan (Manager)' : 'Kepala Bagian');
 
             if (!targetSpl) {
@@ -211,17 +243,17 @@
 
             // Tentukan status persetujuan
             if (role === 'kabag') {
-                approverName = targetSpl.kabag?.name || paramApprover || 'Kepala Bagian';
+                approverName = (targetSpl.kabag && targetSpl.kabag.name) || paramApprover || 'Kepala Bagian';
                 targetSpl.kabag = {
-                    ...targetSpl.kabag,
+                    ...(typeof targetSpl.kabag === 'object' ? targetSpl.kabag : {}),
                     status: isApproved ? 'approved' : 'rejected',
                     date: nowStr
                 };
                 targetSpl.finalStatus = isApproved ? 'Menunggu Manager' : 'Ditolak Kabag';
             } else if (role === 'manager') {
-                approverName = targetSpl.manager?.name || paramApprover || 'Wawan Kurniawan (Manager)';
+                approverName = (targetSpl.manager && targetSpl.manager.name) || paramApprover || 'Wawan Kurniawan (Manager)';
                 targetSpl.manager = {
-                    ...targetSpl.manager,
+                    ...(typeof targetSpl.manager === 'object' ? targetSpl.manager : {}),
                     status: isApproved ? 'approved' : 'rejected',
                     date: nowStr
                 };
@@ -229,7 +261,7 @@
             }
 
             // Simpan perubahan ke LocalStorage langsung
-            const existIdx = localList.findIndex(s => s.id === targetSpl.id || s.splNo === targetSpl.splNo);
+            const existIdx = localList.findIndex(s => s && (s.id === targetSpl.id || s.splNo === targetSpl.splNo));
             if (existIdx >= 0) {
                 localList[existIdx] = targetSpl;
             } else {
@@ -284,7 +316,8 @@
             }
         }
 
-        window.addEventListener('DOMContentLoaded', processApproval);
+        // Jalankan eksekusi awal sesuai parameter URL
+        executeDecision(!isInitialReject);
     </script>
 </body>
 </html>
