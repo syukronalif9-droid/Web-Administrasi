@@ -1466,12 +1466,12 @@ function printSplDocument(id) {
 
     const employeeRows = item.employees.map((e, idx) => `
         <tr>
-            <td style="border: 1px solid #333; padding: 6px 10px; text-align: center;">${idx + 1}</td>
-            <td style="border: 1px solid #333; padding: 6px 10px; text-align: center;">${e.persNo}</td>
-            <td style="border: 1px solid #333; padding: 6px 10px;">${e.name}</td>
-            <td style="border: 1px solid #333; padding: 6px 10px; text-align: center;">${item.area} / ${item.location}</td>
-            <td style="border: 1px solid #333; padding: 6px 10px; text-align: center;">${item.startTime} - ${item.endTime}</td>
-            <td style="border: 1px solid #333; padding: 6px 10px; text-align: center;">${item.duration} Jam</td>
+            <td style="border: 1px solid #333; padding: 5px 6px; text-align: center; font-size: 10.5px;">${idx + 1}</td>
+            <td style="border: 1px solid #333; padding: 5px 6px; text-align: center; font-size: 10.5px; white-space: nowrap;">${e.persNo}</td>
+            <td style="border: 1px solid #333; padding: 5px 8px; font-size: 10.5px; white-space: nowrap;">${e.name}</td>
+            <td style="border: 1px solid #333; padding: 5px 6px; text-align: center; font-size: 10.5px; white-space: nowrap;">${item.area} / ${item.location}</td>
+            <td style="border: 1px solid #333; padding: 5px 6px; text-align: center; font-size: 10.5px; white-space: nowrap;">${item.startTime} - ${item.endTime}</td>
+            <td style="border: 1px solid #333; padding: 5px 6px; text-align: center; font-size: 10.5px; white-space: nowrap;">${item.duration} Jam</td>
         </tr>
     `).join('');
 
@@ -1537,44 +1537,44 @@ function printSplDocument(id) {
                 }
                 html, body {
                     margin: 0 !important;
-                    padding: 16mm 18mm 14mm 18mm;
+                    padding: 14mm 16mm 12mm 16mm;
                     box-sizing: border-box;
                     font-family: Arial, sans-serif;
-                    color: #111;
-                    line-height: 1.4;
-                    font-size: 13px;
+                    color: #0f172a;
+                    line-height: 1.35;
+                    font-size: 11px;
                     -webkit-print-color-adjust: exact;
                     print-color-adjust: exact;
                 }
-                .header-table { width: 100%; border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 16px; }
-                .title { text-align: center; font-size: 18px; font-weight: bold; text-decoration: underline; margin-bottom: 4px; }
-                .subtitle { text-align: center; font-size: 13px; margin-bottom: 20px; font-weight: 500; }
-                .meta-table { width: 100%; margin-bottom: 16px; border-collapse: collapse; }
-                .meta-table td { padding: 4px 6px; }
-                .emp-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
-                .emp-table th { border: 1px solid #333; background: #f0f0f0; padding: 8px 6px; font-size: 12px; }
-                .sign-table { width: 100%; margin-top: 30px; text-align: center; border-collapse: collapse; }
-                .sign-table td { width: 33.3%; padding: 6px; vertical-align: top; }
-                .stamp { color: #16a34a; font-weight: bold; border: 2px solid #16a34a; display: inline-block; padding: 3px 8px; border-radius: 4px; font-size: 11px; transform: rotate(-5deg); margin: 6px 0; }
+                .header-table { width: 100%; border-bottom: 2px solid #000; padding-bottom: 8px; margin-bottom: 14px; }
+                .title { text-align: center; font-size: 14px; font-weight: bold; text-decoration: underline; margin-bottom: 2px; letter-spacing: 0.3px; }
+                .subtitle { text-align: center; font-size: 11px; margin-bottom: 14px; font-weight: 500; color: #1e293b; }
+                .meta-table { width: 100%; margin-bottom: 14px; border-collapse: collapse; font-size: 10.5px; }
+                .meta-table td { padding: 3px 4px; vertical-align: top; }
+                .emp-table { width: 100%; border-collapse: collapse; margin-bottom: 18px; }
+                .emp-table th { border: 1px solid #333; background: #f8fafc; padding: 5px 4px; font-size: 10.5px; font-weight: 700; color: #0f172a; }
+                .sign-table { width: 100%; margin-top: 22px; text-align: center; border-collapse: collapse; font-size: 10.5px; }
+                .sign-table td { width: 33.3%; padding: 4px 6px; vertical-align: top; }
+                .stamp { color: #16a34a; font-weight: bold; border: 1.5px solid #16a34a; display: inline-block; padding: 2px 7px; border-radius: 4px; font-size: 9.5px; transform: rotate(-4deg); margin: 4px 0; }
                 @media print {
                     .no-print { display: none !important; }
-                    body { padding: 16mm 18mm 14mm 18mm !important; }
+                    body { padding: 14mm 16mm 12mm 16mm !important; }
                 }
             </style>
         </head>
         <body>
-            <div class="no-print" style="margin-bottom: 20px; background: #f0fdf4; border: 1.5px solid #86efac; border-radius: 8px; padding: 12px 18px; font-size: 13px; color: #166534; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.04);">
+            <div class="no-print" style="margin-bottom: 16px; background: #f0fdf4; border: 1.5px solid #86efac; border-radius: 8px; padding: 10px 16px; font-size: 12px; color: #166534; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.04);">
                 <div>
-                    <strong>💡 Tips Cetak Bersih:</strong> Pada panel printer Chrome di sebelah kanan, klik <strong>More settings</strong> ➔ lalu hilangkan centang di <strong>"Headers and footers"</strong> agar tulisan tanggal & <code>about:blank</code> tidak muncul.
+                    <strong>💡 Tips Cetak Bersih:</strong> Pada panel printer Chrome sebelah kanan, klik <strong>More settings</strong> ➔ hilangkan centang di <strong>"Headers and footers"</strong> agar tulisan tanggal & <code>about:blank</code> tidak muncul.
                 </div>
-                <button onclick="window.print()" style="background: #16a34a; color: white; border: none; padding: 8px 18px; border-radius: 6px; font-weight: bold; cursor: pointer; white-space: nowrap; margin-left: 14px;">
+                <button onclick="window.print()" style="background: #16a34a; color: white; border: none; padding: 7px 16px; border-radius: 6px; font-weight: bold; cursor: pointer; white-space: nowrap; margin-left: 12px; font-size: 12px;">
                     🖨️ Cetak Dokumen
                 </button>
             </div>
             <table class="header-table">
                 <tr>
-                    <td style="font-size: 18px; font-weight: bold; letter-spacing: 0.5px;">PT GREAT GIANT PINEAPPLE</td>
-                    <td style="text-align: right; font-size: 12px; color: #555;">WAREHOUSE & TRANSPORT DEPARTEMEN</td>
+                    <td style="font-size: 14px; font-weight: bold; letter-spacing: 0.5px; white-space: nowrap;">PT GREAT GIANT PINEAPPLE</td>
+                    <td style="text-align: right; font-size: 10.5px; font-weight: 600; color: #475569; white-space: nowrap;">WAREHOUSE & TRANSPORT DEPARTEMEN</td>
                 </tr>
             </table>
 
@@ -1583,38 +1583,38 @@ function printSplDocument(id) {
 
             <table class="meta-table">
                 <tr>
-                    <td style="width: 140px;"><strong>Bagian</strong></td>
-                    <td style="width: 10px;">:</td>
-                    <td>${item.area}</td>
-                    <td style="width: 120px;"><strong>Tanggal Lembur</strong></td>
-                    <td style="width: 10px;">:</td>
-                    <td>${item.date}</td>
+                    <td style="width: 85px;"><strong>Bagian</strong></td>
+                    <td style="width: 8px; text-align: center;">:</td>
+                    <td style="width: 190px; white-space: nowrap;">${item.area}</td>
+                    <td style="width: 105px;"><strong>Tanggal Lembur</strong></td>
+                    <td style="width: 8px; text-align: center;">:</td>
+                    <td style="white-space: nowrap;">${item.date}</td>
                 </tr>
                 <tr>
                     <td><strong>Lokasi Kerja</strong></td>
-                    <td>:</td>
-                    <td>${item.location}</td>
+                    <td style="text-align: center;">:</td>
+                    <td style="white-space: nowrap;">${item.location}</td>
                     <td><strong>Jam Kerja Lembur</strong></td>
-                    <td>:</td>
-                    <td>${item.startTime} s/d ${item.endTime} (${item.duration} Jam)</td>
+                    <td style="text-align: center;">:</td>
+                    <td style="white-space: nowrap;">${item.startTime} s/d ${item.endTime} (${item.duration} Jam)</td>
                 </tr>
                 <tr>
                     <td><strong>Uraian Pekerjaan</strong></td>
-                    <td>:</td>
+                    <td style="text-align: center;">:</td>
                     <td colspan="4">${item.reason}</td>
                 </tr>
             </table>
 
-            <div style="font-weight: bold; margin-bottom: 8px;">Daftar Karyawan yang Ditugaskan:</div>
+            <div style="font-weight: bold; margin-bottom: 6px; font-size: 10.5px;">Daftar Karyawan yang Ditugaskan:</div>
             <table class="emp-table">
                 <thead>
                     <tr>
                         <th style="width: 35px;">No</th>
-                        <th style="width: 100px;">NIK / Pers.No</th>
+                        <th style="width: 95px;">NIK / Pers.No</th>
                         <th>Nama Karyawan</th>
-                        <th style="width: 150px;">Area / Lokasi</th>
-                        <th style="width: 120px;">Jam Lembur</th>
-                        <th style="width: 80px;">Durasi</th>
+                        <th style="width: 140px;">Area / Lokasi</th>
+                        <th style="width: 110px;">Jam Lembur</th>
+                        <th style="width: 65px;">Durasi</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -1626,31 +1626,31 @@ function printSplDocument(id) {
             <table class="sign-table">
                 <tr>
                     <td>
-                        <div>Dibuat Oleh:</div>
-                        <div style="font-weight: 600; font-size: 12px; margin-top: 2px;">${creatorTitle}</div>
-                        <div style="height: 60px; display: flex; align-items: center; justify-content: center;">
-                            <div class="stamp">APPROVE<br><span style="font-size: 9px;">${creatorDate}</span></div>
+                        <div style="color: #475569;">Dibuat Oleh:</div>
+                        <div style="font-weight: 700; margin-top: 2px;">${creatorTitle}</div>
+                        <div style="height: 50px; display: flex; align-items: center; justify-content: center;">
+                            <div class="stamp">APPROVE<br><span style="font-size: 8px;">${creatorDate}</span></div>
                         </div>
                         <div style="font-weight: bold; text-decoration: underline;">${creatorName}</div>
-                        <div style="font-size: 11px; color: #555;">${creatorNo && creatorNo !== '-' ? `NIK: ${creatorNo}` : '-'}</div>
+                        <div style="font-size: 10px; color: #64748b; margin-top: 1px;">${creatorNo && creatorNo !== '-' ? `NIK: ${creatorNo}` : '-'}</div>
                     </td>
                     <td>
-                        <div>Disetujui Oleh :</div>
-                        <div style="font-weight: 600; font-size: 12px; margin-top: 2px;">${middleTitle}</div>
-                        <div style="height: 60px; display: flex; align-items: center; justify-content: center;">
+                        <div style="color: #475569;">Disetujui Oleh :</div>
+                        <div style="font-weight: 700; margin-top: 2px;">${middleTitle}</div>
+                        <div style="height: 50px; display: flex; align-items: center; justify-content: center;">
                             ${middleStampHtml}
                         </div>
                         <div style="font-weight: bold; text-decoration: underline;">${middleName}</div>
-                        <div style="font-size: 11px; color: #555;">${middleNo}</div>
+                        <div style="font-size: 10px; color: #64748b; margin-top: 1px;">${middleNo}</div>
                     </td>
                     <td>
-                        <div>Disetujui Oleh :</div>
-                        <div style="font-weight: 600; font-size: 12px; margin-top: 2px;">${rightTitle}</div>
-                        <div style="height: 60px; display: flex; align-items: center; justify-content: center;">
+                        <div style="color: #475569;">Disetujui Oleh :</div>
+                        <div style="font-weight: 700; margin-top: 2px;">${rightTitle}</div>
+                        <div style="height: 50px; display: flex; align-items: center; justify-content: center;">
                             ${rightStampHtml}
                         </div>
                         <div style="font-weight: bold; text-decoration: underline;">${rightName}</div>
-                        <div style="font-size: 11px; color: #555;">${rightNo}</div>
+                        <div style="font-size: 10px; color: #64748b; margin-top: 1px;">${rightNo}</div>
                     </td>
                 </tr>
             </table>
