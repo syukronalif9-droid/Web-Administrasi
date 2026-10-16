@@ -583,15 +583,12 @@ function onSplLocationChange() {
 
     members.forEach((m, idx) => {
         const item = document.createElement('label');
-        item.style.cssText = `display: flex; align-items: center; gap: 10px; padding: 9px 14px; background: #ffffff; border: 1.5px solid #cbd5e1; border-radius: 10px; font-size: 0.92rem; cursor: pointer; transition: all 0.15s; user-select: none; margin-bottom: 4px;`;
-        item.onmouseenter = () => item.style.background = '#f1f5f9';
-        item.onmouseleave = () => item.style.background = '#ffffff';
-        
+        item.className = 'spl-emp-card';
         item.innerHTML = `
-            <input type="checkbox" name="spl_emp_check" value="${m.persNo}|${m.name}" style="width: 18px; height: 18px; accent-color: #18181b; cursor: pointer;">
-            <div style="flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-                <strong style="color: #0f172a; font-size: 0.92rem;">${m.name}</strong> 
-                <span style="color: #475569; font-size: 0.82rem; margin-left: 6px; font-weight: 500;">(NIK: ${m.persNo})</span>
+            <input type="checkbox" name="spl_emp_check" value="${m.persNo}|${m.name}" style="width: 18px; height: 18px; accent-color: #2563eb; cursor: pointer;">
+            <div style="flex: 1; display: flex; align-items: center; justify-content: space-between; overflow: hidden;">
+                <strong class="spl-emp-name" style="color: #0f172a; font-size: 0.92rem; transition: color 0.15s;">${m.name}</strong> 
+                <span class="spl-emp-nik" style="background: #f1f5f9; color: #475569; font-size: 0.78rem; font-weight: 600; padding: 3px 10px; border-radius: 6px; border: 1px solid #e2e8f0; transition: all 0.15s;">NIK: ${m.persNo}</span>
             </div>
         `;
         empContainer.appendChild(item);
@@ -1988,15 +1985,12 @@ function autoPopulateEmployees() {
 
     members.forEach((m, idx) => {
         const item = document.createElement('label');
-        item.style.cssText = `display: flex; align-items: center; gap: 10px; padding: 9px 14px; background: #ffffff; border: 1.5px solid #cbd5e1; border-radius: 10px; font-size: 0.92rem; cursor: pointer; transition: all 0.15s; user-select: none; margin-bottom: 4px;`;
-        item.onmouseenter = () => item.style.background = '#f1f5f9';
-        item.onmouseleave = () => item.style.background = '#ffffff';
-
+        item.className = 'spl-emp-card';
         item.innerHTML = `
-            <input type="checkbox" name="spl_emp_check" value="${m.persNo}|${m.name}" style="width: 18px; height: 18px; accent-color: #18181b; cursor: pointer;">
-            <div style="flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-                <strong style="color: #0f172a; font-size: 0.92rem;">${m.name}</strong>
-                <span style="color: #475569; font-size: 0.82rem; margin-left: 6px; font-weight: 500;">(NIK: ${m.persNo})</span>
+            <input type="checkbox" name="spl_emp_check" value="${m.persNo}|${m.name}" style="width: 18px; height: 18px; accent-color: #2563eb; cursor: pointer;">
+            <div style="flex: 1; display: flex; align-items: center; justify-content: space-between; overflow: hidden;">
+                <strong class="spl-emp-name" style="color: #0f172a; font-size: 0.92rem; transition: color 0.15s;">${m.name}</strong> 
+                <span class="spl-emp-nik" style="background: #f1f5f9; color: #475569; font-size: 0.78rem; font-weight: 600; padding: 3px 10px; border-radius: 6px; border: 1px solid #e2e8f0; transition: all 0.15s;">NIK: ${m.persNo}</span>
             </div>
         `;
         empContainer.appendChild(item);
