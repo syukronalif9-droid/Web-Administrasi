@@ -1063,8 +1063,9 @@ async function renderSplHistoryList(filterStatus = 'all') {
         card.style.cssText = 'background: #ffffff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 16px; margin-bottom: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); font-family: "Inter", sans-serif;';
 
         const isApproved = item.finalStatus === 'Disetujui';
-        const statusBg = isApproved ? '#dcfce7' : '#fef3c7';
-        const statusColor = isApproved ? '#15803d' : '#b45309';
+        const isRejected = item.finalStatus.includes('Ditolak');
+        const statusBg = isApproved ? '#dcfce7' : (isRejected ? '#fee2e2' : '#fef3c7');
+        const statusColor = isApproved ? '#15803d' : (isRejected ? '#dc2626' : '#b45309');
 
         const empNames = item.employees.map(e => e.name).join(', ');
 
@@ -1101,22 +1102,22 @@ async function renderSplHistoryList(filterStatus = 'all') {
                     <span style="font-weight: 700; color: #0f172a;">Kasie (Created)</span>
                     <span style="color: #64748b; font-size: 0.75rem;">${item.kasie.name.split(',')[0]}</span>
                 </div>
-                <div style="height: 3px; background: ${item.kabag.status === 'approved' ? '#16a34a' : '#cbd5e1'}; flex: 0.6;"></div>
+                <div style="height: 3px; background: ${item.kabag.status === 'approved' ? '#16a34a' : (item.kabag.status === 'rejected' ? '#ef4444' : '#cbd5e1')}; flex: 0.6;"></div>
 
                 <!-- Kabag Step -->
                 <div style="display: flex; flex-direction: column; align-items: center; text-align: center; flex: 1;">
-                    <div style="width: 28px; height: 28px; border-radius: 50%; background: ${item.kabag.status === 'approved' ? '#16a34a' : '#f59e0b'}; color: white; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: bold; margin-bottom: 4px;">
-                        ${item.kabag.status === 'approved' ? '✓' : '⌛'}
+                    <div style="width: 28px; height: 28px; border-radius: 50%; background: ${item.kabag.status === 'approved' ? '#16a34a' : (item.kabag.status === 'rejected' ? '#ef4444' : '#f59e0b')}; color: white; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: bold; margin-bottom: 4px;">
+                        ${item.kabag.status === 'approved' ? '✓' : (item.kabag.status === 'rejected' ? '✕' : '⌛')}
                     </div>
                     <span style="font-weight: 700; color: #0f172a;">Kabag</span>
                     <span style="color: #64748b; font-size: 0.75rem;">${item.kabag.name.split(',')[0]}</span>
                 </div>
-                <div style="height: 3px; background: ${item.manager.status === 'approved' ? '#16a34a' : '#cbd5e1'}; flex: 0.6;"></div>
+                <div style="height: 3px; background: ${item.manager.status === 'approved' ? '#16a34a' : (item.manager.status === 'rejected' ? '#ef4444' : '#cbd5e1')}; flex: 0.6;"></div>
 
                 <!-- Manager Step -->
                 <div style="display: flex; flex-direction: column; align-items: center; text-align: center; flex: 1;">
-                    <div style="width: 28px; height: 28px; border-radius: 50%; background: ${item.manager.status === 'approved' ? '#16a34a' : (item.kabag.status === 'approved' ? '#f59e0b' : '#cbd5e1')}; color: white; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: bold; margin-bottom: 4px;">
-                        ${item.manager.status === 'approved' ? '✓' : (item.kabag.status === 'approved' ? '⌛' : '○')}
+                    <div style="width: 28px; height: 28px; border-radius: 50%; background: ${item.manager.status === 'approved' ? '#16a34a' : (item.manager.status === 'rejected' ? '#ef4444' : (item.kabag.status === 'approved' ? '#f59e0b' : '#cbd5e1'))}; color: white; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: bold; margin-bottom: 4px;">
+                        ${item.manager.status === 'approved' ? '✓' : (item.manager.status === 'rejected' ? '✕' : (item.kabag.status === 'approved' ? '⌛' : '○'))}
                     </div>
                     <span style="font-weight: 700; color: #0f172a;">Manager</span>
                     <span style="color: #64748b; font-size: 0.75rem;">${item.manager.name}</span>
@@ -1125,9 +1126,12 @@ async function renderSplHistoryList(filterStatus = 'all') {
 
             <!-- Action Buttons -->
             <div style="display: flex; gap: 10px; justify-content: flex-end; align-items: center; margin-top: 10px; border-top: 1px solid #f1f5f9; padding-top: 10px;">
-                ${item.finalStatus !== 'Disetujui' ? `
-                    <button onclick="simulateApproveSpl('${item.id}')" style="background: #18181b; color: #ffffff; border: none; padding: 8px 16px; border-radius: 10px; font-size: 0.82rem; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
-                        <span>✓ Setujui (Simulasi)</span>
+                ${item.finalStatus.includes('Menunggu') ? `
+                    <button onclick="simulateApproveSpl('${item.id}')" style="background: #16a34a; color: #ffffff; border: none; padding: 8px 14px; border-radius: 10px; font-size: 0.82rem; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;">
+                        <span>✓ Setujui</span>
+                    </button>
+                    <button onclick="simulateRejectSpl('${item.id}')" style="background: #ef4444; color: #ffffff; border: none; padding: 8px 14px; border-radius: 10px; font-size: 0.82rem; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;">
+                        <span>✕ Tolak</span>
                     </button>
                 ` : ''}
 
@@ -1187,6 +1191,44 @@ function simulateApproveSpl(id) {
         item.manager.date = new Date().toLocaleString('id-ID');
         item.finalStatus = 'Disetujui';
         alert(`SPL ${item.splNo} TELAH SELESAI DISETUJUI oleh Manager (${item.manager.name})! Siap dicetak/diarsipkan.`);
+    }
+
+    saveSplList(list);
+    renderSplHistoryList();
+}
+
+function simulateRejectSpl(id) {
+    const list = getStoredSplList();
+    const item = list.find(s => s.id === id);
+    if (!item) return;
+
+    if (!confirm(`Yakin ingin menolak permohonan lembur ${item.splNo}?`)) return;
+
+    const nowStr = new Date().toLocaleString('id-ID');
+
+    if (item.kabag.status === 'pending') {
+        item.kabag.status = 'rejected';
+        item.kabag.date = nowStr;
+        item.finalStatus = 'Ditolak Kabag';
+        alert(`SPL ${item.splNo} DITOLAK oleh Kepala Bagian (${item.kabag.name}).`);
+    } else if (item.manager.status === 'pending') {
+        item.manager.status = 'rejected';
+        item.manager.date = nowStr;
+        item.finalStatus = 'Ditolak Manager';
+        alert(`SPL ${item.splNo} DITOLAK oleh Manager (${item.manager.name}).`);
+    }
+
+    // Sync ke Supabase jika ada
+    if (window.supabaseClient) {
+        window.supabaseClient.from('digital_spl').upsert({
+            id: item.id,
+            spl_no: item.splNo,
+            kabag: item.kabag,
+            manager: item.manager,
+            final_status: item.finalStatus,
+            data: item,
+            updated_at: new Date().toISOString()
+        }).catch(err => console.warn('Supabase sync error:', err));
     }
 
     saveSplList(list);
@@ -1900,6 +1942,7 @@ window.onSplLocationChange = onSplLocationChange;
 window.handleSplSubmit = handleSplSubmit;
 window.renderSplHistoryList = renderSplHistoryList;
 window.simulateApproveSpl = simulateApproveSpl;
+window.simulateRejectSpl = simulateRejectSpl;
 window.deleteSpl = deleteSpl;
 window.printSplDocument = printSplDocument;
 window.getEmployeeRoleByPersNo = getEmployeeRoleByPersNo;

@@ -138,24 +138,24 @@
 <body>
 
     <div class="card" id="app-card">
-        <!-- Result State (Tampil langsung 100% Instan tanpa jeda spinner) -->
+        <!-- Result State -->
         <div id="state-result">
-            <div id="result-icon" class="status-icon icon-success">✓</div>
-            <h1 id="result-title">Surat Perintah Lembur Disetujui!</h1>
-            <p id="result-desc">Persetujuan digital berhasil dicatat ke dalam sistem.</p>
+            <div id="result-icon" class="status-icon icon-loading">⏳</div>
+            <h1 id="result-title">Memproses Keputusan...</h1>
+            <p id="result-desc">Mohon tunggu sebentar, sistem sedang memproses status persetujuan.</p>
 
             <div class="spl-detail" id="spl-info-box">
                 <div class="spl-detail-row">
                     <span class="spl-detail-label">No. SPL</span>
-                    <span class="spl-detail-val" id="disp-spl-no">SPL/WH/2026/04/001</span>
+                    <span class="spl-detail-val" id="disp-spl-no">-</span>
                 </div>
                 <div class="spl-detail-row">
                     <span class="spl-detail-label">Approver</span>
-                    <span class="spl-detail-val" id="disp-approver-name">Kepala Bagian</span>
+                    <span class="spl-detail-val" id="disp-approver-name">-</span>
                 </div>
                 <div class="spl-detail-row">
                     <span class="spl-detail-label">Status Akhir</span>
-                    <span class="spl-detail-val" id="disp-status"><span class="badge badge-success">Disetujui</span></span>
+                    <span class="spl-detail-val" id="disp-status">-</span>
                 </div>
                 <div class="spl-detail-row">
                     <span class="spl-detail-label">Waktu Eksekusi</span>
@@ -177,10 +177,14 @@
         const splId = urlParams.get('id');
         const paramSplNo = urlParams.get('spl_no');
         const paramApprover = urlParams.get('approver');
-        const role = (urlParams.get('role') || 'kabag').toLowerCase();
-        const action = (urlParams.get('action') || 'approve').toLowerCase();
+        const role = (urlParams.get('role') || 'kabag').trim().toLowerCase();
+        const actionParam = (urlParams.get('action') || 'approve').trim().toLowerCase();
 
-        async function processApproval() {
+        // Cek secara tegas apakah aksi adalah tolak / reject
+        const isReject = actionParam === 'reject' || actionParam === 'tolak' || actionParam === 'rejected';
+        const isApproved = !isReject;
+
+        function processApproval() {
             const nowStr = new Date().toLocaleString('id-ID');
             
             // 1. Ambil data dari LocalStorage
@@ -192,27 +196,12 @@
             }
 
             let targetSpl = localList.find(s => s.id === splId || s.splNo === splId || (paramSplNo && s.splNo === paramSplNo));
-
-            // Eksekusi Update Status secara Instan (0 detik)
-            let isApproved = action === 'approve';
             let approverName = paramApprover || (role === 'manager' ? 'Wawan Kurniawan (Manager)' : 'Kepala Bagian');
-            // Ambil dari Supabase jika di lokal HP belum ada
-            if (!targetSpl && supabase && (splId || paramSplNo)) {
-                try {
-                    const query = splId ? supabase.from('digital_spl').select('*').eq('id', splId) : supabase.from('digital_spl').select('*').eq('spl_no', paramSplNo);
-                    const { data: dbData } = await query.maybeSingle();
-                    if (dbData && dbData.data) {
-                        targetSpl = dbData.data;
-                    } else if (dbData) {
-                        targetSpl = dbData;
-                    }
-                } catch(e) {}
-            }
 
             if (!targetSpl) {
                 targetSpl = {
                     id: splId || 'SPL-' + Date.now(),
-                    splNo: paramSplNo || 'SPL/WH/2026/04/006',
+                    splNo: paramSplNo || 'SPL/WH/2026/04/001',
                     kasie: { name: 'Kasie Warehouse', status: 'approved' },
                     kabag: { name: (role === 'kabag' && paramApprover) ? paramApprover : 'Setiawan', status: 'pending' },
                     manager: { name: (role === 'manager' && paramApprover) ? paramApprover : 'Wawan Kurniawan', status: 'pending' },
@@ -220,6 +209,7 @@
                 };
             }
 
+            // Tentukan status persetujuan
             if (role === 'kabag') {
                 approverName = targetSpl.kabag?.name || paramApprover || 'Kepala Bagian';
                 targetSpl.kabag = {
@@ -229,7 +219,7 @@
                 };
                 targetSpl.finalStatus = isApproved ? 'Menunggu Manager' : 'Ditolak Kabag';
             } else if (role === 'manager') {
-                approverName = targetSpl.manager?.name || 'Wawan Kurniawan (Manager)';
+                approverName = targetSpl.manager?.name || paramApprover || 'Wawan Kurniawan (Manager)';
                 targetSpl.manager = {
                     ...targetSpl.manager,
                     status: isApproved ? 'approved' : 'rejected',
@@ -238,8 +228,8 @@
                 targetSpl.finalStatus = isApproved ? 'Disetujui' : 'Ditolak Manager';
             }
 
-            // Simpan perubahan ke LocalStorage
-            const existIdx = localList.findIndex(s => s.id === targetSpl.id);
+            // Simpan perubahan ke LocalStorage langsung
+            const existIdx = localList.findIndex(s => s.id === targetSpl.id || s.splNo === targetSpl.splNo);
             if (existIdx >= 0) {
                 localList[existIdx] = targetSpl;
             } else {
@@ -249,25 +239,7 @@
                 localStorage.setItem('DIGITAL_SPL_DATA', JSON.stringify(localList));
             } catch(e) {}
 
-            // Background async sync ke Supabase
-            if (supabase) {
-                try {
-                    await supabase.from('digital_spl').upsert({
-                        id: targetSpl.id,
-                        spl_no: targetSpl.splNo,
-                        kabag: targetSpl.kabag,
-                        manager: targetSpl.manager,
-                        final_status: targetSpl.finalStatus,
-                        data: targetSpl,
-                        updated_at: new Date().toISOString()
-                    });
-                    console.log('Supabase sync success for:', targetSpl.splNo);
-                } catch(err) {
-                    console.error('Supabase sync error:', err);
-                }
-            }
-
-            // Tampilkan Hasil Langsung!
+            // 2. Render Tampilan UI SECARA INSTAN (0 milidetik, tanpa tunggu network)
             const resultBox = document.getElementById('state-result');
             const icon = document.getElementById('result-icon');
             const title = document.getElementById('result-title');
@@ -293,6 +265,23 @@
             document.getElementById('disp-time').textContent = nowStr;
 
             resultBox.style.display = 'block';
+
+            // 3. Background Sync ke Cloud Supabase (Non-blocking, tidak menahan tampilan)
+            if (supabase) {
+                supabase.from('digital_spl').upsert({
+                    id: targetSpl.id,
+                    spl_no: targetSpl.splNo,
+                    kabag: targetSpl.kabag,
+                    manager: targetSpl.manager,
+                    final_status: targetSpl.finalStatus,
+                    data: targetSpl,
+                    updated_at: new Date().toISOString()
+                }).then(() => {
+                    console.log('Supabase sync success for:', targetSpl.splNo);
+                }).catch(err => {
+                    console.warn('Supabase sync notice:', err);
+                });
+            }
         }
 
         window.addEventListener('DOMContentLoaded', processApproval);
