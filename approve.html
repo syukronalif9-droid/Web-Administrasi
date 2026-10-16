@@ -198,7 +198,6 @@
             return match ? decodeURIComponent(match[1]) : null;
         }
 
-        const rawFullUrl = (window.location.href + ' ' + window.location.search).toLowerCase();
         const splId = getQueryParam('id') || '';
         const paramSplNo = getQueryParam('spl_no') || '';
         const paramApprover = getQueryParam('approver') || '';
@@ -206,118 +205,111 @@
         const actionParam = (getQueryParam('action') || '').trim().toLowerCase();
 
         // Deteksi secara mutlak jika aksi adalah tolak / reject
-        const isInitialReject = (
-            actionParam === 'reject' || 
-            actionParam === 'tolak' || 
-            actionParam === 'rejected' || 
-            rawFullUrl.includes('action=reject') || 
-            rawFullUrl.includes('action%3dreject') || 
-            rawFullUrl.includes('amp;action=reject') ||
-            rawFullUrl.includes('reject')
-        );
+        const isInitialReject = ['reject', 'tolak', 'rejected'].includes(actionParam);
 
-        function executeDecision(isApproved) {
-            const nowStr = new Date().toLocaleString('id-ID');
-            
-            // 1. Ambil data dari LocalStorage
-            let localList = [];
-            try {
-                localList = JSON.parse(localStorage.getItem('DIGITAL_SPL_DATA') || '[]');
-            } catch (e) {
-                localList = [];
-            }
-
-            let targetSpl = localList.find(s => s && (s.id === splId || s.splNo === splId || (paramSplNo && s.splNo === paramSplNo)));
-            let approverName = paramApprover || (role === 'manager' ? 'Wawan Kurniawan (Manager)' : 'Kepala Bagian');
-
-            if (!targetSpl) {
-                targetSpl = {
-                    id: splId || 'SPL-' + Date.now(),
-                    splNo: paramSplNo || 'SPL/WH/2026/04/001',
-                    kasie: { name: 'Kasie Warehouse', status: 'approved' },
-                    kabag: { name: (role === 'kabag' && paramApprover) ? paramApprover : 'Setiawan', status: 'pending' },
-                    manager: { name: (role === 'manager' && paramApprover) ? paramApprover : 'Wawan Kurniawan', status: 'pending' },
-                    finalStatus: 'Menunggu Kabag'
-                };
-            }
-
-            // Tentukan status persetujuan
-            if (role === 'kabag') {
-                approverName = (targetSpl.kabag && targetSpl.kabag.name) || paramApprover || 'Kepala Bagian';
-                targetSpl.kabag = {
-                    ...(typeof targetSpl.kabag === 'object' ? targetSpl.kabag : {}),
-                    status: isApproved ? 'approved' : 'rejected',
-                    date: nowStr
-                };
-                targetSpl.finalStatus = isApproved ? 'Menunggu Manager' : 'Ditolak Kabag';
-            } else if (role === 'manager') {
-                approverName = (targetSpl.manager && targetSpl.manager.name) || paramApprover || 'Wawan Kurniawan (Manager)';
-                targetSpl.manager = {
-                    ...(typeof targetSpl.manager === 'object' ? targetSpl.manager : {}),
-                    status: isApproved ? 'approved' : 'rejected',
-                    date: nowStr
-                };
-                targetSpl.finalStatus = isApproved ? 'Disetujui' : 'Ditolak Manager';
-            }
-
-            // Simpan perubahan ke LocalStorage langsung
-            const existIdx = localList.findIndex(s => s && (s.id === targetSpl.id || s.splNo === targetSpl.splNo));
-            if (existIdx >= 0) {
-                localList[existIdx] = targetSpl;
-            } else {
-                localList.unshift(targetSpl);
-            }
-            try {
-                localStorage.setItem('DIGITAL_SPL_DATA', JSON.stringify(localList));
-            } catch(e) {}
-
-            // 2. Render Tampilan UI SECARA INSTAN (0 milidetik, tanpa tunggu network)
-            const resultBox = document.getElementById('state-result');
+        async function executeDecision(isApproved) {
             const icon = document.getElementById('result-icon');
             const title = document.getElementById('result-title');
             const desc = document.getElementById('result-desc');
-
-            if (isApproved) {
-                icon.className = 'status-icon icon-success';
-                icon.textContent = '✓';
-                title.textContent = 'Surat Perintah Lembur Disetujui!';
-                desc.textContent = `Persetujuan berhasil dicatat atas nama ${approverName} (${role.toUpperCase()}).`;
-            } else {
+            const setError = message => {
                 icon.className = 'status-icon icon-danger';
-                icon.textContent = '✕';
-                title.textContent = 'Surat Perintah Lembur Ditolak';
-                desc.textContent = `Penolakan resmi telah dicatat oleh ${approverName} (${role.toUpperCase()}).`;
+                icon.textContent = '!';
+                title.textContent = 'Persetujuan belum tersimpan';
+                desc.textContent = message;
+                document.getElementById('disp-status').textContent = 'Gagal diproses';
+                document.getElementById('disp-time').textContent = new Date().toLocaleString('id-ID');
+            };
+
+            if (!supabase) {
+                setError('Koneksi Supabase tidak tersedia. Keputusan belum disimpan.');
+                return;
+            }
+            if (!splId) {
+                setError('Tautan approval tidak memuat ID SPL yang valid.');
+                return;
             }
 
-            document.getElementById('disp-spl-no').textContent = targetSpl.splNo;
-            document.getElementById('disp-approver-name').textContent = approverName;
-            document.getElementById('disp-status').innerHTML = isApproved 
-                ? `<span class="badge badge-success">${targetSpl.finalStatus}</span>` 
-                : `<span class="badge badge-danger">${targetSpl.finalStatus}</span>`;
-            document.getElementById('disp-time').textContent = nowStr;
+            const approveButton = document.getElementById('btn-do-approve');
+            const rejectButton = document.getElementById('btn-do-reject');
+            approveButton.disabled = true;
+            rejectButton.disabled = true;
+            title.textContent = 'Memproses Keputusan...';
+            desc.textContent = 'Memeriksa data SPL dan menyimpan keputusan ke Supabase.';
 
-            resultBox.style.display = 'block';
+            try {
+                const { data: row, error: readError } = await supabase
+                    .from('digital_spl')
+                    .select('id, spl_no, kabag, manager, final_status, data')
+                    .eq('id', splId)
+                    .maybeSingle();
+                if (readError) throw new Error(`Gagal membaca data SPL: ${readError.message}`);
+                if (!row) throw new Error(`Data SPL ${paramSplNo || splId} tidak ditemukan. Tautan dari email uji tidak dapat menyetujui pengajuan sungguhan.`);
 
-            // 3. Background Sync ke Cloud Supabase (Non-blocking, tidak menahan tampilan)
-            if (supabase) {
-                supabase.from('digital_spl').upsert({
-                    id: targetSpl.id,
-                    spl_no: targetSpl.splNo,
-                    kabag: targetSpl.kabag,
-                    manager: targetSpl.manager,
-                    final_status: targetSpl.finalStatus,
-                    data: targetSpl,
-                    updated_at: new Date().toISOString()
-                }).then(() => {
-                    console.log('Supabase sync success for:', targetSpl.splNo);
-                }).catch(err => {
-                    console.warn('Supabase sync notice:', err);
-                });
+                const targetSpl = row.data && typeof row.data === 'object' ? { ...row.data } : {};
+                const currentStatus = row.final_status || targetSpl.finalStatus || '';
+                const kabag = row.kabag && typeof row.kabag === 'object' ? row.kabag : targetSpl.kabag || {};
+                const manager = row.manager && typeof row.manager === 'object' ? row.manager : targetSpl.manager || {};
+                let finalStatus;
+
+                if (role === 'kabag') {
+                    if (currentStatus !== 'Menunggu Kabag' || (kabag.status && kabag.status !== 'pending')) {
+                        throw new Error(`Pengajuan tidak sedang menunggu persetujuan Kabag (status: ${currentStatus || 'tidak diketahui'}).`);
+                    }
+                    targetSpl.kabag = { ...kabag, status: isApproved ? 'approved' : 'rejected', date: new Date().toLocaleString('id-ID') };
+                    finalStatus = isApproved ? 'Menunggu Manager' : 'Ditolak Kabag';
+                } else if (role === 'manager') {
+                    if (currentStatus !== 'Menunggu Manager' || kabag.status !== 'approved' || (manager.status && manager.status !== 'pending')) {
+                        throw new Error(`Pengajuan belum disetujui Kabag atau tidak sedang menunggu Manager (status: ${currentStatus || 'tidak diketahui'}).`);
+                    }
+                    targetSpl.manager = { ...manager, status: isApproved ? 'approved' : 'rejected', date: new Date().toLocaleString('id-ID') };
+                    finalStatus = isApproved ? 'Disetujui' : 'Ditolak Manager';
+                } else {
+                    throw new Error('Peran approver pada tautan tidak valid.');
+                }
+
+                targetSpl.id = row.id;
+                targetSpl.splNo = row.spl_no || targetSpl.splNo || paramSplNo;
+                targetSpl.finalStatus = finalStatus;
+                const { data: updatedRow, error: updateError } = await supabase
+                    .from('digital_spl')
+                    .update({
+                        kabag: targetSpl.kabag || kabag,
+                        manager: targetSpl.manager || manager,
+                        final_status: finalStatus,
+                        data: targetSpl,
+                        updated_at: new Date().toISOString()
+                    })
+                    .eq('id', row.id)
+                    .eq('final_status', currentStatus)
+                    .select('id')
+                    .maybeSingle();
+                if (updateError) throw new Error(`Gagal menyimpan keputusan ke Supabase: ${updateError.message}`);
+                if (!updatedRow) throw new Error('Status SPL berubah saat keputusan diproses. Muat ulang halaman untuk melihat status terbaru.');
+
+                const approverName = paramApprover || (role === 'manager' ? 'Manager' : 'Kabag');
+                const nowStr = new Date().toLocaleString('id-ID');
+                icon.className = isApproved ? 'status-icon icon-success' : 'status-icon icon-danger';
+                icon.textContent = isApproved ? '✓' : '✕';
+                title.textContent = isApproved ? 'Surat Perintah Lembur Disetujui!' : 'Surat Perintah Lembur Ditolak';
+                desc.textContent = `Keputusan berhasil disimpan di Supabase oleh ${approverName} (${role.toUpperCase()}).`;
+                document.getElementById('disp-spl-no').textContent = targetSpl.splNo;
+                document.getElementById('disp-approver-name').textContent = approverName;
+                document.getElementById('disp-status').textContent = finalStatus;
+                document.getElementById('disp-time').textContent = nowStr;
+            } catch (error) {
+                console.error('Approval processing failed:', error);
+                setError(error.message || 'Terjadi kesalahan saat menyimpan keputusan.');
+                approveButton.disabled = false;
+                rejectButton.disabled = false;
             }
         }
 
         // Jalankan eksekusi awal sesuai parameter URL
-        executeDecision(!isInitialReject);
+        document.getElementById('disp-spl-no').textContent = paramSplNo || '-';
+        document.getElementById('disp-approver-name').textContent = paramApprover || '-';
+        if (actionParam === 'approve' || isInitialReject) {
+            executeDecision(!isInitialReject);
+        }
     </script>
 </body>
 </html>
