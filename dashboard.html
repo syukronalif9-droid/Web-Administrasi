@@ -36,7 +36,7 @@
         }
     </script>
     <script src="worksheetData.js"></script>
-    <script src="spl-module.js?v=27"></script>
+    <script src="spl-module.js?v=28"></script>
 </head>
 
 <body>
@@ -2288,6 +2288,7 @@ document.addEventListener("DOMContentLoaded", function() {
                             area = 'Gen. Adm';
                             location = 'Central';
                             subordinates = [
+                                { persNo: '3152137', name: 'Setiawan', roleBadge: 'Kabag' },
                                 { persNo: '7318', name: 'Sri Ngatun' },
                                 { persNo: '90101538', name: 'Edi Prayoga' },
                                 { persNo: '90101534', name: 'Joni Saputra' },
@@ -2304,6 +2305,7 @@ document.addEventListener("DOMContentLoaded", function() {
                             area = 'Traffic';
                             location = 'Way Lunik';
                             subordinates = [
+                                { persNo: '209113', name: 'Nur Tri Ayatullah, S.T', roleBadge: 'Kasie' },
                                 { persNo: '7339', name: 'Sakri' },
                                 { persNo: '10041846', name: 'Fedriyan Hertanto' },
                                 { persNo: '90074507', name: 'Ryanto Fransiskus Sirait' },
@@ -2320,6 +2322,7 @@ document.addEventListener("DOMContentLoaded", function() {
                             area = 'Semua Area';
                             location = 'Semua Lokasi';
                             subordinates = [
+                                { persNo: '5078', name: 'Wawan Kurniawan', roleBadge: 'Manager' },
                                 { persNo: '7318', name: 'Sri Ngatun' },
                                 { persNo: '90101538', name: 'Edi Prayoga' },
                                 { persNo: '7339', name: 'Sakri' },
@@ -2351,22 +2354,26 @@ document.addEventListener("DOMContentLoaded", function() {
                             locSel.value = location;
                         }
 
-                        // Render karyawan bawahan langsung ke container
+                        // Render karyawan bawahan & kabag langsung ke container
                         const empContainer = document.getElementById('spl-employee-list-container');
                         if (empContainer && subordinates.length > 0) {
                             empContainer.innerHTML = '';
                             const headerInfo = document.createElement('div');
                             headerInfo.style.cssText = 'padding: 8px 12px; background: #e0f2fe; border-radius: 8px; margin-bottom: 6px; font-size: 0.82rem; color: #0369a1; font-weight: 600; text-align: center;';
-                            headerInfo.textContent = `📋 ${subordinates.length} karyawan bawahan ditemukan (${area} - ${location})`;
+                            headerInfo.textContent = `📋 ${subordinates.length} personil ditemukan (${area} - ${location})`;
                             empContainer.appendChild(headerInfo);
 
                             subordinates.forEach(m => {
                                 const item = document.createElement('label');
-                                item.style.cssText = 'display: flex; align-items: center; gap: 10px; padding: 9px 14px; background: #ffffff; border: 1.5px solid #cbd5e1; border-radius: 10px; font-size: 0.92rem; cursor: pointer; transition: all 0.15s; user-select: none; margin-bottom: 4px;';
+                                const isLeader = m.roleBadge === 'Kabag' || m.roleBadge === 'Kasie' || m.roleBadge === 'Manager';
+                                item.style.cssText = `display: flex; align-items: center; gap: 10px; padding: 9px 14px; background: ${isLeader ? '#f0fdf4' : '#ffffff'}; border: 1.5px solid ${isLeader ? '#16a34a' : '#cbd5e1'}; border-radius: 10px; font-size: 0.92rem; cursor: pointer; transition: all 0.15s; user-select: none; margin-bottom: 4px;`;
+                                item.onmouseenter = () => item.style.background = isLeader ? '#dcfce7' : '#f1f5f9';
+                                item.onmouseleave = () => item.style.background = isLeader ? '#f0fdf4' : '#ffffff';
                                 item.innerHTML = `
                                     <input type="checkbox" name="spl_emp_check" value="${m.persNo}|${m.name}" style="width: 18px; height: 18px; accent-color: #18181b; cursor: pointer;">
                                     <div style="flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
                                         <strong style="color: #0f172a; font-size: 0.92rem;">${m.name}</strong>
+                                        ${m.roleBadge ? `<span style="background: #16a34a; color: #ffffff; font-size: 0.72rem; font-weight: 700; padding: 2px 8px; border-radius: 6px; margin-left: 6px;">⭐ ${m.roleBadge}</span>` : ''}
                                         <span style="color: #475569; font-size: 0.82rem; margin-left: 6px; font-weight: 500;">(NIK: ${m.persNo})</span>
                                     </div>
                                 `;

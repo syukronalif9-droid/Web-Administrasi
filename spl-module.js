@@ -515,6 +515,9 @@ function onSplLocationChange() {
         String(d.location).trim().toLowerCase() === String(location).trim().toLowerCase()
     );
 
+    // Simpan referensi data sebelum filter bawahan
+    const areaRef = members[0];
+
     // Jika yang membuat adalah Kabag, hanya tampilkan karyawan yang kabagNo-nya sama dengan Kabag tersebut
     if (user && user.role === 'KABAG' && user.persNo) {
         const kabagSubordinates = members.filter(d => String(d.kabagNo).trim() === String(user.persNo).trim());
@@ -530,33 +533,62 @@ function onSplLocationChange() {
         }
     }
 
+    // Sertakan juga Kabag terkait di urutan paling atas daftar agar Kabag bisa cuti / mengajukan SPL sendiri
+    const refKabagNo = (user && user.role === 'KABAG' && user.persNo) ? user.persNo : (areaRef ? areaRef.kabagNo : (members[0] ? members[0].kabagNo : ''));
+    const refKabagName = (user && user.role === 'KABAG' && user.name) ? user.name : (areaRef ? areaRef.kabagName : (members[0] ? members[0].kabagName : ''));
+    
+    if (refKabagNo && !members.some(m => String(m.persNo).trim() === String(refKabagNo).trim())) {
+        members.unshift({
+            persNo: refKabagNo,
+            name: refKabagName,
+            roleBadge: 'Kabag',
+            area: area,
+            location: location,
+            kabagNo: refKabagNo,
+            kabagName: refKabagName,
+            kasieNo: areaRef ? areaRef.kasieNo : '',
+            kasieName: areaRef ? areaRef.kasieName : '',
+            mgrNo: areaRef ? areaRef.mgrNo : '5078',
+            mgrName: areaRef ? areaRef.mgrName : 'Wawan Kurniawan'
+        });
+    }
+
     if (members.length === 0) {
-        empContainer.innerHTML = '<div style="color: #ef4444; font-size: 0.8rem; text-align: center; padding: 12px;">Tidak ada karyawan bawahan yang terdaftar untuk pejabat ini</div>';
+        empContainer.innerHTML = '<div style="color: #ef4444; font-size: 0.8rem; text-align: center; padding: 12px;">Tidak ada karyawan yang terdaftar untuk pejabat/bagian ini</div>';
         resetApproverInfo();
         return;
     }
 
     // Render Employee Checkboxes TERLEBIH DAHULU agar tampilan selalu muncul
     empContainer.innerHTML = '';
+
+    // Tambahkan info jumlah personil
+    const headerInfo = document.createElement('div');
+    headerInfo.style.cssText = 'padding: 8px 12px; background: #e0f2fe; border-radius: 8px; margin-bottom: 6px; font-size: 0.82rem; color: #0369a1; font-weight: 600; text-align: center;';
+    headerInfo.textContent = `📋 ${members.length} personil ditemukan (${area} - ${location})`;
+    empContainer.appendChild(headerInfo);
+
     members.forEach((m, idx) => {
         const item = document.createElement('label');
-        item.style.cssText = 'display: flex; align-items: center; gap: 10px; padding: 9px 14px; background: #ffffff; border: 1.5px solid #cbd5e1; border-radius: 10px; font-size: 0.92rem; cursor: pointer; transition: all 0.15s; user-select: none; margin-bottom: 4px;';
-        item.onmouseenter = () => item.style.background = '#f1f5f9';
-        item.onmouseleave = () => item.style.background = '#ffffff';
+        const isLeader = m.roleBadge === 'Kabag' || m.roleBadge === 'Kasie' || m.roleBadge === 'Manager';
+        item.style.cssText = `display: flex; align-items: center; gap: 10px; padding: 9px 14px; background: ${isLeader ? '#f0fdf4' : '#ffffff'}; border: 1.5px solid ${isLeader ? '#16a34a' : '#cbd5e1'}; border-radius: 10px; font-size: 0.92rem; cursor: pointer; transition: all 0.15s; user-select: none; margin-bottom: 4px;`;
+        item.onmouseenter = () => item.style.background = isLeader ? '#dcfce7' : '#f1f5f9';
+        item.onmouseleave = () => item.style.background = isLeader ? '#f0fdf4' : '#ffffff';
         
         item.innerHTML = `
             <input type="checkbox" name="spl_emp_check" value="${m.persNo}|${m.name}" style="width: 18px; height: 18px; accent-color: #18181b; cursor: pointer;">
             <div style="flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
                 <strong style="color: #0f172a; font-size: 0.92rem;">${m.name}</strong> 
+                ${m.roleBadge ? `<span style="background: #16a34a; color: #ffffff; font-size: 0.72rem; font-weight: 700; padding: 2px 8px; border-radius: 6px; margin-left: 6px;">⭐ ${m.roleBadge}</span>` : ''}
                 <span style="color: #475569; font-size: 0.82rem; margin-left: 6px; font-weight: 500;">(NIK: ${m.persNo})</span>
             </div>
         `;
         empContainer.appendChild(item);
     });
 
-    // Set Approvers from the first matching member in this location
+    // Set Approvers from the matching member in this location
     try {
-        const ref = members[0];
+        const ref = members.find(m => m.kasieName && m.kabagName) || members[0];
         setApproverInfo(ref.kasieName, ref.kasieNo, ref.kabagName, ref.kabagNo, ref.mgrName, ref.mgrNo);
     } catch (err) {
         console.warn('Error setting approver info:', err);
@@ -1748,44 +1780,78 @@ function autoPopulateEmployees() {
     } else if (user.role === 'KABAG') {
         // Kabag: tampilkan semua karyawan di bawah kabag ini
         members = SPL_MASTER_DATA.filter(d => String(d.kabagNo).trim() === String(user.persNo).trim());
+        // Sertakan juga Kabag sendiri di urutan teratas agar bisa mengajukan SPL untuk diri sendiri
+        if (!members.some(m => String(m.persNo).trim() === String(user.persNo).trim())) {
+            members.unshift({
+                persNo: user.persNo,
+                name: user.name,
+                roleBadge: 'Kabag',
+                area: user.area || (members[0] ? members[0].area : ''),
+                location: user.location || (members[0] ? members[0].location : ''),
+                kabagNo: user.persNo,
+                kabagName: user.name,
+                kasieNo: members[0] ? members[0].kasieNo : '',
+                kasieName: members[0] ? members[0].kasieName : '',
+                mgrNo: members[0] ? members[0].mgrNo : '5078',
+                mgrName: members[0] ? members[0].mgrName : 'Wawan Kurniawan'
+            });
+        }
     } else if (user.role === 'KASIE') {
         // Kasie: tampilkan semua karyawan di bawah kasie ini
         members = SPL_MASTER_DATA.filter(d => String(d.kasieNo).trim() === String(user.persNo).trim());
+        // Sertakan juga Kasie sendiri di urutan teratas
+        if (!members.some(m => String(m.persNo).trim() === String(user.persNo).trim())) {
+            members.unshift({
+                persNo: user.persNo,
+                name: user.name,
+                roleBadge: 'Kasie',
+                area: user.area || (members[0] ? members[0].area : ''),
+                location: user.location || (members[0] ? members[0].location : ''),
+                kabagNo: members[0] ? members[0].kabagNo : '',
+                kabagName: members[0] ? members[0].kabagName : '',
+                kasieNo: user.persNo,
+                kasieName: user.name,
+                mgrNo: members[0] ? members[0].mgrNo : '5078',
+                mgrName: members[0] ? members[0].mgrName : 'Wawan Kurniawan'
+            });
+        }
     }
 
     if (members.length === 0) {
-        empContainer.innerHTML = '<div style="color: #ef4444; font-size: 0.8rem; text-align: center; padding: 12px;">Tidak ada karyawan bawahan yang terdaftar untuk pejabat ini</div>';
+        empContainer.innerHTML = '<div style="color: #ef4444; font-size: 0.8rem; text-align: center; padding: 12px;">Tidak ada karyawan yang terdaftar untuk pejabat ini</div>';
         return;
     }
 
     // Render Employee Checkboxes langsung
     empContainer.innerHTML = '';
 
-    // Tambahkan header info jumlah bawahan
+    // Tambahkan header info jumlah personil
     const headerInfo = document.createElement('div');
     headerInfo.style.cssText = 'padding: 8px 12px; background: #e0f2fe; border-radius: 8px; margin-bottom: 6px; font-size: 0.82rem; color: #0369a1; font-weight: 600; text-align: center;';
-    headerInfo.textContent = `📋 ${members.length} karyawan bawahan ditemukan`;
+    headerInfo.textContent = `📋 ${members.length} personil ditemukan`;
     empContainer.appendChild(headerInfo);
 
     members.forEach((m, idx) => {
         const item = document.createElement('label');
-        item.style.cssText = 'display: flex; align-items: center; gap: 10px; padding: 9px 14px; background: #ffffff; border: 1.5px solid #cbd5e1; border-radius: 10px; font-size: 0.92rem; cursor: pointer; transition: all 0.15s; user-select: none; margin-bottom: 4px;';
-        item.onmouseenter = () => item.style.background = '#f1f5f9';
-        item.onmouseleave = () => item.style.background = '#ffffff';
+        const isLeader = m.roleBadge === 'Kabag' || m.roleBadge === 'Kasie' || m.roleBadge === 'Manager';
+        item.style.cssText = `display: flex; align-items: center; gap: 10px; padding: 9px 14px; background: ${isLeader ? '#f0fdf4' : '#ffffff'}; border: 1.5px solid ${isLeader ? '#16a34a' : '#cbd5e1'}; border-radius: 10px; font-size: 0.92rem; cursor: pointer; transition: all 0.15s; user-select: none; margin-bottom: 4px;`;
+        item.onmouseenter = () => item.style.background = isLeader ? '#dcfce7' : '#f1f5f9';
+        item.onmouseleave = () => item.style.background = isLeader ? '#f0fdf4' : '#ffffff';
 
         item.innerHTML = `
             <input type="checkbox" name="spl_emp_check" value="${m.persNo}|${m.name}" style="width: 18px; height: 18px; accent-color: #18181b; cursor: pointer;">
             <div style="flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
                 <strong style="color: #0f172a; font-size: 0.92rem;">${m.name}</strong>
+                ${m.roleBadge ? `<span style="background: #16a34a; color: #ffffff; font-size: 0.72rem; font-weight: 700; padding: 2px 8px; border-radius: 6px; margin-left: 6px;">⭐ ${m.roleBadge}</span>` : ''}
                 <span style="color: #475569; font-size: 0.82rem; margin-left: 6px; font-weight: 500;">(NIK: ${m.persNo})</span>
             </div>
         `;
         empContainer.appendChild(item);
     });
 
-    // Set Approvers dari member pertama yang ditemukan
+    // Set Approvers dari member yang memiliki info approver lengkap
     try {
-        const ref = members[0];
+        const ref = members.find(m => m.kasieName && m.kabagName) || members[0];
         setApproverInfo(ref.kasieName, ref.kasieNo, ref.kabagName, ref.kabagNo, ref.mgrName, ref.mgrNo);
     } catch (err) {
         console.warn('Error setting approver info:', err);
