@@ -581,12 +581,6 @@ function onSplLocationChange() {
     // Render Employee Checkboxes TERLEBIH DAHULU agar tampilan selalu muncul
     empContainer.innerHTML = '';
 
-    // Tambahkan info jumlah personil
-    const headerInfo = document.createElement('div');
-    headerInfo.style.cssText = 'padding: 8px 12px; background: #e0f2fe; border-radius: 8px; margin-bottom: 6px; font-size: 0.82rem; color: #0369a1; font-weight: 600; text-align: center;';
-    headerInfo.textContent = `📋 ${members.length} personil ditemukan (${area} - ${location})`;
-    empContainer.appendChild(headerInfo);
-
     members.forEach((m, idx) => {
         const item = document.createElement('label');
         const isLeader = m.roleBadge === 'Kabag' || m.roleBadge === 'Kasie' || m.roleBadge === 'Manager';
@@ -1993,12 +1987,6 @@ function autoPopulateEmployees() {
 
     // Render Employee Checkboxes langsung
     empContainer.innerHTML = '';
-
-    // Tambahkan header info jumlah personil
-    const headerInfo = document.createElement('div');
-    headerInfo.style.cssText = 'padding: 8px 12px; background: #e0f2fe; border-radius: 8px; margin-bottom: 6px; font-size: 0.82rem; color: #0369a1; font-weight: 600; text-align: center;';
-    headerInfo.textContent = `📋 ${members.length} personil ditemukan`;
-    empContainer.appendChild(headerInfo);
 
     members.forEach((m, idx) => {
         const item = document.createElement('label');
