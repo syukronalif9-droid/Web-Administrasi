@@ -678,6 +678,29 @@ function getEmailJsConfig() {
     };
 }
 
+function getPublicBaseUrl() {
+    // URL publik Vercel yang valid dan selalu bisa diakses dari HP & Komputer manapun via Gmail
+    const VERCEL_PUBLIC_URL = 'https://genadm.vercel.app/';
+    try {
+        const hostname = window.location.hostname || '';
+        const isLocal = !hostname || 
+                        hostname === 'localhost' || 
+                        hostname === '127.0.0.1' || 
+                        hostname.startsWith('192.168.') || 
+                        hostname.startsWith('10.') || 
+                        hostname.startsWith('172.') || 
+                        window.location.protocol === 'file:' ||
+                        window.location.protocol === 'http:';
+                        
+        if (!isLocal && window.location.protocol === 'https:') {
+            let base = window.location.origin + window.location.pathname.replace(/dashboard\.html.*$/, '').replace(/approve\.html.*$/, '');
+            if (!base.endsWith('/')) base += '/';
+            return base;
+        }
+    } catch(e) {}
+    return VERCEL_PUBLIC_URL;
+}
+
 function saveEmailJsConfig(cfg) {
     localStorage.setItem('SPL_EMAILJS_CONFIG', JSON.stringify(cfg));
 }
@@ -687,11 +710,8 @@ async function dispatchSplEmailNotification(spl) {
     const kabagEmail = spl.kabag.email;
     const mgrEmail = spl.manager.email;
 
-    // Jika dibuka dari file lokal (file:///), gunakan alamat Vercel agar link di Gmail bisa langsung diklik
-    let baseUrl = window.location.origin + window.location.pathname.replace('dashboard.html', '');
-    if (window.location.protocol === 'file:') {
-        baseUrl = 'https://genadm.vercel.app/';
-    }
+    // Selalu gunakan domain publik HTTPS (Vercel) agar tombol di Gmail di HP / Laptop tidak diblokir privasi jaringan lokal
+    const baseUrl = getPublicBaseUrl();
 
     const encodedNo = encodeURIComponent(spl.splNo);
     const encodedKabag = encodeURIComponent(spl.kabag.name);
@@ -702,6 +722,11 @@ async function dispatchSplEmailNotification(spl) {
     const kabagRejectUrl = `${baseUrl}approve.html?id=${encodeURIComponent(spl.id)}&spl_no=${encodedNo}&approver=${encodedKabag}&area=${encodedArea}&role=kabag&action=reject`;
     const mgrApproveUrl = `${baseUrl}approve.html?id=${encodeURIComponent(spl.id)}&spl_no=${encodedNo}&approver=${encodedMgr}&area=${encodedArea}&role=manager&action=approve`;
     const mgrRejectUrl = `${baseUrl}approve.html?id=${encodeURIComponent(spl.id)}&spl_no=${encodedNo}&approver=${encodedMgr}&area=${encodedArea}&role=manager&action=reject`;
+
+    // Tentukan URL aktif berdasarkan status tahapan saat ini (Kabag atau Manager)
+    const isWaitingManager = (spl.finalStatus === 'Menunggu Manager');
+    const primaryApproveUrl = isWaitingManager ? mgrApproveUrl : kabagApproveUrl;
+    const primaryRejectUrl = isWaitingManager ? mgrRejectUrl : kabagRejectUrl;
 
     const emailParams = {
         spl_no: spl.splNo,
@@ -720,11 +745,28 @@ async function dispatchSplEmailNotification(spl) {
         employee_count: spl.employees.length,
         employee_list: spl.employees.map((e, idx) => `${idx + 1}. ${e.name} (${e.persNo})`).join('\n'),
         reason: spl.reason,
-        app_url: window.location.href,
+        app_url: 'https://genadm.vercel.app/dashboard.html',
+        
+        // Parameter Utama Persetujuan (Cocok untuk template dengan {{{approve_url}}} atau {{{reject_url}}})
+        approve_url: primaryApproveUrl,
+        reject_url: primaryRejectUrl,
+        setujui_url: primaryApproveUrl,
+        tolak_url: primaryRejectUrl,
+        link_setujui: primaryApproveUrl,
+        link_tolak: primaryRejectUrl,
+        url_setujui: primaryApproveUrl,
+        url_tolak: primaryRejectUrl,
+
+        // Parameter Khusus Role
         kabag_approve_url: kabagApproveUrl,
         kabag_reject_url: kabagRejectUrl,
         manager_approve_url: mgrApproveUrl,
         manager_reject_url: mgrRejectUrl,
+
+        // Versi URL tanpa https:// (Jika di editor EmailJS terlanjur ada https:// di depannya)
+        approve_url_raw: primaryApproveUrl.replace(/^https?:\/\//, ''),
+        reject_url_raw: primaryRejectUrl.replace(/^https?:\/\//, ''),
+
         email_subject: `[Pengajuan SPL Baru] ${spl.splNo} - Bagian: ${spl.area}`,
         clean_spl_no: spl.splNo
     };
@@ -1616,11 +1658,12 @@ function openEmailTemplateGuideModal() {
 <html>
 <head>
   <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
-    body { font-family: 'Segoe UI', Arial, sans-serif; background-color: #f1f5f9; margin: 0; padding: 20px; color: #1e293b; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f1f5f9; margin: 0; padding: 20px; color: #1e293b; }
     .card { max-width: 580px; margin: 0 auto; background: #ffffff; border-radius: 16px; border: 1px solid #e2e8f0; overflow: hidden; box-shadow: 0 4px 14px rgba(0,0,0,0.06); }
     .header { background: #18181b; color: #ffffff; padding: 24px; text-align: center; }
-    .header h2 { margin: 0; font-size: 20px; font-weight: 700; letter-spacing: -0.3px; }
+    .header h2 { margin: 0; font-size: 20px; font-weight: 700; letter-spacing: -0.3px; color: #ffffff; }
     .header p { margin: 6px 0 0; font-size: 13px; color: #94a3b8; }
     .content { padding: 24px; }
     .info-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 14px; }
@@ -1628,49 +1671,87 @@ function openEmailTemplateGuideModal() {
     .info-table td.lbl { width: 35%; color: #64748b; font-weight: 600; }
     .info-table td.val { color: #0f172a; font-weight: 700; }
     .box { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 12px 14px; margin-bottom: 20px; font-size: 13px; }
-    .btn-approve { display: block; width: 100%; box-sizing: border-box; background-color: #16a34a; color: #ffffff !important; text-decoration: none; padding: 14px 20px; border-radius: 10px; font-weight: 700; font-size: 14px; text-align: center; margin-bottom: 10px; }
-    .btn-reject { display: block; width: 100%; box-sizing: border-box; background-color: #dc2626; color: #ffffff !important; text-decoration: none; padding: 14px 20px; border-radius: 10px; font-weight: 700; font-size: 14px; text-align: center; }
     .footer { text-align: center; padding: 16px; background: #fafafa; border-top: 1px solid #f1f5f9; font-size: 12px; color: #94a3b8; }
   </style>
 </head>
-<body>
-  <div class="card">
-    <div class="header">
-      <h2>Pemberitahuan Surat Perintah Lembur (SPL)</h2>
-      <p>Digitalisasi & Alur Persetujuan Warehouse</p>
+<body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f1f5f9; margin: 0; padding: 20px; color: #1e293b;">
+  <div class="card" style="max-width: 580px; margin: 0 auto; background: #ffffff; border-radius: 16px; border: 1px solid #e2e8f0; overflow: hidden; box-shadow: 0 4px 14px rgba(0,0,0,0.06);">
+    <div class="header" style="background: #18181b; color: #ffffff; padding: 24px; text-align: center;">
+      <h2 style="margin: 0; font-size: 20px; font-weight: 700; letter-spacing: -0.3px; color: #ffffff;">Pemberitahuan Surat Perintah Lembur (SPL)</h2>
+      <p style="margin: 6px 0 0; font-size: 13px; color: #94a3b8;">Digitalisasi & Alur Persetujuan Warehouse</p>
     </div>
     
-    <div class="content">
+    <div class="content" style="padding: 24px;">
       <p style="font-size: 14px; margin-top: 0;">Halo Bapak/Ibu <strong>{{to_kabag_name}}</strong> / <strong>{{to_manager_name}}</strong>,</p>
       <p style="font-size: 14px; color: #475569;">Telah diajukan permohonan lembur baru yang memerlukan persetujuan Anda:</p>
       
-      <table class="info-table">
-        <tr><td class="lbl">No. SPL</td><td class="val">{{{clean_spl_no}}}</td></tr>
-        <tr><td class="lbl">Pembuat SPL</td><td class="val">{{creator_name}} (NIK: {{creator_nik}})</td></tr>
-        <tr><td class="lbl">Bagian & Lokasi</td><td class="val">{{wh_area}} - {{wh_location}}</td></tr>
-        <tr><td class="lbl">Tanggal Lembur</td><td class="val">{{overtime_date}}</td></tr>
-        <tr><td class="lbl">Waktu Lembur</td><td class="val">{{overtime_time}}</td></tr>
-        <tr><td class="lbl">Jml Karyawan</td><td class="val">{{employee_count}} Orang</td></tr>
+      <table class="info-table" style="width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 14px;">
+        <tr><td class="lbl" style="padding: 8px 10px; border-bottom: 1px solid #f1f5f9; width: 35%; color: #64748b; font-weight: 600;">No. SPL</td><td class="val" style="padding: 8px 10px; border-bottom: 1px solid #f1f5f9; color: #0f172a; font-weight: 700;">{{{clean_spl_no}}}</td></tr>
+        <tr><td class="lbl" style="padding: 8px 10px; border-bottom: 1px solid #f1f5f9; width: 35%; color: #64748b; font-weight: 600;">Pembuat SPL</td><td class="val" style="padding: 8px 10px; border-bottom: 1px solid #f1f5f9; color: #0f172a; font-weight: 700;">{{creator_name}} (NIK: {{creator_nik}})</td></tr>
+        <tr><td class="lbl" style="padding: 8px 10px; border-bottom: 1px solid #f1f5f9; width: 35%; color: #64748b; font-weight: 600;">Bagian & Lokasi</td><td class="val" style="padding: 8px 10px; border-bottom: 1px solid #f1f5f9; color: #0f172a; font-weight: 700;">{{wh_area}} - {{wh_location}}</td></tr>
+        <tr><td class="lbl" style="padding: 8px 10px; border-bottom: 1px solid #f1f5f9; width: 35%; color: #64748b; font-weight: 600;">Tanggal Lembur</td><td class="val" style="padding: 8px 10px; border-bottom: 1px solid #f1f5f9; color: #0f172a; font-weight: 700;">{{overtime_date}}</td></tr>
+        <tr><td class="lbl" style="padding: 8px 10px; border-bottom: 1px solid #f1f5f9; width: 35%; color: #64748b; font-weight: 600;">Waktu Lembur</td><td class="val" style="padding: 8px 10px; border-bottom: 1px solid #f1f5f9; color: #0f172a; font-weight: 700;">{{overtime_time}}</td></tr>
+        <tr><td class="lbl" style="padding: 8px 10px; border-bottom: 1px solid #f1f5f9; width: 35%; color: #64748b; font-weight: 600;">Jml Karyawan</td><td class="val" style="padding: 8px 10px; border-bottom: 1px solid #f1f5f9; color: #0f172a; font-weight: 700;">{{employee_count}} Orang</td></tr>
       </table>
 
-      <div class="box">
+      <div class="box" style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 12px 14px; margin-bottom: 20px; font-size: 13px;">
         <strong style="color: #334155;">Daftar Karyawan Ditugaskan:</strong>
         <pre style="margin: 6px 0 0; font-family: inherit; font-size: 13px; white-space: pre-wrap; color: #0f172a;">{{employee_list}}</pre>
       </div>
 
-      <div class="box">
+      <div class="box" style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 12px 14px; margin-bottom: 20px; font-size: 13px;">
         <strong style="color: #334155;">Alasan / Uraian Pekerjaan:</strong>
         <p style="margin: 6px 0 0; color: #0f172a;">{{reason}}</p>
       </div>
 
-      <div style="margin-top: 25px; text-align: center;">
-        <p style="font-weight: 700; font-size: 12px; color: #64748b; letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 12px;">ONE-CLICK APPROVAL</p>
-        <a href="{{{kabag_approve_url}}}" class="btn-approve">✓ APPROVE</a>
-        <a href="{{{kabag_reject_url}}}" class="btn-reject">✕ REJECT</a>
+      <!-- SATU-KLIK PERSETUJUAN (KOMPATIBEL 100% GMAIL WEB & MOBILE) -->
+      <div style="margin-top: 25px; padding-top: 16px; border-top: 1px solid #e2e8f0; text-align: center;">
+        <p style="font-weight: 700; font-size: 12px; color: #64748b; letter-spacing: 0.8px; text-transform: uppercase; margin: 0 0 16px 0;">PILIH KEPUTUSAN ANDA (SATU KLIK):</p>
+        
+        <!-- TOMBOL SETUJUI (APPROVE) -->
+        <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="margin-bottom: 12px;">
+          <tr>
+            <td align="center">
+              <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%">
+                <tr>
+                  <td align="center" bgcolor="#16a34a" style="border-radius: 10px; background-color: #16a34a;">
+                    <a href="{{{approve_url}}}" target="_blank" rel="noopener noreferrer" style="display: block; width: 100%; box-sizing: border-box; padding: 14px 20px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 15px; font-weight: bold; color: #ffffff !important; text-decoration: none; border-radius: 10px; text-align: center; border: 1px solid #16a34a; background-color: #16a34a;">
+                      &#10003; SETUJUI LEMBUR (APPROVE)
+                    </a>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+        </table>
+
+        <!-- TOMBOL TOLAK (REJECT) -->
+        <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="margin-bottom: 16px;">
+          <tr>
+            <td align="center">
+              <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%">
+                <tr>
+                  <td align="center" bgcolor="#dc2626" style="border-radius: 10px; background-color: #dc2626;">
+                    <a href="{{{reject_url}}}" target="_blank" rel="noopener noreferrer" style="display: block; width: 100%; box-sizing: border-box; padding: 14px 20px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 15px; font-weight: bold; color: #ffffff !important; text-decoration: none; border-radius: 10px; text-align: center; border: 1px solid #dc2626; background-color: #dc2626;">
+                      &#10005; TOLAK LEMBUR (REJECT)
+                    </a>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+        </table>
+
+        <!-- LINK ALTERNATIF LANGSUNG (ANTI GAGAL UNTUK SEMUA APLIKASI EMAIL) -->
+        <div style="background-color: #f8fafc; border: 1px dashed #cbd5e1; border-radius: 8px; padding: 12px; margin-top: 14px; text-align: left; font-size: 12px; line-height: 1.6; color: #475569;">
+          <div style="font-weight: bold; color: #334155; margin-bottom: 4px;">Link Alternatif (Jika tombol di atas tidak dapat diklik di Gmail):</div>
+          <div>&bull; <strong>Link Setujui:</strong> <a href="{{{approve_url}}}" target="_blank" rel="noopener noreferrer" style="color: #16a34a; font-weight: 600; word-break: break-all; text-decoration: underline;">{{{approve_url}}}</a></div>
+          <div style="margin-top: 4px;">&bull; <strong>Link Tolak:</strong> <a href="{{{reject_url}}}" target="_blank" rel="noopener noreferrer" style="color: #dc2626; font-weight: 600; word-break: break-all; text-decoration: underline;">{{{reject_url}}}</a></div>
+        </div>
       </div>
     </div>
 
-    <div class="footer">
+    <div class="footer" style="text-align: center; padding: 16px; background: #fafafa; border-top: 1px solid #f1f5f9; font-size: 12px; color: #94a3b8;">
       Pesan otomatis sistem Digital SPL Warehouse • PT Great Giant Foods
     </div>
   </div>
@@ -1768,10 +1849,8 @@ async function runDirectEmailTest() {
     statusBox.style.color = '#0369a1';
     statusBox.textContent = '⏳ Mengirim email pengujian...';
 
-    let baseUrl = window.location.origin + window.location.pathname.replace('dashboard.html', '');
-    if (window.location.protocol === 'file:') {
-        baseUrl = 'https://genadm.vercel.app/';
-    }
+    // Selalu gunakan baseUrl publik HTTPS (Vercel) agar bisa diklik di Gmail
+    const baseUrl = getPublicBaseUrl();
     const sampleApproveUrl = `${baseUrl}approve.html?id=SPL-TEST-EMAIL&spl_no=SPL%2FWH%2F2026%2F04%2FTEST&approver=Test%20Approver&role=kabag&action=approve`;
     const sampleRejectUrl = `${baseUrl}approve.html?id=SPL-TEST-EMAIL&spl_no=SPL%2FWH%2F2026%2F04%2FTEST&approver=Test%20Approver&role=kabag&action=reject`;
 
@@ -1795,8 +1874,21 @@ async function runDirectEmailTest() {
                 employee_count: 2,
                 employee_list: '1. Sakri (7339)\n2. Fedriyan Hertanto (10041846)',
                 reason: 'Pengujian koneksi email otomatis Surat Perintah Lembur',
+                app_url: 'https://genadm.vercel.app/dashboard.html',
+                approve_url: sampleApproveUrl,
+                reject_url: sampleRejectUrl,
+                setujui_url: sampleApproveUrl,
+                tolak_url: sampleRejectUrl,
+                link_setujui: sampleApproveUrl,
+                link_tolak: sampleRejectUrl,
+                url_setujui: sampleApproveUrl,
+                url_tolak: sampleRejectUrl,
                 kabag_approve_url: sampleApproveUrl,
                 kabag_reject_url: sampleRejectUrl,
+                manager_approve_url: sampleApproveUrl,
+                manager_reject_url: sampleRejectUrl,
+                approve_url_raw: sampleApproveUrl.replace(/^https?:\/\//, ''),
+                reject_url_raw: sampleRejectUrl.replace(/^https?:\/\//, ''),
                 email_subject: '[Pengajuan SPL Baru] SPL/WH/2026/04/TEST - Bagian: Packaging',
                 clean_spl_no: 'SPL/WH/2026/04/TEST'
             });
