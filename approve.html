@@ -183,7 +183,23 @@
     <script>
         const supabaseUrl = 'https://bavacuaqbbwnqbrcldsj.supabase.co';
         const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJhdmFjdWFxYmJ3bnFicmNsZHNqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA4ODc2MjMsImV4cCI6MjEwNjQ2MzYyM30.2KTBo_y89dexhQUq70VECQvl03iho2_Bx06qDu3IETc';
-        const supabase = window.supabase ? window.supabase.createClient(supabaseUrl, supabaseKey) : null;
+        let supabaseConfigError = '';
+        const supabaseClient = (() => {
+            if (!window.supabase) {
+                supabaseConfigError = 'Library Supabase gagal dimuat. Periksa koneksi internet lalu muat ulang halaman.';
+                return null;
+            }
+            if (!supabaseKey || /^\*+$/.test(supabaseKey)) {
+                supabaseConfigError = 'Supabase anon/publishable key belum dikonfigurasi. Hubungi administrator aplikasi.';
+                return null;
+            }
+            try {
+                return window.supabase.createClient(supabaseUrl, supabaseKey);
+            } catch (error) {
+                supabaseConfigError = `Koneksi Supabase gagal disiapkan: ${error.message || error}`;
+                return null;
+            }
+        })();
 
         // Helper untuk ekstrak query parameter secara kebal terhadap &amp; dari EmailJS
         function getQueryParam(key) {
@@ -201,7 +217,7 @@
         const splId = getQueryParam('id') || '';
         const paramSplNo = getQueryParam('spl_no') || '';
         const paramApprover = getQueryParam('approver') || '';
-        const role = (getQueryParam('role') || (rawFullUrl.includes('role=manager') ? 'manager' : 'kabag')).trim().toLowerCase();
+        const role = (getQueryParam('role') || 'kabag').trim().toLowerCase();
         const actionParam = (getQueryParam('action') || '').trim().toLowerCase();
 
         // Deteksi secara mutlak jika aksi adalah tolak / reject
@@ -220,8 +236,8 @@
                 document.getElementById('disp-time').textContent = new Date().toLocaleString('id-ID');
             };
 
-            if (!supabase) {
-                setError('Koneksi Supabase tidak tersedia. Keputusan belum disimpan.');
+            if (!supabaseClient) {
+                setError(supabaseConfigError || 'Koneksi Supabase tidak tersedia. Keputusan belum disimpan.');
                 return;
             }
             if (!splId) {
@@ -237,7 +253,7 @@
             desc.textContent = 'Memeriksa data SPL dan menyimpan keputusan ke Supabase.';
 
             try {
-                const { data: row, error: readError } = await supabase
+                const { data: row, error: readError } = await supabaseClient
                     .from('digital_spl')
                     .select('id, spl_no, kabag, manager, final_status, data')
                     .eq('id', splId)
@@ -270,7 +286,7 @@
                 targetSpl.id = row.id;
                 targetSpl.splNo = row.spl_no || targetSpl.splNo || paramSplNo;
                 targetSpl.finalStatus = finalStatus;
-                const { data: updatedRow, error: updateError } = await supabase
+                const { data: updatedRow, error: updateError } = await supabaseClient
                     .from('digital_spl')
                     .update({
                         kabag: targetSpl.kabag || kabag,
