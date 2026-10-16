@@ -1192,6 +1192,8 @@ async function renderSplHistoryList(filterStatus = 'all') {
         const statusColor = isApproved ? '#15803d' : (isRejected ? '#dc2626' : '#b45309');
 
         const empNames = item.employees.map(e => e.name).join(', ');
+        const creatorDisplayName = (item.kasie && item.kasie.name && item.kasie.name !== '-') ? item.kasie.name : (item.employees[0] ? item.employees[0].name : '-');
+        const hasOtherEmployees = item.employees && item.employees.length > 0 && !(item.employees.length === 1 && item.employees[0].name === creatorDisplayName);
 
         card.innerHTML = `
             <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px;">
@@ -1205,7 +1207,8 @@ async function renderSplHistoryList(filterStatus = 'all') {
             </div>
 
             <div style="font-size: 0.88rem; color: #334155; margin-bottom: 12px; background: #f8fafc; padding: 12px 14px; border-radius: 12px; border: 1.5px solid #cbd5e1; line-height: 1.5;">
-                <div><strong>Karyawan (${item.employees.length}):</strong> ${empNames}</div>
+                <div><strong>Pembuat :</strong> ${creatorDisplayName}</div>
+                ${hasOtherEmployees ? `<div style="margin-top: 4px;"><strong>Karyawan (${item.employees.length}):</strong> ${empNames}</div>` : ''}
                 <div style="margin-top: 4px;"><strong>Waktu:</strong> ${item.startTime} - ${item.endTime} (${item.duration} Jam)</div>
                 <div style="margin-top: 4px; color: #64748b; font-style: italic;">"${item.reason}"</div>
             </div>
