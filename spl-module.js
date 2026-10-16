@@ -1201,9 +1201,6 @@ async function renderSplHistoryList(filterStatus = 'all') {
                     <span style="font-weight: 700; font-size: 1.05rem; color: #0f172a;">${item.splNo}</span>
                     <div style="font-size: 0.82rem; color: #64748b; margin-top: 2px;">${item.area} • ${item.location} • ${item.date}</div>
                 </div>
-                <span style="background: ${statusBg}; color: ${statusColor}; font-size: 0.8rem; font-weight: 700; padding: 4px 12px; border-radius: 99px;">
-                    ${item.finalStatus}
-                </span>
             </div>
 
             <div style="font-size: 0.88rem; color: #334155; margin-bottom: 12px; background: #f8fafc; padding: 12px 14px; border-radius: 12px; border: 1.5px solid #cbd5e1; line-height: 1.6;">
@@ -1827,7 +1824,7 @@ function openEmailTemplateGuideModal() {
   <div class="card" style="max-width: 580px; margin: 0 auto; background: #ffffff; border-radius: 16px; border: 1px solid #e2e8f0; overflow: hidden; box-shadow: 0 4px 14px rgba(0,0,0,0.06);">
     <div class="header" style="background: #18181b; color: #ffffff; padding: 24px; text-align: center;">
       <h2 style="margin: 0; font-size: 20px; font-weight: 700; letter-spacing: -0.3px; color: #ffffff;">Pemberitahuan Surat Perintah Lembur (SPL)</h2>
-      <p style="margin: 6px 0 0; font-size: 13px; color: #94a3b8;">Digitalisasi & Alur Persetujuan Warehouse</p>
+      <p style="margin: 6px 0 0; font-size: 13px; color: #94a3b8;">Warehouse & Transport Departemen</p>
     </div>
     
     <div class="content" style="padding: 24px;">
