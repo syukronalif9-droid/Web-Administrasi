@@ -1333,22 +1333,22 @@ async function renderSplHistoryList(filterStatus = 'all') {
             })()}
 
             <!-- Action Buttons -->
-            <div style="display: flex; gap: 10px; justify-content: flex-end; align-items: center; margin-top: 10px; border-top: 1px solid #f1f5f9; padding-top: 10px;">
+            <div style="display: flex; gap: 10px; justify-content: flex-end; align-items: center; margin-top: 10px; border-top: 1px solid #f1f5f9; padding-top: 10px; position: relative; z-index: 10; pointer-events: auto;">
                 ${item.finalStatus.includes('Menunggu') ? `
-                    <button onclick="simulateApproveSpl('${item.id}')" style="background: #16a34a; color: #ffffff; border: none; padding: 8px 14px; border-radius: 10px; font-size: 0.82rem; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;">
+                    <button type="button" onclick="simulateApproveSpl('${item.id}')" style="background: #16a34a; color: #ffffff; border: none; padding: 8px 14px; border-radius: 10px; font-size: 0.82rem; font-weight: 600; cursor: pointer !important; display: inline-flex; align-items: center; gap: 4px; pointer-events: auto !important; position: relative; z-index: 20;">
                         <span>✓ Setujui</span>
                     </button>
-                    <button onclick="simulateRejectSpl('${item.id}')" style="background: #ef4444; color: #ffffff; border: none; padding: 8px 14px; border-radius: 10px; font-size: 0.82rem; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;">
+                    <button type="button" onclick="simulateRejectSpl('${item.id}')" style="background: #ef4444; color: #ffffff; border: none; padding: 8px 14px; border-radius: 10px; font-size: 0.82rem; font-weight: 600; cursor: pointer !important; display: inline-flex; align-items: center; gap: 4px; pointer-events: auto !important; position: relative; z-index: 20;">
                         <span>✕ Tolak</span>
                     </button>
                 ` : ''}
 
-                <button onclick="printSplDocument('${item.id}')" style="background: #f1f5f9; color: #0f172a; border: 1px solid #e2e8f0; padding: 8px 16px; border-radius: 10px; font-size: 0.82rem; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
+                <button type="button" onclick="printSplDocument('${item.id}')" style="background: #f1f5f9; color: #0f172a; border: 1px solid #cbd5e1; padding: 8px 16px; border-radius: 10px; font-size: 0.82rem; font-weight: 600; cursor: pointer !important; display: inline-flex; align-items: center; gap: 6px; pointer-events: auto !important; position: relative; z-index: 20;">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9V2h12v7"></path><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
                     <span>Cetak SPL</span>
                 </button>
 
-                <button onclick="deleteSpl('${item.id}')" title="Hapus SPL" style="background: transparent; color: #ef4444; border: none; padding: 8px 10px; border-radius: 8px; font-size: 0.85rem; cursor: pointer;">
+                <button type="button" onclick="deleteSpl('${item.id}')" title="Hapus SPL" style="background: transparent; color: #ef4444; border: none; padding: 8px 10px; border-radius: 8px; font-size: 0.85rem; cursor: pointer !important; pointer-events: auto !important; position: relative; z-index: 20;">
                     ✕
                 </button>
             </div>
@@ -1452,17 +1452,10 @@ function deleteSpl(id) {
     renderSplHistoryList();
 }
 
-// Print / View Official SPL Document Format
 function printSplDocument(id) {
     const list = getStoredSplList();
     const item = list.find(s => s.id === id);
     if (!item) return;
-
-    const printWindow = window.open('', '_blank', 'width=850,height=900');
-    if (!printWindow) {
-        alert('Izinkan popup browser untuk mencetak SPL!');
-        return;
-    }
 
     const employeeRows = item.employees.map((e, idx) => `
         <tr>
@@ -1664,8 +1657,40 @@ function printSplDocument(id) {
         </html>
     `;
 
-    printWindow.document.write(htmlContent);
-    printWindow.document.close();
+    try {
+        let printWindow = window.open('', '_blank');
+        if (printWindow && !printWindow.closed) {
+            printWindow.document.open();
+            printWindow.document.write(htmlContent);
+            printWindow.document.close();
+            return;
+        }
+    } catch(err) {
+        console.warn('Popup window blocked, using hidden iframe fallback:', err);
+    }
+
+    // Fallback: cetak langsung via hidden iframe jika popup diblokir browser
+    let iframe = document.getElementById('spl-hidden-print-iframe');
+    if (!iframe) {
+        iframe = document.createElement('iframe');
+        iframe.id = 'spl-hidden-print-iframe';
+        iframe.style.position = 'fixed';
+        iframe.style.right = '0';
+        iframe.style.bottom = '0';
+        iframe.style.width = '0';
+        iframe.style.height = '0';
+        iframe.style.border = '0';
+        iframe.style.opacity = '0';
+        document.body.appendChild(iframe);
+    }
+    const doc = iframe.contentWindow.document;
+    doc.open();
+    doc.write(htmlContent);
+    doc.close();
+    setTimeout(() => {
+        iframe.contentWindow.focus();
+        iframe.contentWindow.print();
+    }, 250);
 }
 
 // ========================================================
