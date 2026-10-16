@@ -1529,9 +1529,23 @@ function printSplDocument(id) {
         <!DOCTYPE html>
         <html>
         <head>
-            <title>Cetak ${item.splNo}</title>
+            <title></title>
             <style>
-                body { font-family: Arial, sans-serif; margin: 30px; color: #111; line-height: 1.4; font-size: 13px; }
+                @page {
+                    size: A4 portrait;
+                    margin: 0; /* Hapus otomatis header browser (tanggal & judul) dan footer (URL & halaman) */
+                }
+                body { 
+                    font-family: Arial, sans-serif; 
+                    margin: 0; 
+                    padding: 16mm 18mm 14mm 18mm; 
+                    box-sizing: border-box; 
+                    color: #111; 
+                    line-height: 1.4; 
+                    font-size: 13px;
+                    -webkit-print-color-adjust: exact;
+                    print-color-adjust: exact;
+                }
                 .header-table { width: 100%; border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 16px; }
                 .title { text-align: center; font-size: 18px; font-weight: bold; text-decoration: underline; margin-bottom: 4px; }
                 .subtitle { text-align: center; font-size: 13px; margin-bottom: 20px; font-weight: 500; }
@@ -1543,7 +1557,8 @@ function printSplDocument(id) {
                 .sign-table td { width: 33.3%; padding: 6px; vertical-align: top; }
                 .stamp { color: #16a34a; font-weight: bold; border: 2px solid #16a34a; display: inline-block; padding: 3px 8px; border-radius: 4px; font-size: 11px; transform: rotate(-5deg); margin: 6px 0; }
                 @media print {
-                    button { display: none; }
+                    button { display: none !important; }
+                    body { padding: 16mm 18mm 14mm 18mm; }
                 }
             </style>
         </head>
