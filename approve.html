@@ -168,16 +168,21 @@
             </div>
 
             <!-- Keputusan email hanya diproses setelah approver menekan salah satu tombol ini. -->
-            <div style="margin-bottom: 14px;">
-                <div style="font-size: 0.78rem; color: #64748b; margin-bottom: 8px; font-weight: 600;">Konfirmasi keputusan Anda secara manual:</div>
+            <div id="action-button-container" style="margin-bottom: 14px;">
+                <div id="action-prompt-text" style="font-size: 0.78rem; color: #64748b; margin-bottom: 8px; font-weight: 600;">Konfirmasi keputusan Anda secara manual:</div>
                 <div style="display: flex; gap: 8px;">
-                    <button type="button" id="btn-do-approve" onclick="executeDecision(true)" style="flex: 1; background: #16a34a; color: white; border: none; padding: 10px 12px; border-radius: 10px; font-weight: 700; font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px;">
+                    <button type="button" id="btn-do-approve" onclick="executeDecision(true)" style="flex: 1; background: #16a34a; color: white; border: none; padding: 10px 12px; border-radius: 10px; font-weight: 700; font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; transition: all 0.2s;">
                         <span>✓ Setujui</span>
                     </button>
-                    <button type="button" id="btn-do-reject" onclick="executeDecision(false)" style="flex: 1; background: #dc2626; color: white; border: none; padding: 10px 12px; border-radius: 10px; font-weight: 700; font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px;">
+                    <button type="button" id="btn-do-reject" onclick="executeDecision(false)" style="flex: 1; background: #dc2626; color: white; border: none; padding: 10px 12px; border-radius: 10px; font-weight: 700; font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; transition: all 0.2s;">
                         <span>✕ Tolak (Reject)</span>
                     </button>
                 </div>
+            </div>
+
+            <!-- Pesan jika tombol sudah dinonaktifkan / terkunci -->
+            <div id="lock-notice-box" style="display: none; background: #f8fafc; border: 1.5px solid #cbd5e1; border-radius: 12px; padding: 14px; margin-bottom: 16px; font-size: 0.82rem; color: #334155; line-height: 1.5; text-align: center;">
+                🔒 <strong>Tombol Dinonaktifkan:</strong> Dokumen ini telah selesai diproses dan keputusan tersimpan permanen. Tombol tidak dapat diklik lagi.
             </div>
 
             <a href="dashboard.html" class="btn-action">Buka Dashboard Monitoring</a>
@@ -227,10 +232,46 @@
         // Deteksi secara mutlak jika aksi adalah tolak / reject
         const isInitialReject = ['reject', 'tolak', 'rejected'].includes(actionParam);
 
+        let isDecisionExecuting = false;
+
+        function permanentlyLockButtons(message) {
+            const btnContainer = document.getElementById('action-button-container');
+            const lockBox = document.getElementById('lock-notice-box');
+            if (btnContainer) btnContainer.style.display = 'none';
+            if (lockBox) {
+                lockBox.style.display = 'block';
+                if (message) {
+                    lockBox.innerHTML = `🔒 <strong>Keputusan Terkunci:</strong> ${message}`;
+                }
+            }
+        }
+
         async function executeDecision(isApproved) {
+            if (isDecisionExecuting) return;
+            isDecisionExecuting = true;
+
             const icon = document.getElementById('result-icon');
             const title = document.getElementById('result-title');
             const desc = document.getElementById('result-desc');
+            const approveButton = document.getElementById('btn-do-approve');
+            const rejectButton = document.getElementById('btn-do-reject');
+
+            // Kunci tombol seketika saat diklik pertama kali (disable + visual cue)
+            if (approveButton) {
+                approveButton.disabled = true;
+                approveButton.style.opacity = '0.5';
+                approveButton.style.cursor = 'not-allowed';
+                approveButton.style.pointerEvents = 'none';
+                if (isApproved) approveButton.innerHTML = '<span>⏳ Menyimpan...</span>';
+            }
+            if (rejectButton) {
+                rejectButton.disabled = true;
+                rejectButton.style.opacity = '0.5';
+                rejectButton.style.cursor = 'not-allowed';
+                rejectButton.style.pointerEvents = 'none';
+                if (!isApproved) rejectButton.innerHTML = '<span>⏳ Menyimpan...</span>';
+            }
+
             const setError = message => {
                 icon.className = 'status-icon icon-danger';
                 icon.textContent = '!';
@@ -242,19 +283,19 @@
 
             if (!supabaseClient) {
                 setError(supabaseConfigError || 'Koneksi Supabase tidak tersedia. Keputusan belum disimpan.');
+                isDecisionExecuting = false;
+                if (approveButton) { approveButton.disabled = false; approveButton.style.opacity = '1'; approveButton.style.pointerEvents = 'auto'; approveButton.innerHTML = '<span>✓ Setujui</span>'; }
+                if (rejectButton) { rejectButton.disabled = false; rejectButton.style.opacity = '1'; rejectButton.style.pointerEvents = 'auto'; rejectButton.innerHTML = '<span>✕ Tolak (Reject)</span>'; }
                 return;
             }
             if (!splId) {
                 setError('Tautan approval tidak memuat ID SPL yang valid.');
+                permanentlyLockButtons('Tautan approval tidak memiliki ID yang valid.');
                 return;
             }
 
-            const approveButton = document.getElementById('btn-do-approve');
-            const rejectButton = document.getElementById('btn-do-reject');
-            approveButton.disabled = true;
-            rejectButton.disabled = true;
             title.textContent = 'Memproses Keputusan...';
-            desc.textContent = 'Memeriksa data SPL dan menyimpan keputusan ke Supabase.';
+            desc.textContent = 'Menyimpan keputusan ke database dan menonaktifkan tombol...';
 
             try {
                 const { data: row, error: readError } = await supabaseClient
@@ -273,13 +314,13 @@
 
                 if (role === 'kabag') {
                     if (currentStatus !== 'Menunggu Kabag' || (kabag.status && kabag.status !== 'pending')) {
-                        throw new Error(`Pengajuan tidak sedang menunggu persetujuan Kabag (status: ${currentStatus || 'tidak diketahui'}).`);
+                        throw new Error(`Pengajuan ini sudah pernah diproses sebelumnya (Status saat ini: ${currentStatus || 'Selesai'}).`);
                     }
                     targetSpl.kabag = { ...kabag, status: isApproved ? 'approved' : 'rejected', date: new Date().toLocaleString('id-ID') };
                     finalStatus = isApproved ? 'Menunggu Manager' : 'Ditolak Kabag';
                 } else if (role === 'manager') {
                     if (currentStatus !== 'Menunggu Manager' || kabag.status !== 'approved' || (manager.status && manager.status !== 'pending')) {
-                        throw new Error(`Pengajuan belum disetujui Kabag atau tidak sedang menunggu Manager (status: ${currentStatus || 'tidak diketahui'}).`);
+                        throw new Error(`Pengajuan ini sudah pernah diproses sebelumnya (Status saat ini: ${currentStatus || 'Selesai'}).`);
                     }
                     targetSpl.manager = { ...manager, status: isApproved ? 'approved' : 'rejected', date: new Date().toLocaleString('id-ID') };
                     finalStatus = isApproved ? 'Disetujui' : 'Ditolak Manager';
@@ -303,24 +344,97 @@
                     .eq('final_status', currentStatus)
                     .select('id')
                     .maybeSingle();
-                if (updateError) throw new Error(`Gagal menyimpan keputusan ke Supabase: ${updateError.message}`);
-                if (!updatedRow) throw new Error('Status SPL berubah saat keputusan diproses. Muat ulang halaman untuk melihat status terbaru.');
+                if (updateError) throw new Error(`Gagal menyimpan keputusan ke database: ${updateError.message}`);
+                if (!updatedRow) throw new Error('Status SPL telah diperbarui oleh pengguna lain. Tombol dinonaktifkan.');
 
                 const approverName = paramApprover || (role === 'manager' ? 'Manager' : 'Kabag');
                 const nowStr = new Date().toLocaleString('id-ID');
                 icon.className = isApproved ? 'status-icon icon-success' : 'status-icon icon-danger';
                 icon.textContent = isApproved ? '✓' : '✕';
                 title.textContent = isApproved ? 'Surat Perintah Lembur Disetujui!' : 'Surat Perintah Lembur Ditolak';
-                desc.textContent = `Keputusan berhasil disimpan di Supabase oleh ${approverName} (${role.toUpperCase()}).`;
+                desc.textContent = `Keputusan berhasil disimpan oleh ${approverName} (${role.toUpperCase()}). Tombol telah dinonaktifkan permanen.`;
                 document.getElementById('disp-spl-no').textContent = targetSpl.splNo;
                 document.getElementById('disp-approver-name').textContent = approverName;
                 document.getElementById('disp-status').textContent = finalStatus;
                 document.getElementById('disp-time').textContent = nowStr;
+
+                // Kunci tombol secara permanen
+                permanentlyLockButtons(`Dokumen SPL telah berhasil ${isApproved ? 'disetujui' : 'ditolak'} oleh Anda. Tombol tidak dapat diklik lagi.`);
             } catch (error) {
                 console.error('Approval processing failed:', error);
-                setError(error.message || 'Terjadi kesalahan saat menyimpan keputusan.');
-                approveButton.disabled = false;
-                rejectButton.disabled = false;
+                const errMsg = error.message || 'Terjadi kesalahan saat memproses.';
+                setError(errMsg);
+
+                // Jika error disebabkan dokumen sudah diproses sebelumnya, langsung kunci tombol permanen
+                if (errMsg.includes('sudah pernah diproses') || errMsg.includes('diperbarui oleh pengguna lain') || errMsg.includes('tidak sedang menunggu')) {
+                    permanentlyLockButtons(errMsg);
+                } else {
+                    // Hanya pulihkan tombol jika error adalah masalah jaringan sementara
+                    isDecisionExecuting = false;
+                    if (approveButton) { approveButton.disabled = false; approveButton.style.opacity = '1'; approveButton.style.pointerEvents = 'auto'; approveButton.innerHTML = '<span>✓ Setujui</span>'; }
+                    if (rejectButton) { rejectButton.disabled = false; rejectButton.style.opacity = '1'; rejectButton.style.pointerEvents = 'auto'; rejectButton.innerHTML = '<span>✕ Tolak (Reject)</span>'; }
+                }
+            }
+        }
+
+        // Cek status saat halaman pertama kali dibuka: jika sudah pernah diapprove/reject, langsung matikan tombol!
+        async function checkInitialSplStatus() {
+            if (!supabaseClient || !splId) return;
+            try {
+                const { data: row, error } = await supabaseClient
+                    .from('digital_spl')
+                    .select('id, spl_no, kabag, manager, final_status, data')
+                    .eq('id', splId)
+                    .maybeSingle();
+
+                if (error || !row) return;
+
+                const targetSpl = row.data && typeof row.data === 'object' ? row.data : {};
+                const currentStatus = row.final_status || targetSpl.finalStatus || '';
+                const kabag = row.kabag || targetSpl.kabag || {};
+                const manager = row.manager || targetSpl.manager || {};
+                const dispNo = row.spl_no || targetSpl.splNo || paramSplNo;
+
+                document.getElementById('disp-spl-no').textContent = dispNo;
+                document.getElementById('disp-status').textContent = currentStatus || '-';
+
+                let alreadyCompleted = false;
+                let completedAction = '';
+                let completedTime = '';
+                let actorName = '';
+
+                if (role === 'kabag') {
+                    if (kabag.status === 'approved' || kabag.status === 'rejected' || (currentStatus && currentStatus !== 'Menunggu Kabag')) {
+                        alreadyCompleted = true;
+                        completedAction = (kabag.status === 'approved' || currentStatus.includes('Manager') || currentStatus === 'Disetujui') ? 'approved' : 'rejected';
+                        completedTime = kabag.date || '-';
+                        actorName = kabag.name || paramApprover || 'Kabag';
+                    }
+                } else if (role === 'manager') {
+                    if (manager.status === 'approved' || manager.status === 'rejected' || currentStatus === 'Disetujui' || currentStatus.includes('Ditolak')) {
+                        alreadyCompleted = true;
+                        completedAction = (manager.status === 'approved' || currentStatus === 'Disetujui') ? 'approved' : 'rejected';
+                        completedTime = manager.date || '-';
+                        actorName = manager.name || paramApprover || 'Manager';
+                    }
+                }
+
+                if (alreadyCompleted) {
+                    const icon = document.getElementById('result-icon');
+                    const title = document.getElementById('result-title');
+                    const desc = document.getElementById('result-desc');
+
+                    const isApp = (completedAction === 'approved');
+                    icon.className = isApp ? 'status-icon icon-success' : 'status-icon icon-danger';
+                    icon.textContent = isApp ? '✓' : '✕';
+                    title.textContent = isApp ? 'Dokumen SPL Sudah Disetujui' : 'Dokumen SPL Sudah Ditolak';
+                    desc.textContent = `Persetujuan untuk dokumen ${dispNo} telah selesai diproses oleh ${actorName}.`;
+                    document.getElementById('disp-time').textContent = completedTime;
+
+                    permanentlyLockButtons(`Dokumen SPL telah selesai diproses (${currentStatus}). Tombol persetujuan telah dinonaktifkan secara permanen.`);
+                }
+            } catch (err) {
+                console.warn('Initial SPL check warning:', err);
             }
         }
 
@@ -334,6 +448,9 @@
         document.getElementById('result-desc').textContent = isInitialReject
             ? 'Tautan ini meminta penolakan. Keputusan belum disimpan; tekan Tolak untuk mengonfirmasi.'
             : 'Tautan ini meminta persetujuan. Keputusan belum disimpan; tekan Setujui untuk mengonfirmasi.';
+
+        // Jalankan pengecekan otomatis saat halaman pertama kali dimuat
+        checkInitialSplStatus();
     </script>
 </body>
 </html>
