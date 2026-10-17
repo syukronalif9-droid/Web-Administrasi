@@ -25,6 +25,45 @@ function toggleMasterReportSidebar() {
     }
 }
 
+function toggleMasterReportView() {
+    const masterView = document.getElementById('master-report-view');
+    if (!masterView) return;
+
+    const isActive = masterView.classList.contains('active');
+
+    // Hide all view sections
+    document.querySelectorAll('.view-section').forEach(s => s.classList.remove('active'));
+    // Deselect all nav items
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+
+    if (isActive) {
+        // If already showing, go back to dashboard
+        const dashView = document.getElementById('dashboard-view');
+        const dashNav = document.querySelector('.nav-item[data-target="dashboard"]');
+        if (dashView) dashView.classList.add('active');
+        if (dashNav) dashNav.classList.add('active');
+    } else {
+        // Show master-report-view
+        masterView.classList.add('active');
+        // Hide topbar buttons that don't apply
+        const uploadBtn = document.getElementById('btn-upload');
+        if (uploadBtn) uploadBtn.style.display = 'none';
+        const exportBtn = document.getElementById('btn-print');
+        if (exportBtn) exportBtn.style.display = 'none';
+        const btnExportCen5 = document.getElementById('btn-export-cen5');
+        const btnExportCen2 = document.getElementById('btn-export-cen2');
+        if (btnExportCen5) btnExportCen5.style.display = 'none';
+        if (btnExportCen2) btnExportCen2.style.display = 'none';
+        const resetBtn = document.getElementById('btn-reset-summary');
+        if (resetBtn) resetBtn.style.display = 'none';
+
+        // Render data for both slides
+        renderMasterEmployeeSlide();
+        renderSplReportSlide();
+        populateMasterEmployeeFilters();
+    }
+}
+
 function openMasterReportSidebar() {
     const sidebar = document.getElementById('master-report-sidebar');
     const overlay = document.getElementById('master-report-overlay');
