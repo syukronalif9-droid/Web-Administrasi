@@ -213,36 +213,22 @@ function getStoredSplList() {
                 }
             });
 
-            // Sinkronkan urutan penomoran per bulan agar selalu rapi & berurutan (001, 002, 003...)
-            // Setiap ganti bulan, urutan nomor otomatis terpisah dan mulai kembali dari 1
-            const groupsByMonth = {};
+            // Sinkronisasi permanen: Pastikan nomor dokumen SPL di dashboard selalu 100% SAMA dengan yang tertera di email pemberitahuan
             parsed.forEach(item => {
-                if (item && item.date && typeof item.date === 'string') {
-                    const ym = item.date.substring(0, 7); // Format: 'YYYY-MM'
-                    if (ym.length === 7) {
-                        if (!groupsByMonth[ym]) groupsByMonth[ym] = [];
-                        groupsByMonth[ym].push(item);
-                    }
-                }
-            });
-
-            Object.keys(groupsByMonth).forEach(ym => {
-                const [y, m] = ym.split('-');
-                const prefix = `SPL/WH/${y}/${m}/`;
-                const items = groupsByMonth[ym];
-                // Urutkan dokumen berdasarkan waktu pembuatan
-                items.sort((a, b) => {
-                    const timeA = a.id ? (parseInt(String(a.id).replace(/\D/g, ''), 10) || 0) : 0;
-                    const timeB = b.id ? (parseInt(String(b.id).replace(/\D/g, ''), 10) || 0) : 0;
-                    return timeA - timeB;
-                });
-                items.forEach((item, idx) => {
-                    const expectedNo = `${prefix}${String(idx + 1).padStart(3, '0')}`;
-                    if (item.splNo !== expectedNo) {
-                        item.splNo = expectedNo;
+                if (item && item.emailNotification && item.emailNotification.subject) {
+                    const match = item.emailNotification.subject.match(/SPL\/WH\/\d{4}\/\d{2}\/\d{3}/);
+                    if (match && match[0] && item.splNo !== match[0]) {
+                        item.splNo = match[0];
                         modified = true;
                     }
-                });
+                }
+                // Pemulihan khusus untuk kasus nomor 017 yang aslinya terkirim ke email 016
+                if (item && (item.splNo === 'SPL/WH/2026/10/017' || item.reason === 'asqd')) {
+                    if (item.splNo === 'SPL/WH/2026/10/017') {
+                        item.splNo = 'SPL/WH/2026/10/016';
+                        modified = true;
+                    }
+                }
             });
 
             if (modified) {
@@ -981,17 +967,24 @@ function generateNextSplNumber() {
 
     const nextSeq = maxSeq + 1;
     const padded = String(nextSeq).padStart(3, '0');
+    const resultNo = `${prefix}${padded}`;
     const noField = document.getElementById('spl-doc-no');
     if (noField) {
-        noField.value = `${prefix}${padded}`;
+        noField.value = resultNo;
     }
+    return resultNo;
 }
 
 // Submit Form Action
 async function handleSplSubmit(e) {
     if (e) e.preventDefault();
 
-    const splNo = document.getElementById('spl-doc-no').value;
+    // Pastikan nomor urut mutakhir dan tidak bentrok
+    let splNo = document.getElementById('spl-doc-no')?.value?.trim();
+    const existingList = getStoredSplList();
+    if (!splNo || existingList.some(item => item && item.splNo === splNo)) {
+        splNo = generateNextSplNumber();
+    }
     const date = document.getElementById('spl-date').value;
     const startTime = document.getElementById('spl-start-time').value;
     const endTime = document.getElementById('spl-end-time').value;
