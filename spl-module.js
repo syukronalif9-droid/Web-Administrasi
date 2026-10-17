@@ -673,6 +673,15 @@ function onSplLocationChange() {
 // ========================================================
 // Tabel Pemetaan Email Asli Para Approver (Bisa diisi akun Gmail / email nyata mereka)
 // Key: NIK / Pers.No dari masing-masing Kabag & Manager
+// Auto-migrasi email lama di browser user jika masih tersimpan 93setiawan@gmail.com
+try {
+    const _storedApprovers = JSON.parse(localStorage.getItem('SPL_CUSTOM_APPROVER_EMAILS') || '{}');
+    if (_storedApprovers['3152137'] === '93setiawan@gmail.com') {
+        _storedApprovers['3152137'] = 'syukronalif9@gmail.com';
+        localStorage.setItem('SPL_CUSTOM_APPROVER_EMAILS', JSON.stringify(_storedApprovers));
+    }
+} catch (e) {}
+
 const DEFAULT_APPROVER_REAL_EMAILS = {
     '5078': '',                      // Wawan Kurniawan (Manager Warehouse)
     '10039299': '',                  // Andriyanto (Kabag Traffic)
@@ -1790,9 +1799,15 @@ function openSplEmailConfigModal() {
     // Populate existing custom approver emails with fallback to defaults
     try {
         const customMap = JSON.parse(localStorage.getItem('SPL_CUSTOM_APPROVER_EMAILS') || '{}');
+        if (customMap['3152137'] === '93setiawan@gmail.com') {
+            customMap['3152137'] = 'syukronalif9@gmail.com';
+            localStorage.setItem('SPL_CUSTOM_APPROVER_EMAILS', JSON.stringify(customMap));
+        }
         document.querySelectorAll('.custom-approver-input').forEach(input => {
             const pNo = input.dataset.persno;
-            if (customMap[pNo]) {
+            if (pNo === '3152137' && (!customMap[pNo] || customMap[pNo] === '93setiawan@gmail.com')) {
+                input.value = 'syukronalif9@gmail.com';
+            } else if (customMap[pNo]) {
                 input.value = customMap[pNo];
             } else if (DEFAULT_APPROVER_REAL_EMAILS[pNo]) {
                 input.value = DEFAULT_APPROVER_REAL_EMAILS[pNo];
