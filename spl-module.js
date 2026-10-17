@@ -672,7 +672,7 @@ function onSplLocationChange() {
 const DEFAULT_APPROVER_REAL_EMAILS = {
     '5078': '',                      // Wawan Kurniawan (Manager Warehouse)
     '10039299': '',                  // Andriyanto (Kabag Traffic)
-    '3152137': '93setiawan@gmail.com', // Setiawan (Kabag Packaging) - Email Nyata
+    '3152137': 'syukronalif9@gmail.com', // Setiawan (Kabag Packaging) - Email Nyata
     '5292': '',                      // Puji Triananto (Kabag Inv. Control)
     '3050800': '',                   // Robin Dangin (Kabag Material WH)
     '4808': '',                      // Mulyadi (Kabag Finished Goods)
@@ -1773,7 +1773,7 @@ function openSplEmailConfigModal() {
                                 <span>Setiawan (Kabag Packaging)</span>
                                 <span style="color: #64748b;">NIK: 3152137</span>
                             </div>
-                            <input type="email" id="approver-email-3152137" class="custom-approver-input" data-persno="3152137" placeholder="Contoh: setiawan@gmail.com" style="width: 100%; box-sizing: border-box; padding: 6px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.8rem;">
+                            <input type="email" id="approver-email-3152137" class="custom-approver-input" data-persno="3152137" placeholder="Contoh: syukronalif9@gmail.com" style="width: 100%; box-sizing: border-box; padding: 6px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.8rem;">
                         </div>
 
                         <!-- Kabag Inv Control -->
