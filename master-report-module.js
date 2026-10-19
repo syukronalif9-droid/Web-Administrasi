@@ -338,6 +338,30 @@ function getActiveDateFilterRange() {
     return { start: '', end: '' };
 }
 
+/**
+ * Mengubah status SPL ke Bahasa Inggris profesional
+ * Mendukung data historis Bahasa Indonesia maupun Bahasa Inggris
+ */
+function formatFinalStatusEn(status) {
+    if (!status) return '-';
+    const s = String(status).trim();
+    const lower = s.toLowerCase();
+
+    if (lower === 'disetujui' || lower === 'approved') return 'Approved';
+    if (lower === 'ditolak manager' || lower === 'rejected by manager' || lower === 'rejected manager') return 'Rejected by Manager';
+    if (lower === 'menunggu manager' || lower === 'pending manager' || lower === 'waiting for manager') return 'Pending Manager';
+    if (lower === 'ditolak kabag' || lower === 'rejected by kabag' || lower === 'rejected by dept head') return 'Rejected by Dept Head';
+    if (lower === 'menunggu kabag' || lower === 'pending kabag' || lower === 'pending dept head') return 'Pending Dept Head';
+    if (lower === 'ditolak kasie' || lower === 'rejected by kasie' || lower === 'rejected by section head') return 'Rejected by Section Head';
+    if (lower === 'menunggu kasie' || lower === 'pending kasie' || lower === 'pending section head') return 'Pending Section Head';
+    if (lower === 'ditolak' || lower === 'rejected') return 'Rejected';
+    if (lower === 'menunggu' || lower === 'menunggu approval' || lower === 'pending approval') return 'Pending Approval';
+
+    if (lower.startsWith('menunggu')) return s.replace(/^menunggu\s*/i, 'Pending ');
+    if (lower.startsWith('ditolak')) return s.replace(/^ditolak\s*/i, 'Rejected by ');
+    return s;
+}
+
 function renderSplReportSlide() {
     const list = (typeof getStoredSplList === 'function') ? getStoredSplList() : [];
     const tbody = document.getElementById('mr-report-tbody');
@@ -356,17 +380,22 @@ function renderSplReportSlide() {
             if (itemDate < filterStart || itemDate > filterEnd) return false;
         }
         if (filterStatus !== 'ALL') {
-            if (filterStatus === 'approved' && item.finalStatus !== 'Disetujui') return false;
-            if (filterStatus === 'pending' && !item.finalStatus.includes('Menunggu')) return false;
-            if (filterStatus === 'rejected' && !item.finalStatus.includes('Ditolak')) return false;
+            const rawStatus = (item.finalStatus || '').toLowerCase();
+            const statusEn = formatFinalStatusEn(item.finalStatus).toLowerCase();
+            if (filterStatus === 'approved' && !rawStatus.includes('setuju') && statusEn !== 'approved') return false;
+            if (filterStatus === 'pending' && !rawStatus.includes('menunggu') && !statusEn.startsWith('pending')) return false;
+            if (filterStatus === 'rejected' && !rawStatus.includes('tolak') && !statusEn.startsWith('rejected')) return false;
         }
         if (searchVal) {
+            const statusEn = formatFinalStatusEn(item.finalStatus);
             const noMatch = item.splNo && item.splNo.toLowerCase().includes(searchVal);
             const areaMatch = item.area && item.area.toLowerCase().includes(searchVal);
             const reasonMatch = item.reason && item.reason.toLowerCase().includes(searchVal);
+            const statusMatch = (item.finalStatus && item.finalStatus.toLowerCase().includes(searchVal)) ||
+                                (statusEn && statusEn.toLowerCase().includes(searchVal));
             const creatorMatch = item.kasie && item.kasie.name && item.kasie.name.toLowerCase().includes(searchVal);
             const empMatch = item.employees && item.employees.some(e => e.name && e.name.toLowerCase().includes(searchVal));
-            if (!noMatch && !areaMatch && !reasonMatch && !creatorMatch && !empMatch) return false;
+            if (!noMatch && !areaMatch && !reasonMatch && !creatorMatch && !empMatch && !statusMatch) return false;
         }
         return true;
     });
@@ -386,9 +415,12 @@ function renderSplReportSlide() {
 
         emps.forEach((e, empIdx) => {
             if (searchVal) {
+                const statusEn = formatFinalStatusEn(item.finalStatus);
                 const docMatches = (item.splNo && item.splNo.toLowerCase().includes(searchVal)) ||
                                    (item.area && item.area.toLowerCase().includes(searchVal)) ||
                                    (item.location && item.location.toLowerCase().includes(searchVal)) ||
+                                   (item.finalStatus && item.finalStatus.toLowerCase().includes(searchVal)) ||
+                                   (statusEn && statusEn.toLowerCase().includes(searchVal)) ||
                                    (item.kasie && item.kasie.name && item.kasie.name.toLowerCase().includes(searchVal));
                 const empMatches = (e.name && e.name.toLowerCase().includes(searchVal)) ||
                                    (e.persNo && String(e.persNo).includes(searchVal)) ||
@@ -423,7 +455,9 @@ function renderSplReportSlide() {
     // Hitung total dokumen SPL yang lolos filter dan total yang disetujui
     let countApproved = 0;
     matchingSplMap.forEach(splItem => {
-        if (splItem.finalStatus === 'Disetujui') {
+        const rawStatus = (splItem.finalStatus || '').toLowerCase();
+        const statusEn = formatFinalStatusEn(splItem.finalStatus).toLowerCase();
+        if (rawStatus === 'disetujui' || statusEn === 'approved') {
             countApproved++;
         }
     });
@@ -459,10 +493,32 @@ function renderSplReportSlide() {
         const statusVal = lineObj.statusVal || '';
         const sapDate = e.sapInputDate || item.sapInputDate || '';
 
-        const isApproved = item.finalStatus === 'Disetujui';
-        const isRejected = item.finalStatus.includes('Ditolak');
-        const badgeBg = isApproved ? '#dcfce7' : (isRejected ? '#fee2e2' : '#fef3c7');
-        const badgeColor = isApproved ? '#15803d' : (isRejected ? '#dc2626' : '#b45309');
+        const statusEn = formatFinalStatusEn(item.finalStatus);
+        const isApproved = statusEn === 'Approved';
+        const isRejected = statusEn.startsWith('Rejected') || (item.finalStatus && item.finalStatus.includes('Ditolak'));
+        const isPending = statusEn.startsWith('Pending') || (item.finalStatus && item.finalStatus.includes('Menunggu'));
+
+        let badgeBg = '#f1f5f9';
+        let badgeColor = '#475569';
+        let badgeBorder = '#cbd5e1';
+        let badgeDot = '#94a3b8';
+
+        if (isApproved) {
+            badgeBg = '#dcfce7';
+            badgeColor = '#15803d';
+            badgeBorder = '#86efac';
+            badgeDot = '#16a34a';
+        } else if (isRejected) {
+            badgeBg = '#fee2e2';
+            badgeColor = '#b91c1c';
+            badgeBorder = '#fca5a5';
+            badgeDot = '#ef4444';
+        } else if (isPending) {
+            badgeBg = '#fef3c7';
+            badgeColor = '#b45309';
+            badgeBorder = '#fde68a';
+            badgeDot = '#d97706';
+        }
 
         const startTime = e.startTime || item.startTime || '-';
         const endTime = e.endTime || item.endTime || '-';
@@ -509,8 +565,22 @@ function renderSplReportSlide() {
                     </span>
                 </td>
                 <td style="padding: 12px 16px; text-align: left; white-space: nowrap;">
-                    <span style="font-weight: 600; color: #000000; font-size: 0.85rem;">
-                        ${item.finalStatus}
+                    <span style="
+                        display: inline-flex;
+                        align-items: center;
+                        gap: 6px;
+                        background: ${badgeBg};
+                        color: ${badgeColor};
+                        border: 1px solid ${badgeBorder};
+                        padding: 5px 12px;
+                        border-radius: 9999px;
+                        font-size: 0.8rem;
+                        font-weight: 700;
+                        box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+                        letter-spacing: 0.01em;
+                    ">
+                        <span style="width: 6.5px; height: 6.5px; border-radius: 50%; background: ${badgeDot}; flex-shrink: 0;"></span>
+                        ${statusEn}
                     </span>
                 </td>
                 <!-- Kolom Status SAP: Jika Sudah maka terkunci permanen, jika belum maka select (-) dan Sudah -->
@@ -695,9 +765,11 @@ function exportSplReportToExcel() {
             if (itemDate < filterStart || itemDate > filterEnd) return false;
         }
         if (filterStatus !== 'ALL') {
-            if (filterStatus === 'approved' && item.finalStatus !== 'Disetujui') return false;
-            if (filterStatus === 'pending' && !item.finalStatus.includes('Menunggu')) return false;
-            if (filterStatus === 'rejected' && !item.finalStatus.includes('Ditolak')) return false;
+            const rawStatus = (item.finalStatus || '').toLowerCase();
+            const statusEn = formatFinalStatusEn(item.finalStatus).toLowerCase();
+            if (filterStatus === 'approved' && !rawStatus.includes('setuju') && statusEn !== 'approved') return false;
+            if (filterStatus === 'pending' && !rawStatus.includes('menunggu') && !statusEn.startsWith('pending')) return false;
+            if (filterStatus === 'rejected' && !rawStatus.includes('tolak') && !statusEn.startsWith('rejected')) return false;
         }
         if (searchVal) {
             const noMatch = item.splNo && item.splNo.toLowerCase().includes(searchVal);
@@ -755,7 +827,7 @@ function exportSplReportToExcel() {
                 'Karyawan': e.name || '-',
                 'Waktu Lembur': `${startTime} - ${endTime}`,
                 'Durasi (Jam)': empDuration,
-                'Status Akhir': item.finalStatus || '-',
+                'Status Akhir': formatFinalStatusEn(item.finalStatus) || '-',
                 'Status SAP': sapStatusText,
                 'Tanggal Input SAP': sapDateText,
                 'Uraian Pekerjaan': e.reason || item.reason || '-'
