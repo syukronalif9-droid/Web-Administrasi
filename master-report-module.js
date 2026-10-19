@@ -332,15 +332,9 @@ function renderSplReportSlide() {
     const allLines = [];
     let totalManHours = 0;
     let totalOrang = 0;
-    let countApproved = 0;
-    let countPending = 0;
-    let countRejected = 0;
+    const matchingSplMap = new Map();
 
     filtered.forEach(item => {
-        if (item.finalStatus === 'Disetujui') countApproved++;
-        else if (item.finalStatus && item.finalStatus.includes('Ditolak')) countRejected++;
-        else countPending++;
-
         const emps = (Array.isArray(item.employees) && item.employees.length > 0)
             ? item.employees
             : [{ persNo: '-', name: '-', startTime: item.startTime, endTime: item.endTime, duration: item.duration, reason: item.reason }];
@@ -368,6 +362,11 @@ function renderSplReportSlide() {
             totalManHours += empDuration;
             totalOrang++;
 
+            const splKey = item.id || item.splNo;
+            if (!matchingSplMap.has(splKey)) {
+                matchingSplMap.set(splKey, item);
+            }
+
             allLines.push({
                 spl: item,
                 emp: e,
@@ -378,11 +377,19 @@ function renderSplReportSlide() {
         });
     });
 
-    // Update KPI Card di Header Slide 2
-    document.getElementById('mr-kpi-total-spl').textContent = filtered.length;
+    // Hitung total dokumen SPL yang lolos filter dan total yang disetujui
+    let countApproved = 0;
+    matchingSplMap.forEach(splItem => {
+        if (splItem.finalStatus === 'Disetujui') {
+            countApproved++;
+        }
+    });
+
+    // Update KPI Card di Header Slide 2 sesuai hasil filter aktif
+    document.getElementById('mr-kpi-total-spl').textContent = matchingSplMap.size;
+    document.getElementById('mr-kpi-approved').textContent = countApproved;
     document.getElementById('mr-kpi-total-hours').textContent = `${totalManHours.toFixed(1)} Jam`;
     document.getElementById('mr-kpi-total-emp').textContent = `${totalOrang} Orang`;
-    document.getElementById('mr-kpi-approved').textContent = countApproved;
 
     // Update Total Line Counter
     const totalLineEl = document.getElementById('mr-report-total-line');
