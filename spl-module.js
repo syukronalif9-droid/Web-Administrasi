@@ -426,6 +426,63 @@ function setCurrentUserSession(persNo) {
     }
 }
 
+function getTodayYmd() {
+    const now = new Date();
+    const yStr = now.getFullYear();
+    const mStr = String(now.getMonth() + 1).padStart(2, '0');
+    const dStr = String(now.getDate()).padStart(2, '0');
+    return `${yStr}-${mStr}-${dStr}`;
+}
+
+function updateSplDateRestriction(showNotification = false) {
+    const user = getCurrentUserSession();
+    const dateInput = document.getElementById('spl-date');
+    const hintEl = document.getElementById('spl-date-restriction-hint');
+    if (!dateInput) return true;
+
+    const todayStr = getTodayYmd();
+    const isPrivileged = user && (user.role === 'KABAG' || user.role === 'MANAGER');
+
+    if (isPrivileged) {
+        // Kabag & Manager: Bebas tanggal lampau (Dispensasi Wewenang)
+        dateInput.removeAttribute('min');
+        if (dateInput.value && dateInput.value < todayStr) {
+            if (hintEl) {
+                hintEl.innerHTML = `<span style="color: #b45309; background: #fef3c7; padding: 2px 8px; border-radius: 6px; font-weight: 600; display: inline-flex; align-items: center; gap: 4px;">⚡ Tanggal Lampau: Diizinkan (Wewenang ${user.title})</span>`;
+            }
+        } else {
+            if (hintEl) {
+                hintEl.innerHTML = `<span style="color: #059669; font-weight: 600;">✓ Wewenang ${user.title}: Bebas pilih tanggal lampau maupun mendatang</span>`;
+            }
+        }
+        return true;
+    } else {
+        // Kasie / Belum Verifikasi: Hanya hari ini atau ke depan
+        dateInput.min = todayStr;
+        if (dateInput.value && dateInput.value < todayStr) {
+            if (showNotification) {
+                alert(`⚠️ Batas Pengajuan Terlewat:\n\nSebagai Kepala Seksi (Kasie), Anda hanya dapat mengajukan SPL untuk hari ini (${todayStr}) atau tanggal yang akan datang.\n\nUntuk pengajuan SPL susulan / tanggal yang telah lampau, pembuatan harus dilakukan melalui akun Kepala Bagian (Kabag) atau Manager.`);
+            }
+            dateInput.value = todayStr;
+            generateNextSplNumber();
+            if (hintEl) {
+                hintEl.innerHTML = `<span style="color: #ef4444; font-weight: 600;">⚠️ Kasie: Tanggal lampau tidak diizinkan (Dialihkan ke hari ini)</span>`;
+            }
+            return false;
+        } else {
+            if (hintEl) {
+                hintEl.innerHTML = `<span style="color: #64748b; font-weight: 500;">🔒 Kasie: Berlaku untuk hari ini & ke depan (Tanggal lampau via Kabag/Manager)</span>`;
+            }
+            return true;
+        }
+    }
+}
+
+function onSplDateChange() {
+    updateSplDateRestriction(true);
+    generateNextSplNumber();
+}
+
 function updateSplAccessControlUI() {
     const user = getCurrentUserSession();
 
@@ -446,6 +503,8 @@ function updateSplAccessControlUI() {
     } else {
         if (statusBox) statusBox.style.display = 'none';
     }
+
+    updateSplDateRestriction(false);
 }
 
 // Module Initializer
@@ -454,13 +513,10 @@ function initSplModule() {
     const dateInput = document.getElementById('spl-date');
     if (dateInput) {
         if (!dateInput.value) {
-            const now = new Date();
-            const yStr = now.getFullYear();
-            const mStr = String(now.getMonth() + 1).padStart(2, '0');
-            const dStr = String(now.getDate()).padStart(2, '0');
-            dateInput.value = `${yStr}-${mStr}-${dStr}`;
+            dateInput.value = getTodayYmd();
         }
-        dateInput.addEventListener('change', generateNextSplNumber);
+        dateInput.removeEventListener('change', onSplDateChange);
+        dateInput.addEventListener('change', onSplDateChange);
     }
 
     populateSplAreas();
@@ -474,6 +530,7 @@ function initSplModule() {
     if (user && user.canCreateSpl) {
         autoPopulateEmployees();
     }
+    updateSplDateRestriction(false);
 }
 
 function populateSplAreas() {
@@ -1035,6 +1092,19 @@ async function handleSplSubmit(e) {
         return;
     }
 
+    // Periksa role user saat submit
+    const currentUser = getCurrentUserSession();
+    const isKabagCreator = currentUser && currentUser.role === 'KABAG';
+    const isManagerCreator = currentUser && currentUser.role === 'MANAGER';
+
+    // Validasi aturan batas tanggal: Kasie dilarang mengajukan tanggal lampau (backdate)
+    const todayStr = getTodayYmd();
+    if (date < todayStr && !isKabagCreator && !isManagerCreator) {
+        alert(`⚠️ Pengajuan Ditolak!\n\nTanggal lembur (${date}) sudah terlewat.\nSebagai Kepala Seksi (Kasie), Anda hanya dapat mengajukan SPL untuk hari ini (${todayStr}) atau tanggal mendatang.\n\nUntuk pengajuan lembur susulan (tanggal lampau), pembuatan SPL harus diajukan oleh Kepala Bagian (Kabag) atau Manager.`);
+        updateSplDateRestriction(false);
+        return;
+    }
+
     if (!area || !location) {
         alert('Mohon pilih WH Area dan Lokasi!');
         return;
@@ -1066,10 +1136,6 @@ async function handleSplSubmit(e) {
     const kabagEmail = getApproverEmailByPersNo(kabagNo, kabagName);
     const mgrEmail = getApproverEmailByPersNo(mgrNo || '5078', mgrName || 'Wawan Kurniawan');
 
-    // Periksa role user saat submit
-    const currentUser = getCurrentUserSession();
-    const isKabagCreator = currentUser && currentUser.role === 'KABAG';
-    const isManagerCreator = currentUser && currentUser.role === 'MANAGER';
     if (isManagerCreator && (!kabagNo || !kabagName || kabagName === '-')) {
         alert('Kabag untuk area/lokasi yang dipilih tidak ditemukan. Periksa data master SPL sebelum mengajukan.');
         return;
@@ -2293,6 +2359,9 @@ window.previewSampleEmailContent = previewSampleEmailContent;
 window.runDirectEmailTest = runDirectEmailTest;
 window.manualRefreshSpl = manualRefreshSpl;
 window.autoPopulateEmployees = autoPopulateEmployees;
+window.onSplDateChange = onSplDateChange;
+window.updateSplDateRestriction = updateSplDateRestriction;
+window.getTodayYmd = getTodayYmd;
 
 if (!window.updateSplSelectedCount) {
     window.updateSplSelectedCount = function() {
