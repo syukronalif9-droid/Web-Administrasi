@@ -437,7 +437,6 @@ function getTodayYmd() {
 function updateSplDateRestriction(showNotification = false) {
     const user = getCurrentUserSession();
     const dateInput = document.getElementById('spl-date');
-    const hintEl = document.getElementById('spl-date-restriction-hint');
     if (!dateInput) return true;
 
     const todayStr = getTodayYmd();
@@ -446,15 +445,6 @@ function updateSplDateRestriction(showNotification = false) {
     if (isPrivileged) {
         // Kabag & Manager: Bebas tanggal lampau (Dispensasi Wewenang)
         dateInput.removeAttribute('min');
-        if (dateInput.value && dateInput.value < todayStr) {
-            if (hintEl) {
-                hintEl.innerHTML = `<span style="color: #b45309; background: #fef3c7; padding: 2px 8px; border-radius: 6px; font-weight: 600; display: inline-flex; align-items: center; gap: 4px;">⚡ Tanggal Lampau: Diizinkan (Wewenang ${user.title})</span>`;
-            }
-        } else {
-            if (hintEl) {
-                hintEl.innerHTML = `<span style="color: #059669; font-weight: 600;">✓ Wewenang ${user.title}: Bebas pilih tanggal lampau maupun mendatang</span>`;
-            }
-        }
         return true;
     } else {
         // Kasie / Belum Verifikasi: Hanya hari ini atau ke depan
@@ -465,16 +455,9 @@ function updateSplDateRestriction(showNotification = false) {
             }
             dateInput.value = todayStr;
             generateNextSplNumber();
-            if (hintEl) {
-                hintEl.innerHTML = `<span style="color: #ef4444; font-weight: 600;">⚠️ Kasie: Tanggal lampau tidak diizinkan (Dialihkan ke hari ini)</span>`;
-            }
             return false;
-        } else {
-            if (hintEl) {
-                hintEl.innerHTML = `<span style="color: #64748b; font-weight: 500;">🔒 Kasie: Berlaku untuk hari ini & ke depan (Tanggal lampau via Kabag/Manager)</span>`;
-            }
-            return true;
         }
+        return true;
     }
 }
 
