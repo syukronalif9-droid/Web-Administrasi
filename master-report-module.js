@@ -188,7 +188,7 @@ function renderMasterEmployeeSlide() {
             <td style="padding: 12px 16px; font-size: 0.85rem; color: #000000; font-weight: 500;">${item.location || '-'}</td>
             <td style="padding: 12px 16px;">
                 <div style="font-weight: 600; color: #000000; font-size: 0.85rem;">${item.kasieName || '-'}</div>
-                <div style="font-size: 0.74rem; color: #64748b;">${item.kasieNo ? 'NIK: ' + item.kasieNo : 'Pembuat SPL'}</div>
+                <div style="font-size: 0.74rem; color: #64748b;">${item.kasieNo ? 'NIK: ' + item.kasieNo : 'Inisiator'}</div>
             </td>
         </tr>
     `).join('');
@@ -229,7 +229,7 @@ function exportMasterEmployeeExcel() {
         'Employee Name': item.name || '-',
         'WH Area': item.area || '-',
         'Location': item.location || '-',
-        'Kasie (Pembuat SPL)': item.kasieName || '-'
+        'Kasie (Inisiator)': item.kasieName || '-'
     }));
 
     const ws = XLSX.utils.json_to_sheet(rows);
@@ -751,8 +751,8 @@ function exportSplReportToExcel() {
                 'Tanggal': item.date || '-',
                 'Bagian': item.area || '-',
                 'Lokasi': item.location || '-',
-                'Pembuat SPL': item.kasie ? item.kasie.name : '-',
-                'Overtime (Karyawan)': e.name || '-',
+                'Inisiator': item.kasie ? item.kasie.name : '-',
+                'Karyawan': e.name || '-',
                 'Waktu Lembur': `${startTime} - ${endTime}`,
                 'Durasi (Jam)': empDuration,
                 'Uraian Pekerjaan': e.reason || item.reason || '-',
@@ -779,8 +779,8 @@ function exportSplReportToExcel() {
             { key: 'Tanggal', minWch: 14 },
             { key: 'Bagian', minWch: 18 },
             { key: 'Lokasi', minWch: 18 },
-            { key: 'Pembuat SPL', minWch: 24 },
-            { key: 'Overtime (Karyawan)', minWch: 26 },
+            { key: 'Inisiator', minWch: 24 },
+            { key: 'Karyawan', minWch: 26 },
             { key: 'Waktu Lembur', minWch: 16 },
             { key: 'Durasi (Jam)', minWch: 14 },
             { key: 'Uraian Pekerjaan', minWch: 35 },
