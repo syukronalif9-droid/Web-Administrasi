@@ -167,6 +167,28 @@
                     color: #ffffff !important;
                     box-shadow: 0 4px 14px rgba(24, 24, 27, 0.25) !important;
                 }
+                /* Master & Report SPL Table Headers - Styled exactly like Summary Table */
+                #mr-report-table th,
+                #mr-employee-table th {
+                    text-align: left !important;
+                    background-color: #F1F5F9 !important;
+                    font-weight: 700 !important;
+                    color: #1E293B !important;
+                    font-size: 1.05rem !important;
+                    font-family: 'Inter', 'Poppins', sans-serif !important;
+                    letter-spacing: 0.5px !important;
+                    padding: 16px 18px !important;
+                    border-bottom: 2px solid #CBD5E1 !important;
+                    white-space: nowrap !important;
+                    position: sticky !important;
+                    top: 0 !important;
+                    z-index: 2 !important;
+                }
+                #mr-report-table td,
+                #mr-employee-table td {
+                    font-family: 'Inter', 'Poppins', sans-serif !important;
+                    text-align: left !important;
+                }
                 .spl-emp-card {
                     display: flex;
                     flex-direction: column;
@@ -1652,7 +1674,7 @@ document.addEventListener("DOMContentLoaded", function() {
                             <table id="mr-employee-table">
                                 <thead>
                                     <tr>
-                                        <th style="width: 50px; text-align: center;">No</th>
+                                        <th style="width: 50px;">No</th>
                                         <th>Employee ID</th>
                                         <th>Employee Name</th>
                                         <th>WH Area</th>
@@ -1740,18 +1762,18 @@ document.addEventListener("DOMContentLoaded", function() {
                             <table id="mr-report-table">
                                 <thead>
                                     <tr>
-                                        <th style="width: 45px; text-align: center;">No</th>
+                                        <th style="width: 50px;">No</th>
                                         <th>No. SPL</th>
                                         <th>Tanggal</th>
                                         <th>Bagian</th>
                                         <th>Lokasi</th>
                                         <th>Pembuat</th>
                                         <th>Overtime</th>
-                                        <th style="text-align: center;">Waktu Lembur</th>
-                                        <th style="text-align: center;">Durasi</th>
+                                        <th>Waktu Lembur</th>
+                                        <th>Durasi</th>
                                         <th>Uraian / Pekerjaan</th>
-                                        <th style="text-align: center;">Status Akhir</th>
-                                        <th style="text-align: center;">Aksi</th>
+                                        <th>Status Akhir</th>
+                                        <th>Aksi</th>
                                     </tr>
                                 </thead>
                                 <tbody id="mr-report-tbody">

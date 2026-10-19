@@ -180,7 +180,7 @@ function renderMasterEmployeeSlide() {
 
     tbody.innerHTML = filtered.map((item, idx) => `
         <tr style="border-bottom: 1px solid #f1f5f9; transition: background 0.15s;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='transparent'">
-            <td style="padding: 10px 12px; font-size: 0.8rem; color: #64748b; text-align: center; font-weight: 600;">${idx + 1}</td>
+            <td style="padding: 12px 16px; font-size: 0.85rem; color: #64748b; text-align: left; font-weight: 600;">${idx + 1}</td>
             <td style="padding: 10px 14px;">
                 <div style="font-weight: 700; color: #0f172a; font-size: 0.88rem;">${item.name}</div>
                 <div style="font-size: 0.76rem; color: #64748b; font-family: monospace;">NIK: ${item.persNo}</div>
@@ -333,50 +333,50 @@ function renderSplReportSlide() {
 
         return `
             <tr style="${borderTopStyle} transition: background 0.15s;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='transparent'">
-                <td style="padding: 10px 12px; font-size: 0.8rem; color: #64748b; text-align: center; font-weight: 600;">${idx + 1}</td>
-                <td style="padding: 10px 14px; white-space: nowrap;">
+                <td style="padding: 12px 16px; font-size: 0.85rem; color: #64748b; text-align: left; font-weight: 600;">${idx + 1}</td>
+                <td style="padding: 12px 16px; white-space: nowrap; text-align: left;">
                     <div style="display: flex; align-items: center; gap: 4px;">
-                        <span style="font-weight: 700; color: #0f172a; font-size: 0.85rem; font-family: monospace;">${item.splNo}</span>
+                        <span style="font-weight: 700; color: #0f172a; font-size: 0.88rem; font-family: monospace;">${item.splNo}</span>
                         ${lineBadge}
                     </div>
                 </td>
-                <td style="padding: 10px 14px; white-space: nowrap;">
-                    <span style="font-weight: 600; color: #334155; font-size: 0.82rem;">${item.date || '-'}</span>
+                <td style="padding: 12px 16px; white-space: nowrap; text-align: left;">
+                    <span style="font-weight: 600; color: #334155; font-size: 0.85rem;">${item.date || '-'}</span>
                 </td>
-                <td style="padding: 10px 14px; white-space: nowrap;">
-                    <span style="font-weight: 600; color: #1e293b; font-size: 0.82rem;">${item.area || '-'}</span>
+                <td style="padding: 12px 16px; white-space: nowrap; text-align: left;">
+                    <span style="font-weight: 600; color: #1e293b; font-size: 0.85rem;">${item.area || '-'}</span>
                 </td>
-                <td style="padding: 10px 14px; white-space: nowrap;">
-                    <span style="color: #64748b; font-size: 0.82rem;">${item.location || '-'}</span>
+                <td style="padding: 12px 16px; white-space: nowrap; text-align: left;">
+                    <span style="color: #64748b; font-size: 0.85rem;">${item.location || '-'}</span>
                 </td>
-                <td style="padding: 10px 14px; white-space: nowrap;">
-                    <div style="font-weight: 600; color: #0f172a; font-size: 0.82rem;">${item.kasie ? item.kasie.name : '-'}</div>
-                    <div style="font-size: 0.74rem; color: #64748b;">${item.creatorRole || 'Kasie'}</div>
+                <td style="padding: 12px 16px; white-space: nowrap; text-align: left;">
+                    <div style="font-weight: 600; color: #0f172a; font-size: 0.85rem;">${item.kasie ? item.kasie.name : '-'}</div>
+                    <div style="font-size: 0.76rem; color: #64748b;">${item.creatorRole || 'Kasie'}</div>
                 </td>
-                <td style="padding: 10px 14px; white-space: nowrap;">
-                    <div style="font-weight: 700; color: #0f172a; font-size: 0.85rem;">👤 ${e.name || '-'}</div>
-                    <div style="font-size: 0.75rem; color: #64748b; font-family: monospace;">NIK: ${e.persNo || '-'}</div>
+                <td style="padding: 12px 16px; white-space: nowrap; text-align: left;">
+                    <div style="font-weight: 700; color: #0f172a; font-size: 0.88rem;">👤 ${e.name || '-'}</div>
+                    <div style="font-size: 0.78rem; color: #64748b; font-family: monospace;">NIK: ${e.persNo || '-'}</div>
                 </td>
-                <td style="padding: 10px 14px; text-align: center; white-space: nowrap;">
-                    <div style="font-weight: 600; color: #1e293b; font-size: 0.82rem;">${startTime} - ${endTime}</div>
+                <td style="padding: 12px 16px; text-align: left; white-space: nowrap;">
+                    <div style="font-weight: 600; color: #1e293b; font-size: 0.85rem;">${startTime} - ${endTime}</div>
                 </td>
-                <td style="padding: 10px 14px; text-align: center;">
-                    <span style="font-weight: 700; color: #0284c7; font-size: 0.82rem; background: #e0f2fe; padding: 3px 8px; border-radius: 99px; border: 1px solid #bae6fd; white-space: nowrap;">
+                <td style="padding: 12px 16px; text-align: left;">
+                    <span style="font-weight: 700; color: #0284c7; font-size: 0.85rem; background: #e0f2fe; padding: 4px 10px; border-radius: 99px; border: 1px solid #bae6fd; white-space: nowrap;">
                         ${duration} Jam
                     </span>
                 </td>
-                <td style="padding: 10px 14px; max-width: 220px;">
-                    <div style="font-size: 0.8rem; color: #334155; line-height: 1.4; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${reason}">
+                <td style="padding: 12px 16px; max-width: 250px; text-align: left;">
+                    <div style="font-size: 0.85rem; color: #334155; line-height: 1.4; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${reason}">
                         ${reason}
                     </div>
                 </td>
-                <td style="padding: 10px 14px; text-align: center;">
-                    <span style="display: inline-block; padding: 4px 10px; border-radius: 99px; font-size: 0.74rem; font-weight: 700; background: ${badgeBg}; color: ${badgeColor}; white-space: nowrap;">
+                <td style="padding: 12px 16px; text-align: left;">
+                    <span style="display: inline-block; padding: 4px 12px; border-radius: 99px; font-size: 0.78rem; font-weight: 700; background: ${badgeBg}; color: ${badgeColor}; white-space: nowrap;">
                         ${item.finalStatus}
                     </span>
                 </td>
-                <td style="padding: 10px 14px; text-align: center;">
-                    <button type="button" onclick="printSplDocument('${item.id}')" style="background: #f1f5f9; border: 1px solid #cbd5e1; color: #1e293b; padding: 5px 12px; border-radius: 8px; font-size: 0.75rem; font-weight: 600; cursor: pointer; white-space: nowrap;" onmouseover="this.style.background='#e2e8f0'" onmouseout="this.style.background='#f1f5f9'">
+                <td style="padding: 12px 16px; text-align: left;">
+                    <button type="button" onclick="printSplDocument('${item.id}')" style="background: #f1f5f9; border: 1px solid #cbd5e1; color: #1e293b; padding: 6px 14px; border-radius: 8px; font-size: 0.78rem; font-weight: 600; cursor: pointer; white-space: nowrap;" onmouseover="this.style.background='#e2e8f0'" onmouseout="this.style.background='#f1f5f9'">
                         Cetak
                     </button>
                 </td>
