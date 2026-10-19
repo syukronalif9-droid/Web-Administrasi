@@ -1610,13 +1610,13 @@ document.addEventListener("DOMContentLoaded", function() {
                     <!-- 4 KPI Cards (Modern & Clean Dashboard Slide Aesthetic) -->
                     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 20px;">
                         <!-- KPI Card 1: Total Pengajuan SPL (Signature Lime) -->
-                        <div class="card" style="background: #e2fc8f; border-radius: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); padding: 24px; display: flex; flex-direction: column; justify-content: space-between; border: none; font-family: 'Inter', sans-serif; transition: all 0.25s ease;"
+                        <div class="card" style="background: #e2fc8f; border-radius: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); padding: 22px 24px; display: flex; flex-direction: column; justify-content: space-between; border: none; font-family: 'Inter', sans-serif; transition: all 0.25s ease; min-height: 142px;"
                             onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 14px 34px rgba(0,0,0,0.08)';" onmouseout="this.style.transform='none'; this.style.boxShadow='0 10px 30px rgba(0,0,0,0.05)';">
-                            <div style="display: flex; justify-content: space-between; align-items: flex-start; width: 100%;">
-                                <div>
-                                    <div id="mr-kpi-total-spl" style="font-size: 2.4rem; font-weight: 700; color: #18181b; margin: 0; letter-spacing: -1px; line-height: 1;">0</div>
+                            <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                                <div style="display: flex; align-items: baseline; gap: 4px;">
+                                    <span id="mr-kpi-total-spl" style="font-size: 2.75rem; font-weight: 800; color: #18181b; margin: 0; letter-spacing: -1.5px; line-height: 1;">0</span>
                                 </div>
-                                <div style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-left: 8px;">
+                                <div style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
                                     <svg width="44" height="44" viewBox="0 0 48 48" fill="none">
                                         <rect x="10" y="7" width="28" height="35" rx="4" fill="#FFFFFF" stroke="#18181B" stroke-width="2.5" stroke-linejoin="round"/>
                                         <path d="M26 7L38 19H26V7Z" fill="#FDE047" stroke="#18181B" stroke-width="2.2" stroke-linejoin="round"/>
@@ -1626,20 +1626,20 @@ document.addEventListener("DOMContentLoaded", function() {
                                     </svg>
                                 </div>
                             </div>
-                            <div style="margin-top: 10px;">
-                                <div style="color: #18181b; font-size: 0.8rem; font-weight: 500; opacity: 0.7;">SPL sesuai filter</div>
-                                <div class="mr-card-badge" style="color: #18181b; font-size: 0.75rem; font-weight: 600; background: rgba(0,0,0,0.06); padding: 3px 8px; border-radius: 6px; margin-top: 8px; display: inline-block;">Total Dokumen</div>
+                            <div style="margin-top: 14px; display: flex; align-items: center; justify-content: space-between;">
+                                <div style="color: #18181b; font-size: 0.82rem; font-weight: 500; opacity: 0.75;">SPL sesuai filter</div>
+                                <div class="mr-card-badge" style="color: #18181b; font-size: 0.75rem; font-weight: 700; background: rgba(0,0,0,0.07); padding: 4px 10px; border-radius: 99px;">Dokumen</div>
                             </div>
                         </div>
 
                         <!-- KPI Card 2: SPL Disetujui (Deep Forest Green) -->
-                        <div class="card" style="background: #477023; border-radius: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); padding: 24px; display: flex; flex-direction: column; justify-content: space-between; border: none; font-family: 'Inter', sans-serif; transition: all 0.25s ease;"
+                        <div class="card" style="background: #477023; border-radius: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); padding: 22px 24px; display: flex; flex-direction: column; justify-content: space-between; border: none; font-family: 'Inter', sans-serif; transition: all 0.25s ease; min-height: 142px;"
                             onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 14px 34px rgba(0,0,0,0.08)';" onmouseout="this.style.transform='none'; this.style.boxShadow='0 10px 30px rgba(0,0,0,0.05)';">
-                            <div style="display: flex; justify-content: space-between; align-items: flex-start; width: 100%;">
-                                <div>
-                                    <div id="mr-kpi-approved" style="font-size: 2.4rem; font-weight: 700; color: #ffffff; margin: 0; letter-spacing: -1px; line-height: 1;">0</div>
+                            <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                                <div style="display: flex; align-items: baseline; gap: 4px;">
+                                    <span id="mr-kpi-approved" style="font-size: 2.75rem; font-weight: 800; color: #ffffff; margin: 0; letter-spacing: -1.5px; line-height: 1;">0</span>
                                 </div>
-                                <div style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-left: 8px;">
+                                <div style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
                                     <svg width="44" height="44" viewBox="0 0 48 48" fill="none">
                                         <circle cx="24" cy="24" r="20" fill="#F1F5F9" stroke="#18181B" stroke-width="2.5"/>
                                         <circle cx="24" cy="24" r="14.5" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1.8"/>
@@ -1648,20 +1648,21 @@ document.addEventListener("DOMContentLoaded", function() {
                                     </svg>
                                 </div>
                             </div>
-                            <div style="margin-top: 10px;">
-                                <div style="color: #ffffff; font-size: 0.8rem; font-weight: 500; opacity: 0.8;">Disetujui Kabag + Manajer</div>
-                                <div class="mr-card-badge" style="color: #ffffff; font-size: 0.75rem; font-weight: 600; background: rgba(255,255,255,0.18); padding: 3px 8px; border-radius: 6px; margin-top: 8px; display: inline-block;">Approved</div>
+                            <div style="margin-top: 14px; display: flex; align-items: center; justify-content: space-between;">
+                                <div style="color: #ffffff; font-size: 0.82rem; font-weight: 500; opacity: 0.85;">Disetujui Kabag + Manajer</div>
+                                <div class="mr-card-badge" style="color: #ffffff; font-size: 0.75rem; font-weight: 700; background: rgba(255,255,255,0.2); padding: 4px 10px; border-radius: 99px;">Approved</div>
                             </div>
                         </div>
 
                         <!-- KPI Card 3: Total Durasi Lembur (Clean Crisp White) -->
-                        <div class="card" style="background: #ffffff; border-radius: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); padding: 24px; display: flex; flex-direction: column; justify-content: space-between; border: 1px solid rgba(226, 232, 240, 0.8); font-family: 'Inter', sans-serif; transition: all 0.25s ease;"
+                        <div class="card" style="background: #ffffff; border-radius: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); padding: 22px 24px; display: flex; flex-direction: column; justify-content: space-between; border: 1px solid rgba(226, 232, 240, 0.8); font-family: 'Inter', sans-serif; transition: all 0.25s ease; min-height: 142px;"
                             onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 14px 34px rgba(0,0,0,0.08)';" onmouseout="this.style.transform='none'; this.style.boxShadow='0 10px 30px rgba(0,0,0,0.05)';">
-                            <div style="display: flex; justify-content: space-between; align-items: flex-start; width: 100%;">
-                                <div>
-                                    <div id="mr-kpi-total-hours" style="font-size: 2.4rem; font-weight: 700; color: #18181b; margin: 0; letter-spacing: -1px; line-height: 1;">0 Jam</div>
+                            <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                                <div style="display: flex; align-items: baseline; gap: 6px;">
+                                    <span id="mr-kpi-total-hours" style="font-size: 2.75rem; font-weight: 800; color: #18181b; margin: 0; letter-spacing: -1.5px; line-height: 1;">0</span>
+                                    <span style="font-size: 1.15rem; font-weight: 600; color: #71717a;">Jam</span>
                                 </div>
-                                <div style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-left: 8px;">
+                                <div style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
                                     <svg width="44" height="44" viewBox="0 0 48 48" fill="none">
                                         <rect x="5" y="5" width="38" height="38" rx="10" fill="#FB923C" stroke="#18181B" stroke-width="2.5"/>
                                         <circle cx="24" cy="24" r="14.5" fill="#FFF7ED" stroke="#18181B" stroke-width="2.2"/>
@@ -1675,20 +1676,21 @@ document.addEventListener("DOMContentLoaded", function() {
                                     </svg>
                                 </div>
                             </div>
-                            <div style="margin-top: 10px;">
-                                <div style="color: #18181b; font-size: 0.8rem; font-weight: 500; opacity: 0.7;">Akumulasi jam kerja lembur</div>
-                                <div class="mr-card-badge" style="color: #18181b; font-size: 0.75rem; font-weight: 600; background: rgba(0,0,0,0.06); padding: 3px 8px; border-radius: 6px; margin-top: 8px; display: inline-block;">Man Hours</div>
+                            <div style="margin-top: 14px; display: flex; align-items: center; justify-content: space-between;">
+                                <div style="color: #18181b; font-size: 0.82rem; font-weight: 500; opacity: 0.75;">Akumulasi jam kerja lembur</div>
+                                <div class="mr-card-badge" style="color: #18181b; font-size: 0.75rem; font-weight: 700; background: rgba(0,0,0,0.07); padding: 4px 10px; border-radius: 99px;">Man Hours</div>
                             </div>
                         </div>
 
                         <!-- KPI Card 4: Total Orang Lembur (Luxury Dark Onyx) -->
-                        <div class="card" style="background: #18181b; border-radius: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); padding: 24px; display: flex; flex-direction: column; justify-content: space-between; border: none; font-family: 'Inter', sans-serif; transition: all 0.25s ease;"
+                        <div class="card" style="background: #18181b; border-radius: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); padding: 22px 24px; display: flex; flex-direction: column; justify-content: space-between; border: none; font-family: 'Inter', sans-serif; transition: all 0.25s ease; min-height: 142px;"
                             onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 14px 34px rgba(0,0,0,0.22)';" onmouseout="this.style.transform='none'; this.style.boxShadow='0 10px 30px rgba(0,0,0,0.15)';">
-                            <div style="display: flex; justify-content: space-between; align-items: flex-start; width: 100%;">
-                                <div>
-                                    <div id="mr-kpi-total-emp" style="font-size: 2.4rem; font-weight: 700; color: #ffffff; margin: 0; letter-spacing: -1px; line-height: 1;">0 Orang</div>
+                            <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                                <div style="display: flex; align-items: baseline; gap: 6px;">
+                                    <span id="mr-kpi-total-emp" style="font-size: 2.75rem; font-weight: 800; color: #ffffff; margin: 0; letter-spacing: -1.5px; line-height: 1;">0</span>
+                                    <span style="font-size: 1.15rem; font-weight: 600; color: #a1a1aa;">Orang</span>
                                 </div>
-                                <div style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-left: 8px;">
+                                <div style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
                                     <svg width="44" height="44" viewBox="0 0 48 48" fill="none">
                                         <circle cx="24" cy="24" r="20" fill="#60A5FA" stroke="#18181B" stroke-width="2.5"/>
                                         <circle cx="24" cy="18" r="6.5" fill="#F8FAFC" stroke="#18181B" stroke-width="2.2"/>
@@ -1696,9 +1698,9 @@ document.addEventListener("DOMContentLoaded", function() {
                                     </svg>
                                 </div>
                             </div>
-                            <div style="margin-top: 10px;">
-                                <div style="color: #ffffff; font-size: 0.8rem; font-weight: 500; opacity: 0.75;">Jumlah personil lembur</div>
-                                <div class="mr-card-badge" style="color: #ffffff; font-size: 0.75rem; font-weight: 600; background: rgba(255,255,255,0.15); padding: 3px 8px; border-radius: 6px; margin-top: 8px; display: inline-block;">Personil</div>
+                            <div style="margin-top: 14px; display: flex; align-items: center; justify-content: space-between;">
+                                <div style="color: #ffffff; font-size: 0.82rem; font-weight: 500; opacity: 0.85;">Jumlah personil lembur</div>
+                                <div class="mr-card-badge" style="color: #ffffff; font-size: 0.75rem; font-weight: 700; background: rgba(255,255,255,0.18); padding: 4px 10px; border-radius: 99px;">Personil</div>
                             </div>
                         </div>
                     </div>

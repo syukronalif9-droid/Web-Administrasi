@@ -431,8 +431,8 @@ function renderSplReportSlide() {
     // Update KPI Card di Header Slide 2 sesuai hasil filter aktif
     document.getElementById('mr-kpi-total-spl').textContent = matchingSplMap.size;
     document.getElementById('mr-kpi-approved').textContent = countApproved;
-    document.getElementById('mr-kpi-total-hours').textContent = `${totalManHours.toFixed(1)} Jam`;
-    document.getElementById('mr-kpi-total-emp').textContent = `${totalOrang} Orang`;
+    document.getElementById('mr-kpi-total-hours').textContent = totalManHours.toFixed(1);
+    document.getElementById('mr-kpi-total-emp').textContent = totalOrang;
 
     // Update Total Line Counter
     const totalLineEl = document.getElementById('mr-report-total-line');
