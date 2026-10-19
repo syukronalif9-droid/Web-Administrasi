@@ -1730,6 +1730,11 @@ document.addEventListener("DOMContentLoaded", function() {
                                 <option value="pending">Menunggu Approval</option>
                                 <option value="rejected">Ditolak</option>
                             </select>
+                            <select id="mr-report-sap" class="glass-input" onchange="renderSplReportSlide()" style="margin: 0; min-width: 160px; font-weight: 600; cursor: pointer; padding: 8px 12px; border-radius: 12px; border: 1px solid #cbd5e1; color: #1e293b; background: #f8fafc;">
+                                <option value="ALL">Semua Status SAP</option>
+                                <option value="pending_sap">⏳ Belum Input SAP</option>
+                                <option value="done_sap">✓ Sudah Input SAP</option>
+                            </select>
                         </div>
 
                         <div id="mr-report-line-count" style="display: flex; align-items: center; background: #FFFFFF; padding: 10px 20px; border-radius: 9999px; border: 1px solid #E2E8F0; font-size: 0.95rem; font-weight: 600; color: #64748B; box-shadow: 0 2px 8px rgba(0,0,0,0.02); height: 42px;">
@@ -1773,6 +1778,7 @@ document.addEventListener("DOMContentLoaded", function() {
                                         <th>Durasi</th>
                                         <th>Uraian / Pekerjaan</th>
                                         <th>Status Akhir</th>
+                                        <th>Status SAP</th>
                                         <th>Aksi</th>
                                     </tr>
                                 </thead>

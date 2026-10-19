@@ -214,6 +214,7 @@ function renderSplReportSlide() {
     const tbody = document.getElementById('mr-report-tbody');
     const filterMonth = document.getElementById('mr-report-month')?.value || 'ALL';
     const filterStatus = document.getElementById('mr-report-status')?.value || 'ALL';
+    const filterSap = document.getElementById('mr-report-sap')?.value || 'ALL';
     const searchVal = (document.getElementById('mr-report-search')?.value || '').toLowerCase().trim();
 
     // Populate month filter jika belum terisi
@@ -272,6 +273,11 @@ function renderSplReportSlide() {
                 if (!docMatches && !empMatches) return;
             }
 
+            // Filter SAP Status
+            const isSapDone = !!(e.sapInputted || (item.sapInputted && e.sapInputted === undefined));
+            if (filterSap === 'pending_sap' && isSapDone) return;
+            if (filterSap === 'done_sap' && !isSapDone) return;
+
             const empDuration = Number(e.duration) || Number(item.duration) || 0;
             totalManHours += empDuration;
             totalOrang++;
@@ -280,7 +286,8 @@ function renderSplReportSlide() {
                 spl: item,
                 emp: e,
                 empIdx: empIdx,
-                totalEmpInSpl: totalEmpInSpl
+                totalEmpInSpl: totalEmpInSpl,
+                isSapDone: isSapDone
             });
         });
     });
@@ -300,7 +307,7 @@ function renderSplReportSlide() {
     if (allLines.length === 0) {
         tbody.innerHTML = `
             <tr>
-                <td colspan="12" style="text-align: center; padding: 36px 16px; color: #94a3b8; font-size: 0.88rem;">
+                <td colspan="13" style="text-align: center; padding: 36px 16px; color: #94a3b8; font-size: 0.88rem;">
                     Belum ada rekapan data line SPL yang cocok dengan filter.
                 </td>
             </tr>
@@ -313,6 +320,8 @@ function renderSplReportSlide() {
         const e = lineObj.emp;
         const empIdx = lineObj.empIdx;
         const totalEmpInSpl = lineObj.totalEmpInSpl;
+        const isSapDone = lineObj.isSapDone;
+        const sapDate = e.sapInputDate || item.sapInputDate || '';
 
         const isApproved = item.finalStatus === 'Disetujui';
         const isRejected = item.finalStatus.includes('Ditolak');
@@ -323,7 +332,6 @@ function renderSplReportSlide() {
         const endTime = e.endTime || item.endTime || '-';
         const duration = e.duration || item.duration || 0;
         const reason = e.reason || item.reason || '-';
-        const creatorName = item.kasie ? item.kasie.name : (item.creatorRole || 'Kasie');
 
         const isFirstLineOfSpl = empIdx === 0;
         const borderTopStyle = (idx > 0 && isFirstLineOfSpl) ? 'border-top: 2px solid #cbd5e1;' : 'border-bottom: 1px solid #f1f5f9;';
@@ -374,6 +382,18 @@ function renderSplReportSlide() {
                         ${item.finalStatus}
                     </span>
                 </td>
+                <!-- Kolom Status Input SAP Interaktif (1-Klik untuk Admin) -->
+                <td style="padding: 12px 16px; text-align: left; white-space: nowrap;">
+                    <button type="button" onclick="toggleSapStatus('${item.id}', ${empIdx})" 
+                        title="${isSapDone ? 'Sudah di-input ke SAP (' + (sapDate || 'Tercatat') + '). Klik jika ingin membatalkan.' : 'Belum di-input ke SAP. Klik untuk menandai sudah selesai di-input ke SAP.'}"
+                        style="background: ${isSapDone ? '#ecfdf5' : '#ffffff'}; border: 1.5px solid ${isSapDone ? '#a7f3d0' : '#cbd5e1'}; color: ${isSapDone ? '#047857' : '#64748b'}; padding: 5px 13px; border-radius: 99px; font-size: 0.76rem; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1); white-space: nowrap; box-shadow: 0 1px 3px rgba(0,0,0,0.04);"
+                        onmouseover="this.style.background='${isSapDone ? '#d1fae5' : '#fffbeb'}'; this.style.borderColor='${isSapDone ? '#6ee7b7' : '#f59e0b'}'; this.style.color='${isSapDone ? '#065f46' : '#b45309'}'; this.style.transform='translateY(-1px)';"
+                        onmouseout="this.style.background='${isSapDone ? '#ecfdf5' : '#ffffff'}'; this.style.borderColor='${isSapDone ? '#a7f3d0' : '#cbd5e1'}'; this.style.color='${isSapDone ? '#047857' : '#64748b'}'; this.style.transform='none';">
+                        <span style="font-size: 0.85rem; font-weight: 800; color: ${isSapDone ? '#059669' : '#94a3b8'};">${isSapDone ? '✓' : '○'}</span>
+                        <span>${isSapDone ? 'Sudah SAP' : 'Belum SAP'}</span>
+                    </button>
+                    ${isSapDone && sapDate ? `<div style="font-size: 0.68rem; color: #059669; margin-top: 3px; font-weight: 600;">${sapDate}</div>` : ''}
+                </td>
                 <td style="padding: 12px 16px; text-align: left;">
                     <button type="button" onclick="printSplDocument('${item.id}')" style="background: #f1f5f9; border: 1px solid #cbd5e1; color: #1e293b; padding: 6px 14px; border-radius: 8px; font-size: 0.78rem; font-weight: 600; cursor: pointer; white-space: nowrap;" onmouseover="this.style.background='#e2e8f0'" onmouseout="this.style.background='#f1f5f9'">
                         Cetak
@@ -383,6 +403,47 @@ function renderSplReportSlide() {
         `;
     }).join('');
 }
+
+// Fungsi 1-Klik Ubah Status Input SAP oleh Admin
+window.toggleSapStatus = function(splId, empIdx) {
+    let list = (typeof getStoredSplList === 'function') ? getStoredSplList() : [];
+    const item = list.find(s => s.id === splId);
+    if (!item) return;
+
+    if (Array.isArray(item.employees) && item.employees[empIdx]) {
+        const emp = item.employees[empIdx];
+        const isCurrentlyDone = !!(emp.sapInputted || (item.sapInputted && emp.sapInputted === undefined));
+        emp.sapInputted = !isCurrentlyDone;
+        emp.sapInputDate = !isCurrentlyDone ? new Date().toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }) : null;
+        
+        // Periksa apakah semua karyawan di SPL ini sudah terinput
+        const allDone = item.employees.every(e => e.sapInputted);
+        item.sapInputted = allDone;
+        item.sapInputDate = allDone ? (item.sapInputDate || emp.sapInputDate) : null;
+    } else {
+        item.sapInputted = !item.sapInputted;
+        item.sapInputDate = item.sapInputted ? new Date().toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }) : null;
+    }
+
+    if (typeof saveSplList === 'function') {
+        saveSplList(list);
+    } else {
+        localStorage.setItem('DIGITAL_SPL_DATA', JSON.stringify(list));
+    }
+
+    // Sync juga ke Supabase jika terhubung
+    if (window.supabaseClient) {
+        window.supabaseClient.from('digital_spl').upsert({
+            id: item.id,
+            spl_no: item.splNo,
+            data: item,
+            final_status: item.finalStatus,
+            updated_at: new Date().toISOString()
+        }).then(() => {}).catch(() => {});
+    }
+
+    renderSplReportSlide();
+};
 
 function populateReportMonthFilter(list) {
     const monthSelect = document.getElementById('mr-report-month');
@@ -402,7 +463,7 @@ function populateReportMonthFilter(list) {
     monthSelect.dataset.populated = 'true';
 }
 
-// Export Report SPL to CSV (Per Line Karyawan)
+// Export Report SPL to CSV (Per Line Karyawan dengan Status Input SAP)
 function exportSplReportToCsv() {
     const list = (typeof getStoredSplList === 'function') ? getStoredSplList() : [];
     if (!list || list.length === 0) {
@@ -412,6 +473,7 @@ function exportSplReportToCsv() {
 
     const filterMonth = document.getElementById('mr-report-month')?.value || 'ALL';
     const filterStatus = document.getElementById('mr-report-status')?.value || 'ALL';
+    const filterSap = document.getElementById('mr-report-sap')?.value || 'ALL';
     const searchVal = (document.getElementById('mr-report-search')?.value || '').toLowerCase().trim();
 
     let filtered = list.filter(item => {
@@ -441,7 +503,7 @@ function exportSplReportToCsv() {
         return true;
     });
 
-    let csvContent = 'No Line,No SPL,Tanggal,Bagian,Lokasi,Pembuat,NIK Karyawan,Nama Karyawan,Jam Mulai,Jam Selesai,Durasi (Jam),Uraian Pekerjaan,Status Akhir\n';
+    let csvContent = 'No Line,No SPL,Tanggal,Bagian,Lokasi,Pembuat,Nama Karyawan,Jam Mulai,Jam Selesai,Durasi (Jam),Uraian Pekerjaan,Status Akhir,Status SAP,Tanggal Input SAP\n';
 
     let lineNo = 1;
     filtered.forEach(item => {
@@ -450,6 +512,13 @@ function exportSplReportToCsv() {
             : [{ persNo: '-', name: '-', startTime: item.startTime, endTime: item.endTime, duration: item.duration, reason: item.reason }];
 
         emps.forEach(e => {
+            const isSapDone = !!(e.sapInputted || (item.sapInputted && e.sapInputted === undefined));
+            if (filterSap === 'pending_sap' && isSapDone) return;
+            if (filterSap === 'done_sap' && !isSapDone) return;
+
+            const sapStatusText = isSapDone ? 'Sudah Input SAP' : 'Belum Input SAP';
+            const sapDateText = isSapDone ? (e.sapInputDate || item.sapInputDate || '') : '';
+
             const row = [
                 lineNo++,
                 `"${item.splNo || ''}"`,
@@ -457,13 +526,14 @@ function exportSplReportToCsv() {
                 `"${item.area || ''}"`,
                 `"${item.location || ''}"`,
                 `"${item.kasie ? item.kasie.name : ''}"`,
-                `"${e.persNo || ''}"`,
                 `"${e.name || ''}"`,
                 `"${e.startTime || item.startTime || ''}"`,
                 `"${e.endTime || item.endTime || ''}"`,
                 e.duration || item.duration || 0,
                 `"${(e.reason || item.reason || '').replace(/"/g, '""')}"`,
-                `"${item.finalStatus || ''}"`
+                `"${item.finalStatus || ''}"`,
+                `"${sapStatusText}"`,
+                `"${sapDateText}"`
             ];
             csvContent += row.join(',') + '\n';
         });
