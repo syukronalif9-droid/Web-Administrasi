@@ -157,9 +157,7 @@ function renderMasterEmployeeSlide() {
             const matchName = item.name && item.name.toLowerCase().includes(searchVal);
             const matchPersNo = item.persNo && String(item.persNo).includes(searchVal);
             const matchKasie = item.kasieName && item.kasieName.toLowerCase().includes(searchVal);
-            const matchKabag = item.kabagName && item.kabagName.toLowerCase().includes(searchVal);
-            const matchMgr = item.mgrName && item.mgrName.toLowerCase().includes(searchVal);
-            if (!matchName && !matchPersNo && !matchKasie && !matchKabag && !matchMgr) return false;
+            if (!matchName && !matchPersNo && !matchKasie) return false;
         }
         return true;
     });
@@ -182,29 +180,75 @@ function renderMasterEmployeeSlide() {
     tbody.innerHTML = filtered.map((item, idx) => `
         <tr style="border-bottom: 1px solid #f1f5f9; transition: background 0.15s;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='transparent'">
             <td style="padding: 12px 16px; font-size: 0.85rem; color: #000000; text-align: left; font-weight: 600;">${idx + 1}</td>
-            <td style="padding: 10px 14px;">
-                <div style="font-weight: 700; color: #000000; font-size: 0.88rem;">${item.name}</div>
-                <div style="font-size: 0.76rem; color: #64748b; font-family: monospace;">NIK: ${item.persNo}</div>
+            <td style="padding: 12px 16px; font-size: 0.85rem; color: #000000; font-family: monospace; font-weight: 600;">${item.persNo || '-'}</td>
+            <td style="padding: 12px 16px; font-weight: 700; color: #000000; font-size: 0.88rem;">👤 ${item.name || '-'}</td>
+            <td style="padding: 12px 16px;">
+                <span style="display: inline-block; background: #e0f2fe; color: #0369a1; padding: 2px 8px; border-radius: 6px; font-size: 0.76rem; font-weight: 700;">${item.area || '-'}</span>
             </td>
-            <td style="padding: 10px 14px;">
-                <span style="display: inline-block; background: #e0f2fe; color: #0369a1; padding: 2px 8px; border-radius: 6px; font-size: 0.76rem; font-weight: 700;">${item.area}</span>
-                <div style="font-size: 0.76rem; color: #000000; margin-top: 3px; font-weight: 500;">${item.location}</div>
-            </td>
-            <td style="padding: 10px 14px;">
-                <div style="font-weight: 600; color: #000000; font-size: 0.82rem;">${item.kasieName || '-'}</div>
+            <td style="padding: 12px 16px; font-size: 0.85rem; color: #000000; font-weight: 500;">${item.location || '-'}</td>
+            <td style="padding: 12px 16px;">
+                <div style="font-weight: 600; color: #000000; font-size: 0.85rem;">${item.kasieName || '-'}</div>
                 <div style="font-size: 0.74rem; color: #64748b;">${item.kasieNo ? 'NIK: ' + item.kasieNo : 'Pembuat SPL'}</div>
-            </td>
-            <td style="padding: 10px 14px;">
-                <div style="font-weight: 600; color: #000000; font-size: 0.82rem;">${item.kabagName || '-'}</div>
-                <div style="font-size: 0.74rem; color: #64748b;">${item.kabagNo ? 'NIK: ' + item.kabagNo : 'Approver 1'}</div>
-            </td>
-            <td style="padding: 10px 14px;">
-                <div style="font-weight: 600; color: #000000; font-size: 0.82rem;">${item.mgrName || 'Wawan Kurniawan'}</div>
-                <div style="font-size: 0.74rem; color: #64748b;">${item.mgrNo ? 'NIK: ' + item.mgrNo : 'Approver 2'}</div>
             </td>
         </tr>
     `).join('');
 }
+
+// Export Master Employee ke Excel / CSV
+function exportMasterEmployeeExcel() {
+    if (typeof XLSX === 'undefined') {
+        alert('Pustaka XLSX (SheetJS) belum termuat. Mohon muat ulang halaman.');
+        return;
+    }
+
+    const data = getMasterEmployeeData();
+    const filterArea = document.getElementById('mr-filter-area')?.value || 'ALL';
+    const filterLoc = document.getElementById('mr-filter-loc')?.value || 'ALL';
+    const searchVal = (document.getElementById('mr-search-employee')?.value || '').toLowerCase().trim();
+
+    const filtered = data.filter(item => {
+        if (filterArea !== 'ALL' && item.area !== filterArea) return false;
+        if (filterLoc !== 'ALL' && item.location !== filterLoc) return false;
+        if (searchVal) {
+            const matchName = item.name && item.name.toLowerCase().includes(searchVal);
+            const matchPersNo = item.persNo && String(item.persNo).includes(searchVal);
+            const matchKasie = item.kasieName && item.kasieName.toLowerCase().includes(searchVal);
+            if (!matchName && !matchPersNo && !matchKasie) return false;
+        }
+        return true;
+    });
+
+    if (filtered.length === 0) {
+        alert('Tidak ada data Master Employee yang sesuai filter untuk diekspor!');
+        return;
+    }
+
+    const rows = filtered.map((item, idx) => ({
+        'No': idx + 1,
+        'Employee ID': item.persNo || '-',
+        'Employee Name': item.name || '-',
+        'WH Area': item.area || '-',
+        'Location': item.location || '-',
+        'Kasie (Pembuat SPL)': item.kasieName || '-'
+    }));
+
+    const ws = XLSX.utils.json_to_sheet(rows);
+    ws['!cols'] = [
+        { wch: 6 },
+        { wch: 16 },
+        { wch: 28 },
+        { wch: 18 },
+        { wch: 18 },
+        { wch: 26 }
+    ];
+
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Master Employee");
+    XLSX.writeFile(wb, `Master_Employee_${new Date().toISOString().substring(0, 10)}.xlsx`);
+}
+
+window.exportMasterEmployeeExcel = exportMasterEmployeeExcel;
+window.exportMasterEmployeeCsv = exportMasterEmployeeExcel;
 
 // ========================================================
 // Helper konversi aneka format tanggal (YYYY-MM-DD, DD/MM/YYYY, DD Mon YYYY, Date) ke YYYY-MM-DD
