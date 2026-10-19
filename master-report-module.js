@@ -274,9 +274,10 @@ function renderSplReportSlide() {
             }
 
             // Filter SAP Status
-            const isSapDone = !!(e.sapInputted || (item.sapInputted && e.sapInputted === undefined));
-            if (filterSap === 'pending_sap' && isSapDone) return;
-            if (filterSap === 'done_sap' && !isSapDone) return;
+            const statusVal = e.sapStatus || '';
+            if (filterSap === 'Sudah' && statusVal !== 'Sudah') return;
+            if (filterSap === 'Belum' && statusVal !== 'Belum') return;
+            if (filterSap === 'Kosong' && statusVal !== '') return;
 
             const empDuration = Number(e.duration) || Number(item.duration) || 0;
             totalManHours += empDuration;
@@ -287,7 +288,7 @@ function renderSplReportSlide() {
                 emp: e,
                 empIdx: empIdx,
                 totalEmpInSpl: totalEmpInSpl,
-                isSapDone: isSapDone
+                statusVal: statusVal
             });
         });
     });
@@ -320,7 +321,7 @@ function renderSplReportSlide() {
         const e = lineObj.emp;
         const empIdx = lineObj.empIdx;
         const totalEmpInSpl = lineObj.totalEmpInSpl;
-        const isSapDone = lineObj.isSapDone;
+        const statusVal = lineObj.statusVal || '';
         const sapDate = e.sapInputDate || item.sapInputDate || '';
 
         const isApproved = item.finalStatus === 'Disetujui';
@@ -382,21 +383,32 @@ function renderSplReportSlide() {
                         ${item.finalStatus}
                     </span>
                 </td>
-                <!-- Kolom Status Input SAP Interaktif (1-Klik untuk Admin) -->
-                <td style="padding: 12px 16px; text-align: left; white-space: nowrap;">
-                    <button type="button" onclick="toggleSapStatus('${item.id}', ${empIdx})" 
-                        title="${isSapDone ? 'Sudah di-input ke SAP (' + (sapDate || 'Tercatat') + '). Klik jika ingin membatalkan.' : 'Belum di-input ke SAP. Klik untuk menandai sudah selesai di-input ke SAP.'}"
-                        style="background: ${isSapDone ? '#ecfdf5' : '#ffffff'}; border: 1.5px solid ${isSapDone ? '#a7f3d0' : '#cbd5e1'}; color: ${isSapDone ? '#047857' : '#64748b'}; padding: 5px 13px; border-radius: 99px; font-size: 0.76rem; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1); white-space: nowrap; box-shadow: 0 1px 3px rgba(0,0,0,0.04);"
-                        onmouseover="this.style.background='${isSapDone ? '#d1fae5' : '#fffbeb'}'; this.style.borderColor='${isSapDone ? '#6ee7b7' : '#f59e0b'}'; this.style.color='${isSapDone ? '#065f46' : '#b45309'}'; this.style.transform='translateY(-1px)';"
-                        onmouseout="this.style.background='${isSapDone ? '#ecfdf5' : '#ffffff'}'; this.style.borderColor='${isSapDone ? '#a7f3d0' : '#cbd5e1'}'; this.style.color='${isSapDone ? '#047857' : '#64748b'}'; this.style.transform='none';">
-                        <span style="font-size: 0.85rem; font-weight: 800; color: ${isSapDone ? '#059669' : '#94a3b8'};">${isSapDone ? '✓' : '○'}</span>
-                        <span>${isSapDone ? 'Sudah SAP' : 'Belum SAP'}</span>
-                    </button>
-                    ${isSapDone && sapDate ? `<div style="font-size: 0.68rem; color: #059669; margin-top: 3px; font-weight: 600;">${sapDate}</div>` : ''}
+                <!-- Kolom Status SAP: Kosong by default, diisi langsung oleh user (Sudah / Belum) -->
+                <td style="padding: 10px 16px; text-align: left; white-space: nowrap;">
+                    <select onchange="updateSapStatus('${item.id}', ${empIdx}, this.value)" 
+                        style="
+                            background: ${statusVal === 'Sudah' ? '#ecfdf5' : (statusVal === 'Belum' ? '#fffbeb' : '#ffffff')};
+                            color: ${statusVal === 'Sudah' ? '#065f46' : (statusVal === 'Belum' ? '#b45309' : '#94a3b8')};
+                            border: 1.5px solid ${statusVal === 'Sudah' ? '#a7f3d0' : (statusVal === 'Belum' ? '#fde68a' : '#cbd5e1')};
+                            padding: 6px 12px;
+                            border-radius: 8px;
+                            font-size: 0.8rem;
+                            font-weight: 700;
+                            cursor: pointer;
+                            outline: none;
+                            font-family: 'Inter', sans-serif;
+                            transition: all 0.2s;
+                        ">
+                        <option value="" style="color: #94a3b8; background: #fff;" ${!statusVal ? 'selected' : ''}>-</option>
+                        <option value="Sudah" style="color: #065f46; font-weight: 700; background: #fff;" ${statusVal === 'Sudah' ? 'selected' : ''}>Sudah</option>
+                        <option value="Belum" style="color: #b45309; font-weight: 700; background: #fff;" ${statusVal === 'Belum' ? 'selected' : ''}>Belum</option>
+                    </select>
+                    ${statusVal === 'Sudah' && sapDate ? `<div style="font-size: 0.68rem; color: #059669; margin-top: 3px; font-weight: 600;">${sapDate}</div>` : ''}
                 </td>
                 <td style="padding: 12px 16px; text-align: left;">
-                    <button type="button" onclick="printSplDocument('${item.id}')" style="background: #f1f5f9; border: 1px solid #cbd5e1; color: #1e293b; padding: 6px 14px; border-radius: 8px; font-size: 0.78rem; font-weight: 600; cursor: pointer; white-space: nowrap;" onmouseover="this.style.background='#e2e8f0'" onmouseout="this.style.background='#f1f5f9'">
-                        Cetak
+                    <button type="button" onclick="printSplDocument('${item.id}')" style="background: #f1f5f9; border: 1px solid #cbd5e1; color: #1e293b; padding: 6px 14px; border-radius: 8px; font-size: 0.78rem; font-weight: 600; cursor: pointer; white-space: nowrap; display: inline-flex; align-items: center; gap: 5px;" onmouseover="this.style.background='#e2e8f0'" onmouseout="this.style.background='#f1f5f9'">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M6 9V2h12v7"></path><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+                        <span>Print</span>
                     </button>
                 </td>
             </tr>
@@ -404,25 +416,28 @@ function renderSplReportSlide() {
     }).join('');
 }
 
-// Fungsi 1-Klik Ubah Status Input SAP oleh Admin
-window.toggleSapStatus = function(splId, empIdx) {
+// Fungsi Update Status SAP Langsung dari Kolom oleh User (Sudah / Belum / Kosong)
+window.updateSapStatus = function(splId, empIdx, newStatus) {
     let list = (typeof getStoredSplList === 'function') ? getStoredSplList() : [];
     const item = list.find(s => s.id === splId);
     if (!item) return;
 
     if (Array.isArray(item.employees) && item.employees[empIdx]) {
         const emp = item.employees[empIdx];
-        const isCurrentlyDone = !!(emp.sapInputted || (item.sapInputted && emp.sapInputted === undefined));
-        emp.sapInputted = !isCurrentlyDone;
-        emp.sapInputDate = !isCurrentlyDone ? new Date().toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }) : null;
+        emp.sapStatus = newStatus;
+        emp.sapInputDate = (newStatus === 'Sudah') 
+            ? new Date().toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }) 
+            : null;
         
-        // Periksa apakah semua karyawan di SPL ini sudah terinput
-        const allDone = item.employees.every(e => e.sapInputted);
-        item.sapInputted = allDone;
+        // Update item sapStatus
+        const allDone = item.employees.every(e => e.sapStatus === 'Sudah');
+        item.sapStatus = allDone ? 'Sudah' : (item.employees.some(e => e.sapStatus === 'Belum') ? 'Belum' : (item.employees.some(e => e.sapStatus === 'Sudah') ? 'Sebagian' : ''));
         item.sapInputDate = allDone ? (item.sapInputDate || emp.sapInputDate) : null;
     } else {
-        item.sapInputted = !item.sapInputted;
-        item.sapInputDate = item.sapInputted ? new Date().toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }) : null;
+        item.sapStatus = newStatus;
+        item.sapInputDate = (newStatus === 'Sudah') 
+            ? new Date().toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }) 
+            : null;
     }
 
     if (typeof saveSplList === 'function') {
@@ -503,7 +518,7 @@ function exportSplReportToCsv() {
         return true;
     });
 
-    let csvContent = 'No Line,No SPL,Tanggal,Bagian,Lokasi,Pembuat,Nama Karyawan,Jam Mulai,Jam Selesai,Durasi (Jam),Uraian Pekerjaan,Status Akhir,Status SAP,Tanggal Input SAP\n';
+    let csvContent = 'No Line,No SPL,Tanggal,Bagian,Lokasi,Pembuat,Overtime,Jam Mulai,Jam Selesai,Durasi (Jam),Uraian Pekerjaan,Status Akhir,Status SAP,Tanggal Input SAP\n';
 
     let lineNo = 1;
     filtered.forEach(item => {
@@ -512,12 +527,24 @@ function exportSplReportToCsv() {
             : [{ persNo: '-', name: '-', startTime: item.startTime, endTime: item.endTime, duration: item.duration, reason: item.reason }];
 
         emps.forEach(e => {
-            const isSapDone = !!(e.sapInputted || (item.sapInputted && e.sapInputted === undefined));
-            if (filterSap === 'pending_sap' && isSapDone) return;
-            if (filterSap === 'done_sap' && !isSapDone) return;
+            const statusVal = e.sapStatus || '';
+            if (filterSap === 'Sudah' && statusVal !== 'Sudah') return;
+            if (filterSap === 'Belum' && statusVal !== 'Belum') return;
+            if (filterSap === 'Kosong' && statusVal !== '') return;
 
-            const sapStatusText = isSapDone ? 'Sudah Input SAP' : 'Belum Input SAP';
-            const sapDateText = isSapDone ? (e.sapInputDate || item.sapInputDate || '') : '';
+            if (searchVal) {
+                const docMatches = (item.splNo && item.splNo.toLowerCase().includes(searchVal)) ||
+                                   (item.area && item.area.toLowerCase().includes(searchVal)) ||
+                                   (item.location && item.location.toLowerCase().includes(searchVal)) ||
+                                   (item.kasie && item.kasie.name && item.kasie.name.toLowerCase().includes(searchVal));
+                const empMatches = (e.name && e.name.toLowerCase().includes(searchVal)) ||
+                                   (e.persNo && String(e.persNo).includes(searchVal)) ||
+                                   (e.reason && e.reason.toLowerCase().includes(searchVal));
+                if (!docMatches && !empMatches) return;
+            }
+
+            const sapStatusText = statusVal || '-';
+            const sapDateText = (statusVal === 'Sudah') ? (e.sapInputDate || item.sapInputDate || '') : '';
 
             const row = [
                 lineNo++,

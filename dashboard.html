@@ -1732,8 +1732,9 @@ document.addEventListener("DOMContentLoaded", function() {
                             </select>
                             <select id="mr-report-sap" class="glass-input" onchange="renderSplReportSlide()" style="margin: 0; min-width: 160px; font-weight: 600; cursor: pointer; padding: 8px 12px; border-radius: 12px; border: 1px solid #cbd5e1; color: #1e293b; background: #f8fafc;">
                                 <option value="ALL">Semua Status SAP</option>
-                                <option value="pending_sap">⏳ Belum Input SAP</option>
-                                <option value="done_sap">✓ Sudah Input SAP</option>
+                                <option value="Sudah">Sudah</option>
+                                <option value="Belum">Belum</option>
+                                <option value="Kosong">Kosong (Belum Diisi)</option>
                             </select>
                         </div>
 
@@ -1779,7 +1780,7 @@ document.addEventListener("DOMContentLoaded", function() {
                                         <th>Uraian / Pekerjaan</th>
                                         <th>Status Akhir</th>
                                         <th>Status SAP</th>
-                                        <th>Aksi</th>
+                                        <th>Print</th>
                                     </tr>
                                 </thead>
                                 <tbody id="mr-report-tbody">
