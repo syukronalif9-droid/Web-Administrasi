@@ -833,8 +833,136 @@ function printMasterReportSummary() {
     window.print();
 }
 
+// ========================================================
+// FITUR HAPUS DATA SPL BERDASARKAN BULAN
+// ========================================================
+
+function openDeleteSplByMonthModal() {
+    const modal = document.getElementById('modal-delete-spl-month');
+    const select = document.getElementById('select-delete-month');
+    const preview = document.getElementById('delete-month-preview');
+    if (!modal || !select) return;
+
+    const list = (typeof getStoredSplList === 'function') ? getStoredSplList() : [];
+    
+    // Kumpulkan seluruh bulan yang ada di list SPL (format YYYY-MM)
+    const monthMap = new Map();
+    const idMonthNames = [
+        'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+        'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+    ];
+
+    list.forEach(item => {
+        if (!item || !item.date) return;
+        const norm = normalizeDateToYmd(item.date);
+        if (!norm || norm.length < 7) return;
+        const ym = norm.substring(0, 7); // e.g. "2026-10"
+        monthMap.set(ym, (monthMap.get(ym) || 0) + 1);
+    });
+
+    // Urutkan bulan dari yang terbaru
+    const sortedYm = Array.from(monthMap.keys()).sort().reverse();
+
+    if (sortedYm.length === 0) {
+        select.innerHTML = '<option value="">(Tidak ada data SPL tersimpan)</option>';
+        if (preview) preview.textContent = 'Tidak ada dokumen SPL yang dapat dihapus.';
+        document.getElementById('btn-confirm-delete-month').disabled = true;
+        document.getElementById('btn-confirm-delete-month').style.opacity = '0.5';
+    } else {
+        select.innerHTML = sortedYm.map(ym => {
+            const [y, m] = ym.split('-');
+            const mName = idMonthNames[parseInt(m, 10) - 1] || m;
+            const count = monthMap.get(ym);
+            return `<option value="${ym}">${mName} ${y} (${count} Dokumen)</option>`;
+        }).join('');
+
+        document.getElementById('btn-confirm-delete-month').disabled = false;
+        document.getElementById('btn-confirm-delete-month').style.opacity = '1';
+
+        const updatePreview = () => {
+            const chosen = select.value;
+            const count = monthMap.get(chosen) || 0;
+            const [y, m] = chosen.split('-');
+            const mName = idMonthNames[parseInt(m, 10) - 1] || m;
+            if (preview) {
+                preview.innerHTML = `Terdeteksi <strong>${count} dokumen SPL</strong> pada bulan <strong>${mName} ${y}</strong>.`;
+            }
+        };
+
+        select.onchange = updatePreview;
+        updatePreview();
+    }
+
+    modal.style.display = 'flex';
+}
+
+function closeDeleteSplByMonthModal() {
+    const modal = document.getElementById('modal-delete-spl-month');
+    if (modal) modal.style.display = 'none';
+}
+
+function executeDeleteSplByMonth() {
+    const select = document.getElementById('select-delete-month');
+    const chosenYm = select ? select.value : '';
+    if (!chosenYm) {
+        alert('Silakan pilih bulan yang ingin dihapus.');
+        return;
+    }
+
+    const idMonthNames = [
+        'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+        'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+    ];
+    const [y, m] = chosenYm.split('-');
+    const mName = idMonthNames[parseInt(m, 10) - 1] || m;
+
+    const list = (typeof getStoredSplList === 'function') ? getStoredSplList() : [];
+    const countToDelete = list.filter(item => {
+        if (!item || !item.date) return false;
+        const norm = normalizeDateToYmd(item.date);
+        return norm && norm.startsWith(chosenYm);
+    }).length;
+
+    if (countToDelete === 0) {
+        alert(`Tidak ditemukan dokumen SPL pada bulan ${mName} ${y}.`);
+        closeDeleteSplByMonthModal();
+        return;
+    }
+
+    const confirmMsg = `APAKAH ANDA YAKIN?\n\nAnda akan menghapus ${countToDelete} dokumen SPL pada bulan ${mName} ${y}.\nTindakan ini permanen dan tidak dapat dibatalkan!`;
+    if (!confirm(confirmMsg)) return;
+
+    // Filter sisa dokumen yang BUKAN di bulan terpilih
+    const remainingList = list.filter(item => {
+        if (!item || !item.date) return true;
+        const norm = normalizeDateToYmd(item.date);
+        return !norm || !norm.startsWith(chosenYm);
+    });
+
+    // Simpan ke storage
+    if (typeof saveSplList === 'function') {
+        saveSplList(remainingList);
+    } else {
+        localStorage.setItem('DIGITAL_SPL_DATA', JSON.stringify(remainingList));
+    }
+
+    closeDeleteSplByMonthModal();
+
+    // Segarkan tampilan Report SPL dan riwayat Create SPL jika terbuka
+    if (typeof renderSplReportSlide === 'function') renderSplReportSlide();
+    if (typeof renderSplHistoryList === 'function') renderSplHistoryList();
+    if (typeof generateNextSplNumber === 'function') generateNextSplNumber();
+
+    alert(`Berhasil menghapus ${countToDelete} dokumen SPL pada bulan ${mName} ${y}.`);
+}
+
+window.openDeleteSplByMonthModal = openDeleteSplByMonthModal;
+window.closeDeleteSplByMonthModal = closeDeleteSplByMonthModal;
+window.executeDeleteSplByMonth = executeDeleteSplByMonth;
+
 // Inisialisasi event listener dan modal DOM
 document.addEventListener('DOMContentLoaded', function() {
     populateMasterEmployeeFilters();
     initReportDateFilter();
 });
+
