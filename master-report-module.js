@@ -509,11 +509,6 @@ function renderSplReportSlide() {
                         ${duration} Jam
                     </span>
                 </td>
-                <td style="padding: 12px 16px; max-width: 250px; text-align: left;">
-                    <div style="font-size: 0.85rem; color: #000000; font-weight: 500; line-height: 1.4; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${reason}">
-                        ${reason}
-                    </div>
-                </td>
                 <td style="padding: 12px 16px; text-align: left; white-space: nowrap;">
                     <span style="font-weight: 600; color: #000000; font-size: 0.85rem;">
                         ${item.finalStatus}
@@ -566,6 +561,12 @@ function renderSplReportSlide() {
                         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M6 9V2h12v7"></path><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
                         <span>Print</span>
                     </button>
+                </td>
+                <!-- Kolom Uraian / Pekerjaan di paling akhir agar muat luas dan tidak terpotong -->
+                <td style="padding: 12px 16px; min-width: 240px; max-width: 450px; text-align: left; white-space: normal; word-break: break-word;">
+                    <div style="font-size: 0.85rem; color: #000000; font-weight: 500; line-height: 1.45;">
+                        ${reason}
+                    </div>
                 </td>
             </tr>
         `;
@@ -755,10 +756,10 @@ function exportSplReportToExcel() {
                 'Karyawan': e.name || '-',
                 'Waktu Lembur': `${startTime} - ${endTime}`,
                 'Durasi (Jam)': empDuration,
-                'Uraian Pekerjaan': e.reason || item.reason || '-',
                 'Status Akhir': item.finalStatus || '-',
                 'Status SAP': sapStatusText,
-                'Tanggal Input SAP': sapDateText
+                'Tanggal Input SAP': sapDateText,
+                'Uraian Pekerjaan': e.reason || item.reason || '-'
             });
         });
     });
@@ -783,10 +784,10 @@ function exportSplReportToExcel() {
             { key: 'Karyawan', minWch: 26 },
             { key: 'Waktu Lembur', minWch: 16 },
             { key: 'Durasi (Jam)', minWch: 14 },
-            { key: 'Uraian Pekerjaan', minWch: 35 },
             { key: 'Status Akhir', minWch: 18 },
             { key: 'Status SAP', minWch: 14 },
-            { key: 'Tanggal Input SAP', minWch: 18 }
+            { key: 'Tanggal Input SAP', minWch: 18 },
+            { key: 'Uraian Pekerjaan', minWch: 35 }
         ];
 
         // Hitung lebar otomatis (Auto-fit Widths) berdasarkan isi data dan header
