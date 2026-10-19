@@ -355,7 +355,6 @@ function renderSplReportSlide() {
                 </td>
                 <td style="padding: 12px 16px; white-space: nowrap; text-align: left;">
                     <div style="font-weight: 700; color: #0f172a; font-size: 0.88rem;">👤 ${e.name || '-'}</div>
-                    <div style="font-size: 0.78rem; color: #64748b; font-family: monospace;">NIK: ${e.persNo || '-'}</div>
                 </td>
                 <td style="padding: 12px 16px; text-align: left; white-space: nowrap;">
                     <div style="font-weight: 600; color: #1e293b; font-size: 0.85rem;">${startTime} - ${endTime}</div>
