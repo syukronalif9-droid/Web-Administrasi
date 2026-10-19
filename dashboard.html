@@ -34,6 +34,12 @@
             localStorage.removeItem('isLoggedIn');
             window.location.href = 'index.html';
         }
+
+        function confirmLogout() {
+            if (confirm('Apakah Anda yakin ingin keluar dari aplikasi?')) {
+                logout();
+            }
+        }
     </script>
     <script src="worksheetData.js"></script>
     <script src="spl-module.js?v=55"></script>
@@ -424,7 +430,7 @@
                 </div>
 
                 <!-- Right Side Container (Menu + Icons) -->
-                <div style="display: flex; align-items: center; gap: 12px;">
+                <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
                     <!-- Navigation Menu -->
                     <ul class="nav-menu horizontal">
                         <li class="nav-item active" data-target="dashboard">
@@ -446,6 +452,21 @@
                             <span class="menu-text">Master Employee</span>
                         </li>
                     </ul>
+
+                    <!-- Tombol Keluar dari Aplikasi -->
+                    <button id="btn-logout-app" type="button" onclick="confirmLogout()" title="Keluar dari Aplikasi (Logout)"
+                        style="background: #ffffff; padding: 8px 18px; border-radius: 99px; font-weight: 600; font-size: 0.95rem; color: #dc2626; display: inline-flex; align-items: center; gap: 8px; border: 1.5px solid #fee2e2; cursor: pointer; box-shadow: 0 4px 14px rgba(220, 38, 38, 0.08); transition: all 0.25s ease; font-family: 'Inter', sans-serif; height: 48px; white-space: nowrap;"
+                        onmouseover="this.style.background='#fef2f2'; this.style.borderColor='#fca5a5'; this.style.transform='translateY(-1.5px)'; this.style.boxShadow='0 6px 18px rgba(220, 38, 38, 0.16)';"
+                        onmouseout="this.style.background='#ffffff'; this.style.borderColor='#fee2e2'; this.style.transform='none'; this.style.boxShadow='0 4px 14px rgba(220, 38, 38, 0.08)';">
+                        <div style="width: 26px; height: 26px; border-radius: 8px; background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); color: white; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(239, 68, 68, 0.25);">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                                <polyline points="16 17 21 12 16 7"></polyline>
+                                <line x1="21" y1="12" x2="9" y2="12"></line>
+                            </svg>
+                        </div>
+                        <span>Keluar</span>
+                    </button>
                 </div>
             </header>
 
