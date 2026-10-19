@@ -207,29 +207,110 @@ function renderMasterEmployeeSlide() {
 }
 
 // ========================================================
-// SLIDE 2: REPORT & REKAPITULASI SPL
-// ========================================================
+// Helper konversi aneka format tanggal (YYYY-MM-DD, DD/MM/YYYY, DD Mon YYYY, Date) ke YYYY-MM-DD
+function normalizeDateToYmd(val) {
+    if (!val) return '';
+    if (val instanceof Date) {
+        if (isNaN(val.getTime())) return '';
+        const y = val.getFullYear();
+        const m = String(val.getMonth() + 1).padStart(2, '0');
+        const d = String(val.getDate()).padStart(2, '0');
+        return `${y}-${m}-${d}`;
+    }
+    const str = String(val).trim();
+    if (!str || str === '-') return '';
+
+    // Format YYYY-MM-DD atau YYYY/MM/DD
+    let m = str.match(/^(\d{4})[-/.](\d{1,2})[-/.](\d{1,2})/);
+    if (m) {
+        return `${m[1]}-${String(m[2]).padStart(2, '0')}-${String(m[3]).padStart(2, '0')}`;
+    }
+
+    // Format DD-MM-YYYY atau DD/MM/YYYY
+    m = str.match(/^(\d{1,2})[-/.](\d{1,2})[-/.](\d{4})/);
+    if (m) {
+        return `${m[3]}-${String(m[2]).padStart(2, '0')}-${String(m[1]).padStart(2, '0')}`;
+    }
+
+    // Format DD Mon YYYY (contoh: 01 Okt 2026 atau 19 Oktober 2026)
+    const idMonths = {
+        jan: '01', januari: '01',
+        feb: '02', februari: '02',
+        mar: '03', maret: '03',
+        apr: '04', april: '04',
+        mei: '05', may: '05',
+        jun: '06', juni: '06',
+        jul: '07', juli: '07',
+        agu: '08', agustus: '08', aug: '08',
+        sep: '09', september: '09',
+        okt: '10', oktober: '10', oct: '10',
+        nov: '11', november: '11',
+        des: '12', desember: '12', dec: '12'
+    };
+    m = str.match(/^(\d{1,2})\s+([a-zA-Z]+)\s+(\d{4})/);
+    if (m) {
+        const monKey = m[2].toLowerCase();
+        const mm = idMonths[monKey] || '01';
+        return `${m[3]}-${mm}-${String(m[1]).padStart(2, '0')}`;
+    }
+
+    const parsed = new Date(str);
+    if (!isNaN(parsed.getTime())) {
+        const y = parsed.getFullYear();
+        const mo = String(parsed.getMonth() + 1).padStart(2, '0');
+        const d = String(parsed.getDate()).padStart(2, '0');
+        return `${y}-${mo}-${d}`;
+    }
+
+    return str;
+}
+
+function getActiveDateFilterRange() {
+    const dateInput = document.getElementById('mr-report-date-filter');
+    if (!dateInput) return { start: '', end: '' };
+
+    const fp = dateInput._flatpickr;
+    if (fp && fp.selectedDates && fp.selectedDates.length > 0) {
+        const s = normalizeDateToYmd(fp.selectedDates[0]);
+        const e = fp.selectedDates[1] ? normalizeDateToYmd(fp.selectedDates[1]) : s;
+        return { start: s, end: e };
+    }
+
+    const val = (fp && fp.altInput && fp.altInput.value) ? fp.altInput.value.trim() : (dateInput.value || '').trim();
+    if (!val || val.toLowerCase().includes('semua')) {
+        return { start: '', end: '' };
+    }
+
+    const parts = val.split(/\s+(?:to|s\/d|sampai|-)\s+/i);
+    if (parts.length >= 2) {
+        return {
+            start: normalizeDateToYmd(parts[0]),
+            end: normalizeDateToYmd(parts[1])
+        };
+    } else if (parts.length === 1 && parts[0]) {
+        const s = normalizeDateToYmd(parts[0]);
+        return { start: s, end: s };
+    }
+
+    return { start: '', end: '' };
+}
 
 function renderSplReportSlide() {
     const list = (typeof getStoredSplList === 'function') ? getStoredSplList() : [];
     const tbody = document.getElementById('mr-report-tbody');
     initReportDateFilter();
 
-    const dateInput = document.getElementById('mr-report-date-filter');
-    const rawDateVal = (dateInput && dateInput.value) ? dateInput.value.trim() : '';
+    const { start: filterStart, end: filterEnd } = getActiveDateFilterRange();
     const filterStatus = document.getElementById('mr-report-status')?.value || 'ALL';
     const filterSap = document.getElementById('mr-report-sap')?.value || 'ALL';
     const searchVal = (document.getElementById('mr-report-search')?.value || '').toLowerCase().trim();
 
     let filtered = list.filter(item => {
         if (!item) return false;
-        if (rawDateVal) {
-            if (rawDateVal.includes(' to ')) {
-                const [startDate, endDate] = rawDateVal.split(' to ').map(s => s.trim());
-                if (item.date && (item.date < startDate || item.date > endDate)) return false;
-            } else {
-                if (item.date && item.date !== rawDateVal) return false;
-            }
+        if (filterStart && filterEnd) {
+            const itemDate = normalizeDateToYmd(item.date);
+            if (!itemDate) return false;
+            if (itemDate < filterStart || itemDate > filterEnd) return false;
         }
         if (filterStatus !== 'ALL') {
             if (filterStatus === 'approved' && item.finalStatus !== 'Disetujui') return false;
@@ -523,7 +604,9 @@ function initReportDateFilter() {
             }
         },
         onChange: function(selectedDates, dateStr, instance) {
-            renderSplReportSlide();
+            if (selectedDates.length === 2) {
+                renderSplReportSlide();
+            }
         },
         onClose: function(selectedDates, dateStr, instance) {
             renderSplReportSlide();
@@ -543,21 +626,17 @@ function exportSplReportToCsv() {
         return;
     }
 
-    const dateInput = document.getElementById('mr-report-date-filter');
-    const rawDateVal = (dateInput && dateInput.value) ? dateInput.value.trim() : '';
+    const { start: filterStart, end: filterEnd } = getActiveDateFilterRange();
     const filterStatus = document.getElementById('mr-report-status')?.value || 'ALL';
     const filterSap = document.getElementById('mr-report-sap')?.value || 'ALL';
     const searchVal = (document.getElementById('mr-report-search')?.value || '').toLowerCase().trim();
 
     let filtered = list.filter(item => {
         if (!item) return false;
-        if (rawDateVal) {
-            if (rawDateVal.includes(' to ')) {
-                const [startDate, endDate] = rawDateVal.split(' to ').map(s => s.trim());
-                if (item.date && (item.date < startDate || item.date > endDate)) return false;
-            } else {
-                if (item.date && item.date !== rawDateVal) return false;
-            }
+        if (filterStart && filterEnd) {
+            const itemDate = normalizeDateToYmd(item.date);
+            if (!itemDate) return false;
+            if (itemDate < filterStart || itemDate > filterEnd) return false;
         }
         if (filterStatus !== 'ALL') {
             if (filterStatus === 'approved' && item.finalStatus !== 'Disetujui') return false;
