@@ -618,8 +618,13 @@ function populateReportMonthFilter(list) {
     // Deprecated: digantikan oleh Filter Tanggal Blue Pill (Flatpickr)
 }
 
-// Export Report SPL to CSV (Per Line Karyawan dengan Status Input SAP)
-function exportSplReportToCsv() {
+// Export Report SPL to Excel (.xlsx) dengan kolom rapi dan proporsional
+function exportSplReportToExcel() {
+    if (typeof XLSX === 'undefined') {
+        alert('Pustaka XLSX (SheetJS) belum termuat. Mohon tunggu beberapa detik atau muat ulang halaman.');
+        return;
+    }
+
     const list = (typeof getStoredSplList === 'function') ? getStoredSplList() : [];
     if (!list || list.length === 0) {
         alert('Tidak ada data SPL untuk diekspor!');
@@ -659,9 +664,9 @@ function exportSplReportToCsv() {
         return true;
     });
 
-    let csvContent = 'No Line,No SPL,Tanggal,Bagian,Lokasi,Pembuat,Overtime,Jam Mulai,Jam Selesai,Durasi (Jam),Uraian Pekerjaan,Status Akhir,Status SAP,Tanggal Input SAP\n';
-
+    const excelRows = [];
     let lineNo = 1;
+
     filtered.forEach(item => {
         const emps = (Array.isArray(item.employees) && item.employees.length > 0)
             ? item.employees
@@ -683,39 +688,94 @@ function exportSplReportToCsv() {
                 if (!docMatches && !empMatches) return;
             }
 
+            const startTime = e.startTime || item.startTime || '-';
+            const endTime = e.endTime || item.endTime || '-';
+            const empDuration = Number(e.duration) || Number(item.duration) || 0;
             const sapStatusText = statusVal || '-';
-            const sapDateText = (statusVal === 'Sudah') ? (e.sapInputDate || item.sapInputDate || '') : '';
+            const sapDateText = (statusVal === 'Sudah') ? (e.sapInputDate || item.sapInputDate || '-') : '-';
 
-            const row = [
-                lineNo++,
-                `"${item.splNo || ''}"`,
-                `"${item.date || ''}"`,
-                `"${item.area || ''}"`,
-                `"${item.location || ''}"`,
-                `"${item.kasie ? item.kasie.name : ''}"`,
-                `"${e.name || ''}"`,
-                `"${e.startTime || item.startTime || ''}"`,
-                `"${e.endTime || item.endTime || ''}"`,
-                e.duration || item.duration || 0,
-                `"${(e.reason || item.reason || '').replace(/"/g, '""')}"`,
-                `"${item.finalStatus || ''}"`,
-                `"${sapStatusText}"`,
-                `"${sapDateText}"`
-            ];
-            csvContent += row.join(',') + '\n';
+            excelRows.push({
+                'No': lineNo++,
+                'No. SPL': item.splNo || '-',
+                'Tanggal': item.date || '-',
+                'Bagian': item.area || '-',
+                'Lokasi': item.location || '-',
+                'Pembuat SPL': item.kasie ? item.kasie.name : '-',
+                'Overtime (Karyawan)': e.name || '-',
+                'Waktu Lembur': `${startTime} - ${endTime}`,
+                'Durasi (Jam)': empDuration,
+                'Uraian Pekerjaan': e.reason || item.reason || '-',
+                'Status Akhir': item.finalStatus || '-',
+                'Status SAP': sapStatusText,
+                'Tanggal Input SAP': sapDateText
+            });
         });
     });
 
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `Laporan_Line_SPL_Warehouse_${new Date().toISOString().substring(0, 10)}.csv`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+    if (excelRows.length === 0) {
+        alert('Tidak ada data baris SPL yang cocok dengan filter untuk diekspor!');
+        return;
+    }
+
+    try {
+        // Konversi ke worksheet Excel
+        const ws = XLSX.utils.json_to_sheet(excelRows);
+
+        // Definisi konfigurasi lebar minimum kolom yang rapi
+        const columnConfig = [
+            { key: 'No', minWch: 6 },
+            { key: 'No. SPL', minWch: 24 },
+            { key: 'Tanggal', minWch: 14 },
+            { key: 'Bagian', minWch: 18 },
+            { key: 'Lokasi', minWch: 18 },
+            { key: 'Pembuat SPL', minWch: 24 },
+            { key: 'Overtime (Karyawan)', minWch: 26 },
+            { key: 'Waktu Lembur', minWch: 16 },
+            { key: 'Durasi (Jam)', minWch: 14 },
+            { key: 'Uraian Pekerjaan', minWch: 35 },
+            { key: 'Status Akhir', minWch: 18 },
+            { key: 'Status SAP', minWch: 14 },
+            { key: 'Tanggal Input SAP', minWch: 18 }
+        ];
+
+        // Hitung lebar otomatis (Auto-fit Widths) berdasarkan isi data dan header
+        const colWidths = columnConfig.map(col => {
+            let maxLen = col.key.length;
+            excelRows.forEach(row => {
+                const val = row[col.key];
+                const len = (val !== null && val !== undefined) ? String(val).length : 0;
+                if (len > maxLen) maxLen = len;
+            });
+            // Berikan margin 3 karakter agar tulisan rapi dan tidak terpotong
+            const width = Math.min(60, Math.max(col.minWch, maxLen + 3));
+            return { wch: width };
+        });
+
+        ws['!cols'] = colWidths;
+
+        // Buat workbook Excel
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "Report SPL");
+
+        // Format nama file sesuai filter tanggal
+        let periodStr = '';
+        if (filterStart && filterEnd) {
+            periodStr = (filterStart === filterEnd) ? `_${filterStart}` : `_${filterStart}_sd_${filterEnd}`;
+        } else {
+            periodStr = `_${new Date().toISOString().substring(0, 10)}`;
+        }
+
+        const fileName = `Report_SPL_Warehouse${periodStr}.xlsx`;
+        XLSX.writeFile(wb, fileName);
+    } catch (err) {
+        console.error("Error exporting SPL to excel:", err);
+        alert("Gagal mengekspor file Excel: " + err.message);
+    }
 }
+
+// Alias untuk kompatibilitas jika ada pemanggilan lama
+window.exportSplReportToCsv = exportSplReportToExcel;
+window.exportSplReportToExcel = exportSplReportToExcel;
 
 // Print Report Summary
 function printMasterReportSummary() {
