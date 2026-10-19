@@ -300,7 +300,7 @@ function renderSplReportSlide() {
     if (allLines.length === 0) {
         tbody.innerHTML = `
             <tr>
-                <td colspan="9" style="text-align: center; padding: 36px 16px; color: #94a3b8; font-size: 0.88rem;">
+                <td colspan="12" style="text-align: center; padding: 36px 16px; color: #94a3b8; font-size: 0.88rem;">
                     Belum ada rekapan data line SPL yang cocok dengan filter.
                 </td>
             </tr>
@@ -334,23 +334,31 @@ function renderSplReportSlide() {
         return `
             <tr style="${borderTopStyle} transition: background 0.15s;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='transparent'">
                 <td style="padding: 10px 12px; font-size: 0.8rem; color: #64748b; text-align: center; font-weight: 600;">${idx + 1}</td>
-                <td style="padding: 10px 14px;">
-                    <div style="display: flex; align-items: center; flex-wrap: wrap; gap: 4px;">
+                <td style="padding: 10px 14px; white-space: nowrap;">
+                    <div style="display: flex; align-items: center; gap: 4px;">
                         <span style="font-weight: 700; color: #0f172a; font-size: 0.85rem; font-family: monospace;">${item.splNo}</span>
                         ${lineBadge}
                     </div>
-                    <div style="font-size: 0.75rem; color: #64748b; margin-top: 2px;">📅 ${item.date || '-'} • <span style="font-weight: 600; color: #475569;">${creatorName}</span></div>
                 </td>
-                <td style="padding: 10px 14px;">
-                    <div style="font-weight: 600; color: #1e293b; font-size: 0.82rem;">${item.area}</div>
-                    <div style="font-size: 0.75rem; color: #64748b;">${item.location}</div>
+                <td style="padding: 10px 14px; white-space: nowrap;">
+                    <span style="font-weight: 600; color: #334155; font-size: 0.82rem;">${item.date || '-'}</span>
                 </td>
-                <td style="padding: 10px 14px;">
+                <td style="padding: 10px 14px; white-space: nowrap;">
+                    <span style="font-weight: 600; color: #1e293b; font-size: 0.82rem;">${item.area || '-'}</span>
+                </td>
+                <td style="padding: 10px 14px; white-space: nowrap;">
+                    <span style="color: #64748b; font-size: 0.82rem;">${item.location || '-'}</span>
+                </td>
+                <td style="padding: 10px 14px; white-space: nowrap;">
+                    <div style="font-weight: 600; color: #0f172a; font-size: 0.82rem;">${item.kasie ? item.kasie.name : '-'}</div>
+                    <div style="font-size: 0.74rem; color: #64748b;">${item.creatorRole || 'Kasie'}</div>
+                </td>
+                <td style="padding: 10px 14px; white-space: nowrap;">
                     <div style="font-weight: 700; color: #0f172a; font-size: 0.85rem;">👤 ${e.name || '-'}</div>
                     <div style="font-size: 0.75rem; color: #64748b; font-family: monospace;">NIK: ${e.persNo || '-'}</div>
                 </td>
-                <td style="padding: 10px 14px; text-align: center;">
-                    <div style="font-weight: 600; color: #1e293b; font-size: 0.82rem; white-space: nowrap;">${startTime} - ${endTime}</div>
+                <td style="padding: 10px 14px; text-align: center; white-space: nowrap;">
+                    <div style="font-weight: 600; color: #1e293b; font-size: 0.82rem;">${startTime} - ${endTime}</div>
                 </td>
                 <td style="padding: 10px 14px; text-align: center;">
                     <span style="font-weight: 700; color: #0284c7; font-size: 0.82rem; background: #e0f2fe; padding: 3px 8px; border-radius: 99px; border: 1px solid #bae6fd; white-space: nowrap;">
