@@ -2794,8 +2794,8 @@ document.addEventListener("DOMContentLoaded", function() {
                                         <input type="time" class="spl-indiv-end" value="${defEnd}" onchange="window.calcIndivDuration(this)" style="height: 32px; padding: 0 6px; border: 1.5px solid #93c5fd; border-radius: 6px; font-size: 0.84rem; font-weight: 600; text-align: center; background: #ffffff; outline: none; color: #0f172a;">
                                         <span class="spl-indiv-duration" style="font-size: 0.75rem; font-weight: 700; color: #0284c7; background: #e0f2fe; padding: 2px 8px; border-radius: 99px; border: 1px solid #7dd3fc; white-space: nowrap;">${durHours} Jam</span>
                                     </div>
-                                    <button type="button" onclick="window.resetIndivToDefault(this)" title="Samakan kembali dengan jam utama di atas" style="background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 6px; padding: 3px 8px; font-size: 0.74rem; font-weight: 600; color: #475569; cursor: pointer; transition: all 0.15s;" onmouseover="this.style.background='#e2e8f0'" onmouseout="this.style.background='#f1f5f9'">
-                                        ↺ Samakan Default
+                                    <button type="button" onclick="window.resetIndivToDefault(this)" title="Reset ke jam standar 17:00 - 21:00" style="background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 6px; padding: 3px 8px; font-size: 0.74rem; font-weight: 600; color: #475569; cursor: pointer; transition: all 0.15s;" onmouseover="this.style.background='#e2e8f0'" onmouseout="this.style.background='#f1f5f9'">
+                                        ↺ Reset Jam
                                     </button>
                                 </div>
                                 <div>
@@ -2814,12 +2814,10 @@ document.addEventListener("DOMContentLoaded", function() {
                             if (cb.checked) {
                                 if (panel) panel.style.display = 'block';
                                 if (!card.dataset.customizedTime) {
-                                    const defStart = document.getElementById('spl-start-time')?.value || '17:00';
-                                    const defEnd = document.getElementById('spl-end-time')?.value || '21:00';
                                     const sInp = card.querySelector('.spl-indiv-start');
                                     const eInp = card.querySelector('.spl-indiv-end');
-                                    if (sInp) sInp.value = defStart;
-                                    if (eInp) eInp.value = defEnd;
+                                    if (sInp && !sInp.value) sInp.value = '17:00';
+                                    if (eInp && !eInp.value) eInp.value = '21:00';
                                     if (sInp) window.calcIndivDuration(sInp, false);
                                 }
                             } else {
@@ -2860,16 +2858,15 @@ document.addEventListener("DOMContentLoaded", function() {
                         const card = btn.closest('.spl-emp-card');
                         if (!card) return;
                         delete card.dataset.customizedTime;
-                        const defStart = document.getElementById('spl-start-time')?.value || '17:00';
-                        const defEnd = document.getElementById('spl-end-time')?.value || '21:00';
                         const sInp = card.querySelector('.spl-indiv-start');
                         const eInp = card.querySelector('.spl-indiv-end');
                         const rInp = card.querySelector('.spl-indiv-reason');
-                        if (sInp) sInp.value = defStart;
-                        if (eInp) eInp.value = defEnd;
+                        if (sInp) sInp.value = '17:00';
+                        if (eInp) eInp.value = '21:00';
                         if (rInp) rInp.value = '';
                         if (sInp) calcIndivDuration(sInp, false);
                     }
+                    window.resetIndivToDefault = resetIndivToDefault;
                     window.resetIndivToDefault = resetIndivToDefault;
 
                     function syncDefaultTimeToCheckedEmployees() {
@@ -2963,22 +2960,7 @@ document.addEventListener("DOMContentLoaded", function() {
                         </div>
                     </div>
 
-                    <!-- Row 2: Jam Mulai & Jam Selesai Lembur -->
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
-                        <div>
-                            <label style="display: block; font-size: 0.84rem; font-weight: 700; color: #1e293b; margin-bottom: 6px;">Jam Mulai Lembur</label>
-                            <input type="time" id="spl-start-time" class="spl-interactive-input" value="17:00" required style="width: 100%; height: 46px; box-sizing: border-box; padding: 0 14px; border: 2px solid #cbd5e1; border-radius: 10px; font-size: 0.92rem; font-weight: 600; text-align: center; background: #ffffff; color: #0f172a; outline: none;">
-                        </div>
-                        <div>
-                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                                <label style="font-size: 0.84rem; font-weight: 700; color: #1e293b;">Jam Selesai Lembur</label>
-                                <span id="spl-calc-duration" style="font-size: 0.76rem; font-weight: 700; color: #0284c7; background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%); padding: 2px 10px; border-radius: 99px; border: 1.5px solid #7dd3fc; box-shadow: 0 2px 5px rgba(14, 165, 233, 0.12); line-height: 1.3;">4 Jam</span>
-                            </div>
-                            <input type="time" id="spl-end-time" class="spl-interactive-input" value="21:00" required style="width: 100%; height: 46px; box-sizing: border-box; padding: 0 14px; border: 2px solid #cbd5e1; border-radius: 10px; font-size: 0.92rem; font-weight: 600; text-align: center; background: #ffffff; color: #0f172a; outline: none;">
-                        </div>
-                    </div>
-
-                    <!-- Row 3: WH Area & Lokasi (Dinamis dari Master Employee1.csv) -->
+                    <!-- Row 2: WH Area & Lokasi (Dinamis dari Master Employee1.csv) -->
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
                         <div>
                             <label style="display: block; font-size: 0.84rem; font-weight: 700; color: #1e293b; margin-bottom: 6px;">Bagian</label>
@@ -2994,17 +2976,14 @@ document.addEventListener("DOMContentLoaded", function() {
                         </div>
                     </div>
 
-                    <!-- Row 4: Member Team Checkbox List -->
+                    <!-- Row 3: Member Team Checkbox List -->
                     <div>
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
                             <label style="font-size: 0.86rem; font-weight: 700; color: #1e293b;">Pilih Karyawan Ditugaskan</label>
                             <div style="display: flex; align-items: center; gap: 8px;">
                                 <span id="spl-selected-counter" style="background: #e0f2fe; color: #0284c7; font-size: 0.78rem; font-weight: 700; padding: 3px 10px; border-radius: 99px; border: 1.5px solid #bae6fd;">0 Dipilih</span>
                                 <button type="button" id="btn-spl-select-all" onclick="toggleSelectAllSplEmployees()" style="background: #ffffff; color: #2563eb; border: 1.5px solid #cbd5e1; padding: 4px 12px; border-radius: 8px; font-size: 0.78rem; font-weight: 700; cursor: pointer; transition: all 0.2s;">✓ Pilih Semua</button>
                             </div>
-                        </div>
-                        <div style="font-size: 0.76rem; color: #64748b; margin-bottom: 8px;">
-                            💡 Jam & alasan otomatis mengikuti input utama di atas. Untuk karyawan yang waktu/tugasnya berbeda, sesuaikan langsung pada kotak karyawan.
                         </div>
                         <div id="spl-employee-list-container" style="max-height: 320px; overflow-y: auto; display: flex; flex-direction: column; gap: 5px; background: #f8fafc; border: 2px solid #cbd5e1; border-radius: 14px; padding: 12px; box-shadow: inset 0 2px 5px rgba(0,0,0,0.03);">
                             <div style="color: #1e40af; font-size: 0.88rem; font-weight: 600; text-align: center; padding: 18px; background: linear-gradient(135deg, #eff6ff 0%, #f0fdf4 100%); border: 1.5px dashed #93c5fd; border-radius: 12px;">

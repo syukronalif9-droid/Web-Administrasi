@@ -998,20 +998,18 @@ async function handleSplSubmit(e) {
     if (!splNo || existingList.some(item => item && item.splNo === splNo)) {
         splNo = generateNextSplNumber();
     }
-    const date = document.getElementById('spl-date').value;
-    const startTime = document.getElementById('spl-start-time').value;
-    const endTime = document.getElementById('spl-end-time').value;
-    const area = document.getElementById('spl-area-select').value;
-    const location = document.getElementById('spl-location-select').value;
-    const reason = document.getElementById('spl-reason').value.trim();
+    const date = document.getElementById('spl-date')?.value;
+    const area = document.getElementById('spl-area-select')?.value;
+    const location = document.getElementById('spl-location-select')?.value;
+    const reason = document.getElementById('spl-reason')?.value?.trim() || '';
 
     // Check selected employees dengan Individual Override
     const checkboxes = document.querySelectorAll('input[name="spl_emp_check"]:checked');
     const selectedEmps = Array.from(checkboxes).map(cb => {
         const [persNo, name] = cb.value.split('|');
         const card = cb.closest('.spl-emp-card');
-        const indivStart = card?.querySelector('.spl-indiv-start')?.value || startTime;
-        const indivEnd = card?.querySelector('.spl-indiv-end')?.value || endTime;
+        const indivStart = card?.querySelector('.spl-indiv-start')?.value || '17:00';
+        const indivEnd = card?.querySelector('.spl-indiv-end')?.value || '21:00';
         const indivReason = card?.querySelector('.spl-indiv-reason')?.value?.trim() || reason;
 
         // Hitung durasi per karyawan
@@ -1032,8 +1030,8 @@ async function handleSplSubmit(e) {
         };
     });
 
-    if (!date || !startTime || !endTime) {
-        alert('Mohon lengkapi tanggal dan jam lembur!');
+    if (!date) {
+        alert('Mohon lengkapi tanggal lembur!');
         return;
     }
 
@@ -1046,6 +1044,10 @@ async function handleSplSubmit(e) {
         alert('Pilih minimal 1 orang karyawan yang ditugaskan lembur!');
         return;
     }
+
+    const startTime = selectedEmps[0].startTime;
+    const endTime = selectedEmps[0].endTime;
+    const durationHours = selectedEmps[0].duration;
 
     if (!reason) {
         alert('Mohon isi uraian pekerjaan / alasan lembur!');
@@ -1063,14 +1065,6 @@ async function handleSplSubmit(e) {
     const kasieEmail = getApproverEmailByPersNo(kasieNo, kasieName);
     const kabagEmail = getApproverEmailByPersNo(kabagNo, kabagName);
     const mgrEmail = getApproverEmailByPersNo(mgrNo || '5078', mgrName || 'Wawan Kurniawan');
-
-    // Calculate duration
-    const [sH, sM] = startTime.split(':').map(Number);
-    const [eH, eM] = endTime.split(':').map(Number);
-    let startMin = sH * 60 + sM;
-    let endMin = eH * 60 + eM;
-    if (endMin < startMin) endMin += 24 * 60;
-    const durationHours = parseFloat(((endMin - startMin) / 60).toFixed(1));
 
     // Periksa role user saat submit
     const currentUser = getCurrentUserSession();
