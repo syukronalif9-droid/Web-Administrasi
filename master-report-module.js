@@ -367,8 +367,8 @@ function renderSplReportSlide() {
                 <td style="padding: 12px 16px; text-align: left; white-space: nowrap;">
                     <div style="font-weight: 600; color: #000000; font-size: 0.85rem;">${startTime} - ${endTime}</div>
                 </td>
-                <td style="padding: 12px 16px; text-align: left;">
-                    <span style="font-weight: 700; color: #0284c7; font-size: 0.85rem; background: #e0f2fe; padding: 4px 10px; border-radius: 99px; border: 1px solid #bae6fd; white-space: nowrap;">
+                <td style="padding: 12px 16px; text-align: left; white-space: nowrap;">
+                    <span style="font-weight: 600; color: #000000; font-size: 0.85rem;">
                         ${duration} Jam
                     </span>
                 </td>
@@ -377,8 +377,8 @@ function renderSplReportSlide() {
                         ${reason}
                     </div>
                 </td>
-                <td style="padding: 12px 16px; text-align: left;">
-                    <span style="display: inline-block; padding: 4px 12px; border-radius: 99px; font-size: 0.78rem; font-weight: 700; background: ${badgeBg}; color: ${badgeColor}; white-space: nowrap;">
+                <td style="padding: 12px 16px; text-align: left; white-space: nowrap;">
+                    <span style="font-weight: 600; color: #000000; font-size: 0.85rem;">
                         ${item.finalStatus}
                     </span>
                 </td>
