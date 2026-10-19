@@ -108,6 +108,7 @@ function switchMasterReportSlide(slideNum) {
         tab1.classList.remove('active');
         slide2.style.display = 'block';
         slide1.style.display = 'none';
+        initReportDateFilter();
         renderSplReportSlide();
     }
 }
@@ -212,19 +213,23 @@ function renderMasterEmployeeSlide() {
 function renderSplReportSlide() {
     const list = (typeof getStoredSplList === 'function') ? getStoredSplList() : [];
     const tbody = document.getElementById('mr-report-tbody');
-    const filterMonth = document.getElementById('mr-report-month')?.value || 'ALL';
+    initReportDateFilter();
+
+    const dateInput = document.getElementById('mr-report-date-filter');
+    const rawDateVal = (dateInput && dateInput.value) ? dateInput.value.trim() : '';
     const filterStatus = document.getElementById('mr-report-status')?.value || 'ALL';
     const filterSap = document.getElementById('mr-report-sap')?.value || 'ALL';
     const searchVal = (document.getElementById('mr-report-search')?.value || '').toLowerCase().trim();
 
-    // Populate month filter jika belum terisi
-    populateReportMonthFilter(list);
-
     let filtered = list.filter(item => {
         if (!item) return false;
-        if (filterMonth !== 'ALL') {
-            const itemYm = item.date ? item.date.substring(0, 7) : '';
-            if (itemYm !== filterMonth) return false;
+        if (rawDateVal) {
+            if (rawDateVal.includes(' to ')) {
+                const [startDate, endDate] = rawDateVal.split(' to ').map(s => s.trim());
+                if (item.date && (item.date < startDate || item.date > endDate)) return false;
+            } else {
+                if (item.date && item.date !== rawDateVal) return false;
+            }
         }
         if (filterStatus !== 'ALL') {
             if (filterStatus === 'approved' && item.finalStatus !== 'Disetujui') return false;
@@ -483,22 +488,51 @@ window.updateSapStatus = function(splId, empIdx, newStatus) {
     renderSplReportSlide();
 };
 
-function populateReportMonthFilter(list) {
-    const monthSelect = document.getElementById('mr-report-month');
-    if (!monthSelect || monthSelect.dataset.populated === 'true') return;
+// Inisialisasi Filter Tanggal (Flatpickr Blue Pill Range / Single Date)
+function initReportDateFilter() {
+    const inputEl = document.getElementById('mr-report-date-filter');
+    if (!inputEl || inputEl._flatpickr) return;
+    if (typeof flatpickr === 'undefined') return;
 
-    const months = [...new Set(list.map(item => item.date ? item.date.substring(0, 7) : null).filter(Boolean))].sort().reverse();
-    
-    let html = '<option value="ALL">Semua Periode Bulan</option>';
-    months.forEach(ym => {
-        const [y, m] = ym.split('-');
-        const dateObj = new Date(Number(y), Number(m) - 1, 1);
-        const monthName = dateObj.toLocaleString('id-ID', { month: 'long', year: 'numeric' });
-        html += `<option value="${ym}">${monthName}</option>`;
+    flatpickr(inputEl, {
+        mode: 'range',
+        dateFormat: 'Y-m-d',
+        altInput: true,
+        altInputClass: 'blue-pill-date',
+        altFormat: 'd M Y',
+        locale: 'id',
+        onReady: function(selectedDates, dateStr, instance) {
+            if (instance.altInput) {
+                instance.altInput.placeholder = 'Semua Tanggal';
+                instance.altInput.style.minWidth = '175px';
+                instance.altInput.style.textAlign = 'center';
+            }
+            const clearBtn = document.createElement('button');
+            clearBtn.type = 'button';
+            clearBtn.textContent = 'Reset (Semua Tanggal)';
+            clearBtn.style = 'width: 100%; border: none; background: #EF4444; color: white; padding: 10px; cursor: pointer; border-radius: 0 0 12px 12px; font-weight: 700; font-size: 0.85rem; margin-top: 6px; font-family: Inter, sans-serif; transition: background 0.15s;';
+            clearBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                instance.clear();
+                if (instance.altInput) instance.altInput.value = '';
+                instance.close();
+                renderSplReportSlide();
+            });
+            if (instance.calendarContainer) {
+                instance.calendarContainer.appendChild(clearBtn);
+            }
+        },
+        onChange: function(selectedDates, dateStr, instance) {
+            renderSplReportSlide();
+        },
+        onClose: function(selectedDates, dateStr, instance) {
+            renderSplReportSlide();
+        }
     });
+}
 
-    monthSelect.innerHTML = html;
-    monthSelect.dataset.populated = 'true';
+function populateReportMonthFilter(list) {
+    // Deprecated: digantikan oleh Filter Tanggal Blue Pill (Flatpickr)
 }
 
 // Export Report SPL to CSV (Per Line Karyawan dengan Status Input SAP)
@@ -509,16 +543,21 @@ function exportSplReportToCsv() {
         return;
     }
 
-    const filterMonth = document.getElementById('mr-report-month')?.value || 'ALL';
+    const dateInput = document.getElementById('mr-report-date-filter');
+    const rawDateVal = (dateInput && dateInput.value) ? dateInput.value.trim() : '';
     const filterStatus = document.getElementById('mr-report-status')?.value || 'ALL';
     const filterSap = document.getElementById('mr-report-sap')?.value || 'ALL';
     const searchVal = (document.getElementById('mr-report-search')?.value || '').toLowerCase().trim();
 
     let filtered = list.filter(item => {
         if (!item) return false;
-        if (filterMonth !== 'ALL') {
-            const itemYm = item.date ? item.date.substring(0, 7) : '';
-            if (itemYm !== filterMonth) return false;
+        if (rawDateVal) {
+            if (rawDateVal.includes(' to ')) {
+                const [startDate, endDate] = rawDateVal.split(' to ').map(s => s.trim());
+                if (item.date && (item.date < startDate || item.date > endDate)) return false;
+            } else {
+                if (item.date && item.date !== rawDateVal) return false;
+            }
         }
         if (filterStatus !== 'ALL') {
             if (filterStatus === 'approved' && item.finalStatus !== 'Disetujui') return false;
@@ -607,4 +646,5 @@ function printMasterReportSummary() {
 // Inisialisasi event listener dan modal DOM
 document.addEventListener('DOMContentLoaded', function() {
     populateMasterEmployeeFilters();
+    initReportDateFilter();
 });
