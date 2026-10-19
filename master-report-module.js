@@ -57,10 +57,9 @@ function toggleMasterReportView() {
         const resetBtn = document.getElementById('btn-reset-summary');
         if (resetBtn) resetBtn.style.display = 'none';
 
-        // Render data for both slides
-        renderMasterEmployeeSlide();
+        // Render Report SPL directly
+        initReportDateFilter();
         renderSplReportSlide();
-        populateMasterEmployeeFilters();
     }
 }
 
