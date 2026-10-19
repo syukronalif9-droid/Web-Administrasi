@@ -241,79 +241,134 @@ function renderSplReportSlide() {
         return true;
     });
 
-    // Hitung KPI Statistik
-    const totalSpl = filtered.length;
-    let totalJam = 0;
+    // Hitung KPI Statistik dan breakdown per line karyawan
+    const allLines = [];
+    let totalManHours = 0;
     let totalOrang = 0;
     let countApproved = 0;
     let countPending = 0;
     let countRejected = 0;
 
     filtered.forEach(item => {
-        totalJam += Number(item.duration) || 0;
-        totalOrang += Array.isArray(item.employees) ? item.employees.length : 0;
         if (item.finalStatus === 'Disetujui') countApproved++;
         else if (item.finalStatus && item.finalStatus.includes('Ditolak')) countRejected++;
         else countPending++;
+
+        const emps = (Array.isArray(item.employees) && item.employees.length > 0)
+            ? item.employees
+            : [{ persNo: '-', name: '-', startTime: item.startTime, endTime: item.endTime, duration: item.duration, reason: item.reason }];
+
+        const totalEmpInSpl = emps.length;
+
+        emps.forEach((e, empIdx) => {
+            if (searchVal) {
+                const docMatches = (item.splNo && item.splNo.toLowerCase().includes(searchVal)) ||
+                                   (item.area && item.area.toLowerCase().includes(searchVal)) ||
+                                   (item.location && item.location.toLowerCase().includes(searchVal)) ||
+                                   (item.kasie && item.kasie.name && item.kasie.name.toLowerCase().includes(searchVal));
+                const empMatches = (e.name && e.name.toLowerCase().includes(searchVal)) ||
+                                   (e.persNo && String(e.persNo).includes(searchVal)) ||
+                                   (e.reason && e.reason.toLowerCase().includes(searchVal));
+                if (!docMatches && !empMatches) return;
+            }
+
+            const empDuration = Number(e.duration) || Number(item.duration) || 0;
+            totalManHours += empDuration;
+            totalOrang++;
+
+            allLines.push({
+                spl: item,
+                emp: e,
+                empIdx: empIdx,
+                totalEmpInSpl: totalEmpInSpl
+            });
+        });
     });
 
     // Update KPI Card di Header Slide 2
-    document.getElementById('mr-kpi-total-spl').textContent = totalSpl;
-    document.getElementById('mr-kpi-total-hours').textContent = `${totalJam.toFixed(1)} Jam`;
+    document.getElementById('mr-kpi-total-spl').textContent = filtered.length;
+    document.getElementById('mr-kpi-total-hours').textContent = `${totalManHours.toFixed(1)} Jam`;
     document.getElementById('mr-kpi-total-emp').textContent = `${totalOrang} Orang`;
     document.getElementById('mr-kpi-approved').textContent = countApproved;
 
+    // Update Total Line Counter
+    const totalLineEl = document.getElementById('mr-report-total-line');
+    if (totalLineEl) totalLineEl.textContent = allLines.length;
+
     if (!tbody) return;
 
-    if (filtered.length === 0) {
+    if (allLines.length === 0) {
         tbody.innerHTML = `
             <tr>
-                <td colspan="8" style="text-align: center; padding: 36px 16px; color: #94a3b8; font-size: 0.88rem;">
-                    Belum ada rekapan data SPL yang cocok dengan filter.
+                <td colspan="9" style="text-align: center; padding: 36px 16px; color: #94a3b8; font-size: 0.88rem;">
+                    Belum ada rekapan data line SPL yang cocok dengan filter.
                 </td>
             </tr>
         `;
         return;
     }
 
-    tbody.innerHTML = filtered.map((item, idx) => {
+    tbody.innerHTML = allLines.map((lineObj, idx) => {
+        const item = lineObj.spl;
+        const e = lineObj.emp;
+        const empIdx = lineObj.empIdx;
+        const totalEmpInSpl = lineObj.totalEmpInSpl;
+
         const isApproved = item.finalStatus === 'Disetujui';
         const isRejected = item.finalStatus.includes('Ditolak');
         const badgeBg = isApproved ? '#dcfce7' : (isRejected ? '#fee2e2' : '#fef3c7');
         const badgeColor = isApproved ? '#15803d' : (isRejected ? '#dc2626' : '#b45309');
-        const empCount = Array.isArray(item.employees) ? item.employees.length : 0;
-        const empNames = Array.isArray(item.employees) ? item.employees.map(e => e.name).join(', ') : '-';
+
+        const startTime = e.startTime || item.startTime || '-';
+        const endTime = e.endTime || item.endTime || '-';
+        const duration = e.duration || item.duration || 0;
+        const reason = e.reason || item.reason || '-';
+        const creatorName = item.kasie ? item.kasie.name : (item.creatorRole || 'Kasie');
+
+        const isFirstLineOfSpl = empIdx === 0;
+        const borderTopStyle = (idx > 0 && isFirstLineOfSpl) ? 'border-top: 2px solid #cbd5e1;' : 'border-bottom: 1px solid #f1f5f9;';
+        const lineBadge = totalEmpInSpl > 1 
+            ? `<span style="font-size: 0.7rem; color: #2563eb; background: #eff6ff; padding: 2px 7px; border-radius: 6px; border: 1px solid #bfdbfe; margin-left: 6px; font-weight: 700; white-space: nowrap;">Line ${empIdx + 1}/${totalEmpInSpl}</span>` 
+            : '';
 
         return `
-            <tr style="border-bottom: 1px solid #f1f5f9; transition: background 0.15s;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='transparent'">
+            <tr style="${borderTopStyle} transition: background 0.15s;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='transparent'">
                 <td style="padding: 10px 12px; font-size: 0.8rem; color: #64748b; text-align: center; font-weight: 600;">${idx + 1}</td>
                 <td style="padding: 10px 14px;">
-                    <div style="font-weight: 700; color: #0f172a; font-size: 0.85rem; font-family: monospace;">${item.splNo}</div>
-                    <div style="font-size: 0.76rem; color: #64748b;">${item.date || '-'}</div>
+                    <div style="display: flex; align-items: center; flex-wrap: wrap; gap: 4px;">
+                        <span style="font-weight: 700; color: #0f172a; font-size: 0.85rem; font-family: monospace;">${item.splNo}</span>
+                        ${lineBadge}
+                    </div>
+                    <div style="font-size: 0.75rem; color: #64748b; margin-top: 2px;">📅 ${item.date || '-'} • <span style="font-weight: 600; color: #475569;">${creatorName}</span></div>
                 </td>
                 <td style="padding: 10px 14px;">
                     <div style="font-weight: 600; color: #1e293b; font-size: 0.82rem;">${item.area}</div>
                     <div style="font-size: 0.75rem; color: #64748b;">${item.location}</div>
                 </td>
                 <td style="padding: 10px 14px;">
-                    <div style="font-weight: 600; color: #0f172a; font-size: 0.82rem;">${item.kasie ? item.kasie.name : '-'}</div>
-                    <div style="font-size: 0.74rem; color: #64748b;">${item.creatorRole || 'Kasie'}</div>
-                </td>
-                <td style="padding: 10px 14px;">
-                    <span style="font-weight: 700; color: #0f172a; font-size: 0.85rem;">${empCount} Orang</span>
-                    <div style="font-size: 0.74rem; color: #64748b; max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${empNames}">${empNames}</div>
+                    <div style="font-weight: 700; color: #0f172a; font-size: 0.85rem;">👤 ${e.name || '-'}</div>
+                    <div style="font-size: 0.75rem; color: #64748b; font-family: monospace;">NIK: ${e.persNo || '-'}</div>
                 </td>
                 <td style="padding: 10px 14px; text-align: center;">
-                    <div style="font-weight: 700; color: #0f172a; font-size: 0.85rem;">${item.duration} Jam</div>
-                    <div style="font-size: 0.74rem; color: #64748b;">${item.startTime} - ${item.endTime}</div>
+                    <div style="font-weight: 600; color: #1e293b; font-size: 0.82rem; white-space: nowrap;">${startTime} - ${endTime}</div>
                 </td>
                 <td style="padding: 10px 14px; text-align: center;">
-                    <span style="display: inline-block; padding: 4px 10px; border-radius: 99px; font-size: 0.74rem; font-weight: 700; background: ${badgeBg}; color: ${badgeColor};">
+                    <span style="font-weight: 700; color: #0284c7; font-size: 0.82rem; background: #e0f2fe; padding: 3px 8px; border-radius: 99px; border: 1px solid #bae6fd; white-space: nowrap;">
+                        ${duration} Jam
+                    </span>
+                </td>
+                <td style="padding: 10px 14px; max-width: 220px;">
+                    <div style="font-size: 0.8rem; color: #334155; line-height: 1.4; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${reason}">
+                        ${reason}
+                    </div>
+                </td>
+                <td style="padding: 10px 14px; text-align: center;">
+                    <span style="display: inline-block; padding: 4px 10px; border-radius: 99px; font-size: 0.74rem; font-weight: 700; background: ${badgeBg}; color: ${badgeColor}; white-space: nowrap;">
                         ${item.finalStatus}
                     </span>
                 </td>
                 <td style="padding: 10px 14px; text-align: center;">
-                    <button type="button" onclick="printSplDocument('${item.id}')" style="background: #f1f5f9; border: 1px solid #cbd5e1; color: #1e293b; padding: 5px 10px; border-radius: 8px; font-size: 0.75rem; font-weight: 600; cursor: pointer;">
+                    <button type="button" onclick="printSplDocument('${item.id}')" style="background: #f1f5f9; border: 1px solid #cbd5e1; color: #1e293b; padding: 5px 12px; border-radius: 8px; font-size: 0.75rem; font-weight: 600; cursor: pointer; white-space: nowrap;" onmouseover="this.style.background='#e2e8f0'" onmouseout="this.style.background='#f1f5f9'">
                         Cetak
                     </button>
                 </td>
@@ -340,7 +395,7 @@ function populateReportMonthFilter(list) {
     monthSelect.dataset.populated = 'true';
 }
 
-// Export Report SPL to CSV
+// Export Report SPL to CSV (Per Line Karyawan)
 function exportSplReportToCsv() {
     const list = (typeof getStoredSplList === 'function') ? getStoredSplList() : [];
     if (!list || list.length === 0) {
@@ -348,39 +403,70 @@ function exportSplReportToCsv() {
         return;
     }
 
-    let csvContent = 'No,No SPL,Tanggal,Bagian,Lokasi,Pembuat,Jml Karyawan,Daftar Karyawan,Mulai,Selesai,Durasi (Jam),Alasan,Status Akhir\n';
+    const filterMonth = document.getElementById('mr-report-month')?.value || 'ALL';
+    const filterStatus = document.getElementById('mr-report-status')?.value || 'ALL';
+    const searchVal = (document.getElementById('mr-report-search')?.value || '').toLowerCase().trim();
 
-    list.forEach((item, idx) => {
-        const empCount = Array.isArray(item.employees) ? item.employees.length : 0;
-        const empList = Array.isArray(item.employees) ? item.employees.map(e => {
-            const timeStr = (e.startTime && e.endTime) ? ` [${e.startTime}-${e.endTime}]` : '';
-            return `${e.name} (${e.persNo})${timeStr}`;
-        }).join('; ') : '';
-        const reasonClean = (item.reason || '').replace(/"/g, '""');
+    let filtered = list.filter(item => {
+        if (!item) return false;
+        if (filterMonth !== 'ALL') {
+            const itemYm = item.date ? item.date.substring(0, 7) : '';
+            if (itemYm !== filterMonth) return false;
+        }
+        if (filterStatus !== 'ALL') {
+            if (filterStatus === 'approved' && item.finalStatus !== 'Disetujui') return false;
+            if (filterStatus === 'pending' && !item.finalStatus.includes('Menunggu')) return false;
+            if (filterStatus === 'rejected' && !item.finalStatus.includes('Ditolak')) return false;
+        }
+        if (searchVal) {
+            const noMatch = item.splNo && item.splNo.toLowerCase().includes(searchVal);
+            const areaMatch = item.area && item.area.toLowerCase().includes(searchVal);
+            const locationMatch = item.location && item.location.toLowerCase().includes(searchVal);
+            const reasonMatch = item.reason && item.reason.toLowerCase().includes(searchVal);
+            const creatorMatch = item.kasie && item.kasie.name && item.kasie.name.toLowerCase().includes(searchVal);
+            const empMatch = item.employees && item.employees.some(e => 
+                (e.name && e.name.toLowerCase().includes(searchVal)) || 
+                (e.persNo && String(e.persNo).includes(searchVal)) ||
+                (e.reason && e.reason.toLowerCase().includes(searchVal))
+            );
+            if (!noMatch && !areaMatch && !locationMatch && !reasonMatch && !creatorMatch && !empMatch) return false;
+        }
+        return true;
+    });
 
-        const row = [
-            idx + 1,
-            `"${item.splNo || ''}"`,
-            `"${item.date || ''}"`,
-            `"${item.area || ''}"`,
-            `"${item.location || ''}"`,
-            `"${item.kasie ? item.kasie.name : ''}"`,
-            empCount,
-            `"${empList}"`,
-            `"${item.startTime || ''}"`,
-            `"${item.endTime || ''}"`,
-            item.duration || 0,
-            `"${reasonClean}"`,
-            `"${item.finalStatus || ''}"`
-        ];
-        csvContent += row.join(',') + '\n';
+    let csvContent = 'No Line,No SPL,Tanggal,Bagian,Lokasi,Pembuat,NIK Karyawan,Nama Karyawan,Jam Mulai,Jam Selesai,Durasi (Jam),Uraian Pekerjaan,Status Akhir\n';
+
+    let lineNo = 1;
+    filtered.forEach(item => {
+        const emps = (Array.isArray(item.employees) && item.employees.length > 0)
+            ? item.employees
+            : [{ persNo: '-', name: '-', startTime: item.startTime, endTime: item.endTime, duration: item.duration, reason: item.reason }];
+
+        emps.forEach(e => {
+            const row = [
+                lineNo++,
+                `"${item.splNo || ''}"`,
+                `"${item.date || ''}"`,
+                `"${item.area || ''}"`,
+                `"${item.location || ''}"`,
+                `"${item.kasie ? item.kasie.name : ''}"`,
+                `"${e.persNo || ''}"`,
+                `"${e.name || ''}"`,
+                `"${e.startTime || item.startTime || ''}"`,
+                `"${e.endTime || item.endTime || ''}"`,
+                e.duration || item.duration || 0,
+                `"${(e.reason || item.reason || '').replace(/"/g, '""')}"`,
+                `"${item.finalStatus || ''}"`
+            ];
+            csvContent += row.join(',') + '\n';
+        });
     });
 
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `Laporan_SPL_Warehouse_${new Date().toISOString().substring(0, 10)}.csv`;
+    a.download = `Laporan_Line_SPL_Warehouse_${new Date().toISOString().substring(0, 10)}.csv`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
