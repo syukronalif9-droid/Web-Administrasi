@@ -382,27 +382,47 @@ function renderSplReportSlide() {
                         ${item.finalStatus}
                     </span>
                 </td>
-                <!-- Kolom Status SAP: Kosong (-) by default, hanya ada pilihan - dan Sudah (warna hijau tajam) -->
+                <!-- Kolom Status SAP: Jika Sudah maka terkunci permanen, jika belum maka select (-) dan Sudah -->
                 <td style="padding: 10px 16px; text-align: left; white-space: nowrap;">
-                    <select onchange="updateSapStatus('${item.id}', ${empIdx}, this.value)" 
-                        style="
-                            background: ${statusVal === 'Sudah' ? '#16a34a' : '#ffffff'};
-                            color: ${statusVal === 'Sudah' ? '#ffffff' : '#000000'};
-                            border: 1.5px solid ${statusVal === 'Sudah' ? '#15803d' : '#cbd5e1'};
-                            padding: 6px 12px;
+                    ${statusVal === 'Sudah' ? `
+                        <span style="
+                            display: inline-flex;
+                            align-items: center;
+                            gap: 6px;
+                            background: #16a34a;
+                            color: #ffffff;
+                            border: 1.5px solid #15803d;
+                            padding: 6px 14px;
                             border-radius: 8px;
                             font-size: 0.8rem;
                             font-weight: 700;
-                            cursor: pointer;
-                            outline: none;
-                            font-family: 'Inter', sans-serif;
-                            box-shadow: ${statusVal === 'Sudah' ? '0 2px 6px rgba(22, 163, 74, 0.3)' : '0 1px 2px rgba(0,0,0,0.05)'};
-                            transition: all 0.2s;
-                        ">
-                        <option value="" style="color: #000000; background: #fff;" ${!statusVal ? 'selected' : ''}>-</option>
-                        <option value="Sudah" style="color: #15803d; font-weight: 700; background: #fff;" ${statusVal === 'Sudah' ? 'selected' : ''}>Sudah</option>
-                    </select>
-                    ${statusVal === 'Sudah' && sapDate ? `<div style="font-size: 0.68rem; color: #15803d; margin-top: 3px; font-weight: 700;">${sapDate}</div>` : ''}
+                            box-shadow: 0 2px 6px rgba(22, 163, 74, 0.25);
+                            cursor: not-allowed;
+                            user-select: none;
+                        " title="Terkunci: Sudah di-input ke SAP (Tidak dapat diubah lagi)">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                            Sudah
+                        </span>
+                    ` : `
+                        <select onchange="updateSapStatus('${item.id}', ${empIdx}, this.value)" 
+                            style="
+                                background: #ffffff;
+                                color: #000000;
+                                border: 1.5px solid #cbd5e1;
+                                padding: 6px 12px;
+                                border-radius: 8px;
+                                font-size: 0.8rem;
+                                font-weight: 700;
+                                cursor: pointer;
+                                outline: none;
+                                font-family: 'Inter', sans-serif;
+                                box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+                                transition: all 0.2s;
+                            ">
+                            <option value="" selected>-</option>
+                            <option value="Sudah" style="color: #15803d; font-weight: 700; background: #fff;">Sudah</option>
+                        </select>
+                    `}
                 </td>
                 <td style="padding: 12px 16px; text-align: left;">
                     <button type="button" onclick="printSplDocument('${item.id}')" style="background: #f1f5f9; border: 1px solid #cbd5e1; color: #1e293b; padding: 6px 14px; border-radius: 8px; font-size: 0.78rem; font-weight: 600; cursor: pointer; white-space: nowrap; display: inline-flex; align-items: center; gap: 5px;" onmouseover="this.style.background='#e2e8f0'" onmouseout="this.style.background='#f1f5f9'">
@@ -415,28 +435,32 @@ function renderSplReportSlide() {
     }).join('');
 }
 
-// Fungsi Update Status SAP Langsung dari Kolom oleh User (Sudah / Belum / Kosong)
+// Fungsi Update Status SAP Langsung dari Kolom oleh User (Sudah / Kosong)
 window.updateSapStatus = function(splId, empIdx, newStatus) {
+    if (newStatus !== 'Sudah') return;
+
+    const confirmLock = confirm('Apakah Anda yakin data lembur ini sudah di-input ke SAP?\nSetelah ditandai "Sudah", status akan terkunci permanen dan tidak dapat diubah lagi.');
+    if (!confirmLock) {
+        renderSplReportSlide();
+        return;
+    }
+
     let list = (typeof getStoredSplList === 'function') ? getStoredSplList() : [];
     const item = list.find(s => s.id === splId);
     if (!item) return;
 
     if (Array.isArray(item.employees) && item.employees[empIdx]) {
         const emp = item.employees[empIdx];
-        emp.sapStatus = newStatus;
-        emp.sapInputDate = (newStatus === 'Sudah') 
-            ? new Date().toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }) 
-            : null;
+        emp.sapStatus = 'Sudah';
+        emp.sapInputDate = new Date().toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' });
         
         // Update item sapStatus
         const allDone = item.employees.every(e => e.sapStatus === 'Sudah');
-        item.sapStatus = allDone ? 'Sudah' : (item.employees.some(e => e.sapStatus === 'Sudah') ? 'Sebagian' : '');
+        item.sapStatus = allDone ? 'Sudah' : 'Sebagian';
         item.sapInputDate = allDone ? (item.sapInputDate || emp.sapInputDate) : null;
     } else {
-        item.sapStatus = newStatus;
-        item.sapInputDate = (newStatus === 'Sudah') 
-            ? new Date().toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }) 
-            : null;
+        item.sapStatus = 'Sudah';
+        item.sapInputDate = new Date().toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' });
     }
 
     if (typeof saveSplList === 'function') {
