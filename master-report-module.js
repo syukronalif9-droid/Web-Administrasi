@@ -276,7 +276,6 @@ function renderSplReportSlide() {
             // Filter SAP Status
             const statusVal = e.sapStatus || '';
             if (filterSap === 'Sudah' && statusVal !== 'Sudah') return;
-            if (filterSap === 'Belum' && statusVal !== 'Belum') return;
             if (filterSap === 'Kosong' && statusVal !== '') return;
 
             const empDuration = Number(e.duration) || Number(item.duration) || 0;
@@ -383,13 +382,13 @@ function renderSplReportSlide() {
                         ${item.finalStatus}
                     </span>
                 </td>
-                <!-- Kolom Status SAP: Kosong by default, diisi langsung oleh user (Sudah / Belum) -->
+                <!-- Kolom Status SAP: Kosong (-) by default, hanya ada pilihan - dan Sudah (warna hijau tajam) -->
                 <td style="padding: 10px 16px; text-align: left; white-space: nowrap;">
                     <select onchange="updateSapStatus('${item.id}', ${empIdx}, this.value)" 
                         style="
-                            background: ${statusVal === 'Sudah' ? '#ecfdf5' : (statusVal === 'Belum' ? '#fffbeb' : '#ffffff')};
-                            color: ${statusVal === 'Sudah' ? '#065f46' : (statusVal === 'Belum' ? '#b45309' : '#94a3b8')};
-                            border: 1.5px solid ${statusVal === 'Sudah' ? '#a7f3d0' : (statusVal === 'Belum' ? '#fde68a' : '#cbd5e1')};
+                            background: ${statusVal === 'Sudah' ? '#16a34a' : '#ffffff'};
+                            color: ${statusVal === 'Sudah' ? '#ffffff' : '#000000'};
+                            border: 1.5px solid ${statusVal === 'Sudah' ? '#15803d' : '#cbd5e1'};
                             padding: 6px 12px;
                             border-radius: 8px;
                             font-size: 0.8rem;
@@ -397,13 +396,13 @@ function renderSplReportSlide() {
                             cursor: pointer;
                             outline: none;
                             font-family: 'Inter', sans-serif;
+                            box-shadow: ${statusVal === 'Sudah' ? '0 2px 6px rgba(22, 163, 74, 0.3)' : '0 1px 2px rgba(0,0,0,0.05)'};
                             transition: all 0.2s;
                         ">
-                        <option value="" style="color: #94a3b8; background: #fff;" ${!statusVal ? 'selected' : ''}>-</option>
-                        <option value="Sudah" style="color: #065f46; font-weight: 700; background: #fff;" ${statusVal === 'Sudah' ? 'selected' : ''}>Sudah</option>
-                        <option value="Belum" style="color: #b45309; font-weight: 700; background: #fff;" ${statusVal === 'Belum' ? 'selected' : ''}>Belum</option>
+                        <option value="" style="color: #000000; background: #fff;" ${!statusVal ? 'selected' : ''}>-</option>
+                        <option value="Sudah" style="color: #15803d; font-weight: 700; background: #fff;" ${statusVal === 'Sudah' ? 'selected' : ''}>Sudah</option>
                     </select>
-                    ${statusVal === 'Sudah' && sapDate ? `<div style="font-size: 0.68rem; color: #059669; margin-top: 3px; font-weight: 600;">${sapDate}</div>` : ''}
+                    ${statusVal === 'Sudah' && sapDate ? `<div style="font-size: 0.68rem; color: #15803d; margin-top: 3px; font-weight: 700;">${sapDate}</div>` : ''}
                 </td>
                 <td style="padding: 12px 16px; text-align: left;">
                     <button type="button" onclick="printSplDocument('${item.id}')" style="background: #f1f5f9; border: 1px solid #cbd5e1; color: #1e293b; padding: 6px 14px; border-radius: 8px; font-size: 0.78rem; font-weight: 600; cursor: pointer; white-space: nowrap; display: inline-flex; align-items: center; gap: 5px;" onmouseover="this.style.background='#e2e8f0'" onmouseout="this.style.background='#f1f5f9'">
@@ -431,7 +430,7 @@ window.updateSapStatus = function(splId, empIdx, newStatus) {
         
         // Update item sapStatus
         const allDone = item.employees.every(e => e.sapStatus === 'Sudah');
-        item.sapStatus = allDone ? 'Sudah' : (item.employees.some(e => e.sapStatus === 'Belum') ? 'Belum' : (item.employees.some(e => e.sapStatus === 'Sudah') ? 'Sebagian' : ''));
+        item.sapStatus = allDone ? 'Sudah' : (item.employees.some(e => e.sapStatus === 'Sudah') ? 'Sebagian' : '');
         item.sapInputDate = allDone ? (item.sapInputDate || emp.sapInputDate) : null;
     } else {
         item.sapStatus = newStatus;
@@ -529,7 +528,6 @@ function exportSplReportToCsv() {
         emps.forEach(e => {
             const statusVal = e.sapStatus || '';
             if (filterSap === 'Sudah' && statusVal !== 'Sudah') return;
-            if (filterSap === 'Belum' && statusVal !== 'Belum') return;
             if (filterSap === 'Kosong' && statusVal !== '') return;
 
             if (searchVal) {
