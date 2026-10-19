@@ -16,6 +16,7 @@ function saveToDB(key, data) {
         tx.objectStore(STORE_NAME).put(data, key);
     };
 }
+window.saveToDB = saveToDB;
 
 function loadFromDB(key) {
     return new Promise((resolve) => {
@@ -38,6 +39,7 @@ function loadFromDB(key) {
         } catch (err) { done(null); }
     });
 }
+window.loadFromDB = loadFromDB;
 
 // Tampilkan pesan status di tabel selama data dimuat
 function showTableStatus(msg) {
@@ -126,6 +128,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (typeof init === 'function') await init();
     } catch (err) {
         console.error('init() error:', err);
+    }
+    // Sinkronisasi data master employee yang tersimpan ke SPL
+    if (window.uploadedData['stock'] && window.uploadedData['stock'].length > 0 && typeof window.syncEmployeeToSplMaster === 'function') {
+        window.uploadedData['stock'].forEach(emp => {
+            window.syncEmployeeToSplMaster(emp);
+        });
     }
     // Render tiap tabel sendiri-sendiri, supaya kalau satu error yang lain tetap tampil
     [renderStock, renderMb51, renderZmmLto].forEach(fn => {
@@ -428,6 +436,7 @@ function renderStock() {
 
     if(typeof renderTable === 'function') renderTable('stock-table', data);
 }
+window.renderStock = renderStock;
 
 // Override renderTable agar tidak bikin lag karena meload puluhan ribu baris!
 window.renderTable = function(tableId, data) {

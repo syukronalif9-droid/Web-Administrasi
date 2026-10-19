@@ -3,7 +3,7 @@
  * Based on Master Employee1.csv Hierarchy
  */
 
-const SPL_MASTER_DATA = [
+let SPL_MASTER_DATA = [
     // TRAFFIC
     { area: "Traffic", location: "Way Lunik", persNo: "7339", name: "Sakri", kasieNo: "209113", kasieName: "Nur Tri Ayatullah, S.T", kabagNo: "10039299", kabagName: "Andriyanto", mgrNo: "5078", mgrName: "Wawan Kurniawan" },
     { area: "Traffic", location: "Way Lunik", persNo: "10041846", name: "Fedriyan Hertanto", kasieNo: "209113", kasieName: "Nur Tri Ayatullah, S.T", kabagNo: "10039299", kabagName: "Andriyanto", mgrNo: "5078", mgrName: "Wawan Kurniawan" },
@@ -154,6 +154,92 @@ const SPL_MASTER_DATA = [
     { area: "PG4", location: "Support Material", persNo: "90101069", name: "Alex Suryono", kasieNo: "3080901", kasieName: "Suhendi", kabagNo: "10027916", kabagName: "Muhammad Rafly Anggara Putra Wibowo", mgrNo: "5078", mgrName: "Wawan Kurniawan" },
     { area: "PG4", location: "Support Material", persNo: "90101070", name: "Nasrulloh", kasieNo: "3080901", kasieName: "Suhendi", kabagNo: "10027916", kabagName: "Muhammad Rafly Anggara Putra Wibowo", mgrNo: "5078", mgrName: "Wawan Kurniawan" }
 ];
+
+// Load custom employees stored in localStorage
+function loadCustomSplEmployees() {
+    try {
+        const raw = localStorage.getItem('CUSTOM_SPL_EMPLOYEES');
+        if (raw) {
+            const customEmps = JSON.parse(raw);
+            if (Array.isArray(customEmps)) {
+                customEmps.forEach(emp => {
+                    const cleanNo = String(emp.persNo).trim();
+                    const idx = SPL_MASTER_DATA.findIndex(d => String(d.persNo).trim() === cleanNo);
+                    if (idx >= 0) {
+                        SPL_MASTER_DATA[idx] = { ...SPL_MASTER_DATA[idx], ...emp };
+                    } else {
+                        SPL_MASTER_DATA.push(emp);
+                    }
+                });
+            }
+        }
+    } catch (e) {
+        console.error('Error loading custom SPL employees:', e);
+    }
+}
+loadCustomSplEmployees();
+
+// Sync a newly added/imported employee into SPL_MASTER_DATA
+function syncEmployeeToSplMaster(emp) {
+    if (!emp) return;
+    const cleanNo = String(emp.persNo || emp['Pers.No.'] || emp.nik || '').trim();
+    const cleanName = String(emp.name || emp['Full Name'] || emp.nama || '').trim();
+    if (!cleanNo || !cleanName) return;
+
+    const cleanArea = String(emp.area || emp['WH Area'] || emp['Area'] || 'Central').trim();
+    const cleanLocation = String(emp.location || emp['Location'] || 'Central').trim();
+    
+    // Find default manager/kasie/kabag for this area if not provided
+    const ref = SPL_MASTER_DATA.find(d => 
+        String(d.area).trim().toLowerCase() === cleanArea.toLowerCase()
+    ) || SPL_MASTER_DATA[0];
+
+    const record = {
+        area: cleanArea,
+        location: cleanLocation,
+        persNo: cleanNo,
+        name: cleanName,
+        subgroup: emp.subgroup || emp['Employee Subgroup'] || 'Pelaksana',
+        contract: emp.contract || emp['Work Contract'] || 'Permanent',
+        costCenter: emp.costCenter || emp['Cost Ctr'] || '',
+        kasieNo: emp.kasieNo || (ref ? ref.kasieNo : '209113'),
+        kasieName: emp.kasieName || (ref ? ref.kasieName : 'Nur Tri Ayatullah, S.T'),
+        kabagNo: emp.kabagNo || (ref ? ref.kabagNo : '10039299'),
+        kabagName: emp.kabagName || (ref ? ref.kabagName : 'Andriyanto'),
+        mgrNo: emp.mgrNo || (ref ? ref.mgrNo : '5078'),
+        mgrName: emp.mgrName || (ref ? ref.mgrName : 'Wawan Kurniawan')
+    };
+
+    const idx = SPL_MASTER_DATA.findIndex(d => String(d.persNo).trim() === cleanNo);
+    if (idx >= 0) {
+        SPL_MASTER_DATA[idx] = { ...SPL_MASTER_DATA[idx], ...record };
+    } else {
+        SPL_MASTER_DATA.push(record);
+    }
+
+    // Persist to localStorage
+    try {
+        let list = [];
+        const raw = localStorage.getItem('CUSTOM_SPL_EMPLOYEES');
+        if (raw) list = JSON.parse(raw) || [];
+        const lIdx = list.findIndex(d => String(d.persNo).trim() === cleanNo);
+        if (lIdx >= 0) {
+            list[lIdx] = record;
+        } else {
+            list.push(record);
+        }
+        localStorage.setItem('CUSTOM_SPL_EMPLOYEES', JSON.stringify(list));
+    } catch (e) {
+        console.error('Error persisting custom employee:', e);
+    }
+
+    // Refresh SPL dropdowns if initialized
+    if (typeof populateSplAreas === 'function') {
+        populateSplAreas();
+    }
+}
+window.syncEmployeeToSplMaster = syncEmployeeToSplMaster;
+window.SPL_MASTER_DATA = SPL_MASTER_DATA;
 
 // Initialize default sample SPL if empty
 function getStoredSplList() {
