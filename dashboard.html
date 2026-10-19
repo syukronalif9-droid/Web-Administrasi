@@ -169,13 +169,12 @@
                 }
                 .spl-emp-card {
                     display: flex;
-                    align-items: center;
-                    gap: 12px;
-                    padding: 12px 16px;
+                    flex-direction: column;
+                    gap: 0;
+                    padding: 12px 14px;
                     background: #ffffff;
                     border: 2px solid #cbd5e1;
                     border-radius: 12px;
-                    cursor: pointer;
                     transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
                     user-select: none;
                     margin-bottom: 7px;
@@ -191,6 +190,20 @@
                     background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%) !important;
                     border-color: #2563eb !important;
                     box-shadow: 0 6px 18px rgba(37, 99, 235, 0.2) !important;
+                }
+                .spl-emp-top-row {
+                    display: flex;
+                    align-items: center;
+                    gap: 12px;
+                    cursor: pointer;
+                    width: 100%;
+                    user-select: none;
+                }
+                .spl-emp-card .spl-indiv-panel {
+                    display: none;
+                }
+                .spl-emp-card:has(input:checked) .spl-indiv-panel {
+                    display: block;
                 }
                 .spl-emp-checkbox {
                     width: 20px !important;
@@ -2709,17 +2722,22 @@ document.addEventListener("DOMContentLoaded", function() {
                             empContainer.innerHTML = '';
 
                             subordinates.forEach(m => {
-                                const item = document.createElement('label');
-                                item.className = 'spl-emp-card';
-                                item.innerHTML = `
-                                    <input type="checkbox" name="spl_emp_check" value="${m.persNo}|${m.name}" class="spl-emp-checkbox" onchange="if(window.updateSplSelectedCount) window.updateSplSelectedCount();">
-                                    <div class="spl-emp-avatar">👤</div>
-                                    <div style="flex: 1; display: flex; align-items: center; justify-content: space-between; overflow: hidden; gap: 8px;">
-                                        <strong class="spl-emp-name">${m.name}</strong>
-                                        <span class="spl-emp-nik">NIK: ${m.persNo}</span>
-                                    </div>
-                                `;
-                                empContainer.appendChild(item);
+                                const card = window.createSplEmpCard ? window.createSplEmpCard(m) : null;
+                                if (card) {
+                                    empContainer.appendChild(card);
+                                } else {
+                                    const item = document.createElement('label');
+                                    item.className = 'spl-emp-card';
+                                    item.innerHTML = `
+                                        <input type="checkbox" name="spl_emp_check" value="${m.persNo}|${m.name}" class="spl-emp-checkbox" onchange="if(window.updateSplSelectedCount) window.updateSplSelectedCount();">
+                                        <div class="spl-emp-avatar">👤</div>
+                                        <div style="flex: 1; display: flex; align-items: center; justify-content: space-between; overflow: hidden; gap: 8px;">
+                                            <strong class="spl-emp-name">${m.name}</strong>
+                                            <span class="spl-emp-nik">NIK: ${m.persNo}</span>
+                                        </div>
+                                    `;
+                                    empContainer.appendChild(item);
+                                }
                             });
                             if (window.updateSplSelectedCount) window.updateSplSelectedCount();
                         }
@@ -2740,6 +2758,135 @@ document.addEventListener("DOMContentLoaded", function() {
 
                         alert(`✅ Verifikasi Berhasil!\n\nNama: ${name}\nJabatan: ${role}\nNIK: ${nik}\nBagian: ${area}\n\nDaftar nama karyawan bawahan langsung ditampilkan di bawah.`);
                     }
+
+                    // ========================================================
+                    // Individual Employee Override Helpers (Pilihan 1: Header Default + Individual Override)
+                    // ========================================================
+                    function createSplEmpCard(m) {
+                        const card = document.createElement('div');
+                        card.className = 'spl-emp-card';
+                        const defStart = document.getElementById('spl-start-time')?.value || '17:00';
+                        const defEnd = document.getElementById('spl-end-time')?.value || '21:00';
+
+                        // Hitung durasi default awal
+                        const [sH, sM] = defStart.split(':').map(Number);
+                        const [eH, eM] = defEnd.split(':').map(Number);
+                        let sMin = (isNaN(sH) ? 17 : sH) * 60 + (isNaN(sM) ? 0 : sM);
+                        let eMin = (isNaN(eH) ? 21 : eH) * 60 + (isNaN(eM) ? 0 : eM);
+                        if (eMin < sMin) eMin += 24 * 60;
+                        const durHours = ((eMin - sMin) / 60).toFixed(1).replace('.0', '');
+
+                        card.innerHTML = `
+                            <label class="spl-emp-top-row" style="margin: 0;">
+                                <input type="checkbox" name="spl_emp_check" value="${m.persNo}|${m.name}" class="spl-emp-checkbox" onchange="window.onSplEmpCheckChange(this)">
+                                <div class="spl-emp-avatar">👤</div>
+                                <div style="flex: 1; display: flex; align-items: center; justify-content: space-between; overflow: hidden; gap: 8px;">
+                                    <strong class="spl-emp-name">${m.name}</strong>
+                                    <span class="spl-emp-nik">NIK: ${m.persNo}</span>
+                                </div>
+                            </label>
+                            <div class="spl-indiv-panel" style="margin-top: 10px; padding-top: 10px; border-top: 1.5px dashed #bfdbfe;">
+                                <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; margin-bottom: 6px;">
+                                    <div style="display: flex; align-items: center; gap: 6px;">
+                                        <span style="font-size: 0.78rem; font-weight: 700; color: #1e40af;">🕒 Jam:</span>
+                                        <input type="time" class="spl-indiv-start" value="${defStart}" onchange="window.calcIndivDuration(this)" style="height: 32px; padding: 0 6px; border: 1.5px solid #93c5fd; border-radius: 6px; font-size: 0.84rem; font-weight: 600; text-align: center; background: #ffffff; outline: none; color: #0f172a;">
+                                        <span style="font-size: 0.75rem; color: #64748b; font-weight: 600;">s/d</span>
+                                        <input type="time" class="spl-indiv-end" value="${defEnd}" onchange="window.calcIndivDuration(this)" style="height: 32px; padding: 0 6px; border: 1.5px solid #93c5fd; border-radius: 6px; font-size: 0.84rem; font-weight: 600; text-align: center; background: #ffffff; outline: none; color: #0f172a;">
+                                        <span class="spl-indiv-duration" style="font-size: 0.75rem; font-weight: 700; color: #0284c7; background: #e0f2fe; padding: 2px 8px; border-radius: 99px; border: 1px solid #7dd3fc; white-space: nowrap;">${durHours} Jam</span>
+                                    </div>
+                                    <button type="button" onclick="window.resetIndivToDefault(this)" title="Samakan kembali dengan jam utama di atas" style="background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 6px; padding: 3px 8px; font-size: 0.74rem; font-weight: 600; color: #475569; cursor: pointer; transition: all 0.15s;" onmouseover="this.style.background='#e2e8f0'" onmouseout="this.style.background='#f1f5f9'">
+                                        ↺ Samakan Default
+                                    </button>
+                                </div>
+                                <div>
+                                    <input type="text" class="spl-indiv-reason" placeholder="Alasan lembur (opsional, kosongkan jika sama dengan alasan utama)..." style="width: 100%; height: 32px; box-sizing: border-box; padding: 0 10px; border: 1.5px solid #cbd5e1; border-radius: 6px; font-size: 0.8rem; background: #ffffff; outline: none; color: #334155;" onfocus="this.style.borderColor='#3b82f6'" onblur="this.style.borderColor='#cbd5e1'">
+                                </div>
+                            </div>
+                        `;
+                        return card;
+                    }
+                    window.createSplEmpCard = createSplEmpCard;
+
+                    function onSplEmpCheckChange(cb) {
+                        const card = cb.closest('.spl-emp-card');
+                        if (card) {
+                            const panel = card.querySelector('.spl-indiv-panel');
+                            if (cb.checked) {
+                                if (panel) panel.style.display = 'block';
+                                if (!card.dataset.customizedTime) {
+                                    const defStart = document.getElementById('spl-start-time')?.value || '17:00';
+                                    const defEnd = document.getElementById('spl-end-time')?.value || '21:00';
+                                    const sInp = card.querySelector('.spl-indiv-start');
+                                    const eInp = card.querySelector('.spl-indiv-end');
+                                    if (sInp) sInp.value = defStart;
+                                    if (eInp) eInp.value = defEnd;
+                                    if (sInp) window.calcIndivDuration(sInp, false);
+                                }
+                            } else {
+                                if (panel) panel.style.display = 'none';
+                            }
+                        }
+                        if (window.updateSplSelectedCount) window.updateSplSelectedCount();
+                    }
+                    window.onSplEmpCheckChange = onSplEmpCheckChange;
+
+                    function calcIndivDuration(el, markCustom = true) {
+                        const card = el.closest('.spl-emp-card');
+                        if (!card) return;
+                        if (markCustom) card.dataset.customizedTime = 'true';
+                        const sInp = card.querySelector('.spl-indiv-start');
+                        const eInp = card.querySelector('.spl-indiv-end');
+                        const badge = card.querySelector('.spl-indiv-duration');
+                        if (!sInp || !eInp || !badge) return;
+
+                        const start = sInp.value;
+                        const end = eInp.value;
+                        if (!start || !end) {
+                            badge.textContent = '0 Jam';
+                            return;
+                        }
+                        const [sH, sM] = start.split(':').map(Number);
+                        const [eH, eM] = end.split(':').map(Number);
+                        let sMin = sH * 60 + sM;
+                        let eMin = eH * 60 + eM;
+                        if (eMin < sMin) eMin += 24 * 60;
+                        const diffMin = eMin - sMin;
+                        const hours = (diffMin / 60).toFixed(1).replace('.0', '');
+                        badge.textContent = `${hours} Jam`;
+                    }
+                    window.calcIndivDuration = calcIndivDuration;
+
+                    function resetIndivToDefault(btn) {
+                        const card = btn.closest('.spl-emp-card');
+                        if (!card) return;
+                        delete card.dataset.customizedTime;
+                        const defStart = document.getElementById('spl-start-time')?.value || '17:00';
+                        const defEnd = document.getElementById('spl-end-time')?.value || '21:00';
+                        const sInp = card.querySelector('.spl-indiv-start');
+                        const eInp = card.querySelector('.spl-indiv-end');
+                        const rInp = card.querySelector('.spl-indiv-reason');
+                        if (sInp) sInp.value = defStart;
+                        if (eInp) eInp.value = defEnd;
+                        if (rInp) rInp.value = '';
+                        if (sInp) calcIndivDuration(sInp, false);
+                    }
+                    window.resetIndivToDefault = resetIndivToDefault;
+
+                    function syncDefaultTimeToCheckedEmployees() {
+                        const defStart = document.getElementById('spl-start-time')?.value || '17:00';
+                        const defEnd = document.getElementById('spl-end-time')?.value || '21:00';
+                        document.querySelectorAll('.spl-emp-card').forEach(card => {
+                            const cb = card.querySelector('input[name="spl_emp_check"]');
+                            if (cb && cb.checked && !card.dataset.customizedTime) {
+                                const sInp = card.querySelector('.spl-indiv-start');
+                                const eInp = card.querySelector('.spl-indiv-end');
+                                if (sInp) sInp.value = defStart;
+                                if (eInp) eInp.value = defEnd;
+                                if (sInp) calcIndivDuration(sInp, false);
+                            }
+                        });
+                    }
+                    window.syncDefaultTimeToCheckedEmployees = syncDefaultTimeToCheckedEmployees;
 
                     // Helper counter & Select All Karyawan SPL
                     function updateSplSelectedCount() {
@@ -2780,6 +2927,7 @@ document.addEventListener("DOMContentLoaded", function() {
                         const allChecked = Array.from(all).every(cb => cb.checked);
                         all.forEach(cb => {
                             cb.checked = !allChecked;
+                            window.onSplEmpCheckChange(cb);
                         });
                         updateSplSelectedCount();
                     }
@@ -2848,12 +2996,15 @@ document.addEventListener("DOMContentLoaded", function() {
 
                     <!-- Row 4: Member Team Checkbox List -->
                     <div>
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
                             <label style="font-size: 0.86rem; font-weight: 700; color: #1e293b;">Pilih Karyawan Ditugaskan</label>
                             <div style="display: flex; align-items: center; gap: 8px;">
                                 <span id="spl-selected-counter" style="background: #e0f2fe; color: #0284c7; font-size: 0.78rem; font-weight: 700; padding: 3px 10px; border-radius: 99px; border: 1.5px solid #bae6fd;">0 Dipilih</span>
                                 <button type="button" id="btn-spl-select-all" onclick="toggleSelectAllSplEmployees()" style="background: #ffffff; color: #2563eb; border: 1.5px solid #cbd5e1; padding: 4px 12px; border-radius: 8px; font-size: 0.78rem; font-weight: 700; cursor: pointer; transition: all 0.2s;">✓ Pilih Semua</button>
                             </div>
+                        </div>
+                        <div style="font-size: 0.76rem; color: #64748b; margin-bottom: 8px;">
+                            💡 Jam & alasan otomatis mengikuti input utama di atas. Untuk karyawan yang waktu/tugasnya berbeda, sesuaikan langsung pada kotak karyawan.
                         </div>
                         <div id="spl-employee-list-container" style="max-height: 320px; overflow-y: auto; display: flex; flex-direction: column; gap: 5px; background: #f8fafc; border: 2px solid #cbd5e1; border-radius: 14px; padding: 12px; box-shadow: inset 0 2px 5px rgba(0,0,0,0.03);">
                             <div style="color: #1e40af; font-size: 0.88rem; font-weight: 600; text-align: center; padding: 18px; background: linear-gradient(135deg, #eff6ff 0%, #f0fdf4 100%); border: 1.5px dashed #93c5fd; border-radius: 12px;">

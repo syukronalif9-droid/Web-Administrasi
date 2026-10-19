@@ -631,17 +631,21 @@ function onSplLocationChange() {
     empContainer.innerHTML = '';
 
     members.forEach((m, idx) => {
-        const item = document.createElement('label');
-        item.className = 'spl-emp-card';
-        item.innerHTML = `
-            <input type="checkbox" name="spl_emp_check" value="${m.persNo}|${m.name}" class="spl-emp-checkbox" onchange="if(window.updateSplSelectedCount) window.updateSplSelectedCount();">
-            <div class="spl-emp-avatar">👤</div>
-            <div style="flex: 1; display: flex; align-items: center; justify-content: space-between; overflow: hidden; gap: 8px;">
-                <strong class="spl-emp-name">${m.name}</strong> 
-                <span class="spl-emp-nik">NIK: ${m.persNo}</span>
-            </div>
-        `;
-        empContainer.appendChild(item);
+        if (typeof window.createSplEmpCard === 'function') {
+            empContainer.appendChild(window.createSplEmpCard(m));
+        } else {
+            const item = document.createElement('label');
+            item.className = 'spl-emp-card';
+            item.innerHTML = `
+                <input type="checkbox" name="spl_emp_check" value="${m.persNo}|${m.name}" class="spl-emp-checkbox" onchange="if(window.updateSplSelectedCount) window.updateSplSelectedCount();">
+                <div class="spl-emp-avatar">👤</div>
+                <div style="flex: 1; display: flex; align-items: center; justify-content: space-between; overflow: hidden; gap: 8px;">
+                    <strong class="spl-emp-name">${m.name}</strong> 
+                    <span class="spl-emp-nik">NIK: ${m.persNo}</span>
+                </div>
+            `;
+            empContainer.appendChild(item);
+        }
     });
     if (window.updateSplSelectedCount) window.updateSplSelectedCount();
 
@@ -792,7 +796,11 @@ async function dispatchSplEmailNotification(spl) {
         overtime_date: spl.date,
         overtime_time: `${spl.startTime} s/d ${spl.endTime} (${spl.duration} Jam)`,
         employee_count: spl.employees.length,
-        employee_list: spl.employees.map((e, idx) => `${idx + 1}. ${e.name} (${e.persNo})`).join('\n'),
+        employee_list: spl.employees.map((e, idx) => {
+            const timeStr = (e.startTime && e.endTime) ? ` [${e.startTime}-${e.endTime}, ${e.duration} Jam]` : '';
+            const rsnStr = (e.reason && e.reason !== spl.reason) ? ` (Alasan: ${e.reason})` : '';
+            return `${idx + 1}. ${e.name} (${e.persNo})${timeStr}${rsnStr}`;
+        }).join('\n'),
         reason: spl.reason,
         app_url: 'https://genadm.vercel.app/dashboard.html',
         
@@ -927,6 +935,11 @@ function setupSplTimeCalculator() {
         const diffMinutes = endMinutes - startMinutes;
         const hours = (diffMinutes / 60).toFixed(1);
         durationDisplay.textContent = `${hours.replace('.0', '')} Jam (${diffMinutes} menit)`;
+
+        // Sinkronkan ke karyawan yang dicentang yang belum diubah manual
+        if (typeof window.syncDefaultTimeToCheckedEmployees === 'function') {
+            window.syncDefaultTimeToCheckedEmployees();
+        }
     }
 
     if (startInput && endInput) {
@@ -992,11 +1005,31 @@ async function handleSplSubmit(e) {
     const location = document.getElementById('spl-location-select').value;
     const reason = document.getElementById('spl-reason').value.trim();
 
-    // Check selected employees
+    // Check selected employees dengan Individual Override
     const checkboxes = document.querySelectorAll('input[name="spl_emp_check"]:checked');
     const selectedEmps = Array.from(checkboxes).map(cb => {
         const [persNo, name] = cb.value.split('|');
-        return { persNo, name };
+        const card = cb.closest('.spl-emp-card');
+        const indivStart = card?.querySelector('.spl-indiv-start')?.value || startTime;
+        const indivEnd = card?.querySelector('.spl-indiv-end')?.value || endTime;
+        const indivReason = card?.querySelector('.spl-indiv-reason')?.value?.trim() || reason;
+
+        // Hitung durasi per karyawan
+        const [isH, isM] = indivStart.split(':').map(Number);
+        const [ieH, ieM] = indivEnd.split(':').map(Number);
+        let isMin = (isNaN(isH) ? 17 : isH) * 60 + (isNaN(isM) ? 0 : isM);
+        let ieMin = (isNaN(ieH) ? 21 : ieH) * 60 + (isNaN(ieM) ? 0 : ieM);
+        if (ieMin < isMin) ieMin += 24 * 60;
+        const indivDuration = parseFloat(((ieMin - isMin) / 60).toFixed(1));
+
+        return {
+            persNo,
+            name,
+            startTime: indivStart,
+            endTime: indivEnd,
+            duration: indivDuration,
+            reason: indivReason
+        };
     });
 
     if (!date || !startTime || !endTime) {
@@ -1259,6 +1292,7 @@ async function renderSplHistoryList(filterStatus = 'all') {
         const empNames = item.employees.map(e => e.name).join(', ');
         const creatorDisplayName = (item.kasie && item.kasie.name && item.kasie.name !== '-') ? item.kasie.name : (item.employees[0] ? item.employees[0].name : '-');
         const hasOtherEmployees = item.employees && item.employees.length > 0 && !(item.employees.length === 1 && item.employees[0].name === creatorDisplayName);
+        const hasCustomOverrides = Array.isArray(item.employees) && item.employees.some(e => e && e.startTime && (e.startTime !== item.startTime || e.endTime !== item.endTime || (e.reason && e.reason !== item.reason)));
 
         card.innerHTML = `
             <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px;">
@@ -1289,6 +1323,24 @@ async function renderSplHistoryList(filterStatus = 'all') {
                 <div style="margin-top: 6px; padding-top: 6px; border-top: 1px dashed #e2e8f0; color: #64748b; font-style: italic;">
                     "${item.reason}"
                 </div>
+                ${hasCustomOverrides ? `
+                <div style="margin-top: 10px; padding-top: 8px; border-top: 1.5px dashed #bfdbfe; font-size: 0.8rem;">
+                    <div style="font-weight: 700; color: #1e40af; margin-bottom: 5px;">📋 Rincian Lembur Masing-Masing Karyawan:</div>
+                    <div style="display: flex; flex-direction: column; gap: 4px;">
+                        ${item.employees.map(e => `
+                            <div style="display: flex; justify-content: space-between; align-items: center; background: #ffffff; padding: 6px 10px; border-radius: 8px; border: 1px solid #cbd5e1;">
+                                <div style="overflow: hidden; text-overflow: ellipsis;">
+                                    <strong style="color: #0f172a;">${e.name}</strong> <span style="color: #64748b; font-size: 0.74rem;">(NIK: ${e.persNo})</span>
+                                    ${e.reason && e.reason !== item.reason ? `<div style="font-size: 0.74rem; color: #475569; font-style: italic;">"${e.reason}"</div>` : ''}
+                                </div>
+                                <span style="font-weight: 700; color: #0284c7; font-size: 0.76rem; background: #e0f2fe; padding: 2px 8px; border-radius: 99px; border: 1px solid #bae6fd; white-space: nowrap; margin-left: 8px;">
+                                    ${e.startTime || item.startTime} - ${e.endTime || item.endTime} (${e.duration || item.duration} Jam)
+                                </span>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+                ` : ''}
             </div>
 
             <!-- Approval Stepper -->
@@ -1392,10 +1444,13 @@ function printSplDocument(id) {
         <tr>
             <td style="border: 1px solid #333; padding: 5px 6px; text-align: center; font-size: 10.5px;">${idx + 1}</td>
             <td style="border: 1px solid #333; padding: 5px 6px; text-align: center; font-size: 10.5px; white-space: nowrap;">${e.persNo}</td>
-            <td style="border: 1px solid #333; padding: 5px 8px; font-size: 10.5px; white-space: nowrap;">${e.name}</td>
+            <td style="border: 1px solid #333; padding: 5px 8px; font-size: 10.5px;">
+                <strong>${e.name}</strong>
+                ${e.reason && e.reason !== item.reason ? `<div style="font-size: 9.5px; color: #555; font-style: italic;">(${e.reason})</div>` : ''}
+            </td>
             <td style="border: 1px solid #333; padding: 5px 6px; text-align: center; font-size: 10.5px; white-space: nowrap;">${item.area} / ${item.location}</td>
-            <td style="border: 1px solid #333; padding: 5px 6px; text-align: center; font-size: 10.5px; white-space: nowrap;">${item.startTime} - ${item.endTime}</td>
-            <td style="border: 1px solid #333; padding: 5px 6px; text-align: center; font-size: 10.5px; white-space: nowrap;">${item.duration} Jam</td>
+            <td style="border: 1px solid #333; padding: 5px 6px; text-align: center; font-size: 10.5px; white-space: nowrap;">${e.startTime || item.startTime} - ${e.endTime || item.endTime}</td>
+            <td style="border: 1px solid #333; padding: 5px 6px; text-align: center; font-size: 10.5px; white-space: nowrap;">${e.duration || item.duration} Jam</td>
         </tr>
     `).join('');
 
@@ -2193,17 +2248,21 @@ function autoPopulateEmployees() {
     empContainer.innerHTML = '';
 
     members.forEach((m, idx) => {
-        const item = document.createElement('label');
-        item.className = 'spl-emp-card';
-        item.innerHTML = `
-            <input type="checkbox" name="spl_emp_check" value="${m.persNo}|${m.name}" class="spl-emp-checkbox" onchange="if(window.updateSplSelectedCount) window.updateSplSelectedCount();">
-            <div class="spl-emp-avatar">👤</div>
-            <div style="flex: 1; display: flex; align-items: center; justify-content: space-between; overflow: hidden; gap: 8px;">
-                <strong class="spl-emp-name">${m.name}</strong> 
-                <span class="spl-emp-nik">NIK: ${m.persNo}</span>
-            </div>
-        `;
-        empContainer.appendChild(item);
+        if (typeof window.createSplEmpCard === 'function') {
+            empContainer.appendChild(window.createSplEmpCard(m));
+        } else {
+            const item = document.createElement('label');
+            item.className = 'spl-emp-card';
+            item.innerHTML = `
+                <input type="checkbox" name="spl_emp_check" value="${m.persNo}|${m.name}" class="spl-emp-checkbox" onchange="if(window.updateSplSelectedCount) window.updateSplSelectedCount();">
+                <div class="spl-emp-avatar">👤</div>
+                <div style="flex: 1; display: flex; align-items: center; justify-content: space-between; overflow: hidden; gap: 8px;">
+                    <strong class="spl-emp-name">${m.name}</strong> 
+                    <span class="spl-emp-nik">NIK: ${m.persNo}</span>
+                </div>
+            `;
+            empContainer.appendChild(item);
+        }
     });
     if (window.updateSplSelectedCount) window.updateSplSelectedCount();
 

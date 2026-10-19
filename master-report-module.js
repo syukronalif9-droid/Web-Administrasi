@@ -352,7 +352,10 @@ function exportSplReportToCsv() {
 
     list.forEach((item, idx) => {
         const empCount = Array.isArray(item.employees) ? item.employees.length : 0;
-        const empList = Array.isArray(item.employees) ? item.employees.map(e => `${e.name} (${e.persNo})`).join('; ') : '';
+        const empList = Array.isArray(item.employees) ? item.employees.map(e => {
+            const timeStr = (e.startTime && e.endTime) ? ` [${e.startTime}-${e.endTime}]` : '';
+            return `${e.name} (${e.persNo})${timeStr}`;
+        }).join('; ') : '';
         const reasonClean = (item.reason || '').replace(/"/g, '""');
 
         const row = [
