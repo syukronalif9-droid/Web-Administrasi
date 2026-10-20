@@ -493,6 +493,9 @@ function renderSplReportSlide() {
         return;
     }
 
+    const userRole = localStorage.getItem('AOT_USER_ROLE') || 'admin';
+    const isAdmin = (userRole === 'admin');
+
     tbody.innerHTML = allLines.map((lineObj, idx) => {
         const item = lineObj.spl;
         const e = lineObj.emp;
@@ -585,7 +588,7 @@ function renderSplReportSlide() {
                         ${statusEn}
                     </span>
                 </td>
-                <!-- Kolom Status SAP: Jika Sudah maka terkunci permanen, jika belum maka select (-) dan Sudah -->
+                <!-- Kolom Status SAP: Hanya Administrator yang bisa memilih dropdown, akun Viewer hanya melihat tampilan non-aktif -->
                 <td style="padding: 10px 16px; text-align: left; white-space: nowrap;">
                     ${statusVal === 'Sudah' ? `
                         <span style="
@@ -606,7 +609,7 @@ function renderSplReportSlide() {
                             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
                             Sudah
                         </span>
-                    ` : `
+                    ` : (isAdmin ? `
                         <select onchange="updateSapStatus('${item.id}', ${empIdx}, this.value)" 
                             style="
                                 background: #ffffff;
@@ -625,7 +628,22 @@ function renderSplReportSlide() {
                             <option value="" selected>-</option>
                             <option value="Sudah" style="color: #15803d; font-weight: 700; background: #fff;">Sudah</option>
                         </select>
-                    `}
+                    ` : `
+                        <span style="
+                            display: inline-flex;
+                            align-items: center;
+                            justify-content: center;
+                            color: #94a3b8;
+                            font-weight: 700;
+                            padding: 6px 16px;
+                            font-size: 0.82rem;
+                            background: #f8fafc;
+                            border: 1.5px dashed #cbd5e1;
+                            border-radius: 8px;
+                            cursor: not-allowed;
+                            user-select: none;
+                        " title="Hanya Administrator yang memiliki hak mengubah Status SAP">-</span>
+                    `)}
                 </td>
                 <td style="padding: 12px 16px; text-align: left;">
                     <button type="button" onclick="printSplDocument('${item.id}')" style="background: #f1f5f9; border: 1px solid #cbd5e1; color: #1e293b; padding: 6px 14px; border-radius: 8px; font-size: 0.78rem; font-weight: 600; cursor: pointer; white-space: nowrap; display: inline-flex; align-items: center; gap: 5px;" onmouseover="this.style.background='#e2e8f0'" onmouseout="this.style.background='#f1f5f9'">
@@ -646,6 +664,13 @@ function renderSplReportSlide() {
 
 // Fungsi Update Status SAP Langsung dari Kolom oleh User (Sudah / Kosong)
 window.updateSapStatus = function(splId, empIdx, newStatus) {
+    const userRole = localStorage.getItem('AOT_USER_ROLE') || 'admin';
+    if (userRole !== 'admin') {
+        alert('Akses Ditolak: Hanya akun Administrator yang memiliki hak mengubah Status SAP.');
+        renderSplReportSlide();
+        return;
+    }
+
     if (newStatus !== 'Sudah') return;
 
     const confirmLock = confirm('Apakah Anda yakin data lembur ini sudah di-input ke SAP?\nSetelah ditandai "Sudah", status akan terkunci permanen dan tidak dapat diubah lagi.');

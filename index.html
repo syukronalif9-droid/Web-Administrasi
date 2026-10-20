@@ -522,7 +522,9 @@
         // Quick Guest Login
         function loginAsGuest() {
             localStorage.setItem('isLoggedIn', 'true');
-            localStorage.setItem('SPL_CURRENT_USER_PERS_NO', '5078'); // default Manager
+            localStorage.setItem('SPL_CURRENT_USER_PERS_NO', '3152137');
+            localStorage.setItem('AOT_USER_ROLE', 'viewer');
+            localStorage.setItem('AOT_USER_NAME', 'Guest Viewer');
             window.location.href = 'dashboard.html';
         }
 
@@ -540,14 +542,19 @@
                 localStorage.removeItem('SPL_REMEMBERED_USER');
             }
 
-            // Daftar Akun Terdaftar
+            // Daftar Akun Terdaftar: Administrator & Viewer
             const validAccounts = [
-                { user: "admin@ggf.com", pass: "admin", persNo: "5078" },
-                { user: "admin", pass: "admin", persNo: "5078" },
-                { user: "user@ggf.com", pass: "user123", persNo: "3152137" },
-                { user: "user", pass: "user123", persNo: "3152137" },
-                { user: "wawan", pass: "5078", persNo: "5078" },
-                { user: "setiawan", pass: "3152137", persNo: "3152137" }
+                // Akun Administrator (Akses Penuh + Status SAP)
+                { user: "admin@ggf.com", pass: "admin", persNo: "5078", role: "admin", name: "Administrator" },
+                { user: "admin", pass: "admin", persNo: "5078", role: "admin", name: "Administrator" },
+                { user: "wawan", pass: "5078", persNo: "5078", role: "admin", name: "Wawan Kurniawan (Admin)" },
+
+                // Akun Viewer (Hanya Dashboard, Report SPL, Create SPL)
+                { user: "viewer@ggf.com", pass: "viewer", persNo: "3152137", role: "viewer", name: "Akun Viewer" },
+                { user: "viewer", pass: "viewer", persNo: "3152137", role: "viewer", name: "Akun Viewer" },
+                { user: "user@ggf.com", pass: "user123", persNo: "3152137", role: "viewer", name: "User Viewer" },
+                { user: "user", pass: "user123", persNo: "3152137", role: "viewer", name: "User Viewer" },
+                { user: "setiawan", pass: "3152137", persNo: "3152137", role: "viewer", name: "Setiawan (Viewer)" }
             ];
 
             const match = validAccounts.find(acc => 
@@ -558,19 +565,24 @@
             // Jika cocok atau memasukkan NIK valid, izinkan masuk
             if (match) {
                 localStorage.setItem('isLoggedIn', 'true');
+                localStorage.setItem('AOT_USER_ROLE', match.role || 'viewer');
+                localStorage.setItem('AOT_USER_NAME', match.name || match.user);
                 if (match.persNo) {
                     localStorage.setItem('SPL_CURRENT_USER_PERS_NO', match.persNo);
                 }
                 window.location.href = 'dashboard.html';
             } else if (username && password.length >= 3) {
                 // Fleksibel: Izinkan login dengan NIK / Akun jika password tidak kosong
+                const determinedRole = (username.toLowerCase().includes('admin') || username === '5078') ? 'admin' : 'viewer';
                 localStorage.setItem('isLoggedIn', 'true');
+                localStorage.setItem('AOT_USER_ROLE', determinedRole);
+                localStorage.setItem('AOT_USER_NAME', username);
                 if (/^\d+$/.test(username)) {
                     localStorage.setItem('SPL_CURRENT_USER_PERS_NO', username);
                 }
                 window.location.href = 'dashboard.html';
             } else {
-                alert('Username atau password salah!\n\nAkun yang dapat digunakan:\n• admin / admin\n• user / user123\n• atau klik "Masuk Cepat (Guest / Demo Mode)"');
+                alert('Username atau password salah!\n\nPilihan Akun:\n• Administrator: admin / admin\n• Viewer: viewer / viewer (atau user / user123)\n• atau klik "Masuk Cepat (Guest / Demo Mode)"');
             }
         });
     </script>
