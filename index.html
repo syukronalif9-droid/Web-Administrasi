@@ -553,18 +553,27 @@
             try {
                 let userFound = null;
 
-                // Cek Autentikasi ke Database Supabase (Tabel app_users)
-                if (window.supabaseClient) {
-                    const { data, error } = await window.supabaseClient
-                        .from('app_users')
-                        .select('*')
-                        .ilike('username', username)
-                        .eq('password', password)
-                        .limit(1);
+                if (!window.supabaseClient) {
+                    alert('Koneksi ke Supabase belum siap. Pastikan perangkat Anda terhubung ke internet.');
+                    return;
+                }
 
-                    if (!error && Array.isArray(data) && data.length > 0) {
-                        userFound = data[0];
-                    }
+                // Cek Autentikasi ke Database Supabase (Tabel app_users)
+                const { data, error } = await window.supabaseClient
+                    .from('app_users')
+                    .select('*')
+                    .ilike('username', username)
+                    .eq('password', password)
+                    .limit(1);
+
+                if (error) {
+                    console.error('Supabase query error:', error);
+                    alert(`Gagal mengakses tabel akun di Supabase:\n${error.message}\n\nTip: Pastikan Anda sudah menjalankan perintah GRANT pada Supabase SQL Editor.`);
+                    return;
+                }
+
+                if (Array.isArray(data) && data.length > 0) {
+                    userFound = data[0];
                 }
 
                 if (userFound) {
@@ -576,11 +585,11 @@
                     }
                     window.location.href = 'dashboard.html';
                 } else {
-                    alert('Username atau password salah!\n\nPastikan akun sudah terdaftar di tabel app_users pada Supabase.');
+                    alert(`Username atau password salah!\n\nAnda memasukkan:\n• Username: "${username}"\n• Password: "${password}"\n\nPastikan data ini sama persis dengan yang ada di tabel "app_users" pada Supabase.`);
                 }
             } catch (err) {
                 console.error('Login error:', err);
-                alert('Terjadi kesalahan saat menghubungkan ke server. Silakan coba kembali.');
+                alert(`Terjadi kesalahan sistem:\n${err?.message || err}`);
             } finally {
                 if (submitBtn) {
                     submitBtn.disabled = false;
