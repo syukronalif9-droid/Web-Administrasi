@@ -897,15 +897,14 @@ async function dispatchSplEmailNotification(spl) {
     const encodedMgr = encodeURIComponent(spl.manager.name);
     const encodedArea = encodeURIComponent(spl.area || '');
 
+    // URL Universal 2 Tombol: Berfungsi langsung untuk Kabag maupun Manager
+    const universalApproveUrl = `${baseUrl}approve.html?id=${encodeURIComponent(spl.id)}&spl_no=${encodedNo}&area=${encodedArea}&action=approve`;
+    const universalRejectUrl = `${baseUrl}approve.html?id=${encodeURIComponent(spl.id)}&spl_no=${encodedNo}&area=${encodedArea}&action=reject`;
+
     const kabagApproveUrl = `${baseUrl}approve.html?id=${encodeURIComponent(spl.id)}&spl_no=${encodedNo}&approver=${encodedKabag}&area=${encodedArea}&role=kabag&action=approve`;
     const kabagRejectUrl = `${baseUrl}approve.html?id=${encodeURIComponent(spl.id)}&spl_no=${encodedNo}&approver=${encodedKabag}&area=${encodedArea}&role=kabag&action=reject`;
     const mgrApproveUrl = `${baseUrl}approve.html?id=${encodeURIComponent(spl.id)}&spl_no=${encodedNo}&approver=${encodedMgr}&area=${encodedArea}&role=manager&action=approve`;
     const mgrRejectUrl = `${baseUrl}approve.html?id=${encodeURIComponent(spl.id)}&spl_no=${encodedNo}&approver=${encodedMgr}&area=${encodedArea}&role=manager&action=reject`;
-
-    // Tentukan URL aktif berdasarkan status tahapan saat ini (Kabag atau Manager)
-    const isWaitingManager = (spl.finalStatus === 'Menunggu Manager');
-    const primaryApproveUrl = isWaitingManager ? mgrApproveUrl : kabagApproveUrl;
-    const primaryRejectUrl = isWaitingManager ? mgrRejectUrl : kabagRejectUrl;
 
     const emailParams = {
         spl_no: spl.splNo,
@@ -930,25 +929,25 @@ async function dispatchSplEmailNotification(spl) {
         reason: spl.reason,
         app_url: 'https://genadm.vercel.app/dashboard.html',
         
-        // Parameter Utama Persetujuan (Cocok untuk template dengan {{{approve_url}}} atau {{{reject_url}}})
-        approve_url: primaryApproveUrl,
-        reject_url: primaryRejectUrl,
-        setujui_url: primaryApproveUrl,
-        tolak_url: primaryRejectUrl,
-        link_setujui: primaryApproveUrl,
-        link_tolak: primaryRejectUrl,
-        url_setujui: primaryApproveUrl,
-        url_tolak: primaryRejectUrl,
+        // Parameter Utama 2 Tombol (Approve & Reject)
+        approve_url: universalApproveUrl,
+        reject_url: universalRejectUrl,
+        setujui_url: universalApproveUrl,
+        tolak_url: universalRejectUrl,
+        link_setujui: universalApproveUrl,
+        link_tolak: universalRejectUrl,
+        url_setujui: universalApproveUrl,
+        url_tolak: universalRejectUrl,
 
-        // Parameter Khusus Role
+        // Parameter Khusus Role (Untuk kompatibilitas template lama)
         kabag_approve_url: kabagApproveUrl,
         kabag_reject_url: kabagRejectUrl,
         manager_approve_url: mgrApproveUrl,
         manager_reject_url: mgrRejectUrl,
 
-        // Versi URL tanpa https:// (Jika di editor EmailJS terlanjur ada https:// di depannya)
-        approve_url_raw: primaryApproveUrl.replace(/^https?:\/\//, ''),
-        reject_url_raw: primaryRejectUrl.replace(/^https?:\/\//, ''),
+        // Versi URL tanpa https://
+        approve_url_raw: universalApproveUrl.replace(/^https?:\/\//, ''),
+        reject_url_raw: universalRejectUrl.replace(/^https?:\/\//, ''),
 
         email_subject: `[Pengajuan SPL Baru] ${spl.splNo} - Bagian: ${spl.area}`,
         clean_spl_no: spl.splNo
@@ -1415,8 +1414,35 @@ async function renderSplHistoryList(filterStatus = 'all') {
 
         const isApproved = item.finalStatus === 'Disetujui';
         const isRejected = item.finalStatus.includes('Ditolak');
-        const statusBg = isApproved ? '#dcfce7' : (isRejected ? '#fee2e2' : '#fef3c7');
-        const statusColor = isApproved ? '#15803d' : (isRejected ? '#dc2626' : '#b45309');
+        const isWaitingManager = item.finalStatus === 'Menunggu Manager';
+        const isWaitingKabag = item.finalStatus === 'Menunggu Kabag';
+
+        // Badge Status Utama di Header Card
+        let badgeText = item.finalStatus;
+        let badgeBg = '#fef3c7';
+        let badgeColor = '#b45309';
+
+        if (isApproved) {
+            badgeBg = '#dcfce7';
+            badgeColor = '#15803d';
+            if (item.kabag && item.kabag.note && item.kabag.note.includes('Manager')) {
+                badgeText = '✓ Disetujui (Disahkan Manager)';
+            } else {
+                badgeText = '✓ Disetujui (Lengkap)';
+            }
+        } else if (isWaitingManager) {
+            badgeBg = '#e0f2fe';
+            badgeColor = '#0369a1';
+            badgeText = '⌛ Menunggu Manager (Kabag ✓)';
+        } else if (isWaitingKabag) {
+            badgeBg = '#fef3c7';
+            badgeColor = '#b45309';
+            badgeText = '⌛ Menunggu Kabag';
+        } else if (isRejected) {
+            badgeBg = '#fee2e2';
+            badgeColor = '#dc2626';
+            badgeText = `✕ ${item.finalStatus}`;
+        }
 
         const empNames = item.employees.map(e => e.name).join(', ');
         const creatorDisplayName = (item.kasie && item.kasie.name && item.kasie.name !== '-') ? item.kasie.name : (item.employees[0] ? item.employees[0].name : '-');
@@ -1424,11 +1450,14 @@ async function renderSplHistoryList(filterStatus = 'all') {
         const hasCustomOverrides = Array.isArray(item.employees) && item.employees.some(e => e && e.startTime && (e.startTime !== item.startTime || e.endTime !== item.endTime || (e.reason && e.reason !== item.reason)));
 
         card.innerHTML = `
-            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; gap: 8px;">
                 <div>
                     <span style="font-weight: 700; font-size: 1.05rem; color: #0f172a;">${item.splNo}</span>
                     <div style="font-size: 0.82rem; color: #64748b; margin-top: 2px;">${item.area} • ${item.location} • ${item.date}</div>
                 </div>
+                <span style="background: ${badgeBg}; color: ${badgeColor}; padding: 4px 10px; border-radius: 99px; font-size: 0.76rem; font-weight: 700; white-space: nowrap; border: 1px solid currentColor;">
+                    ${badgeText}
+                </span>
             </div>
 
             <div style="font-size: 0.88rem; color: #334155; margin-bottom: 12px; background: #f8fafc; padding: 12px 14px; border-radius: 12px; border: 1.5px solid #cbd5e1; line-height: 1.6;">
@@ -1481,33 +1510,55 @@ async function renderSplHistoryList(filterStatus = 'all') {
                                        (item.kabag.status === 'empty' || item.kabag.name === '-' || String(item.kabag.no).trim() === '5078');
                 const isKabagSpl = !isKabagSkipped && (item.creatorRole === 'KABAG' || (item.kasie && item.kabag && item.kasie.no === item.kabag.no));
 
+                const kabagApproved = item.kabag && item.kabag.status === 'approved';
+                const kabagRejected = item.kabag && item.kabag.status === 'rejected';
+                const mgrApproved = item.manager && item.manager.status === 'approved';
+                const mgrRejected = item.manager && item.manager.status === 'rejected';
+
+                let kabagStatusSubtext = '⌛ Menunggu';
+                if (kabagApproved) {
+                    kabagStatusSubtext = (item.kabag.note && item.kabag.note.includes('Manager')) ? '✓ Sah (Manager)' : '✓ Disetujui';
+                } else if (kabagRejected) {
+                    kabagStatusSubtext = '✕ Ditolak';
+                }
+
+                let mgrStatusSubtext = '⌛ Menunggu';
+                if (mgrApproved) {
+                    mgrStatusSubtext = '✓ Disetujui';
+                } else if (mgrRejected) {
+                    mgrStatusSubtext = '✕ Ditolak';
+                }
+
                 return `
                 <div style="display: flex; align-items: center; justify-content: space-between; margin: 14px 0 12px; padding: 12px 14px; background: #ffffff; border: 1.5px dashed #cbd5e1; border-radius: 12px; font-size: 0.8rem;">
                     <!-- Creator Step -->
                     <div style="display: flex; flex-direction: column; align-items: center; text-align: center; flex: 1;">
                         <div style="width: 28px; height: 28px; border-radius: 50%; background: #16a34a; color: white; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: bold; margin-bottom: 4px;">✓</div>
                         <span style="font-weight: 700; color: #0f172a;">${isManagerCreator ? 'Manager (Dibuat)' : (isKabagSpl ? 'Kabag (Dibuat)' : 'Kasie (Dibuat)')}</span>
-                        <span style="color: #64748b; font-size: 0.75rem;">${item.kasie ? item.kasie.name.split(',')[0] : '-'}</span>
+                        <span style="color: #64748b; font-size: 0.74rem;">${item.kasie ? item.kasie.name.split(',')[0] : '-'}</span>
+                        <span style="color: #16a34a; font-size: 0.68rem; font-weight: 600;">✓ Dibuat</span>
                     </div>
-                    <div style="height: 3px; background: ${isKabagSkipped ? '#e2e8f0' : (item.kabag && item.kabag.status === 'approved' ? '#16a34a' : (item.kabag && item.kabag.status === 'rejected' ? '#ef4444' : '#cbd5e1'))}; flex: 0.6;"></div>
+                    <div style="height: 3px; background: ${isKabagSkipped ? '#e2e8f0' : (kabagApproved ? '#16a34a' : (kabagRejected ? '#ef4444' : '#cbd5e1'))}; flex: 0.6;"></div>
 
-                    <!-- Kabag Step (Dilewati hanya untuk data SPL lama yang memang tidak memiliki approver Kabag) -->
+                    <!-- Kabag Step -->
                     <div style="display: flex; flex-direction: column; align-items: center; text-align: center; flex: 1; ${isKabagSkipped ? 'opacity: 0.45;' : ''}">
-                        <div style="width: 28px; height: 28px; border-radius: 50%; background: ${isKabagSkipped ? '#94a3b8' : (item.kabag && item.kabag.status === 'approved' ? '#16a34a' : (item.kabag && item.kabag.status === 'rejected' ? '#ef4444' : '#f59e0b'))}; color: white; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: bold; margin-bottom: 4px;">
-                            ${isKabagSkipped ? '-' : (item.kabag && item.kabag.status === 'approved' ? '✓' : (item.kabag && item.kabag.status === 'rejected' ? '✕' : '⌛'))}
+                        <div style="width: 28px; height: 28px; border-radius: 50%; background: ${isKabagSkipped ? '#94a3b8' : (kabagApproved ? '#16a34a' : (kabagRejected ? '#ef4444' : '#f59e0b'))}; color: white; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: bold; margin-bottom: 4px;">
+                            ${isKabagSkipped ? '-' : (kabagApproved ? '✓' : (kabagRejected ? '✕' : '⌛'))}
                         </div>
                         <span style="font-weight: 700; color: #0f172a;">Kabag</span>
-                        <span style="color: #64748b; font-size: 0.75rem;">${isKabagSkipped ? '(Dilewati)' : (item.kabag ? item.kabag.name.split(',')[0] : '-')}</span>
+                        <span style="color: #64748b; font-size: 0.74rem;">${isKabagSkipped ? '(Dilewati)' : (item.kabag ? item.kabag.name.split(',')[0] : '-')}</span>
+                        <span style="color: ${kabagApproved ? '#16a34a' : (kabagRejected ? '#ef4444' : '#d97706')}; font-size: 0.68rem; font-weight: 600;">${kabagStatusSubtext}</span>
                     </div>
-                    <div style="height: 3px; background: ${item.manager && item.manager.status === 'approved' ? '#16a34a' : (item.manager && item.manager.status === 'rejected' ? '#ef4444' : '#cbd5e1')}; flex: 0.6;"></div>
+                    <div style="height: 3px; background: ${mgrApproved ? '#16a34a' : (mgrRejected ? '#ef4444' : '#cbd5e1')}; flex: 0.6;"></div>
 
                     <!-- Manager Step -->
                     <div style="display: flex; flex-direction: column; align-items: center; text-align: center; flex: 1;">
-                        <div style="width: 28px; height: 28px; border-radius: 50%; background: ${item.manager && item.manager.status === 'approved' ? '#16a34a' : (item.manager && item.manager.status === 'rejected' ? '#ef4444' : '#f59e0b')}; color: white; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: bold; margin-bottom: 4px;">
-                            ${item.manager && item.manager.status === 'approved' ? '✓' : (item.manager && item.manager.status === 'rejected' ? '✕' : '⌛')}
+                        <div style="width: 28px; height: 28px; border-radius: 50%; background: ${mgrApproved ? '#16a34a' : (mgrRejected ? '#ef4444' : '#f59e0b')}; color: white; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: bold; margin-bottom: 4px;">
+                            ${mgrApproved ? '✓' : (mgrRejected ? '✕' : '⌛')}
                         </div>
                         <span style="font-weight: 700; color: #0f172a;">Manager</span>
-                        <span style="color: #64748b; font-size: 0.75rem;">${item.manager ? item.manager.name : 'Wawan Kurniawan'}</span>
+                        <span style="color: #64748b; font-size: 0.74rem;">${item.manager ? item.manager.name : 'Wawan Kurniawan'}</span>
+                        <span style="color: ${mgrApproved ? '#16a34a' : (mgrRejected ? '#ef4444' : '#d97706')}; font-size: 0.68rem; font-weight: 600;">${mgrStatusSubtext}</span>
                     </div>
                 </div>
                 `;
@@ -2037,106 +2088,91 @@ function openEmailTemplateGuideModal() {
     if (existing) existing.remove();
 
     const templateHtml = `<!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <style>
-    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f1f5f9; margin: 0; padding: 20px; color: #1e293b; }
-    .card { max-width: 580px; margin: 0 auto; background: #ffffff; border-radius: 16px; border: 1px solid #e2e8f0; overflow: hidden; box-shadow: 0 4px 14px rgba(0,0,0,0.06); }
-    .header { background: #18181b; color: #ffffff; padding: 24px; text-align: center; }
-    .header h2 { margin: 0; font-size: 20px; font-weight: 700; letter-spacing: -0.3px; color: #ffffff; }
-    .header p { margin: 6px 0 0; font-size: 13px; color: #94a3b8; }
-    .content { padding: 24px; }
-    .info-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 14px; }
-    .info-table td { padding: 8px 10px; border-bottom: 1px solid #f1f5f9; }
-    .info-table td.lbl { width: 35%; color: #64748b; font-weight: 600; }
-    .info-table td.val { color: #0f172a; font-weight: 700; }
-    .box { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 12px 14px; margin-bottom: 20px; font-size: 13px; }
-    .footer { text-align: center; padding: 16px; background: #fafafa; border-top: 1px solid #f1f5f9; font-size: 12px; color: #94a3b8; }
-  </style>
+  <title>Overtime Approval Request</title>
 </head>
-<body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f1f5f9; margin: 0; padding: 20px; color: #1e293b;">
-  <div class="card" style="max-width: 580px; margin: 0 auto; background: #ffffff; border-radius: 16px; border: 1px solid #e2e8f0; overflow: hidden; box-shadow: 0 4px 14px rgba(0,0,0,0.06);">
-    <div class="header" style="background: #18181b; color: #ffffff; padding: 24px; text-align: center;">
-      <h2 style="margin: 0; font-size: 20px; font-weight: 700; letter-spacing: -0.3px; color: #ffffff;">Pemberitahuan Surat Perintah Lembur (SPL)</h2>
-      <p style="margin: 6px 0 0; font-size: 13px; color: #94a3b8;">Warehouse & Transport Departemen</p>
-    </div>
-    
-    <div class="content" style="padding: 24px;">
-      <p style="font-size: 14px; margin-top: 0;">Halo Bapak/Ibu <strong>{{to_kabag_name}}</strong> / <strong>{{to_manager_name}}</strong>,</p>
-      <p style="font-size: 14px; color: #475569;">Telah diajukan permohonan lembur baru yang memerlukan persetujuan Anda:</p>
-      
-      <table class="info-table" style="width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 14px;">
-        <tr><td class="lbl" style="padding: 8px 10px; border-bottom: 1px solid #f1f5f9; width: 35%; color: #64748b; font-weight: 600;">No. SPL</td><td class="val" style="padding: 8px 10px; border-bottom: 1px solid #f1f5f9; color: #0f172a; font-weight: 700;">{{{clean_spl_no}}}</td></tr>
-        <tr><td class="lbl" style="padding: 8px 10px; border-bottom: 1px solid #f1f5f9; width: 35%; color: #64748b; font-weight: 600;">Pembuat SPL</td><td class="val" style="padding: 8px 10px; border-bottom: 1px solid #f1f5f9; color: #0f172a; font-weight: 700;">{{creator_name}} (NIK: {{creator_nik}})</td></tr>
-        <tr><td class="lbl" style="padding: 8px 10px; border-bottom: 1px solid #f1f5f9; width: 35%; color: #64748b; font-weight: 600;">Bagian & Lokasi</td><td class="val" style="padding: 8px 10px; border-bottom: 1px solid #f1f5f9; color: #0f172a; font-weight: 700;">{{wh_area}} - {{wh_location}}</td></tr>
-        <tr><td class="lbl" style="padding: 8px 10px; border-bottom: 1px solid #f1f5f9; width: 35%; color: #64748b; font-weight: 600;">Tanggal Lembur</td><td class="val" style="padding: 8px 10px; border-bottom: 1px solid #f1f5f9; color: #0f172a; font-weight: 700;">{{overtime_date}}</td></tr>
-        <tr><td class="lbl" style="padding: 8px 10px; border-bottom: 1px solid #f1f5f9; width: 35%; color: #64748b; font-weight: 600;">Waktu Lembur</td><td class="val" style="padding: 8px 10px; border-bottom: 1px solid #f1f5f9; color: #0f172a; font-weight: 700;">{{overtime_time}}</td></tr>
-        <tr><td class="lbl" style="padding: 8px 10px; border-bottom: 1px solid #f1f5f9; width: 35%; color: #64748b; font-weight: 600;">Jml Karyawan</td><td class="val" style="padding: 8px 10px; border-bottom: 1px solid #f1f5f9; color: #0f172a; font-weight: 700;">{{employee_count}} Orang</td></tr>
-      </table>
+<body style="margin:0;padding:0;background-color:#f1f5f9;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased;">
 
-      <div class="box" style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 12px 14px; margin-bottom: 20px; font-size: 13px;">
-        <strong style="color: #334155;">Daftar Karyawan Ditugaskan:</strong>
-        <pre style="margin: 6px 0 0; font-family: inherit; font-size: 13px; white-space: pre-wrap; color: #0f172a;">{{employee_list}}</pre>
-      </div>
+  <table width="100%" border="0" cellpadding="0" cellspacing="0" style="background-color:#f1f5f9;padding:25px 12px;">
+    <tr>
+      <td align="center">
+        <table width="100%" border="0" cellpadding="0" cellspacing="0" style="max-width:540px;background-color:#ffffff;border-radius:20px;overflow:hidden;box-shadow:0 10px 25px rgba(0,0,0,0.06);border:1px solid #e2e8f0;">
 
-      <div class="box" style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 12px 14px; margin-bottom: 20px; font-size: 13px;">
-        <strong style="color: #334155;">Alasan / Uraian Pekerjaan:</strong>
-        <p style="margin: 6px 0 0; color: #0f172a;">{{reason}}</p>
-      </div>
-
-      <!-- SATU-KLIK PERSETUJUAN (KOMPATIBEL 100% GMAIL WEB & MOBILE) -->
-      <div style="margin-top: 25px; padding-top: 16px; border-top: 1px solid #e2e8f0; text-align: center;">
-        <p style="font-weight: 700; font-size: 12px; color: #64748b; letter-spacing: 0.8px; text-transform: uppercase; margin: 0 0 16px 0;">PILIH KEPUTUSAN ANDA (SATU KLIK):</p>
-        
-        <!-- TOMBOL SETUJUI (APPROVE) -->
-        <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="margin-bottom: 12px;">
           <tr>
-            <td align="center">
-              <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%">
-                <tr>
-                  <td align="center" bgcolor="#16a34a" style="border-radius: 10px; background-color: #16a34a;">
-                    <a href="{{{approve_url}}}" target="_blank" rel="noopener noreferrer" style="display: block; width: 100%; box-sizing: border-box; padding: 14px 20px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 15px; font-weight: bold; color: #ffffff !important; text-decoration: none; border-radius: 10px; text-align: center; border: 1px solid #16a34a; background-color: #16a34a;">
-                      &#10003; SETUJUI LEMBUR (APPROVE)
-                    </a>
-                  </td>
-                </tr>
-              </table>
+            <td style="background-color:#0f172a;padding:26px 24px;text-align:center;">
+              <span style="display:inline-block;background-color:#22c55e;color:#ffffff;font-size:11px;font-weight:800;letter-spacing:0.8px;padding:4px 12px;border-radius:99px;text-transform:uppercase;margin-bottom:10px;">
+                Approval Request
+              </span>
+              <h1 style="color:#ffffff;margin:0;font-size:20px;font-weight:800;letter-spacing:-0.3px;">
+                Overtime Order Letter (SPL)
+              </h1>
+              <p style="color:#94a3b8;margin:4px 0 0;font-size:13px;">
+                Warehouse Operation Management System
+              </p>
             </td>
           </tr>
-        </table>
 
-        <!-- TOMBOL TOLAK (REJECT) -->
-        <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="margin-bottom: 16px;">
           <tr>
-            <td align="center">
-              <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%">
+            <td style="padding:24px;">
+              <p style="margin:0 0 16px;font-size:14px;color:#334155;line-height:1.5;">
+                Dear Approver,<br>
+                A new overtime request has been submitted by <strong>{{creator_name}} (ID: {{creator_nik}})</strong> requiring your approval:
+              </p>
+
+              <table width="100%" border="0" cellpadding="0" cellspacing="0" style="background-color:#f8fafc;border-radius:14px;border:1px solid #e2e8f0;margin-bottom:20px;font-size:13px;">
                 <tr>
-                  <td align="center" bgcolor="#dc2626" style="border-radius: 10px; background-color: #dc2626;">
-                    <a href="{{{reject_url}}}" target="_blank" rel="noopener noreferrer" style="display: block; width: 100%; box-sizing: border-box; padding: 14px 20px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 15px; font-weight: bold; color: #ffffff !important; text-decoration: none; border-radius: 10px; text-align: center; border: 1px solid #dc2626; background-color: #dc2626;">
-                      &#10005; TOLAK LEMBUR (REJECT)
-                    </a>
-                  </td>
+                  <td style="padding:12px 14px;border-bottom:1px dashed #e2e8f0;color:#64748b;width:38%;">Document No.</td>
+                  <td style="padding:12px 14px;border-bottom:1px dashed #e2e8f0;font-weight:700;color:#0f172a;">{{{clean_spl_no}}}</td>
+                </tr>
+                <tr>
+                  <td style="padding:12px 14px;border-bottom:1px dashed #e2e8f0;color:#64748b;">Dept &amp; Location</td>
+                  <td style="padding:12px 14px;border-bottom:1px dashed #e2e8f0;font-weight:600;color:#0f172a;">{{bagian}} • {{lokasi}}</td>
+                </tr>
+                <tr>
+                  <td style="padding:12px 14px;border-bottom:1px dashed #e2e8f0;color:#64748b;">Schedule</td>
+                  <td style="padding:12px 14px;border-bottom:1px dashed #e2e8f0;font-weight:600;color:#0284c7;">{{overtime_date}} ({{overtime_time}})</td>
+                </tr>
+                <tr>
+                  <td style="padding:12px 14px;border-bottom:1px dashed #e2e8f0;color:#64748b;">Total Personnel</td>
+                  <td style="padding:12px 14px;border-bottom:1px dashed #e2e8f0;font-weight:700;color:#0f172a;">{{employee_count}} Persons</td>
+                </tr>
+                <tr>
+                  <td style="padding:12px 14px;color:#64748b;vertical-align:top;">Reason / Task</td>
+                  <td style="padding:12px 14px;color:#334155;font-style:italic;">“{{reason}}”</td>
                 </tr>
               </table>
+
+              <div style="background-color:#ffffff;border:1px solid #cbd5e1;border-radius:12px;padding:14px;margin-bottom:24px;">
+                <div style="font-size:11px;font-weight:800;color:#64748b;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;">
+                  Assigned Personnel List
+                </div>
+                <div style="font-size:13px;color:#0f172a;white-space:pre-line;line-height:1.6;font-weight:500;">{{employee_list}}</div>
+              </div>
+
+              <!-- 2 BUTTONS APPROVAL (ENGLISH ONLY) -->
+              <div style="background-color:#f8fafc;border:1.5px solid #e2e8f0;border-radius:14px;padding:20px 16px;text-align:center;">
+                <div style="font-size:12px;font-weight:800;color:#64748b;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:14px;">
+                  APPROVAL DECISION:
+                </div>
+
+                <a href="{{{approve_url}}}" target="_blank" rel="noopener noreferrer" style="display:block;background-color:#16a34a;color:#ffffff;text-align:center;padding:15px 16px;border-radius:12px;text-decoration:none;font-size:15px;font-weight:800;letter-spacing:0.5px;margin-bottom:10px;box-shadow:0 4px 10px rgba(22,163,74,0.25);">
+                  ✓ APPROVE
+                </a>
+
+                <a href="{{{reject_url}}}" target="_blank" rel="noopener noreferrer" style="display:block;background-color:#ef4444;color:#ffffff;text-align:center;padding:14px 16px;border-radius:12px;text-decoration:none;font-size:14px;font-weight:800;letter-spacing:0.5px;box-shadow:0 4px 10px rgba(239,68,68,0.2);">
+                  ✕ REJECT
+                </a>
+              </div>
             </td>
           </tr>
+
         </table>
-
-        <!-- LINK ALTERNATIF LANGSUNG (ANTI GAGAL UNTUK SEMUA APLIKASI EMAIL) -->
-        <div style="background-color: #f8fafc; border: 1px dashed #cbd5e1; border-radius: 8px; padding: 12px; margin-top: 14px; text-align: left; font-size: 12px; line-height: 1.6; color: #475569;">
-          <div style="font-weight: bold; color: #334155; margin-bottom: 4px;">Link Alternatif (Jika tombol di atas tidak dapat diklik di Gmail):</div>
-          <div>&bull; <strong>Link Setujui:</strong> <a href="{{{approve_url}}}" target="_blank" rel="noopener noreferrer" style="color: #16a34a; font-weight: 600; word-break: break-all; text-decoration: underline;">{{{approve_url}}}</a></div>
-          <div style="margin-top: 4px;">&bull; <strong>Link Tolak:</strong> <a href="{{{reject_url}}}" target="_blank" rel="noopener noreferrer" style="color: #dc2626; font-weight: 600; word-break: break-all; text-decoration: underline;">{{{reject_url}}}</a></div>
-        </div>
-      </div>
-    </div>
-
-    <div class="footer" style="text-align: center; padding: 16px; background: #fafafa; border-top: 1px solid #f1f5f9; font-size: 12px; color: #94a3b8;">
-      Pesan otomatis sistem Digital SPL Warehouse • PT Great Giant Foods
-    </div>
-  </div>
+      </td>
+    </tr>
+  </table>
 </body>
 </html>`;
 
@@ -2156,6 +2192,8 @@ function openEmailTemplateGuideModal() {
 
             <div style="padding: 18px 22px; overflow-y: auto; font-size: 0.85rem; display: flex; flex-direction: column; gap: 14px;">
                 <div style="background: #e0f2fe; border: 1px solid #bae6fd; border-radius: 10px; padding: 12px; color: #0369a1; font-size: 0.8rem; line-height: 1.5;">
+                    <strong>ℹ️ Format 2 Tombol Praktis:</strong><br>
+                    Email kini hanya membutuhkan <strong>2 Tombol (APPROVE & REJECT)</strong>. Baik Kabag maupun Manager dapat langsung menyetujui, dan jika <strong>Manager menyetujui terlebih dahulu</strong>, status SPL di web langsung berubah menjadi <strong>"Disetujui"</strong> tanpa menunggu persetujuan Kabag!<br><br>
                     <strong>Cara Pakai:</strong><br>
                     1. Klik tombol hijau <strong>"📋 Salin Template HTML"</strong> di bawah.<br>
                     2. Buka dashboard <a href="https://dashboard.emailjs.com/" target="_blank" style="color: #0284c7; font-weight: 700;">EmailJS</a> &rarr; <strong>Email Templates</strong> &rarr; Buka Template Anda.<br>
@@ -2233,8 +2271,8 @@ async function runDirectEmailTest() {
 
     // Selalu gunakan baseUrl publik HTTPS (Vercel) agar bisa diklik di Gmail
     const baseUrl = getPublicBaseUrl();
-    const sampleApproveUrl = `${baseUrl}approve.html?id=SPL-TEST-EMAIL&spl_no=SPL%2FWH%2F2026%2F04%2FTEST&approver=Test%20Approver&role=kabag&action=approve`;
-    const sampleRejectUrl = `${baseUrl}approve.html?id=SPL-TEST-EMAIL&spl_no=SPL%2FWH%2F2026%2F04%2FTEST&approver=Test%20Approver&role=kabag&action=reject`;
+    const sampleApproveUrl = `${baseUrl}approve.html?id=SPL-TEST-EMAIL&spl_no=SPL%2FWH%2F2026%2F04%2FTEST&area=Packaging&action=approve`;
+    const sampleRejectUrl = `${baseUrl}approve.html?id=SPL-TEST-EMAIL&spl_no=SPL%2FWH%2F2026%2F04%2FTEST&area=Packaging&action=reject`;
 
     if (window.emailjs && publicKey) {
         try {
