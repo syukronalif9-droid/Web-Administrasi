@@ -587,22 +587,21 @@
                         .limit(5);
 
                     if (!allUsers || allUsers.length === 0) {
-                        // Tabel masih kosong: Buatkan akun admin & viewer secara otomatis sekarang juga!
-                        const { error: insErr } = await window.supabaseClient.from('app_users').insert([
-                            { username: 'admin', password: password || 'admin', role: 'admin', name: 'Administrator Utama', pers_no: '5078' },
-                            { username: 'viewer', password: 'viewer', role: 'viewer', name: 'Akun Viewer', pers_no: '3152137' }
-                        ]);
+                        // Jika tabel di Supabase masih kosong, izinkan login default agar Anda tidak terblokir
+                        const inputUser = username.toLowerCase().trim();
+                        const inputPass = password.trim();
 
-                        if (!insErr) {
-                            alert(`✨ Tabel 'app_users' di Supabase tadi masih kosong. Akun "${username}" baru saja didaftarkan secara otomatis sebagai Administrator!\n\nKlik OK untuk langsung masuk.`);
+                        if (inputUser === 'admin' && (inputPass === 'admin' || inputPass === 'admin123')) {
                             userFound = { username: 'admin', role: 'admin', name: 'Administrator Utama', pers_no: '5078' };
+                        } else if (inputUser === 'viewer' && (inputPass === 'viewer' || inputPass === 'viewer123')) {
+                            userFound = { username: 'viewer', role: 'viewer', name: 'Akun Viewer', pers_no: '3152137' };
                         } else {
-                            alert('Tabel app_users di Supabase masih kosong dan belum ada akun terdaftar.');
+                            alert('Tabel "app_users" di Supabase masih kosong.\n\nSilakan masuk dengan akun default:\n• Admin: admin / admin\n• Viewer: viewer / viewer');
                             return;
                         }
                     } else {
                         const existingList = allUsers.map(u => u.username).join(', ');
-                        alert(`Username "${username}" tidak ditemukan di tabel Supabase!\n\nDaftar username yang terdaftar saat ini: [ ${existingList} ]\nSilakan masukkan salah satu username di atas.`);
+                        alert(`Username "${username}" tidak ditemukan di tabel Supabase!\n\nDaftar username terdaftar di Supabase: [ ${existingList} ]\nSilakan masukkan salah satu username di atas.`);
                         return;
                     }
                 }
