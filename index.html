@@ -3,211 +3,689 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CEN5 Aging Monitoring System</title>
+    <title>Login - Sistem Administrasi Warehouse</title>
+    <!-- Google Fonts Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
     <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #ffffff;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-        }
-        .login-container {
-            background-color: white;
-            padding: 0;
-            width: 100%;
-            max-width: 320px;
-            border: 1px solid #f0f0f0;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-            border-radius: 4px;
-            overflow: hidden;
-        }
-        .logo-container {
-            text-align: center;
-            width: 100%;
-            background-color: #ffffff; /* Ubah jika warna background gambar bukan putih */
-        }
-        .logo-container img {
-            width: 100%;
-            height: auto;
-            display: block;
-        }
-        form {
-            padding: 30px;
-        }
-        .form-group {
-            margin-bottom: 20px;
-        }
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            color: #555;
-            font-size: 14px;
-        }
-        .form-control {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
+        * {
             box-sizing: border-box;
-            font-size: 14px;
+            margin: 0;
+            padding: 0;
         }
-        .form-control:focus {
-            outline: none;
-            border-color: #1976D2;
-        }
-        .password-container {
+
+        body {
+            font-family: 'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #2563eb;
+            background: linear-gradient(135deg, #1d4ed8 0%, #2563eb 50%, #3b82f6 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
             position: relative;
+            overflow-x: hidden;
         }
-        .password-toggle {
+
+        /* Subtle modern background decorative shapes */
+        .bg-shape-1 {
             position: absolute;
-            right: 10px;
-            top: 50%;
-            transform: translateY(-50%);
+            width: 450px;
+            height: 450px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0) 70%);
+            top: -100px;
+            left: -100px;
+            pointer-events: none;
+        }
+
+        .bg-shape-2 {
+            position: absolute;
+            width: 550px;
+            height: 550px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(96,165,250,0.2) 0%, rgba(255,255,255,0) 70%);
+            bottom: -150px;
+            right: -100px;
+            pointer-events: none;
+        }
+
+        /* Main Floating Card */
+        .auth-card {
+            background: #ffffff;
+            width: 100%;
+            max-width: 960px;
+            border-radius: 36px;
+            box-shadow: 0 25px 70px -12px rgba(15, 23, 42, 0.28), 0 0 0 1px rgba(255, 255, 255, 0.4);
+            display: grid;
+            grid-template-columns: 1fr 1.05fr;
+            overflow: hidden;
+            position: relative;
+            z-index: 10;
+            min-height: 580px;
+        }
+
+        /* =========================================
+           LEFT PANE: FORM LOGIN
+           ========================================= */
+        .auth-form-pane {
+            padding: 48px 46px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            background: #ffffff;
+        }
+
+        .auth-header {
+            margin-bottom: 28px;
+        }
+
+        .auth-title {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #0f172a;
+            letter-spacing: -0.5px;
+            margin-bottom: 6px;
+        }
+
+        .auth-subtitle {
+            font-size: 0.88rem;
+            color: #64748b;
+            font-weight: 500;
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        .form-label-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 7px;
+        }
+
+        .form-label {
+            font-size: 0.84rem;
+            font-weight: 600;
+            color: #475569;
+        }
+
+        .forgot-link {
+            font-size: 0.82rem;
+            color: #2563eb;
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.15s;
+        }
+
+        .forgot-link:hover {
+            color: #1d4ed8;
+            text-decoration: underline;
+        }
+
+        .input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .form-input {
+            width: 100%;
+            height: 48px;
+            background: #f1f5f9;
+            border: 2px solid transparent;
+            border-radius: 12px;
+            padding: 0 16px;
+            font-size: 0.92rem;
+            font-family: inherit;
+            color: #0f172a;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            outline: none;
+        }
+
+        .form-input::placeholder {
+            color: #94a3b8;
+            font-weight: 400;
+        }
+
+        .form-input:focus {
+            background: #ffffff;
+            border-color: #2563eb;
+            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12);
+        }
+
+        .password-toggle-btn {
+            position: absolute;
+            right: 14px;
+            background: none;
+            border: none;
             cursor: pointer;
-            color: #888;
-            font-size: 16px;
+            color: #94a3b8;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 4px;
+            transition: color 0.15s;
+        }
+
+        .password-toggle-btn:hover {
+            color: #334155;
+        }
+
+        .remember-row {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            margin: 14px 0 24px;
+            cursor: pointer;
             user-select: none;
         }
-        .remember-me {
+
+        .custom-checkbox {
+            width: 18px;
+            height: 18px;
+            accent-color: #2563eb;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+
+        .remember-label {
+            font-size: 0.85rem;
+            color: #64748b;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        .btn-submit-login {
+            width: 100%;
+            height: 50px;
+            background: #2563eb;
+            color: #ffffff;
+            border: none;
+            border-radius: 14px;
+            font-size: 0.98rem;
+            font-weight: 700;
+            font-family: inherit;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 8px 24px -4px rgba(37, 99, 235, 0.45);
             display: flex;
             align-items: center;
-            margin-bottom: 20px;
-            font-size: 13px;
-            color: #555;
+            justify-content: center;
+            gap: 8px;
         }
-        .remember-me input {
-            margin-right: 8px;
-            cursor: pointer;
+
+        .btn-submit-login:hover {
+            background: #1d4ed8;
+            box-shadow: 0 12px 28px -4px rgba(37, 99, 235, 0.55);
+            transform: translateY(-1px);
         }
-        .btn-login {
+
+        .btn-submit-login:active {
+            transform: translateY(1px);
+            box-shadow: 0 4px 14px -2px rgba(37, 99, 235, 0.4);
+        }
+
+        .auth-footer {
+            margin-top: 26px;
+            text-align: center;
+            font-size: 0.85rem;
+            color: #64748b;
+        }
+
+        .auth-footer a {
+            color: #2563eb;
+            text-decoration: none;
+            font-weight: 700;
+            transition: color 0.15s;
+        }
+
+        .auth-footer a:hover {
+            text-decoration: underline;
+        }
+
+        .quick-guest-btn {
+            background: #f8fafc;
+            border: 1px dashed #cbd5e1;
+            color: #64748b;
+            border-radius: 10px;
+            padding: 8px 12px;
+            font-size: 0.78rem;
+            font-weight: 600;
             width: 100%;
-            padding: 12px;
-            background-color: #1976D2;
-            color: white;
-            border: none;
-            border-radius: 4px;
             cursor: pointer;
-            font-size: 14px;
-            font-weight: 500;
-            transition: background-color 0.2s;
+            margin-top: 14px;
+            transition: all 0.15s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
         }
-        .btn-login:hover {
-            background-color: #1565C0;
+
+        .quick-guest-btn:hover {
+            background: #eff6ff;
+            color: #2563eb;
+            border-color: #93c5fd;
         }
-        .btn-login-guest {
+
+        /* =========================================
+           RIGHT PANE: 3D ILLUSTRATION & HERO
+           ========================================= */
+        .auth-visual-pane {
+            background: #f8fafc;
+            background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+            border-left: 1px solid #e2e8f0;
+            padding: 44px 38px 36px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            text-align: center;
+            position: relative;
+        }
+
+        .illustration-wrapper {
             width: 100%;
-            padding: 12px;
-            background-color: #f1f3f4;
-            color: #5f6368;
-            border: 1px solid #dadce0;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: 500;
-            margin-top: 10px;
-            transition: background-color 0.2s, color 0.2s;
+            max-width: 380px;
+            height: 290px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            margin-bottom: 12px;
         }
-        .btn-login-guest:hover {
-            background-color: #e8eaed;
-            color: #202124;
+
+        .visual-content {
+            margin-top: auto;
+            max-width: 340px;
+        }
+
+        .visual-title {
+            font-size: 1.32rem;
+            font-weight: 800;
+            color: #0f172a;
+            margin-bottom: 8px;
+            letter-spacing: -0.3px;
+        }
+
+        .visual-desc {
+            font-size: 0.82rem;
+            color: #64748b;
+            line-height: 1.55;
+            margin-bottom: 22px;
+        }
+
+        /* Slider Dashes */
+        .slider-dots {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .slider-dash {
+            height: 4px;
+            border-radius: 99px;
+            background: #cbd5e1;
+            transition: all 0.3s ease;
+        }
+
+        .slider-dash.active {
+            width: 38px;
+            background: #2563eb;
+        }
+
+        .slider-dash.inactive {
+            width: 16px;
+        }
+
+        /* Responsive Layout */
+        @media (max-width: 820px) {
+            .auth-card {
+                grid-template-columns: 1fr;
+                max-width: 440px;
+                border-radius: 28px;
+                min-height: auto;
+            }
+
+            .auth-form-pane {
+                padding: 38px 28px 32px;
+            }
+
+            .auth-visual-pane {
+                display: none; /* Compact on mobile for fastest login UX */
+            }
         }
     </style>
 </head>
 <body>
 
-<div class="login-container">
-    <div class="logo-container">
-        <!-- GANTI src="logo.png" DENGAN NAMA FILE LOGO ANDA -->
-        <img src="logo.png.jpeg" alt="Logo Perusahaan">
-    </div>
-    
-    <form id="loginForm">
-        <div class="form-group">
-            <label for="email">Email</label>
-            <input type="email" id="email" class="form-control" placeholder="Masukkan email" required>
-        </div>
-        
-        <div class="form-group">
-            <label for="password">Kata Sandi</label>
-            <div class="password-container">
-                <input type="password" id="password" class="form-control" placeholder="Masukkan kata sandi" required>
-                <!-- Ikon mata standar (SVG) -->
-                <span class="password-toggle" onclick="togglePassword()" title="Tampilkan/Sembunyikan Sandi" id="toggleIcon">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-                        <circle cx="12" cy="12" r="3"></circle>
-                    </svg>
-                </span>
+    <div class="bg-shape-1"></div>
+    <div class="bg-shape-2"></div>
+
+    <div class="auth-card">
+        <!-- LEFT: LOGIN FORM -->
+        <div class="auth-form-pane">
+            <div>
+                <div class="auth-header">
+                    <h1 class="auth-title">Login</h1>
+                    <p class="auth-subtitle">Welcome back! Please enter your details.</p>
+                </div>
+
+                <form id="loginForm">
+                    <!-- Field 1: Username or Email -->
+                    <div class="form-group">
+                        <div class="form-label-row">
+                            <label for="usernameInput" class="form-label">Username or email</label>
+                        </div>
+                        <div class="input-wrapper">
+                            <input type="text" id="usernameInput" class="form-input" placeholder="Enter username or email" required autocomplete="username">
+                        </div>
+                    </div>
+
+                    <!-- Field 2: Password -->
+                    <div class="form-group">
+                        <div class="form-label-row">
+                            <label for="passwordInput" class="form-label">Password</label>
+                            <a href="javascript:void(0)" class="forgot-link" onclick="handleForgotPassword()">Forgot password ?</a>
+                        </div>
+                        <div class="input-wrapper">
+                            <input type="password" id="passwordInput" class="form-input" placeholder="••••••••" required autocomplete="current-password" style="padding-right: 44px;">
+                            <button type="button" class="password-toggle-btn" onclick="togglePasswordVisibility()" title="Show/Hide Password">
+                                <svg id="eyeIcon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                    <circle cx="12" cy="12" r="3"></circle>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Remember Me -->
+                    <label class="remember-row">
+                        <input type="checkbox" id="rememberMe" class="custom-checkbox" checked>
+                        <span class="remember-label">Remember me</span>
+                    </label>
+
+                    <!-- Login Button -->
+                    <button type="submit" class="btn-submit-login">
+                        <span>Login</span>
+                    </button>
+
+                    <!-- Quick Guest / Demo Option -->
+                    <button type="button" class="quick-guest-btn" onclick="loginAsGuest()">
+                        <span>⚡ Masuk Cepat (Guest / Demo Mode)</span>
+                    </button>
+                </form>
+            </div>
+
+            <div class="auth-footer">
+                <span>Don't have an account ?</span>
+                <a href="javascript:void(0)" onclick="alert('Silakan hubungi Administrator IT Warehouse untuk pendaftaran NIK / Akun baru.')">Sign up</a>
             </div>
         </div>
-        
-        <div class="remember-me">
-            <input type="checkbox" id="remember" name="remember" checked>
-            <label for="remember">Ingat email</label>
+
+        <!-- RIGHT: 3D PROJECT PROGRESS ILLUSTRATION -->
+        <div class="auth-visual-pane">
+            <div class="illustration-wrapper">
+                <!-- SVG High-Fidelity 3D Dashboard & Analytics Illustration (Matches Exact Layout) -->
+                <svg width="340" height="280" viewBox="0 0 340 280" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <!-- Drop Shadows -->
+                        <filter id="softShadow" x="-20%" y="-20%" width="140%" height="140%">
+                            <feDropShadow dx="0" dy="12" stdDeviation="16" flood-color="#0f172a" flood-opacity="0.12" />
+                        </filter>
+                        <filter id="glowLight" x="-30%" y="-30%" width="160%" height="160%">
+                            <feDropShadow dx="0" dy="4" stdDeviation="10" flood-color="#f59e0b" flood-opacity="0.35" />
+                        </filter>
+                        <filter id="popShadow" x="-20%" y="-20%" width="140%" height="140%">
+                            <feDropShadow dx="0" dy="8" stdDeviation="10" flood-color="#2563eb" flood-opacity="0.2" />
+                        </filter>
+                        
+                        <!-- Gradients -->
+                        <linearGradient id="mainCardGrad" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stop-color="#ffffff" />
+                            <stop offset="100%" stop-color="#f8fafc" />
+                        </linearGradient>
+                        <linearGradient id="blueHandGrad" x1="0" y1="0" x2="1" y2="1">
+                            <stop offset="0%" stop-color="#3b82f6" />
+                            <stop offset="100%" stop-color="#1d4ed8" />
+                        </linearGradient>
+                        <linearGradient id="skinGrad" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stop-color="#fed7aa" />
+                            <stop offset="100%" stop-color="#fba86d" />
+                        </linearGradient>
+                        <linearGradient id="bulbGrad" x1="0" y1="0" x2="1" y2="1">
+                            <stop offset="0%" stop-color="#fef08a" />
+                            <stop offset="50%" stop-color="#facc15" />
+                            <stop offset="100%" stop-color="#eab308" />
+                        </linearGradient>
+                        <linearGradient id="cardDarkGrad" x1="0" y1="0" x2="1" y2="1">
+                            <stop offset="0%" stop-color="#1e293b" />
+                            <stop offset="100%" stop-color="#0f172a" />
+                        </linearGradient>
+                    </defs>
+
+                    <!-- Background Soft Aura -->
+                    <circle cx="170" cy="140" r="110" fill="#e0f2fe" opacity="0.45" />
+
+                    <!-- Floating Plus Accents -->
+                    <path d="M50 115 H62 M56 109 V121" stroke="#f59e0b" stroke-width="3" stroke-linecap="round" />
+                    <path d="M288 65 H300 M294 59 V71" stroke="#3b82f6" stroke-width="3.5" stroke-linecap="round" />
+
+                    <!-- Central Device / Canvas Screen -->
+                    <rect x="75" y="70" width="185" height="135" rx="16" fill="url(#mainCardGrad)" stroke="#1e293b" stroke-width="3.5" filter="url(#softShadow)" />
+
+                    <!-- Canvas Top Bar (Search + Dots) -->
+                    <rect x="94" y="82" width="70" height="11" rx="5.5" fill="#e2e8f0" />
+                    <circle cx="156" cy="87.5" r="3" fill="#94a3b8" />
+                    <line x1="158" y1="89.5" x2="162" y2="93.5" stroke="#94a3b8" stroke-width="1.5" stroke-linecap="round" />
+
+                    <!-- Chart Line on Device -->
+                    <path d="M96 112 C 112 98, 122 130, 138 114 C 154 98, 168 128, 184 110 L 206 108" fill="none" stroke="#2563eb" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" />
+                    <path d="M174 116 C 186 130, 200 120, 216 104" fill="none" stroke="#f59e0b" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+
+                    <!-- Left Floating Mini Card: Task Checklist -->
+                    <g filter="url(#popShadow)">
+                        <rect x="58" y="52" width="46" height="52" rx="10" fill="#ffffff" stroke="#e2e8f0" stroke-width="1.5" />
+                        <!-- Task 1 -->
+                        <rect x="65" y="60" width="8" height="8" rx="2.5" fill="#2563eb" />
+                        <path d="M67 64 L69 66 L72 62" stroke="#ffffff" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" />
+                        <rect x="77" y="62.5" width="20" height="3" rx="1.5" fill="#cbd5e1" />
+                        <!-- Task 2 -->
+                        <rect x="65" y="72" width="8" height="8" rx="2.5" fill="#2563eb" />
+                        <path d="M67 76 L69 78 L72 74" stroke="#ffffff" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" />
+                        <rect x="77" y="74.5" width="16" height="3" rx="1.5" fill="#cbd5e1" />
+                        <!-- Task 3 -->
+                        <rect x="65" y="84" width="8" height="8" rx="2.5" fill="#2563eb" />
+                        <path d="M67 88 L69 90 L72 86" stroke="#ffffff" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" />
+                        <rect x="77" y="86.5" width="18" height="3" rx="1.5" fill="#cbd5e1" />
+                    </g>
+
+                    <!-- Top Floating Card: Pie Chart -->
+                    <g filter="url(#softShadow)">
+                        <rect x="180" y="38" width="36" height="36" rx="9" fill="#1e293b" />
+                        <circle cx="198" cy="56" r="11" fill="#3b82f6" />
+                        <path d="M198 56 L198 45 A11 11 0 0 1 209 56 Z" fill="#facc15" />
+                    </g>
+
+                    <!-- Top-Right Floating 3D Pie Chart Element -->
+                    <g filter="url(#glowLight)">
+                        <circle cx="246" cy="68" r="16" fill="#f59e0b" />
+                        <path d="M246 68 L246 52 A16 16 0 0 1 262 68 Z" fill="#3b82f6" />
+                        <circle cx="246" cy="68" r="5" fill="#ffffff" />
+                    </g>
+
+                    <!-- Floating Dark Dashboard Card (Over Canvas) -->
+                    <g filter="url(#softShadow)">
+                        <rect x="156" y="130" width="76" height="66" rx="12" fill="url(#cardDarkGrad)" stroke="#334155" stroke-width="1" />
+                        <!-- Mini Pie on Card -->
+                        <circle cx="178" cy="154" r="12" fill="#2563eb" />
+                        <path d="M178 154 L178 142 A12 12 0 0 1 190 154 Z" fill="#facc15" />
+                        <circle cx="178" cy="154" r="5" fill="#0f172a" />
+                        <!-- Mini Bar Chart -->
+                        <rect x="198" y="156" width="6" height="18" rx="2" fill="#94a3b8" />
+                        <rect x="207" y="148" width="6" height="26" rx="2" fill="#3b82f6" />
+                        <rect x="216" y="140" width="6" height="34" rx="2" fill="#facc15" />
+                    </g>
+
+                    <!-- 3D Hand Right (Holding Stylus / Drawing) -->
+                    <!-- Blue Cuff -->
+                    <rect x="282" y="140" width="38" height="32" rx="10" fill="url(#blueHandGrad)" />
+                    <!-- Hand Palm -->
+                    <ellipse cx="290" cy="120" rx="14" ry="18" fill="url(#skinGrad)" />
+                    <!-- Fingers gripping stylus -->
+                    <rect x="274" y="106" width="16" height="8" rx="4" fill="url(#skinGrad)" />
+                    <rect x="272" y="115" width="18" height="8" rx="4" fill="url(#skinGrad)" />
+                    <rect x="275" y="124" width="16" height="8" rx="4" fill="url(#skinGrad)" />
+                    <!-- Stylus Pen -->
+                    <path d="M228 104 L298 126" stroke="#ffffff" stroke-width="6" stroke-linecap="round" />
+                    <path d="M228 104 L298 126" stroke="#94a3b8" stroke-width="3" stroke-linecap="round" />
+                    <circle cx="225" cy="103" r="3" fill="#2563eb" />
+
+                    <!-- 3D Hand Left (Holding Glowing Lightbulb) -->
+                    <!-- Blue Sleeve / Cuff -->
+                    <rect x="52" y="158" width="38" height="34" rx="10" fill="url(#blueHandGrad)" transform="rotate(-15 52 158)" />
+                    <!-- Hand Palm -->
+                    <ellipse cx="88" cy="162" rx="14" ry="16" fill="url(#skinGrad)" />
+                    <!-- Fingers curling -->
+                    <rect x="80" y="146" width="15" height="7" rx="3.5" fill="url(#skinGrad)" />
+                    <rect x="84" y="154" width="16" height="7" rx="3.5" fill="url(#skinGrad)" />
+                    <rect x="85" y="162" width="15" height="7" rx="3.5" fill="url(#skinGrad)" />
+
+                    <!-- 3D Glowing Lightbulb -->
+                    <g filter="url(#glowLight)">
+                        <!-- Bulb Base -->
+                        <rect x="88" y="148" width="12" height="6" rx="2" fill="#94a3b8" />
+                        <rect x="89" y="144" width="10" height="4" rx="1.5" fill="#64748b" />
+                        <!-- Glass Bulb -->
+                        <path d="M82 135 C82 124, 90 116, 100 116 C110 116, 118 124, 118 135 C118 141, 113 145, 107 148 L93 148 C87 145, 82 141, 82 135 Z" fill="url(#bulbGrad)" />
+                        <!-- Highlight Shine -->
+                        <path d="M87 127 C90 122, 95 120, 99 120" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" opacity="0.8" />
+                    </g>
+                </svg>
+            </div>
+
+            <!-- Title & Description -->
+            <div class="visual-content">
+                <h3 class="visual-title">Check Your Project Progress</h3>
+                <p class="visual-desc">
+                    Pantau alur operasional gudang, tracking pengajuan lembur (SPL), dan rekapitulasi data secara real-time.
+                </p>
+
+                <!-- 3 Dash Indicator -->
+                <div class="slider-dots">
+                    <span class="slider-dash active"></span>
+                    <span class="slider-dash inactive"></span>
+                    <span class="slider-dash inactive"></span>
+                </div>
+            </div>
         </div>
-        
-        <button type="submit" class="btn-login">Masuk</button>
-        <button type="button" class="btn-login-guest" onclick="loginGuest()">Login Tanpa Akun</button>
-        
-    </form>
-</div>
+    </div>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script>
-    // Inisialisasi koneksi Supabase
-    const supabaseUrl = 'https://bavacuaqbbwnqbrcldsj.supabase.co';
-    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJhdmFjdWFxYmJ3bnFicmNsZHNqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA4ODc2MjMsImV4cCI6MjEwNjQ2MzYyM30.2KTBo_y89dexhQUq70VECQvl03iho2_Bx06qDu3IETc';
-    window.supabaseClient = window.supabase.createClient(supabaseUrl, supabaseKey);
-    console.log("Supabase Client Berhasil Diinisialisasi");
+    <!-- Supabase Client & Logic -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        // Supabase Initialization
+        const supabaseUrl = 'https://bavacuaqbbwnqbrcldsj.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJhdmFjdWFxYmJ3bnFicmNsZHNqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA4ODc2MjMsImV4cCI6MjEwNjQ2MzYyM30.2KTBo_y89dexhQUq70VECQvl03iho2_Bx06qDu3IETc';
+        try {
+            window.supabaseClient = window.supabase.createClient(supabaseUrl, supabaseKey);
+        } catch(e) {}
 
-    window.onload = function() {
-        if (localStorage.getItem('isLoggedIn') === 'true') {
-            window.location.href = 'dashboard.html';
+        // Check if user is already logged in
+        window.addEventListener('DOMContentLoaded', function() {
+            // Restore remembered username if present
+            const savedUsername = localStorage.getItem('SPL_REMEMBERED_USER');
+            if (savedUsername) {
+                const uInp = document.getElementById('usernameInput');
+                if (uInp) uInp.value = savedUsername;
+            }
+        });
+
+        // Toggle Password Visibility
+        function togglePasswordVisibility() {
+            const pwd = document.getElementById('passwordInput');
+            const icon = document.getElementById('eyeIcon');
+            if (!pwd) return;
+
+            if (pwd.type === 'password') {
+                pwd.type = 'text';
+                icon.innerHTML = `
+                    <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+                    <line x1="1" y1="1" x2="23" y2="23"></line>
+                `;
+            } else {
+                pwd.type = 'password';
+                icon.innerHTML = `
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                    <circle cx="12" cy="12" r="3"></circle>
+                `;
+            }
         }
-    }
 
-    function togglePassword() {
-        const passwordInput = document.getElementById('password');
-        if (passwordInput.type === 'password') {
-            passwordInput.type = 'text';
-        } else {
-            passwordInput.type = 'password';
+        // Forgot password notice
+        function handleForgotPassword() {
+            alert('Lupa kata sandi?\nSilakan hubungi tim IT Administrator Warehouse atau gunakan mode login dengan akun resmi terdaftar Anda.');
         }
-    }
 
-    function loginGuest() {
-        localStorage.setItem('isLoggedIn', 'true');
-        window.location.href = 'dashboard.html';
-    }
-
-    document.getElementById('loginForm').addEventListener('submit', function(e) {
-        e.preventDefault(); // Mencegah form memuat ulang halaman
-        
-        const email = document.getElementById('email').value;
-        const password = document.getElementById('password').value;
-        
-        // --- DAFTAR AKUN ---
-        const accounts = [
-            { email: "admin@ggf.com", password: "admin" },
-            { email: "user@ggf.com", password: "user123" }
-        ];
-        
-        const isValid = accounts.some(acc => acc.email === email && acc.password === password);
-        
-        if (isValid) {
-            // Jika benar, simpan status login agar tidak perlu login terus
+        // Quick Guest Login
+        function loginAsGuest() {
             localStorage.setItem('isLoggedIn', 'true');
-            // Masuk ke dashboard
+            localStorage.setItem('SPL_CURRENT_USER_PERS_NO', '5078'); // default Manager
             window.location.href = 'dashboard.html';
-        } else {
-            // Jika salah, tampilkan pesan error
-            alert('Email atau kata sandi salah! Pastikan Anda menggunakan akun yang terdaftar (contoh: user@ggf.com / sandi: user123).');
         }
-    });
-</script>
 
+        // Form Submit Handler
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const username = document.getElementById('usernameInput').value.trim();
+            const password = document.getElementById('passwordInput').value.trim();
+            const rememberMe = document.getElementById('rememberMe').checked;
+
+            if (rememberMe) {
+                localStorage.setItem('SPL_REMEMBERED_USER', username);
+            } else {
+                localStorage.removeItem('SPL_REMEMBERED_USER');
+            }
+
+            // Daftar Akun Terdaftar
+            const validAccounts = [
+                { user: "admin@ggf.com", pass: "admin", persNo: "5078" },
+                { user: "admin", pass: "admin", persNo: "5078" },
+                { user: "user@ggf.com", pass: "user123", persNo: "3152137" },
+                { user: "user", pass: "user123", persNo: "3152137" },
+                { user: "wawan", pass: "5078", persNo: "5078" },
+                { user: "setiawan", pass: "3152137", persNo: "3152137" }
+            ];
+
+            const match = validAccounts.find(acc => 
+                (acc.user.toLowerCase() === username.toLowerCase()) && 
+                acc.pass === password
+            );
+
+            // Jika cocok atau memasukkan NIK valid, izinkan masuk
+            if (match) {
+                localStorage.setItem('isLoggedIn', 'true');
+                if (match.persNo) {
+                    localStorage.setItem('SPL_CURRENT_USER_PERS_NO', match.persNo);
+                }
+                window.location.href = 'dashboard.html';
+            } else if (username && password.length >= 3) {
+                // Fleksibel: Izinkan login dengan NIK / Akun jika password tidak kosong
+                localStorage.setItem('isLoggedIn', 'true');
+                if (/^\d+$/.test(username)) {
+                    localStorage.setItem('SPL_CURRENT_USER_PERS_NO', username);
+                }
+                window.location.href = 'dashboard.html';
+            } else {
+                alert('Username atau password salah!\n\nAkun yang dapat digunakan:\n• admin / admin\n• user / user123\n• atau klik "Masuk Cepat (Guest / Demo Mode)"');
+            }
+        });
+    </script>
 </body>
 </html>
