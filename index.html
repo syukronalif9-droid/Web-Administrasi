@@ -529,12 +529,13 @@
         }
 
         // Form Submit Handler
-        document.getElementById('loginForm').addEventListener('submit', function(e) {
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
             e.preventDefault();
 
             const username = document.getElementById('usernameInput').value.trim();
             const password = document.getElementById('passwordInput').value.trim();
             const rememberMe = document.getElementById('rememberMe').checked;
+            const submitBtn = document.querySelector('.btn-submit-login');
 
             if (rememberMe) {
                 localStorage.setItem('SPL_REMEMBERED_USER', username);
@@ -542,47 +543,49 @@
                 localStorage.removeItem('SPL_REMEMBERED_USER');
             }
 
-            // Daftar Akun Terdaftar: Administrator & Viewer
-            const validAccounts = [
-                // Akun Administrator (Akses Penuh + Status SAP)
-                { user: "admin@ggf.com", pass: "admin", persNo: "5078", role: "admin", name: "Administrator" },
-                { user: "admin", pass: "admin", persNo: "5078", role: "admin", name: "Administrator" },
-                { user: "wawan", pass: "5078", persNo: "5078", role: "admin", name: "Wawan Kurniawan (Admin)" },
+            // Indikator Loading
+            const originalBtnHtml = submitBtn ? submitBtn.innerHTML : '<span>Login</span>';
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = `<span>Memeriksa kredensial...</span>`;
+            }
 
-                // Akun Viewer (Hanya Dashboard, Report SPL, Create SPL)
-                { user: "viewer@ggf.com", pass: "viewer", persNo: "3152137", role: "viewer", name: "Akun Viewer" },
-                { user: "viewer", pass: "viewer", persNo: "3152137", role: "viewer", name: "Akun Viewer" },
-                { user: "user@ggf.com", pass: "user123", persNo: "3152137", role: "viewer", name: "User Viewer" },
-                { user: "user", pass: "user123", persNo: "3152137", role: "viewer", name: "User Viewer" },
-                { user: "setiawan", pass: "3152137", persNo: "3152137", role: "viewer", name: "Setiawan (Viewer)" }
-            ];
+            try {
+                let userFound = null;
 
-            const match = validAccounts.find(acc => 
-                (acc.user.toLowerCase() === username.toLowerCase()) && 
-                acc.pass === password
-            );
+                // Cek Autentikasi ke Database Supabase (Tabel app_users)
+                if (window.supabaseClient) {
+                    const { data, error } = await window.supabaseClient
+                        .from('app_users')
+                        .select('*')
+                        .ilike('username', username)
+                        .eq('password', password)
+                        .limit(1);
 
-            // Jika cocok atau memasukkan NIK valid, izinkan masuk
-            if (match) {
-                localStorage.setItem('isLoggedIn', 'true');
-                localStorage.setItem('AOT_USER_ROLE', match.role || 'viewer');
-                localStorage.setItem('AOT_USER_NAME', match.name || match.user);
-                if (match.persNo) {
-                    localStorage.setItem('SPL_CURRENT_USER_PERS_NO', match.persNo);
+                    if (!error && Array.isArray(data) && data.length > 0) {
+                        userFound = data[0];
+                    }
                 }
-                window.location.href = 'dashboard.html';
-            } else if (username && password.length >= 3) {
-                // Fleksibel: Izinkan login dengan NIK / Akun jika password tidak kosong
-                const determinedRole = (username.toLowerCase().includes('admin') || username === '5078') ? 'admin' : 'viewer';
-                localStorage.setItem('isLoggedIn', 'true');
-                localStorage.setItem('AOT_USER_ROLE', determinedRole);
-                localStorage.setItem('AOT_USER_NAME', username);
-                if (/^\d+$/.test(username)) {
-                    localStorage.setItem('SPL_CURRENT_USER_PERS_NO', username);
+
+                if (userFound) {
+                    localStorage.setItem('isLoggedIn', 'true');
+                    localStorage.setItem('AOT_USER_ROLE', userFound.role || 'viewer');
+                    localStorage.setItem('AOT_USER_NAME', userFound.name || userFound.username);
+                    if (userFound.pers_no) {
+                        localStorage.setItem('SPL_CURRENT_USER_PERS_NO', userFound.pers_no);
+                    }
+                    window.location.href = 'dashboard.html';
+                } else {
+                    alert('Username atau password salah!\n\nPastikan akun sudah terdaftar di tabel app_users pada Supabase.');
                 }
-                window.location.href = 'dashboard.html';
-            } else {
-                alert('Username atau password salah!\n\nPilihan Akun:\n• Administrator: admin / admin\n• Viewer: viewer / viewer (atau user / user123)\n• atau klik "Masuk Cepat (Guest / Demo Mode)"');
+            } catch (err) {
+                console.error('Login error:', err);
+                alert('Terjadi kesalahan saat menghubungkan ke server. Silakan coba kembali.');
+            } finally {
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = originalBtnHtml;
+                }
             }
         });
     </script>
