@@ -1324,9 +1324,8 @@ async function handleSplSubmit(e) {
     document.querySelectorAll('input[name="spl_emp_check"]').forEach(cb => cb.checked = false);
     generateNextSplNumber();
 
-    // Re-render Slide 2 and switch tab
-    renderSplHistoryList();
-    switchCustomSlide(2);
+    // Reset hitungan pilihan karyawan
+    if (window.updateSplSelectedCount) window.updateSplSelectedCount();
 }
 
 // Render Slide 2 SPL History & Tracking

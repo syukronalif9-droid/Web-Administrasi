@@ -2570,25 +2570,8 @@ document.addEventListener("DOMContentLoaded", function() {
         }
 
         function switchCustomSlide(slideNum) {
-            const tab1 = document.getElementById('slide-tab-1');
-            const tab2 = document.getElementById('slide-tab-2');
             const slide1 = document.getElementById('sidebar-slide-1');
-            const slide2 = document.getElementById('sidebar-slide-2');
-
-            if (slideNum === 1) {
-                tab1.classList.add('active');
-                tab2.classList.remove('active');
-                slide1.style.display = 'block';
-                slide2.style.display = 'none';
-            } else {
-                tab2.classList.add('active');
-                tab1.classList.remove('active');
-                slide2.style.display = 'block';
-                slide1.style.display = 'none';
-                if (typeof window.renderSplHistoryList === 'function') {
-                    window.renderSplHistoryList();
-                }
-            }
+            if (slide1) slide1.style.display = 'block';
         }
 
         // Close on Escape key
@@ -2639,28 +2622,17 @@ document.addEventListener("DOMContentLoaded", function() {
             </button>
         </div>
 
-        <!-- 2 Slide Segmented Tabs -->
-        <div style="padding: 16px 28px 12px; background: #ffffff; border-bottom: 1px solid #f1f5f9;">
-            <div style="display: flex; background: #f1f5f9; padding: 5px; border-radius: 14px; gap: 6px; border: 1px solid #e2e8f0;">
-                <button id="slide-tab-1" onclick="switchCustomSlide(1)" class="sidebar-slide-tab active" style="flex: 1; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
-                    <span>Slide 1: Buat SPL</span>
-                </button>
-                <button id="slide-tab-2" onclick="switchCustomSlide(2)" class="sidebar-slide-tab" style="flex: 1; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
-                    <span>Slide 2: Riwayat & Approval</span>
-                    <span id="spl-pending-badge" style="background: linear-gradient(135deg, #f59e0b, #d97706); color: white; font-size: 0.75rem; font-weight: 700; padding: 2px 8px; border-radius: 99px; box-shadow: 0 2px 6px rgba(245, 158, 11, 0.35);">1</span>
-                </button>
-            </div>
-        </div>
-
         <!-- Slides Scroll Area -->
-        <div style="flex: 1; position: relative; overflow-y: auto; overflow-x: hidden; padding: 16px 28px 24px;">
+        <div style="flex: 1; position: relative; overflow-y: auto; overflow-x: hidden; padding: 18px 28px 24px;">
             
-            <!-- ============================================== -->
-            <!-- SLIDE 1 PANE: FORM PEMBUATAN SPL BARU          -->
-            <!-- ============================================== -->
             <div id="sidebar-slide-1" class="sidebar-slide-pane">
+                
+                <!-- [SEMENTARA: BISA DIHAPUS NANTI] Tombol Tes Email -->
+                <div id="temp-email-test-container" style="display: flex; justify-content: flex-end; margin-bottom: 12px;">
+                    <button type="button" id="btn-spl-email-config" onclick="if(window.openSplEmailConfigModal) window.openSplEmailConfigModal();" style="background: #f0fdf4; color: #15803d; border: 1.5px solid #86efac; padding: 7px 14px; border-radius: 9px; font-size: 0.8rem; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.06);">
+                        <span>⚙️ Tes & Pengaturan Email</span>
+                    </button>
+                </div>
                 
                 <!-- Card 1: Verifikasi / Identitas Pembuat SPL -->
                 <div style="background: linear-gradient(135deg, #f8fafc 0%, #eff6ff 100%); border: 1.5px solid #bfdbfe; border-radius: 16px; padding: 16px 18px; margin-bottom: 18px; box-shadow: 0 4px 16px -4px rgba(37, 99, 235, 0.08);">
@@ -3121,29 +3093,7 @@ document.addEventListener("DOMContentLoaded", function() {
                 </form>
             </div>
 
-            <!-- ============================================== -->
-            <!-- SLIDE 2 PANE: RIWAYAT & TRACKING APPROVAL SPL  -->
-            <!-- ============================================== -->
-            <div id="sidebar-slide-2" class="sidebar-slide-pane" style="display: none;">
-                
-                <!-- Filter Pills & Test Email Button -->
-                <!-- Baris Tombol Filter & Aksi -->
-                <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 14px; flex-wrap: wrap;">
-                    <div style="display: flex; gap: 8px; overflow-x: auto; padding-bottom: 2px;">
-                        <button type="button" class="spl-filter-pill active" data-filter="all" onclick="setSplHistoryFilter('all', this)">Semua</button>
-                        <button type="button" class="spl-filter-pill" data-filter="pending" onclick="setSplHistoryFilter('pending', this)">Menunggu Approval</button>
-                        <button type="button" class="spl-filter-pill" data-filter="approved" onclick="setSplHistoryFilter('approved', this)">Disetujui</button>
-                    </div>
-                    <button type="button" id="btn-spl-email-config" onclick="if(window.openSplEmailConfigModal) window.openSplEmailConfigModal();" style="background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%); color: #15803d; border: 1.5px solid #86efac; padding: 7px 16px; border-radius: 10px; font-size: 0.82rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 6px; white-space: nowrap; z-index: 10; position: relative; box-shadow: 0 2px 6px rgba(22, 163, 74, 0.12);">
-                        <span>⚙️ Tes & Pengaturan Email</span>
-                    </button>
-                </div>
 
-                <!-- Container List SPL -->
-                <div id="spl-history-container">
-                    <!-- Populated by spl-module.js -->
-                </div>
-            </div>
 
         </div>
 
