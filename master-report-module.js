@@ -400,6 +400,14 @@ function renderSplReportSlide() {
         return true;
     });
 
+    // Urutkan dokumen SPL secara berurutan berdasarkan tanggal dan nomor urut SPL
+    filtered.sort((a, b) => {
+        const dateA = a.date || '';
+        const dateB = b.date || '';
+        if (dateA !== dateB) return dateA.localeCompare(dateB);
+        return (a.splNo || '').localeCompare(b.splNo || '', undefined, { numeric: true, sensitivity: 'base' });
+    });
+
     // Hitung KPI Statistik dan breakdown per line karyawan
     const allLines = [];
     let totalManHours = 0;
@@ -527,18 +535,12 @@ function renderSplReportSlide() {
 
         const isFirstLineOfSpl = empIdx === 0;
         const borderTopStyle = (idx > 0 && isFirstLineOfSpl) ? 'border-top: 2px solid #cbd5e1;' : 'border-bottom: 1px solid #f1f5f9;';
-        const lineBadge = totalEmpInSpl > 1 
-            ? `<span style="font-size: 0.7rem; color: #2563eb; background: #eff6ff; padding: 2px 7px; border-radius: 6px; border: 1px solid #bfdbfe; margin-left: 6px; font-weight: 700; white-space: nowrap;">Line ${empIdx + 1}/${totalEmpInSpl}</span>` 
-            : '';
 
         return `
             <tr style="${borderTopStyle} transition: background 0.15s;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='transparent'">
                 <td style="padding: 12px 16px; font-size: 0.85rem; color: #000000; text-align: left; font-weight: 600;">${idx + 1}</td>
                 <td style="padding: 12px 16px; white-space: nowrap; text-align: left;">
-                    <div style="display: flex; align-items: center; gap: 4px;">
-                        <span style="font-weight: 700; color: #000000; font-size: 0.88rem; font-family: monospace;">${item.splNo}</span>
-                        ${lineBadge}
-                    </div>
+                    <span style="font-weight: 700; color: #000000; font-size: 0.88rem; font-family: monospace;">${item.splNo}</span>
                 </td>
                 <td style="padding: 12px 16px; white-space: nowrap; text-align: left;">
                     <span style="font-weight: 600; color: #000000; font-size: 0.85rem;">${item.date || '-'}</span>

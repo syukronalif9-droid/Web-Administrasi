@@ -299,21 +299,33 @@ function getStoredSplList() {
                 }
             });
 
-            // Sinkronisasi permanen: Pastikan nomor dokumen SPL di dashboard selalu 100% SAMA dengan yang tertera di email pemberitahuan
-            parsed.forEach(item => {
-                if (item && item.emailNotification && item.emailNotification.subject) {
-                    const match = item.emailNotification.subject.match(/SPL\/WH\/\d{4}\/\d{2}\/\d{3}/);
-                    if (match && match[0] && item.splNo !== match[0]) {
-                        item.splNo = match[0];
-                        modified = true;
+            // Atasi duplikasi nomor SPL jika ada beberapa dokumen yang memiliki nomor sama (misal sama-sama 016)
+            // Urutkan item dari yang paling lama ke yang paling baru agar penomoran urut rapi
+            const seenSplNumbers = new Set();
+            const chronological = [...parsed].reverse();
+            const maxSeqPerMonth = {};
+
+            chronological.forEach(item => {
+                if (!item || !item.splNo) return;
+                const match = item.splNo.match(/^(SPL\/WH\/\d{4}\/\d{2}\/)(\d+)$/);
+                if (!match) return;
+                const prefix = match[1];
+                let num = parseInt(match[2], 10);
+                if (!maxSeqPerMonth[prefix]) maxSeqPerMonth[prefix] = 0;
+
+                // Jika nomor ini sudah pernah dipakai oleh dokumen sebelumnya, berikan nomor urut berikutnya yang unik
+                if (seenSplNumbers.has(item.splNo)) {
+                    num = Math.max(num, maxSeqPerMonth[prefix] + 1);
+                    while (seenSplNumbers.has(`${prefix}${String(num).padStart(3, '0')}`)) {
+                        num++;
                     }
+                    item.splNo = `${prefix}${String(num).padStart(3, '0')}`;
+                    modified = true;
                 }
-                // Pemulihan khusus untuk kasus nomor 017 yang aslinya terkirim ke email 016
-                if (item && (item.splNo === 'SPL/WH/2026/10/017' || item.reason === 'asqd')) {
-                    if (item.splNo === 'SPL/WH/2026/10/017') {
-                        item.splNo = 'SPL/WH/2026/10/016';
-                        modified = true;
-                    }
+
+                seenSplNumbers.add(item.splNo);
+                if (num > maxSeqPerMonth[prefix]) {
+                    maxSeqPerMonth[prefix] = num;
                 }
             });
 
