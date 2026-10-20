@@ -169,16 +169,15 @@
 
             <!-- Pemilihan Peran Approver (Bisa Manager atau Kabag) -->
             <div id="role-selector-container" style="margin-bottom: 14px; text-align: left; background: #f8fafc; border: 1.5px solid #cbd5e1; border-radius: 12px; padding: 12px;">
-                <div style="font-size: 0.78rem; font-weight: 700; color: #334155; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center;">
+                <div style="font-size: 0.78rem; font-weight: 700; color: #334155; margin-bottom: 8px;">
                     <span>Persetujuan Sebagai:</span>
-                    <span id="role-hint-badge" style="font-size: 0.72rem; color: #0284c7; font-weight: 600; background: #e0f2fe; padding: 2px 8px; border-radius: 99px;">Manager langsung sahkan</span>
                 </div>
                 <div style="display: flex; gap: 8px;">
                     <button type="button" id="btn-role-manager" onclick="selectDecisionRole('manager')" style="flex: 1; padding: 9px 8px; border-radius: 10px; border: 2px solid #0284c7; background: #e0f2fe; color: #0369a1; font-weight: 700; font-size: 0.82rem; cursor: pointer; transition: all 0.2s; text-align: center;">
-                        👔 Manager<br><span id="disp-mgr-name-btn" style="font-size: 0.72rem; font-weight: 600; color: #0369a1;">Wawan Kurniawan</span>
+                        Manager<br><span id="disp-mgr-name-btn" style="font-size: 0.72rem; font-weight: 600; color: #0369a1;">Wawan Kurniawan</span>
                     </button>
                     <button type="button" id="btn-role-kabag" onclick="selectDecisionRole('kabag')" style="flex: 1; padding: 9px 8px; border-radius: 10px; border: 1.5px solid #cbd5e1; background: #ffffff; color: #64748b; font-weight: 600; font-size: 0.82rem; cursor: pointer; transition: all 0.2s; text-align: center;">
-                        👔 Kabag<br><span id="disp-kabag-name-btn" style="font-size: 0.72rem; font-weight: 500; color: #64748b;">Kabag Terkait</span>
+                        Kabag<br><span id="disp-kabag-name-btn" style="font-size: 0.72rem; font-weight: 500; color: #64748b;">Kabag Terkait</span>
                     </button>
                 </div>
             </div>
@@ -200,8 +199,6 @@
             <div id="lock-notice-box" style="display: none; background: #f8fafc; border: 1.5px solid #cbd5e1; border-radius: 12px; padding: 14px; margin-bottom: 16px; font-size: 0.82rem; color: #334155; line-height: 1.5; text-align: center;">
                 🔒 <strong>Tombol Dinonaktifkan:</strong> Dokumen ini telah selesai diproses dan keputusan tersimpan permanen. Tombol tidak dapat diklik lagi.
             </div>
-
-            <a href="dashboard.html" class="btn-action">Buka Dashboard Monitoring</a>
         </div>
     </div>
 
@@ -257,9 +254,7 @@
         function updateRoleUI() {
             const btnMgr = document.getElementById('btn-role-manager');
             const btnKbg = document.getElementById('btn-role-kabag');
-            const badge = document.getElementById('role-hint-badge');
             const approverLabel = document.getElementById('disp-approver-name');
-
             let activeName = '';
             if (currentActiveRole === 'manager') {
                 if (btnMgr) {
@@ -271,11 +266,6 @@
                     btnKbg.style.border = '1.5px solid #cbd5e1';
                     btnKbg.style.background = '#ffffff';
                     btnKbg.style.color = '#64748b';
-                }
-                if (badge) {
-                    badge.textContent = '⚡ Langsung Mengubah Status Web';
-                    badge.style.background = '#dcfce7';
-                    badge.style.color = '#15803d';
                 }
                 activeName = loadedSplData?.manager?.name || paramApprover || 'Wawan Kurniawan';
                 if (approverLabel) approverLabel.textContent = `${activeName} (Manager)`;
@@ -289,11 +279,6 @@
                     btnMgr.style.border = '1.5px solid #cbd5e1';
                     btnMgr.style.background = '#ffffff';
                     btnMgr.style.color = '#64748b';
-                }
-                if (badge) {
-                    badge.textContent = 'Diteruskan ke Manager';
-                    badge.style.background = '#fef3c7';
-                    badge.style.color = '#b45309';
                 }
                 activeName = loadedSplData?.kabag?.name || paramApprover || 'Kabag Terkait';
                 if (approverLabel) approverLabel.textContent = `${activeName} (Kabag)`;
