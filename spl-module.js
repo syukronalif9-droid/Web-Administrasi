@@ -789,11 +789,11 @@ function onSplLocationChange() {
 // ========================================================
 // Tabel Pemetaan Email Asli Para Approver (Bisa diisi akun Gmail / email nyata mereka)
 // Key: NIK / Pers.No dari masing-masing Kabag & Manager
-// Auto-migrasi email lama di browser user jika masih tersimpan 93setiawan@gmail.com
+// Auto-migrasi email lama di browser user jika masih tersimpan versi lama
 try {
     const _storedApprovers = JSON.parse(localStorage.getItem('SPL_CUSTOM_APPROVER_EMAILS') || '{}');
-    if (_storedApprovers['3152137'] === '93setiawan@gmail.com') {
-        _storedApprovers['3152137'] = 'syukronalif9@gmail.com';
+    if (_storedApprovers['3152137'] === '93setiawan@gmail.com' || _storedApprovers['3152137'] === 'syukronalif9@gmail.com') {
+        _storedApprovers['3152137'] = 'setiawan.wh@gg-foods.com';
         localStorage.setItem('SPL_CUSTOM_APPROVER_EMAILS', JSON.stringify(_storedApprovers));
     }
 } catch (e) {}
@@ -801,7 +801,7 @@ try {
 const DEFAULT_APPROVER_REAL_EMAILS = {
     '5078': '',                      // Wawan Kurniawan (Manager Warehouse)
     '10039299': '',                  // Andriyanto (Kabag Traffic)
-    '3152137': 'syukronalif9@gmail.com', // Setiawan (Kabag Packaging) - Email Nyata
+    '3152137': 'setiawan.wh@gg-foods.com', // Setiawan (Kabag Packaging) - Email Nyata
     '5292': '',                      // Puji Triananto (Kabag Inv. Control)
     '3050800': '',                   // Robin Dangin (Kabag Material WH)
     '4808': '',                      // Mulyadi (Kabag Finished Goods)
@@ -1939,7 +1939,7 @@ function openSplEmailConfigModal() {
                                 <span>Setiawan (Kabag Packaging)</span>
                                 <span style="color: #64748b;">NIK: 3152137</span>
                             </div>
-                            <input type="email" id="approver-email-3152137" class="custom-approver-input" data-persno="3152137" placeholder="Contoh: syukronalif9@gmail.com" style="width: 100%; box-sizing: border-box; padding: 6px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.8rem;">
+                            <input type="email" id="approver-email-3152137" class="custom-approver-input" data-persno="3152137" placeholder="Contoh: setiawan.wh@gg-foods.com" style="width: 100%; box-sizing: border-box; padding: 6px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.8rem;">
                         </div>
 
                         <!-- Kabag Inv Control -->
@@ -2027,14 +2027,14 @@ function openSplEmailConfigModal() {
     // Populate existing custom approver emails with fallback to defaults
     try {
         const customMap = JSON.parse(localStorage.getItem('SPL_CUSTOM_APPROVER_EMAILS') || '{}');
-        if (customMap['3152137'] === '93setiawan@gmail.com') {
-            customMap['3152137'] = 'syukronalif9@gmail.com';
+        if (customMap['3152137'] === '93setiawan@gmail.com' || customMap['3152137'] === 'syukronalif9@gmail.com') {
+            customMap['3152137'] = 'setiawan.wh@gg-foods.com';
             localStorage.setItem('SPL_CUSTOM_APPROVER_EMAILS', JSON.stringify(customMap));
         }
         document.querySelectorAll('.custom-approver-input').forEach(input => {
             const pNo = input.dataset.persno;
-            if (pNo === '3152137' && (!customMap[pNo] || customMap[pNo] === '93setiawan@gmail.com')) {
-                input.value = 'syukronalif9@gmail.com';
+            if (pNo === '3152137' && (!customMap[pNo] || customMap[pNo] === '93setiawan@gmail.com' || customMap[pNo] === 'syukronalif9@gmail.com')) {
+                input.value = 'setiawan.wh@gg-foods.com';
             } else if (customMap[pNo]) {
                 input.value = customMap[pNo];
             } else if (DEFAULT_APPROVER_REAL_EMAILS[pNo]) {
