@@ -276,8 +276,8 @@
            RIGHT PANE: 3D ILLUSTRATION & HERO
            ========================================= */
         .auth-visual-pane {
-            background: #f8fafc;
-            background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+            /* Disamakan persis dengan warna latar gambar ilustrasi (#ecf0f7) agar menyatu */
+            background: #ecf0f7;
             border-left: 1px solid #e2e8f0;
             padding: 44px 38px 36px;
             display: flex;
@@ -302,7 +302,9 @@
             width: 100%;
             height: auto;
             display: block;
-            mix-blend-mode: multiply; /* latar terang gambar menyatu dengan panel */
+            /* Tepi gambar dibuat memudar halus agar tidak ada garis kotak sama sekali */
+            -webkit-mask-image: radial-gradient(ellipse 72% 70% at 50% 50%, #000 62%, transparent 100%);
+                    mask-image: radial-gradient(ellipse 72% 70% at 50% 50%, #000 62%, transparent 100%);
             animation: illustrationFloat 6s ease-in-out infinite;
             user-select: none;
             -webkit-user-drag: none;
