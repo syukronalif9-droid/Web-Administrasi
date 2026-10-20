@@ -1126,8 +1126,6 @@ async function handleSplSubmit(e) {
     const date = document.getElementById('spl-date')?.value;
     const area = document.getElementById('spl-area-select')?.value;
     const location = document.getElementById('spl-location-select')?.value;
-    const reason = document.getElementById('spl-reason')?.value?.trim() || '';
-
     // Check selected employees dengan Individual Override
     const checkboxes = document.querySelectorAll('input[name="spl_emp_check"]:checked');
     const selectedEmps = Array.from(checkboxes).map(cb => {
@@ -1135,7 +1133,7 @@ async function handleSplSubmit(e) {
         const card = cb.closest('.spl-emp-card');
         const indivStart = card?.querySelector('.spl-indiv-start')?.value || '17:00';
         const indivEnd = card?.querySelector('.spl-indiv-end')?.value || '21:00';
-        const indivReason = card?.querySelector('.spl-indiv-reason')?.value?.trim() || reason;
+        const indivReason = card?.querySelector('.spl-indiv-reason')?.value?.trim() || '';
 
         // Hitung durasi per karyawan
         const [isH, isM] = indivStart.split(':').map(Number);
@@ -1151,9 +1149,14 @@ async function handleSplSubmit(e) {
             startTime: indivStart,
             endTime: indivEnd,
             duration: indivDuration,
-            reason: indivReason
+            reason: indivReason || 'Operasional Lembur Warehouse'
         };
     });
+
+    // Himpun alasan dari setiap karyawan yang dicentang
+    const empReasons = selectedEmps.map(e => e.reason).filter(r => r && r !== 'Operasional Lembur Warehouse');
+    const distinctReasons = Array.from(new Set(empReasons));
+    const reason = distinctReasons.length > 0 ? distinctReasons.join('; ') : (selectedEmps[0]?.reason || 'Operasional Lembur Warehouse');
 
     if (!date) {
         alert('Mohon lengkapi tanggal lembur!');
@@ -1186,11 +1189,6 @@ async function handleSplSubmit(e) {
     const startTime = selectedEmps[0].startTime;
     const endTime = selectedEmps[0].endTime;
     const durationHours = selectedEmps[0].duration;
-
-    if (!reason) {
-        alert('Mohon isi uraian pekerjaan / alasan lembur!');
-        return;
-    }
 
     // Approver details
     const kasieName = document.getElementById('spl-app-kasie-name').textContent;
@@ -1320,7 +1318,9 @@ async function handleSplSubmit(e) {
     }
 
     // Reset Form
-    document.getElementById('spl-reason').value = '';
+    const reasonInput = document.getElementById('spl-reason');
+    if (reasonInput) reasonInput.value = '';
+    document.querySelectorAll('.spl-indiv-reason').forEach(inp => inp.value = '');
     document.querySelectorAll('input[name="spl_emp_check"]').forEach(cb => cb.checked = false);
     generateNextSplNumber();
 
