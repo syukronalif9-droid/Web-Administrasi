@@ -290,13 +290,31 @@
 
         .illustration-wrapper {
             width: 100%;
-            max-width: 380px;
-            height: 290px;
+            max-width: 430px;
             display: flex;
             align-items: center;
             justify-content: center;
             position: relative;
             margin-bottom: 12px;
+        }
+
+        .login-illustration-img {
+            width: 100%;
+            height: auto;
+            display: block;
+            mix-blend-mode: multiply; /* latar terang gambar menyatu dengan panel */
+            animation: illustrationFloat 6s ease-in-out infinite;
+            user-select: none;
+            -webkit-user-drag: none;
+        }
+
+        @keyframes illustrationFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .login-illustration-img { animation: none; }
         }
 
         .visual-content {
@@ -431,142 +449,7 @@
         <!-- RIGHT: 3D PROJECT PROGRESS ILLUSTRATION -->
         <div class="auth-visual-pane">
             <div class="illustration-wrapper">
-                <!-- SVG High-Fidelity 3D Dashboard & Analytics Illustration (Matches Exact Layout) -->
-                <svg width="340" height="280" viewBox="0 0 340 280" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <defs>
-                        <!-- Drop Shadows -->
-                        <filter id="softShadow" x="-20%" y="-20%" width="140%" height="140%">
-                            <feDropShadow dx="0" dy="12" stdDeviation="16" flood-color="#0f172a" flood-opacity="0.12" />
-                        </filter>
-                        <filter id="glowLight" x="-30%" y="-30%" width="160%" height="160%">
-                            <feDropShadow dx="0" dy="4" stdDeviation="10" flood-color="#f59e0b" flood-opacity="0.35" />
-                        </filter>
-                        <filter id="popShadow" x="-20%" y="-20%" width="140%" height="140%">
-                            <feDropShadow dx="0" dy="8" stdDeviation="10" flood-color="#2563eb" flood-opacity="0.2" />
-                        </filter>
-                        
-                        <!-- Gradients -->
-                        <linearGradient id="mainCardGrad" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="0%" stop-color="#ffffff" />
-                            <stop offset="100%" stop-color="#f8fafc" />
-                        </linearGradient>
-                        <linearGradient id="blueHandGrad" x1="0" y1="0" x2="1" y2="1">
-                            <stop offset="0%" stop-color="#3b82f6" />
-                            <stop offset="100%" stop-color="#1d4ed8" />
-                        </linearGradient>
-                        <linearGradient id="skinGrad" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="0%" stop-color="#fed7aa" />
-                            <stop offset="100%" stop-color="#fba86d" />
-                        </linearGradient>
-                        <linearGradient id="bulbGrad" x1="0" y1="0" x2="1" y2="1">
-                            <stop offset="0%" stop-color="#fef08a" />
-                            <stop offset="50%" stop-color="#facc15" />
-                            <stop offset="100%" stop-color="#eab308" />
-                        </linearGradient>
-                        <linearGradient id="cardDarkGrad" x1="0" y1="0" x2="1" y2="1">
-                            <stop offset="0%" stop-color="#1e293b" />
-                            <stop offset="100%" stop-color="#0f172a" />
-                        </linearGradient>
-                    </defs>
-
-                    <!-- Background Soft Aura -->
-                    <circle cx="170" cy="140" r="110" fill="#e0f2fe" opacity="0.45" />
-
-                    <!-- Floating Plus Accents -->
-                    <path d="M50 115 H62 M56 109 V121" stroke="#f59e0b" stroke-width="3" stroke-linecap="round" />
-                    <path d="M288 65 H300 M294 59 V71" stroke="#3b82f6" stroke-width="3.5" stroke-linecap="round" />
-
-                    <!-- Central Device / Canvas Screen -->
-                    <rect x="75" y="70" width="185" height="135" rx="16" fill="url(#mainCardGrad)" stroke="#1e293b" stroke-width="3.5" filter="url(#softShadow)" />
-
-                    <!-- Canvas Top Bar (Search + Dots) -->
-                    <rect x="94" y="82" width="70" height="11" rx="5.5" fill="#e2e8f0" />
-                    <circle cx="156" cy="87.5" r="3" fill="#94a3b8" />
-                    <line x1="158" y1="89.5" x2="162" y2="93.5" stroke="#94a3b8" stroke-width="1.5" stroke-linecap="round" />
-
-                    <!-- Chart Line on Device -->
-                    <path d="M96 112 C 112 98, 122 130, 138 114 C 154 98, 168 128, 184 110 L 206 108" fill="none" stroke="#2563eb" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" />
-                    <path d="M174 116 C 186 130, 200 120, 216 104" fill="none" stroke="#f59e0b" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
-
-                    <!-- Left Floating Mini Card: Task Checklist -->
-                    <g filter="url(#popShadow)">
-                        <rect x="58" y="52" width="46" height="52" rx="10" fill="#ffffff" stroke="#e2e8f0" stroke-width="1.5" />
-                        <!-- Task 1 -->
-                        <rect x="65" y="60" width="8" height="8" rx="2.5" fill="#2563eb" />
-                        <path d="M67 64 L69 66 L72 62" stroke="#ffffff" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" />
-                        <rect x="77" y="62.5" width="20" height="3" rx="1.5" fill="#cbd5e1" />
-                        <!-- Task 2 -->
-                        <rect x="65" y="72" width="8" height="8" rx="2.5" fill="#2563eb" />
-                        <path d="M67 76 L69 78 L72 74" stroke="#ffffff" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" />
-                        <rect x="77" y="74.5" width="16" height="3" rx="1.5" fill="#cbd5e1" />
-                        <!-- Task 3 -->
-                        <rect x="65" y="84" width="8" height="8" rx="2.5" fill="#2563eb" />
-                        <path d="M67 88 L69 90 L72 86" stroke="#ffffff" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" />
-                        <rect x="77" y="86.5" width="18" height="3" rx="1.5" fill="#cbd5e1" />
-                    </g>
-
-                    <!-- Top Floating Card: Pie Chart -->
-                    <g filter="url(#softShadow)">
-                        <rect x="180" y="38" width="36" height="36" rx="9" fill="#1e293b" />
-                        <circle cx="198" cy="56" r="11" fill="#3b82f6" />
-                        <path d="M198 56 L198 45 A11 11 0 0 1 209 56 Z" fill="#facc15" />
-                    </g>
-
-                    <!-- Top-Right Floating 3D Pie Chart Element -->
-                    <g filter="url(#glowLight)">
-                        <circle cx="246" cy="68" r="16" fill="#f59e0b" />
-                        <path d="M246 68 L246 52 A16 16 0 0 1 262 68 Z" fill="#3b82f6" />
-                        <circle cx="246" cy="68" r="5" fill="#ffffff" />
-                    </g>
-
-                    <!-- Floating Dark Dashboard Card (Over Canvas) -->
-                    <g filter="url(#softShadow)">
-                        <rect x="156" y="130" width="76" height="66" rx="12" fill="url(#cardDarkGrad)" stroke="#334155" stroke-width="1" />
-                        <!-- Mini Pie on Card -->
-                        <circle cx="178" cy="154" r="12" fill="#2563eb" />
-                        <path d="M178 154 L178 142 A12 12 0 0 1 190 154 Z" fill="#facc15" />
-                        <circle cx="178" cy="154" r="5" fill="#0f172a" />
-                        <!-- Mini Bar Chart -->
-                        <rect x="198" y="156" width="6" height="18" rx="2" fill="#94a3b8" />
-                        <rect x="207" y="148" width="6" height="26" rx="2" fill="#3b82f6" />
-                        <rect x="216" y="140" width="6" height="34" rx="2" fill="#facc15" />
-                    </g>
-
-                    <!-- 3D Hand Right (Holding Stylus / Drawing) -->
-                    <!-- Blue Cuff -->
-                    <rect x="282" y="140" width="38" height="32" rx="10" fill="url(#blueHandGrad)" />
-                    <!-- Hand Palm -->
-                    <ellipse cx="290" cy="120" rx="14" ry="18" fill="url(#skinGrad)" />
-                    <!-- Fingers gripping stylus -->
-                    <rect x="274" y="106" width="16" height="8" rx="4" fill="url(#skinGrad)" />
-                    <rect x="272" y="115" width="18" height="8" rx="4" fill="url(#skinGrad)" />
-                    <rect x="275" y="124" width="16" height="8" rx="4" fill="url(#skinGrad)" />
-                    <!-- Stylus Pen -->
-                    <path d="M228 104 L298 126" stroke="#ffffff" stroke-width="6" stroke-linecap="round" />
-                    <path d="M228 104 L298 126" stroke="#94a3b8" stroke-width="3" stroke-linecap="round" />
-                    <circle cx="225" cy="103" r="3" fill="#2563eb" />
-
-                    <!-- 3D Hand Left (Holding Glowing Lightbulb) -->
-                    <!-- Blue Sleeve / Cuff -->
-                    <rect x="52" y="158" width="38" height="34" rx="10" fill="url(#blueHandGrad)" transform="rotate(-15 52 158)" />
-                    <!-- Hand Palm -->
-                    <ellipse cx="88" cy="162" rx="14" ry="16" fill="url(#skinGrad)" />
-                    <!-- Fingers curling -->
-                    <rect x="80" y="146" width="15" height="7" rx="3.5" fill="url(#skinGrad)" />
-                    <rect x="84" y="154" width="16" height="7" rx="3.5" fill="url(#skinGrad)" />
-                    <rect x="85" y="162" width="15" height="7" rx="3.5" fill="url(#skinGrad)" />
-
-                    <!-- 3D Glowing Lightbulb -->
-                    <g filter="url(#glowLight)">
-                        <!-- Bulb Base -->
-                        <rect x="88" y="148" width="12" height="6" rx="2" fill="#94a3b8" />
-                        <rect x="89" y="144" width="10" height="4" rx="1.5" fill="#64748b" />
-                        <!-- Glass Bulb -->
-                        <path d="M82 135 C82 124, 90 116, 100 116 C110 116, 118 124, 118 135 C118 141, 113 145, 107 148 L93 148 C87 145, 82 141, 82 135 Z" fill="url(#bulbGrad)" />
-                        <!-- Highlight Shine -->
-                        <path d="M87 127 C90 122, 95 120, 99 120" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" opacity="0.8" />
-                    </g>
-                </svg>
+                <img src="assets/login-illustration.jpg" alt="Ilustrasi 3D dashboard analitik dan progres proyek" class="login-illustration-img" width="1200" height="896">
             </div>
 
             <!-- Title & Description -->
