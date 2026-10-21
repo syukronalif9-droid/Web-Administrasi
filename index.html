@@ -558,52 +558,82 @@
                     return;
                 }
 
-                // 1. Cek apakah username ada di tabel app_users
-                const { data: userList, error } = await window.supabaseClient
-                    .from('app_users')
-                    .select('*')
-                    .ilike('username', username)
-                    .limit(1);
+                // 1. Coba login via Supabase Auth resmi (Email & Password)
+                const isEmail = username.includes('@');
+                if (isEmail) {
+                    try {
+                        const { data: authData, error: authErr } = await window.supabaseClient.auth.signInWithPassword({
+                            email: username,
+                            password: password
+                        });
 
-                if (error) {
-                    console.error('Supabase query error:', error);
-                    alert(`Gagal mengakses database Supabase:\n${error.message}`);
-                    return;
+                        if (!authErr && authData && authData.user) {
+                            const meta = authData.user.user_metadata || {};
+                            // Ambil role dari metadata, default 'admin' jika email mengandung 'admin'
+                            let userRole = (meta.role || '').toLowerCase().trim();
+                            if (!userRole) {
+                                userRole = username.toLowerCase().includes('admin') ? 'admin' : 'viewer';
+                            }
+                            
+                            userFound = {
+                                username: authData.user.email,
+                                role: userRole,
+                                name: meta.name || meta.full_name || meta.display_name || (userRole === 'admin' ? 'Administrator' : authData.user.email.split('@')[0]),
+                                pers_no: meta.pers_no || (userRole === 'admin' ? '5078' : '3152137')
+                            };
+                        } else if (authErr) {
+                            console.warn('Supabase Auth info:', authErr.message);
+                        }
+                    } catch (authException) {
+                        console.warn('Supabase Auth error:', authException);
+                    }
                 }
 
-                if (Array.isArray(userList) && userList.length > 0) {
-                    const row = userList[0];
-                    if (row.password.trim() === password.trim()) {
-                        userFound = row;
-                    } else {
-                        alert(`Username "${username}" ditemukan di database, tetapi password yang Anda masukkan tidak cocok!\n\nSilakan cek kolom 'password' pada baris user tersebut di Table Editor Supabase.`);
-                        return;
-                    }
-                } else {
-                    // Cek apakah tabel app_users masih benar-benar kosong
-                    const { data: allUsers } = await window.supabaseClient
-                        .from('app_users')
-                        .select('username')
-                        .limit(5);
+                // 2. Jika belum ditemukan via Supabase Auth, periksa ke tabel app_users
+                if (!userFound) {
+                    try {
+                        const { data: userList, error: tableErr } = await window.supabaseClient
+                            .from('app_users')
+                            .select('*')
+                            .ilike('username', username)
+                            .limit(1);
 
-                    if (!allUsers || allUsers.length === 0) {
-                        // Jika tabel di Supabase masih kosong, izinkan login default agar Anda tidak terblokir
-                        const inputUser = username.toLowerCase().trim();
-                        const inputPass = password.trim();
-
-                        if (inputUser === 'admin' && (inputPass === 'admin' || inputPass === 'admin123')) {
-                            userFound = { username: 'admin', role: 'admin', name: 'Administrator Utama', pers_no: '5078' };
-                        } else if (inputUser === 'viewer' && (inputPass === 'viewer' || inputPass === 'viewer123')) {
-                            userFound = { username: 'viewer', role: 'viewer', name: 'Akun Viewer', pers_no: '3152137' };
-                        } else {
-                            alert('Tabel "app_users" di Supabase masih kosong.\n\nSilakan masuk dengan akun default:\n• Admin: admin / admin\n• Viewer: viewer / viewer');
-                            return;
+                        if (!tableErr && Array.isArray(userList) && userList.length > 0) {
+                            const row = userList[0];
+                            if (row.password.trim() === password.trim()) {
+                                userFound = row;
+                            } else {
+                                alert(`Username "${username}" ditemukan di database, tetapi password yang Anda masukkan tidak cocok!`);
+                                return;
+                            }
                         }
+                    } catch (tblErr) {
+                        console.warn('Tabel app_users tidak dapat diakses:', tblErr);
+                    }
+                }
+
+                // 3. Fallback akun default jika belum ada di database atau offline
+                if (!userFound) {
+                    const inputUser = username.toLowerCase().trim();
+                    const inputPass = password.trim();
+
+                    if (inputUser === 'admin' && (inputPass === 'admin' || inputPass === 'admin123')) {
+                        userFound = { username: 'admin', role: 'admin', name: 'Administrator Utama', pers_no: '5078' };
+                    } else if (inputUser === 'viewer' && (inputPass === 'viewer' || inputPass === 'viewer123')) {
+                        userFound = { username: 'viewer', role: 'viewer', name: 'Akun Viewer', pers_no: '3152137' };
                     } else {
-                        const existingList = allUsers.map(u => u.username).join(', ');
-                        alert(`Username "${username}" tidak ditemukan di tabel Supabase!\n\nDaftar username terdaftar di Supabase: [ ${existingList} ]\nSilakan masukkan salah satu username di atas.`);
+                        alert(`Login Gagal!\nKredensial untuk "${username}" salah atau belum terdaftar.\n\nPastikan email & password yang Anda daftarkan di Supabase sudah sesuai.`);
                         return;
                     }
+                }
+
+                // 4. Simpan sesi login dan arahkan ke dashboard
+                if (userFound) {
+                    localStorage.setItem('isLoggedIn', 'true');
+                    localStorage.setItem('SPL_CURRENT_USER_PERS_NO', userFound.pers_no || '');
+                    localStorage.setItem('AOT_USER_ROLE', userFound.role || 'viewer');
+                    localStorage.setItem('AOT_USER_NAME', userFound.name || userFound.username);
+                    window.location.href = 'dashboard.html';
                 }
             } catch (err) {
                 console.error('Login error:', err);
