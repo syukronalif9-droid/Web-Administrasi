@@ -1,2 +1,7 @@
 node_modules/
 .env
+
+# Abaikan file data mentah agar tidak terupload ke GitHub demi keamanan & kecepatan
+*.csv
+*.xlsx
+*.xls
