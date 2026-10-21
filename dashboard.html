@@ -493,17 +493,29 @@
                 }
             </style>
             
-            <header class="topbar" style="display: flex; justify-content: flex-end; align-items: center; padding: 16px 0; margin-bottom: 24px;">
+            <header class="topbar" style="display: flex; justify-content: space-between; align-items: center; padding: 16px 0; margin-bottom: 24px;">
+                <!-- Left: Create SPL Trigger -->
+                <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                    <button id="custom-sidebar-trigger" onclick="toggleCustomSidebar()" title="Surat Perintah Lembur (SPL)" style="background: #ffffff; padding: 9px 18px; border-radius: 99px; font-weight: 600; font-size: 0.95rem; color: #1e293b; display: inline-flex; align-items: center; gap: 10px; border: 1px solid #e2e8f0; cursor: pointer; box-shadow: 0 4px 14px rgba(0,0,0,0.04); transition: all 0.25s ease; font-family: 'Inter', sans-serif;">
+                        <div style="width: 26px; height: 26px; border-radius: 8px; background: #18181b; color: white; display: flex; align-items: center; justify-content: center;">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                <polyline points="14 2 14 8 20 8"></polyline>
+                                <line x1="16" y1="13" x2="8" y2="13"></line>
+                                <line x1="16" y1="17" x2="8" y2="17"></line>
+                            </svg>
+                        </div>
+                        <span>Create SPL</span>
+                        <span id="spl-top-badge" style="background: #ef4444; color: white; font-size: 0.72rem; font-weight: 700; padding: 2px 7px; border-radius: 99px;">1</span>
+                    </button>
+                </div>
+
                 <!-- Right Side Container (Menu + Icons) -->
                 <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
                     <!-- Navigation Menu -->
                     <ul class="nav-menu horizontal">
                         <li class="nav-item active" data-target="dashboard">
                             <span class="menu-text">Dashboard</span>
-                        </li>
-                        <li class="nav-item" id="nav-item-create-spl" onclick="toggleCustomSidebar()" title="Surat Perintah Lembur (SPL)" style="display: inline-flex; align-items: center; gap: 6px;">
-                            <span class="menu-text">Create SPL</span>
-                            <span id="spl-top-badge" style="background: #ef4444; color: white; font-size: 0.72rem; font-weight: 700; padding: 2px 7px; border-radius: 99px;">1</span>
                         </li>
                         <li class="nav-item" data-target="master-report" onclick="if(typeof initReportDateFilter === 'function'){ initReportDateFilter(); renderSplReportSlide(); }">
                             <span class="menu-text">Report Overtime</span>
@@ -1848,6 +1860,19 @@ document.addEventListener("DOMContentLoaded", function() {
                         </div>
 
                         <div style="display: flex; align-items: center; gap: 10px; margin-left: auto;">
+                            <button id="btn-create-spl-toolbar" onclick="toggleCustomSidebar()"
+                                style="background: linear-gradient(135deg, #18181b 0%, #27272a 100%); color: #ffffff; border: 1px solid rgba(255,255,255,0.12); padding: 10px 20px; font-size: 14px; font-weight: 700; border-radius: 9999px; cursor: pointer; display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25); transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1); white-space: nowrap; height: 42px;"
+                                onmouseover="this.style.background='#09090b'; this.style.transform='translateY(-1.5px)'; this.style.boxShadow='0 6px 18px rgba(0, 0, 0, 0.35)';" onmouseout="this.style.background='linear-gradient(135deg, #18181b 0%, #27272a 100%)'; this.style.transform='none'; this.style.boxShadow='0 4px 14px rgba(0, 0, 0, 0.25)';"
+                                title="Buat Surat Perintah Lembur (SPL) Baru">
+                                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.3" viewBox="0 0 24 24">
+                                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                    <polyline points="14 2 14 8 20 8"></polyline>
+                                    <line x1="16" y1="13" x2="8" y2="13"></line>
+                                    <line x1="16" y1="17" x2="8" y2="17"></line>
+                                </svg>
+                                Create SPL
+                            </button>
+
                             <button id="btn-delete-mr-month" onclick="openDeleteSplByMonthModal()"
                                 style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); color: #ffffff; border: none; padding: 10px 20px; font-size: 14px; font-weight: 700; border-radius: 9999px; cursor: pointer; display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 14px rgba(239, 68, 68, 0.35); transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1); white-space: nowrap; height: 42px;"
                                 onmouseover="this.style.background='linear-gradient(135deg, #dc2626 0%, #b91c1c 100%)'; this.style.transform='translateY(-1.5px)'; this.style.boxShadow='0 6px 18px rgba(239, 68, 68, 0.45)';" onmouseout="this.style.background='linear-gradient(135deg, #ef4444 0%, #dc2626 100%)'; this.style.transform='none'; this.style.boxShadow='0 4px 14px rgba(239, 68, 68, 0.35)';"
