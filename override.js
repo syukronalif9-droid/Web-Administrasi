@@ -685,66 +685,88 @@ document.addEventListener('DOMContentLoaded', () => {
             const fileMb51 = document.getElementById('upload-mb51').files[0];
             const fileZmmlto = document.getElementById('upload-zmmlto').files[0];
 
-            function parseCSVFile(file, headerOffset) {
+            function cleanParsedRows(rows) {
+                return (rows || []).map(row => {
+                    const newRow = {};
+                    for (let key in row) {
+                        const cleanKey = String(key || '').trim();
+                        let val = row[key];
+                        if (typeof val === 'string' && (val.trim() === '#N/A' || val.trim() === '#N/A!')) {
+                            newRow[cleanKey] = '';
+                        } else if (val !== undefined && val !== null) {
+                            newRow[cleanKey] = typeof val === 'string' ? val.trim() : String(val);
+                        } else {
+                            newRow[cleanKey] = '';
+                        }
+                    }
+                    if (newRow[''] !== undefined) {
+                        if (newRow[''] && String(newRow['']).trim() !== '') {
+                            newRow['Remarks'] = newRow[''];
+                        }
+                        delete newRow[''];
+                    }
+                    return newRow;
+                });
+            }
+
+            function parseDataFile(file, headerOffset) {
                 return new Promise((resolve, reject) => {
                     if (!file) return resolve(null);
-                    const reader = new FileReader();
-                    reader.onload = function(e) {
-                        const content = e.target.result;
-                        const lines = content.split(/\r?\n/);
-                        if (lines.length <= headerOffset) return resolve([]);
-                        
-                        // Buang baris sebelum header
-                        let validContent = lines.slice(headerOffset).join('\n');
-                        
-                        // Hapus karakter BOM (Byte Order Mark) jika ada di awal teks
-                        if (validContent.charCodeAt(0) === 0xFEFF) {
-                            validContent = validContent.slice(1);
-                        }
-                        // Kadang-kadang karakter BOM tersembunyi sebagai string literal
-                        validContent = validContent.replace(/^\uFEFF/g, '');
-                        
-                        Papa.parse(validContent, {
-                            header: true,
-                            skipEmptyLines: true,
-                            complete: function(results) {
-                                // Bersihkan semua nilai #N/A bawaan dari CSV user
-                                const cleanData = results.data.map(row => {
-                                    const newRow = {};
-                                    for (let key in row) {
-                                        let val = row[key];
-                                        if (typeof val === 'string' && (val.trim() === '#N/A' || val.trim() === '#N/A!')) {
-                                            newRow[key] = '';
-                                        } else {
-                                            newRow[key] = val;
-                                        }
-                                    }
-                                    // Pindahkan data dari kolom tanpa nama (string kosong) ke 'Remarks'
-                                    if (newRow[''] !== undefined) {
-                                        if (newRow[''] && String(newRow['']).trim() !== '') {
-                                            newRow['Remarks'] = newRow[''];
-                                        }
-                                        delete newRow[''];
-                                    }
-                                    return newRow;
-                                });
-                                resolve(cleanData);
-                            },
-                            error: function(err) {
-                                reject(err);
+                    const fileName = file.name.toLowerCase();
+                    const isExcel = fileName.endsWith('.xlsx') || fileName.endsWith('.xls');
+
+                    if (isExcel) {
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            try {
+                                const data = new Uint8Array(e.target.result);
+                                const workbook = XLSX.read(data, { type: 'array' });
+                                const firstSheetName = workbook.SheetNames[0];
+                                const worksheet = workbook.Sheets[firstSheetName];
+                                const jsonData = XLSX.utils.sheet_to_json(worksheet, { defval: '' });
+                                resolve(cleanParsedRows(jsonData));
+                            } catch (err) {
+                                reject(new Error('Gagal membaca file Excel: ' + err.message));
                             }
-                        });
-                    };
-                    reader.onerror = () => reject(new Error("Gagal membaca file"));
-                    reader.readAsText(file);
+                        };
+                        reader.onerror = () => reject(new Error("Gagal membaca file Excel"));
+                        reader.readAsArrayBuffer(file);
+                    } else {
+                        // File CSV
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            const content = e.target.result;
+                            const lines = content.split(/\r?\n/);
+                            if (lines.length <= headerOffset) return resolve([]);
+                            
+                            let validContent = lines.slice(headerOffset).join('\n');
+                            if (validContent.charCodeAt(0) === 0xFEFF) {
+                                validContent = validContent.slice(1);
+                            }
+                            validContent = validContent.replace(/^\uFEFF/g, '');
+                            
+                            Papa.parse(validContent, {
+                                header: true,
+                                skipEmptyLines: true,
+                                complete: function(results) {
+                                    resolve(cleanParsedRows(results.data));
+                                },
+                                error: function(err) {
+                                    reject(err);
+                                }
+                            });
+                        };
+                        reader.onerror = () => reject(new Error("Gagal membaca file CSV"));
+                        reader.readAsText(file);
+                    }
                 });
             }
 
             try {
-                // Sekarang semua file diasumsikan header/judul kolomnya ada di baris pertama (paling atas)
-                const dataMaster = await parseCSVFile(fileStock, 0);
-                const dataWorkdays = await parseCSVFile(fileMb51, 0);
-                const dataFramsys = await parseCSVFile(fileZmmlto, 0);
+                // Mendukung file Excel (.xlsx / .xls) maupun CSV
+                const dataMaster = await parseDataFile(fileStock, 0);
+                const dataWorkdays = await parseDataFile(fileMb51, 0);
+                const dataFramsys = await parseDataFile(fileZmmlto, 0);
 
                 // Mapping header baru (Work Contract, WH Area) ke header lama (Bagian, Area) agar diterima Supabase
                 (dataMaster || []).forEach(row => {
@@ -887,7 +909,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Hilangkan window.location.reload() agar tidak mereset state dan loading ulang
             } catch (err) {
                 console.error(err);
-                alert("Gagal memproses file CSV: " + err.message);
+                alert("Gagal memproses file Excel / CSV: " + err.message);
             } finally {
                 newBtn.textContent = 'Proses & Upload';
                 newBtn.disabled = false;

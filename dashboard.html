@@ -1397,51 +1397,51 @@ document.addEventListener("DOMContentLoaded", function() {
                             <h2
                                 style="color: var(--text-heading); font-size: 1.2rem; font-weight: 700; margin-bottom: 4px;">
                                 Upload File Data</h2>
-                            <p style="color: var(--text-muted); font-size: 0.85rem;">Pilih file (.csv) untuk
+                            <p style="color: var(--text-muted); font-size: 0.85rem;">Pilih file Excel (.xlsx / .xls) atau CSV untuk
                                 memperbarui data absensi secara otomatis.</p>
                         </div>
                         <div>
                             <div
                                 style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
                                 <label style="font-weight: 600; color: var(--text-heading); font-size: 0.9rem;">Master
-                                    Employee (.csv)</label>
+                                    Employee (.xlsx / .xls / .csv)</label>
                                 <button id="btn-reset-stock" class="reset-db-btn" data-table="stock"
                                     style="background: #ef4444; color: white; border: none; padding: 4px 12px; font-size: 12px; font-weight: 600; border-radius: 4px; cursor: pointer;">Hapus
                                     Data</button>
                             </div>
                             <div class="drop-zone" id="drop-zone-stock">
-                                <span class="drop-zone__prompt">Drag & Drop file Master Employee atau klik di
+                                <span class="drop-zone__prompt">Drag & Drop file Master Employee (Excel/CSV) atau klik di
                                     sini</span>
-                                <input type="file" id="upload-stock" accept=".csv" class="drop-zone__input">
+                                <input type="file" id="upload-stock" accept=".xlsx,.xls,.csv" class="drop-zone__input">
                             </div>
                         </div>
                         <div>
                             <div
                                 style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
                                 <label style="font-weight: 600; color: var(--text-heading); font-size: 0.9rem;">Work
-                                    Days (.csv)</label>
+                                    Days (.xlsx / .xls / .csv)</label>
                                 <button id="btn-reset-mb51" class="reset-db-btn" data-table="mb51"
                                     style="background: #ef4444; color: white; border: none; padding: 4px 12px; font-size: 12px; font-weight: 600; border-radius: 4px; cursor: pointer;">Hapus
                                     Data</button>
                             </div>
                             <div class="drop-zone" id="drop-zone-mb51">
-                                <span class="drop-zone__prompt">Drag & Drop file Work Days atau klik di
+                                <span class="drop-zone__prompt">Drag & Drop file Work Days (Excel/CSV) atau klik di
                                     sini</span>
-                                <input type="file" id="upload-mb51" accept=".csv" class="drop-zone__input">
+                                <input type="file" id="upload-mb51" accept=".xlsx,.xls,.csv" class="drop-zone__input">
                             </div>
                         </div>
                         <div>
                             <div
                                 style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                                <label style="font-weight: 600; color: var(--text-heading); font-size: 0.9rem;">Framsys (.csv)</label>
+                                <label style="font-weight: 600; color: var(--text-heading); font-size: 0.9rem;">Framsys (.xlsx / .xls / .csv)</label>
                                 <button id="btn-reset-zmmlto" class="reset-db-btn" data-table="ZMM_LTO"
                                     style="background: #ef4444; color: white; border: none; padding: 4px 12px; font-size: 12px; font-weight: 600; border-radius: 4px; cursor: pointer;">Hapus
                                     Data</button>
                             </div>
                             <div class="drop-zone" id="drop-zone-zmmlto">
-                                <span class="drop-zone__prompt">Drag & Drop file Framsys atau klik di
+                                <span class="drop-zone__prompt">Drag & Drop file Framsys (Excel/CSV) atau klik di
                                     sini</span>
-                                <input type="file" id="upload-zmmlto" accept=".csv" class="drop-zone__input">
+                                <input type="file" id="upload-zmmlto" accept=".xlsx,.xls,.csv" class="drop-zone__input">
                             </div>
                         </div>
                         <button id="btn-process-upload-offline"
@@ -2035,21 +2035,21 @@ document.addEventListener("DOMContentLoaded", function() {
                 style="max-height:55vh; overflow-y:auto; padding: 16px 16px 8px 0; display:flex; flex-direction:column; gap:24px; margin-bottom: 24px;">
                 <!-- Section 1 -->
                 <div>
-                    <h3 style="font-size:1.3rem; font-weight:700; color:#1E293B; margin-bottom:8px;">1. Master Employee (.csv)</h3>
+                    <h3 style="font-size:1.3rem; font-weight:700; color:#1E293B; margin-bottom:8px;">1. Master Employee (.xlsx / .csv)</h3>
                     <p style="font-size:1rem; color:#475569; line-height:1.7;"><strong style="color:#1E293B;">Kolom wajib:</strong> Pers.No., Full Name, Employee Subgroup, Work Contract, Cost Ctr, WH Area, Location, Remarks.</p>
                     <p style="font-size:0.88rem; color:#64748B; margin-top:4px;"><em>*Catatan: Kolom <strong>Pers.No.</strong> &amp; <strong>Full Name</strong> adalah kunci utama pencocokan data biodata karyawan.</em></p>
                 </div>
                 <hr style="border:none; border-top:1px solid #E2E8F0;">
                 <!-- Section 2 -->
                 <div>
-                    <h3 style="font-size:1.3rem; font-weight:700; color:#1E293B; margin-bottom:8px;">2. Work Days (.csv)</h3>
+                    <h3 style="font-size:1.3rem; font-weight:700; color:#1E293B; margin-bottom:8px;">2. Work Days (.xlsx / .csv)</h3>
                     <p style="font-size:1rem; color:#475569; line-height:1.7;"><strong style="color:#1E293B;">Kolom wajib:</strong> Month, Index, Nama, Hari Kerja, Sakit, Izin, CT, CH, CK, Libur Bersama, Dispens., Alpa, Keterangan.</p>
                     <p style="font-size:0.88rem; color:#64748B; margin-top:4px;"><em>*Catatan: Kolom <strong>Index</strong> (nomor Pers.No) dan <strong>Nama</strong> digunakan untuk sinkronisasi data presensi bulanan. Kolom Area &amp; Bagian otomatis di-lookup dari Master Employee.</em></p>
                 </div>
                 <hr style="border:none; border-top:1px solid #E2E8F0;">
                 <!-- Section 3 -->
                 <div>
-                    <h3 style="font-size:1.3rem; font-weight:700; color:#1E293B; margin-bottom:8px;">3. Framsys (.csv)</h3>
+                    <h3 style="font-size:1.3rem; font-weight:700; color:#1E293B; margin-bottom:8px;">3. Framsys (.xlsx / .csv)</h3>
                     <p style="font-size:1rem; color:#475569; line-height:1.7;"><strong style="color:#1E293B;">Kolom wajib:</strong> KIT TK, Nama TK, Date Shift, Time In, Time Out, Durasi (Jam).</p>
                     <p style="font-size:0.88rem; color:#64748B; margin-top:4px;"><em>*Catatan: Data mesin absensi harian ini digunakan untuk rekap detail jam masuk, jam pulang, dan durasi kerja di slide Summary &amp; Framsys.</em></p>
                 </div>
@@ -2057,7 +2057,7 @@ document.addEventListener("DOMContentLoaded", function() {
                 <!-- Section 4 -->
                 <div>
                     <h3 style="font-size:1.3rem; font-weight:700; color:#1E293B; margin-bottom:8px;">Perhatian Penting</h3>
-                    <p style="font-size:1rem; color:#475569; line-height:1.7;">Pastikan format file berupa <strong>CSV (Comma/Semicolon Delimited)</strong> dan penulisan <strong>header kolom</strong> (termasuk huruf kapital dan titik seperti <code>Pers.No.</code> dan <code>Dispens.</code>) sudah sesuai persis dengan daftar di atas agar data dapat diproses sempurna.</p>
+                    <p style="font-size:1rem; color:#475569; line-height:1.7;">Format file sekarang didukung penuh dalam bentuk <strong>Excel (.xlsx, .xls)</strong> maupun <strong>CSV</strong>. Penulisan <strong>header kolom</strong> (termasuk huruf kapital dan titik seperti <code>Pers.No.</code> dan <code>Dispens.</code>) wajib sesuai persis dengan daftar di atas agar data dapat diproses sempurna.</p>
                 </div>
             </div>
 
