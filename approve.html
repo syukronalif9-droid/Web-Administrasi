@@ -167,22 +167,7 @@
                 </div>
             </div>
 
-            <!-- Pemilihan Peran Approver (Bisa Manager atau Kabag) -->
-            <div id="role-selector-container" style="margin-bottom: 14px; text-align: left; background: #f8fafc; border: 1.5px solid #cbd5e1; border-radius: 12px; padding: 12px;">
-                <div style="font-size: 0.8rem; font-weight: 700; color: #334155; margin-bottom: 8px;">
-                    <span>Persetujuan Sebagai:</span>
-                </div>
-                <div style="display: flex; gap: 10px;">
-                    <button type="button" id="btn-role-manager" onclick="selectDecisionRole('manager')" style="flex: 1; padding: 12px 10px; border-radius: 10px; border: 2px solid #0284c7; background: #0284c7; color: #ffffff; font-weight: 800; font-size: 1.05rem; cursor: pointer; transition: all 0.2s; text-align: center; letter-spacing: 0.3px; box-shadow: 0 4px 10px rgba(2, 132, 199, 0.25);">
-                        Manager
-                    </button>
-                    <button type="button" id="btn-role-kabag" onclick="selectDecisionRole('kabag')" style="flex: 1; padding: 12px 10px; border-radius: 10px; border: 1.5px solid #cbd5e1; background: #ffffff; color: #64748b; font-weight: 700; font-size: 1.05rem; cursor: pointer; transition: all 0.2s; text-align: center; letter-spacing: 0.3px;">
-                        Kabag
-                    </button>
-                </div>
-            </div>
-
-            <!-- Keputusan email hanya diproses setelah approver menekan salah satu tombol ini. -->
+            <!-- Keputusan email langsung diproses saat approver menekan salah satu tombol ini -->
             <div id="action-button-container" style="margin-bottom: 14px;">
                 <div id="action-prompt-text" style="font-size: 0.78rem; color: #64748b; margin-bottom: 8px; font-weight: 600;">Pilih Keputusan:</div>
                 <div style="display: flex; gap: 8px;">
@@ -251,45 +236,44 @@
         let isDecisionExecuting = false;
         let loadedSplData = null;
 
+        // Fungsi otomatis menentukan apakah yang membuka halaman adalah Kabag atau Manager
+        function resolveRole(targetSpl, row) {
+            const kabag = (row && row.kabag) || (targetSpl && targetSpl.kabag) || {};
+            const manager = (row && row.manager) || (targetSpl && targetSpl.manager) || {};
+            const currentStatus = (row && row.final_status) || (targetSpl && targetSpl.finalStatus) || '';
+
+            // 1. Prioritas dari URL parameter role
+            if (urlRoleParam === 'kabag') return 'kabag';
+            if (urlRoleParam === 'manager') return 'manager';
+
+            // 2. Prioritas dari nama approver di URL
+            if (paramApprover) {
+                const p = paramApprover.toLowerCase();
+                if (kabag.name && kabag.name.toLowerCase().includes(p)) return 'kabag';
+                if (manager.name && manager.name.toLowerCase().includes(p)) return 'manager';
+                if (p.includes('kabag')) return 'kabag';
+                if (p.includes('manager') || p.includes('mgr') || p.includes('wawan')) return 'manager';
+            }
+
+            // 3. Otomatis sesuai alur tahapan dokumen:
+            // Jika Kabag sudah approve, maka giliran Manager
+            if (kabag.status === 'approved' || currentStatus === 'Menunggu Manager') {
+                return 'manager';
+            }
+
+            // Tahap awal: Kabag
+            return 'kabag';
+        }
+
         function updateRoleUI() {
-            const btnMgr = document.getElementById('btn-role-manager');
-            const btnKbg = document.getElementById('btn-role-kabag');
             const approverLabel = document.getElementById('disp-approver-name');
             let activeName = '';
             if (currentActiveRole === 'manager') {
-                if (btnMgr) {
-                    btnMgr.style.border = '2px solid #0284c7';
-                    btnMgr.style.background = '#0284c7';
-                    btnMgr.style.color = '#ffffff';
-                    btnMgr.style.fontWeight = '800';
-                    btnMgr.style.boxShadow = '0 4px 12px rgba(2, 132, 199, 0.3)';
-                }
-                if (btnKbg) {
-                    btnKbg.style.border = '1.5px solid #cbd5e1';
-                    btnKbg.style.background = '#ffffff';
-                    btnKbg.style.color = '#64748b';
-                    btnKbg.style.fontWeight = '700';
-                    btnKbg.style.boxShadow = 'none';
-                }
                 activeName = loadedSplData?.manager?.name || paramApprover || 'Wawan Kurniawan';
-                if (approverLabel) approverLabel.textContent = `${activeName} (Manager)`;
+                if (approverLabel) approverLabel.textContent = `${activeName} (Manager Warehouse)`;
             } else {
-                if (btnKbg) {
-                    btnKbg.style.border = '2px solid #0284c7';
-                    btnKbg.style.background = '#0284c7';
-                    btnKbg.style.color = '#ffffff';
-                    btnKbg.style.fontWeight = '800';
-                    btnKbg.style.boxShadow = '0 4px 12px rgba(2, 132, 199, 0.3)';
-                }
-                if (btnMgr) {
-                    btnMgr.style.border = '1.5px solid #cbd5e1';
-                    btnMgr.style.background = '#ffffff';
-                    btnMgr.style.color = '#64748b';
-                    btnMgr.style.fontWeight = '700';
-                    btnMgr.style.boxShadow = 'none';
-                }
-                activeName = loadedSplData?.kabag?.name || paramApprover || 'Kabag Terkait';
-                if (approverLabel) approverLabel.textContent = `${activeName} (Kabag)`;
+                activeName = loadedSplData?.kabag?.name || paramApprover || 'Kepala Bagian (Kabag)';
+                if (approverLabel) approverLabel.textContent = `${activeName} (Kepala Bagian)`;
             }
         }
 
@@ -514,11 +498,8 @@
 
 
 
-                // Jika status saat ini 'Menunggu Manager', default ke Manager
-                if (currentStatus === 'Menunggu Manager') {
-                    currentActiveRole = 'manager';
-                }
-
+                // Tentukan role otomatis berdasarkan URL & status alur dokumen
+                currentActiveRole = resolveRole(targetSpl, row);
                 updateRoleUI();
 
                 // Cek apakah SPL sudah tuntas disetujui atau ditolak
