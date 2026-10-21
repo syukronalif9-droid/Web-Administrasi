@@ -2478,8 +2478,19 @@ window.runDirectEmailTest = runDirectEmailTest;
 window.manualRefreshSpl = manualRefreshSpl;
 window.autoPopulateEmployees = autoPopulateEmployees;
 window.onSplDateChange = onSplDateChange;
-window.updateSplDateRestriction = updateSplDateRestriction;
 window.getTodayYmd = getTodayYmd;
+window.getApproverEmailByPersNo = getApproverEmailByPersNo;
+window.saveCustomApproverEmail = function(persNo, email) {
+    if (!persNo || !email) return;
+    try {
+        const cleanNo = String(persNo).trim();
+        const map = JSON.parse(localStorage.getItem('SPL_CUSTOM_APPROVER_EMAILS') || '{}');
+        map[cleanNo] = email.trim();
+        localStorage.setItem('SPL_CUSTOM_APPROVER_EMAILS', JSON.stringify(map));
+    } catch(e) {
+        console.error('Error saving approver email:', e);
+    }
+};
 
 if (!window.updateSplSelectedCount) {
     window.updateSplSelectedCount = function() {
