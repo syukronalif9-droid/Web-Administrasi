@@ -112,43 +112,19 @@
         function applyUserRolePermissions() {
             const role = (localStorage.getItem('AOT_USER_ROLE') || 'admin').toLowerCase().trim();
 
-            // Pada akun Viewer: Semua menu TETAP TAMPIL agar tampilan navbar tetap utuh dan estetik,
-            // namun menu data & upload dibatasi (tidak bisa berpindah halaman).
+            // Pada akun Viewer: Sembunyikan menu Upload Data, Summary, Framsys, Work Days, dan Master Employee
+            // agar akun Viewer fokus pada Dashboard dan SPL sesuai ketentuan.
             if (role === 'viewer') {
                 const restrictedTargets = ['upload', 'summary', 'zmmlto', 'mb51', 'stock'];
                 
                 restrictedTargets.forEach(target => {
                     const el = document.querySelector(`.nav-item[data-target="${target}"]`);
                     if (el) {
-                        el.style.display = 'inline-flex';
-                        el.style.opacity = '0.65';
-                        el.style.cursor = 'not-allowed';
-                        el.style.position = 'relative';
-                        el.title = 'Akses Terbatas: Khusus Administrator';
-
-                        // Tambahkan ikon gembok kecil elegan
-                        if (!el.querySelector('.viewer-lock-icon')) {
-                            const lock = document.createElement('span');
-                            lock.className = 'viewer-lock-icon';
-                            lock.innerHTML = ' 🔒';
-                            lock.style.fontSize = '0.72rem';
-                            lock.style.marginLeft = '4px';
-                            lock.style.opacity = '0.85';
-                            el.appendChild(lock);
-                        }
-
-                        // Tangkap event klik sebelum berpindah view
-                        el.addEventListener('click', function (e) {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            e.stopImmediatePropagation();
-                            showViewerRestrictedToast(target);
-                            return false;
-                        }, true); // useCapture = true agar menangkap lebih dulu
+                        el.style.display = 'none';
                     }
                 });
 
-                // Jika viewer berada di section yang tidak diizinkan, kembalikan ke dashboard
+                // Jika viewer sedang berada di tab yang disembunyikan, arahkan kembali ke Dashboard
                 const activeNav = document.querySelector('.nav-item.active');
                 if (activeNav && restrictedTargets.includes(activeNav.getAttribute('data-target'))) {
                     const dashNav = document.querySelector('.nav-item[data-target="dashboard"]');
