@@ -566,14 +566,14 @@ window.renderTable = function(tableId, data) {
         let thStyle = style ? style + (freezeObj.isSticky ? ' z-index: 3; background-color: #F1F5F9; font-weight: 700; color: #1E293B;' : '') : '';
         thStyle += ' text-align: left; padding-left: 12px; color: #1E293B; font-weight: 700;'; // Terapkan rata kiri & hitam ke SEMUA header
         return `<th style="${thStyle}">${h}</th>`;
-    }).join('')}</tr></thead>`;
+    }).join('')}${isStock ? '<th style="text-align: center; width: 80px; min-width: 80px; color: #1E293B; font-weight: 700;">Aksi</th>' : ''}</tr></thead>`;
     
     // Batasi hanya 100 baris pertama supaya super cepat (no lag)
     const displayData = filteredData.slice(0, 100);
     
     const tbody = `<tbody>${displayData.map((row, rIdx) => {
         const originalIndex = originalIndices[rIdx];
-        return `<tr data-rowindex="${originalIndex}">${headers.map((h, idx) => {
+        const rowCells = headers.map((h, idx) => {
             const freezeObj = getFreezeStyle(idx, h);
             const style = freezeObj.style;
             const isSticky = freezeObj.isSticky;
@@ -601,7 +601,26 @@ window.renderTable = function(tableId, data) {
             }
 
             return `<td${editAttr} style="${finalStyle}">${cellValue}</td>`;
-        }).join('')}</tr>`;
+        }).join('');
+
+        let actionCell = '';
+        if (isStock) {
+            const pNo = String(row['Pers.No.'] || '').trim();
+            const fName = String(row['Full Name'] || '').trim().replace(/'/g, "\\'");
+            actionCell = `<td style="text-align: center; vertical-align: middle; padding: 4px;">
+                <button type="button" class="btn-delete-employee" onclick="deleteMasterEmployee('${pNo}', '${fName}')" title="Hapus Karyawan ini" style="background: #fee2e2; border: 1px solid #fca5a5; color: #dc2626; border-radius: 6px; padding: 4px 8px; cursor: pointer; font-size: 12px; font-weight: 600; display: inline-flex; align-items: center; gap: 4px; transition: all 0.15s;">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="3 6 5 6 21 6"></polyline>
+                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                        <line x1="10" y1="11" x2="10" y2="17"></line>
+                        <line x1="14" y1="11" x2="14" y2="17"></line>
+                    </svg>
+                    <span>Hapus</span>
+                </button>
+            </td>`;
+        }
+
+        return `<tr data-rowindex="${originalIndex}">${rowCells}${actionCell}</tr>`;
     }).join('')}</tbody>`;
     
     table.innerHTML = thead + tbody;
@@ -655,6 +674,66 @@ window.renderTable = function(tableId, data) {
 function renderTable(tableId, data) {
     window.renderTable(tableId, data);
 }
+
+// Fungsi Hapus Karyawan Manual
+window.deleteMasterEmployee = async function(persNo, fullName) {
+    if (!persNo && !fullName) return;
+    
+    const confirmDelete = confirm(`Apakah Anda yakin ingin menghapus karyawan ini?\n\n• NIK / Pers.No: ${persNo}\n• Nama: ${fullName}\n\nData karyawan akan dihapus dari Master Employee dan sistem sinkronisasi.`);
+    if (!confirmDelete) return;
+
+    try {
+        const cleanPersNo = String(persNo).trim();
+        const cleanName = String(fullName).trim().toLowerCase();
+
+        // 1. Hapus dari window.uploadedData['stock']
+        if (window.uploadedData && Array.isArray(window.uploadedData['stock'])) {
+            window.uploadedData['stock'] = window.uploadedData['stock'].filter(r => {
+                const rNo = String(r['Pers.No.'] || '').trim();
+                const rName = String(r['Full Name'] || '').trim().toLowerCase();
+                if (cleanPersNo && rNo) return rNo !== cleanPersNo;
+                return rName !== cleanName;
+            });
+        }
+
+        // 2. Hapus dari window.globalStockData jika ada
+        if (window.globalStockData && Array.isArray(window.globalStockData)) {
+            window.globalStockData = window.globalStockData.filter(r => {
+                const rNo = String(r['Pers.No.'] || '').trim();
+                const rName = String(r['Full Name'] || '').trim().toLowerCase();
+                if (cleanPersNo && rNo) return rNo !== cleanPersNo;
+                return rName !== cleanName;
+            });
+        }
+
+        // 3. Simpan pembaruan ke IndexedDB lokal
+        if (typeof window.saveToDB === 'function' && window.uploadedData && window.uploadedData['stock']) {
+            window.saveToDB('stock', window.uploadedData['stock']);
+        }
+
+        // 4. Hapus dari database Supabase jika online
+        if (window.supabaseClient && cleanPersNo) {
+            try {
+                await window.supabaseClient
+                    .from('master_employee')
+                    .delete()
+                    .eq('Pers.No.', cleanPersNo);
+            } catch (errSupabase) {
+                console.warn('Gagal menghapus dari Supabase:', errSupabase);
+            }
+        }
+
+        // 5. Render ulang tabel Master Employee
+        if (typeof window.renderStock === 'function') {
+            window.renderStock();
+        }
+
+        alert(`✅ Karyawan "${fullName}" (NIK: ${persNo}) berhasil dihapus.`);
+    } catch (err) {
+        console.error('Error delete employee:', err);
+        alert('Terjadi kesalahan saat menghapus karyawan: ' + err.message);
+    }
+};
 
 // Pasang event listener untuk semua kolom pencarian
 document.addEventListener('DOMContentLoaded', () => {
