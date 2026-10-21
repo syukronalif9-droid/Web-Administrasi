@@ -440,6 +440,50 @@ function getEmployeeRoleByPersNo(inputPersNo) {
         };
     }
 
+    // 5. Cek akun hasil registrasi mandiri (AOT_REGISTERED_USERS / session role)
+    try {
+        const sessionArea = localStorage.getItem('AOT_USER_AREA') || '';
+        const sessionRole = (localStorage.getItem('AOT_USER_ROLE') || '').toLowerCase();
+        const sessionName = localStorage.getItem('AOT_USER_NAME') || '';
+        
+        let regMatch = null;
+        const rawReg = localStorage.getItem('AOT_REGISTERED_USERS');
+        if (rawReg) {
+            const regList = JSON.parse(rawReg) || [];
+            regMatch = regList.find(u => String(u.pers_no).trim() === cleanNo);
+        }
+
+        const effectiveRole = regMatch ? regMatch.role.toLowerCase() : sessionRole;
+        const effectiveName = regMatch ? regMatch.name : (sessionName || 'Karyawan (' + cleanNo + ')');
+        const effectiveArea = regMatch ? regMatch.area : (sessionArea || 'General');
+
+        if (effectiveRole === 'kasie') {
+            return {
+                persNo: cleanNo,
+                name: effectiveName,
+                role: 'KASIE',
+                title: 'Kepala Seksi (Kasie)',
+                canCreateSpl: true,
+                canApproveSpl: false,
+                approvalLevel: 0,
+                area: effectiveArea,
+                location: 'Central'
+            };
+        } else if (effectiveRole === 'kabag') {
+            return {
+                persNo: cleanNo,
+                name: effectiveName,
+                role: 'KABAG',
+                title: 'Kepala Bagian (Kabag)',
+                canCreateSpl: true,
+                canApproveSpl: true,
+                approvalLevel: 1,
+                area: effectiveArea,
+                location: 'Central'
+            };
+        }
+    } catch(e) {}
+
     // Default Unknown Staff
     return {
         persNo: cleanNo,
