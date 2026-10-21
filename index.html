@@ -3,7 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SCOPE - System for Control, Overtime, Presence &amp; Evaluation</title>
+    <!-- PWA Settings -->
+    <meta name="theme-color" content="#2563eb">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="SCOPE">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="assets/logo-ggf.jpg">
     <!-- Google Fonts Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -461,6 +468,19 @@
                     <button type="submit" class="btn-submit-login">
                         <span>Login</span>
                     </button>
+
+                    <!-- PWA Download/Install App Option -->
+                    <div id="pwaInstallContainer" style="margin-top: 14px; text-align: center;">
+                        <button type="button" id="btnPwaInstall" style="background: #f8fafc; border: 1.5px solid #e2e8f0; color: #1e293b; border-radius: 12px; padding: 10px 14px; font-size: 0.82rem; font-weight: 700; width: 100%; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.2s; font-family: inherit;">
+                            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+                                <line x1="8" y1="21" x2="16" y2="21"></line>
+                                <line x1="12" y1="17" x2="12" y2="21"></line>
+                                <polyline points="8 10 12 14 16 10"></polyline>
+                            </svg>
+                            <span>📲 Pasang Aplikasi SCOPE (Desktop / HP)</span>
+                        </button>
+                    </div>
                 </form>
             </div>
         </div>
@@ -663,6 +683,40 @@
                     submitBtn.disabled = false;
                     submitBtn.innerHTML = originalBtnHtml;
                 }
+            }
+        });
+
+        // ==========================================
+        // PWA SERVICE WORKER & APP INSTALL PROMPT
+        // ==========================================
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js').catch(() => {});
+            });
+        }
+
+        let deferredPwaPrompt = null;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPwaPrompt = e;
+        });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const btnPwa = document.getElementById('btnPwaInstall');
+            if (btnPwa) {
+                btnPwa.addEventListener('click', async () => {
+                    if (deferredPwaPrompt) {
+                        deferredPwaPrompt.prompt();
+                        const { outcome } = await deferredPwaPrompt.userChoice;
+                        deferredPwaPrompt = null;
+                        if (outcome === 'accepted') {
+                            const container = document.getElementById('pwaInstallContainer');
+                            if (container) container.style.display = 'none';
+                        }
+                    } else {
+                        alert('Panduan Pemasangan Aplikasi SCOPE:\n\n• Di Komputer / Laptop:\nKlik icon monitor/layar dengan panah di sebelah kanan kotak alamat (URL bar) browser Anda, lalu klik "Install".\n\n• Di Smartphone (Android/iOS):\nKetuk tombol menu titik tiga (⋮) di browser Anda, lalu pilih "Instal aplikasi" atau "Tambahkan ke Layar Utama".');
+                    }
+                });
             }
         });
     </script>

@@ -1,0 +1,19 @@
+{
+  "name": "SCOPE - System for Control, Overtime, Presence & Evaluation",
+  "short_name": "SCOPE",
+  "description": "Integrated Attendance, Digital SPL & Warehouse Management System",
+  "start_url": "/index.html",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#f8fafc",
+  "theme_color": "#2563eb",
+  "icons": [
+    {
+      "src": "assets/logo-ggf.jpg",
+      "sizes": "192x192 512x512",
+      "type": "image/jpeg",
+      "purpose": "any maskable"
+    }
+  ]
+}
