@@ -44,21 +44,106 @@
             }
         }
 
+        // Toast Notifikasi Akses Terbatas untuk Viewer
+        function showViewerRestrictedToast(target) {
+            let toast = document.getElementById('viewer-restricted-toast');
+            if (!toast) {
+                toast = document.createElement('div');
+                toast.id = 'viewer-restricted-toast';
+                toast.style.cssText = `
+                    position: fixed;
+                    bottom: 28px;
+                    left: 50%;
+                    transform: translateX(-50%) translateY(20px);
+                    background: #0f172a;
+                    color: #ffffff;
+                    padding: 12px 22px;
+                    border-radius: 99px;
+                    box-shadow: 0 14px 35px -5px rgba(0,0,0,0.3);
+                    display: flex;
+                    align-items: center;
+                    gap: 10px;
+                    font-size: 0.88rem;
+                    font-weight: 600;
+                    z-index: 999999;
+                    opacity: 0;
+                    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+                    pointer-events: none;
+                    border: 1px solid rgba(255,255,255,0.15);
+                    font-family: 'Inter', sans-serif;
+                `;
+                document.body.appendChild(toast);
+            }
+
+            const titles = {
+                'upload': 'Upload Data',
+                'summary': 'Summary',
+                'zmmlto': 'Framsys',
+                'mb51': 'Work Days',
+                'stock': 'Master Employee'
+            };
+            const label = titles[target] || 'Menu ini';
+
+            toast.innerHTML = `
+                <span style="font-size: 1.1rem;">🔒</span>
+                <span>Akses Khusus Administrator: Menu <strong>${label}</strong> terkunci untuk akun Viewer.</span>
+            `;
+
+            requestAnimationFrame(() => {
+                toast.style.opacity = '1';
+                toast.style.transform = 'translateX(-50%) translateY(0)';
+            });
+
+            clearTimeout(toast._hideTimer);
+            toast._hideTimer = setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateX(-50%) translateY(20px)';
+            }, 3000);
+        }
+
         // Terapkan Hak Akses Akun (Administrator vs Viewer)
         function applyUserRolePermissions() {
-            const role = localStorage.getItem('AOT_USER_ROLE') || 'admin';
+            const role = (localStorage.getItem('AOT_USER_ROLE') || 'admin').toLowerCase().trim();
 
-            // Batasi menu navigasi untuk akun Viewer (hanya Dashboard, Report SPL, dan Create SPL)
+            // Pada akun Viewer: Semua menu TETAP TAMPIL agar tampilan navbar tetap utuh dan estetik,
+            // namun menu data & upload dibatasi (tidak bisa berpindah halaman).
             if (role === 'viewer') {
-                const hiddenMenuTargets = ['upload', 'summary', 'zmmlto', 'mb51', 'stock'];
-                hiddenMenuTargets.forEach(target => {
+                const restrictedTargets = ['upload', 'summary', 'zmmlto', 'mb51', 'stock'];
+                
+                restrictedTargets.forEach(target => {
                     const el = document.querySelector(`.nav-item[data-target="${target}"]`);
-                    if (el) el.style.display = 'none';
+                    if (el) {
+                        el.style.display = 'inline-flex';
+                        el.style.opacity = '0.65';
+                        el.style.cursor = 'not-allowed';
+                        el.style.position = 'relative';
+                        el.title = 'Akses Terbatas: Khusus Administrator';
+
+                        // Tambahkan ikon gembok kecil elegan
+                        if (!el.querySelector('.viewer-lock-icon')) {
+                            const lock = document.createElement('span');
+                            lock.className = 'viewer-lock-icon';
+                            lock.innerHTML = ' 🔒';
+                            lock.style.fontSize = '0.72rem';
+                            lock.style.marginLeft = '4px';
+                            lock.style.opacity = '0.85';
+                            el.appendChild(lock);
+                        }
+
+                        // Tangkap event klik sebelum berpindah view
+                        el.addEventListener('click', function (e) {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            e.stopImmediatePropagation();
+                            showViewerRestrictedToast(target);
+                            return false;
+                        }, true); // useCapture = true agar menangkap lebih dulu
+                    }
                 });
 
                 // Jika viewer berada di section yang tidak diizinkan, kembalikan ke dashboard
                 const activeNav = document.querySelector('.nav-item.active');
-                if (activeNav && hiddenMenuTargets.includes(activeNav.getAttribute('data-target'))) {
+                if (activeNav && restrictedTargets.includes(activeNav.getAttribute('data-target'))) {
                     const dashNav = document.querySelector('.nav-item[data-target="dashboard"]');
                     if (dashNav) dashNav.click();
                 }
