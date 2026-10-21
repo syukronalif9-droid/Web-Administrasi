@@ -494,7 +494,7 @@
             </style>
             
             <header class="topbar" style="display: flex; justify-content: space-between; align-items: center; padding: 16px 0; margin-bottom: 24px;">
-                <!-- Left: Create SPL & Master Report Triggers -->
+                <!-- Left: Create SPL Trigger -->
                 <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
                     <button id="custom-sidebar-trigger" onclick="toggleCustomSidebar()" title="Surat Perintah Lembur (SPL)" style="background: #ffffff; padding: 9px 18px; border-radius: 99px; font-weight: 600; font-size: 0.95rem; color: #1e293b; display: inline-flex; align-items: center; gap: 10px; border: 1px solid #e2e8f0; cursor: pointer; box-shadow: 0 4px 14px rgba(0,0,0,0.04); transition: all 0.25s ease; font-family: 'Inter', sans-serif;">
                         <div style="width: 26px; height: 26px; border-radius: 8px; background: #18181b; color: white; display: flex; align-items: center; justify-content: center;">
@@ -508,18 +508,6 @@
                         <span>Create SPL</span>
                         <span id="spl-top-badge" style="background: #ef4444; color: white; font-size: 0.72rem; font-weight: 700; padding: 2px 7px; border-radius: 99px;">1</span>
                     </button>
-
-                    <button id="master-report-trigger" onclick="toggleMasterReportView()" title="Report Overtime" style="background: #ffffff; padding: 9px 18px; border-radius: 99px; font-weight: 600; font-size: 0.95rem; color: #1e293b; display: inline-flex; align-items: center; gap: 10px; border: 1px solid #e2e8f0; cursor: pointer; box-shadow: 0 4px 14px rgba(0,0,0,0.04); transition: all 0.25s ease; font-family: 'Inter', sans-serif;">
-                        <div style="width: 26px; height: 26px; border-radius: 8px; background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%); color: white; display: flex; align-items: center; justify-content: center;">
-                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                                <circle cx="9" cy="7" r="4"></circle>
-                                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-                                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-                            </svg>
-                        </div>
-                        <span>Report Overtime</span>
-                    </button>
                 </div>
 
                 <!-- Right Side Container (Menu + Icons) -->
@@ -528,6 +516,9 @@
                     <ul class="nav-menu horizontal">
                         <li class="nav-item active" data-target="dashboard">
                             <span class="menu-text">Dashboard</span>
+                        </li>
+                        <li class="nav-item" data-target="master-report" onclick="if(typeof initReportDateFilter === 'function'){ initReportDateFilter(); renderSplReportSlide(); }">
+                            <span class="menu-text">Report Overtime</span>
                         </li>
                         <li class="nav-item" data-target="upload">
                             <span class="menu-text">Upload Data</span>
