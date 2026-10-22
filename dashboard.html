@@ -2626,7 +2626,26 @@ document.addEventListener("DOMContentLoaded", function() {
                 overlay.classList.add('open');
                 sidebar.style.pointerEvents = 'auto';
                 document.body.style.overflow = 'hidden';
-                if (typeof window.initSplModule === 'function') {
+
+                // Kunci verifikasi SPL otomatis sesuai akun login di sesi ini
+                const loginNik = localStorage.getItem('SPL_CURRENT_USER_PERS_NO') || '';
+                const nikInput = document.getElementById('spl-verify-nik-input');
+                const verifyBtn = document.getElementById('btn-spl-do-verify');
+                const userRole = (localStorage.getItem('AOT_USER_ROLE') || '').toLowerCase().trim();
+
+                if (nikInput && loginNik && userRole !== 'admin') {
+                    nikInput.value = loginNik;
+                    nikInput.readOnly = true;
+                    nikInput.style.backgroundColor = '#f1f5f9';
+                    nikInput.style.cursor = 'not-allowed';
+                    if (verifyBtn) {
+                        verifyBtn.style.display = 'none';
+                    }
+                }
+
+                if (typeof window.performSplVerification === 'function' && loginNik) {
+                    window.performSplVerification(loginNik);
+                } else if (typeof window.initSplModule === 'function') {
                     window.initSplModule();
                 }
             }
@@ -2742,7 +2761,15 @@ document.addEventListener("DOMContentLoaded", function() {
 
                     function runLocalSplVerification(explicitNik) {
                         const inp = document.getElementById('spl-verify-nik-input');
-                        const nik = String(explicitNik || (inp ? inp.value.trim() : '')).trim();
+                        const loginNik = localStorage.getItem('SPL_CURRENT_USER_PERS_NO') || '';
+                        const userRole = (localStorage.getItem('AOT_USER_ROLE') || '').toLowerCase().trim();
+
+                        // Jika bukan admin utama, kunci NIK harus selalu sesuai akun yang login
+                        let nik = String(explicitNik || (inp ? inp.value.trim() : '')).trim();
+                        if (userRole !== 'admin' && loginNik) {
+                            nik = loginNik;
+                            if (inp) inp.value = loginNik;
+                        }
 
                         if (!nik) {
                             alert('Mohon masukkan NIK / Pers.No Anda!');
