@@ -362,7 +362,53 @@ function formatFinalStatusEn(status) {
     return s;
 }
 
-function renderSplReportSlide() {
+async function syncSplFromCloud() {
+    if (!window.supabaseClient) return;
+    try {
+        const { data, error } = await window.supabaseClient.from('digital_spl').select('*').limit(200);
+        if (!error && Array.isArray(data) && data.length > 0) {
+            let localList = (typeof getStoredSplList === 'function') ? getStoredSplList() : [];
+            let changed = false;
+
+            data.forEach(remote => {
+                if (!remote) return;
+                const remoteDoc = remote.data || {
+                    id: remote.id,
+                    splNo: remote.spl_no,
+                    finalStatus: remote.final_status
+                };
+
+                const idx = localList.findIndex(l => l.id === remote.id || l.splNo === remote.spl_no);
+                if (idx >= 0) {
+                    // Update jika ada perubahan status atau karyawan
+                    if (JSON.stringify(localList[idx]) !== JSON.stringify(remoteDoc)) {
+                        localList[idx] = { ...localList[idx], ...remoteDoc };
+                        changed = true;
+                    }
+                } else {
+                    localList.unshift(remoteDoc);
+                    changed = true;
+                }
+            });
+
+            if (changed) {
+                if (typeof saveSplList === 'function') {
+                    saveSplList(localList);
+                } else {
+                    localStorage.setItem('DIGITAL_SPL_DATA', JSON.stringify(localList));
+                }
+                renderSplReportSlide(true); // render ulang tanpa loop
+            }
+        }
+    } catch (e) {
+        console.warn('Sync SPL notice:', e);
+    }
+}
+
+function renderSplReportSlide(skipCloudSync = false) {
+    if (!skipCloudSync) {
+        syncSplFromCloud();
+    }
     const list = (typeof getStoredSplList === 'function') ? getStoredSplList() : [];
     const tbody = document.getElementById('mr-report-tbody');
     initReportDateFilter();
