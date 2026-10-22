@@ -108,13 +108,14 @@
             }, 3000);
         }
 
-        // Terapkan Hak Akses Akun (Administrator vs Viewer)
+        // Terapkan Hak Akses Akun (Hanya Administrator Utama yang memiliki akses menu penuh)
         function applyUserRolePermissions() {
-            const role = (localStorage.getItem('AOT_USER_ROLE') || 'admin').toLowerCase().trim();
+            const role = (localStorage.getItem('AOT_USER_ROLE') || 'viewer').toLowerCase().trim();
 
-            // Pada akun Viewer: Sembunyikan menu Upload Data, Summary, Framsys, Work Days, dan Master Employee
-            // agar akun Viewer fokus pada Dashboard dan SPL sesuai ketentuan.
-            if (role === 'viewer') {
+            // Semua akun selain 'admin' resmi (termasuk semua user yang mendaftar lewat web)
+            // dibatasi hanya bisa melihat Dashboard dan Report Overtime.
+            // Menu Upload Data, Summary, Framsys, Work Days, dan Master Employee disembunyikan.
+            if (role !== 'admin') {
                 const restrictedTargets = ['upload', 'summary', 'zmmlto', 'mb51', 'stock'];
                 
                 restrictedTargets.forEach(target => {
@@ -124,7 +125,7 @@
                     }
                 });
 
-                // Jika viewer sedang berada di tab yang disembunyikan, arahkan kembali ke Dashboard
+                // Jika akun non-admin sedang berada di tab yang disembunyikan, arahkan kembali ke Dashboard
                 const activeNav = document.querySelector('.nav-item.active');
                 if (activeNav && restrictedTargets.includes(activeNav.getAttribute('data-target'))) {
                     const dashNav = document.querySelector('.nav-item[data-target="dashboard"]');

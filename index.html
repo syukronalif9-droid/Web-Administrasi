@@ -689,10 +689,10 @@
 
                         if (!authErr && authData && authData.user) {
                             const meta = authData.user.user_metadata || {};
-                            // Ambil role dari metadata, default 'admin' jika email mengandung 'admin'
+                            // Ambil role dari metadata, hanya jadikan 'admin' jika username benar-benar akun admin resmi
                             let userRole = (meta.role || '').toLowerCase().trim();
                             if (!userRole) {
-                                userRole = username.toLowerCase().includes('admin') ? 'admin' : 'viewer';
+                                userRole = (username.toLowerCase() === 'admin' || username.toLowerCase() === 'admin@admin.com') ? 'admin' : 'viewer';
                             }
                             
                             userFound = {
