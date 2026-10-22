@@ -683,22 +683,37 @@ function renderSplReportSlide() {
                         onfocus="this.style.background='#fef08a'; this.style.borderColor='#eab308';" 
                         onblur="this.style.background='transparent'; this.style.borderColor='transparent';">${reason}</div>
                 </td>
-                <!-- Kolom Aksi Hapus Baris -->
+                <!-- Kolom Aksi (Tambah Karyawan ke SPL & Hapus Baris) -->
                 <td style="padding: 12px 16px; text-align: center; vertical-align: middle; white-space: nowrap;">
-                    <button type="button" 
-                        onclick="deleteSplReportRow('${item.id}', ${empIdx}, '${(e.name || '').replace(/'/g, "\\'")}')" 
-                        title="Hapus baris lembur ini" 
-                        style="background: #fee2e2; border: 1px solid #fca5a5; color: #dc2626; border-radius: 8px; padding: 6px 10px; cursor: pointer; font-size: 12px; font-weight: 600; display: inline-flex; align-items: center; gap: 4px; transition: all 0.15s;"
-                        onmouseover="this.style.background='#fecaca'; this.style.borderColor='#ef4444';"
-                        onmouseout="this.style.background='#fee2e2'; this.style.borderColor='#fca5a5';">
-                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                            <polyline points="3 6 5 6 21 6"></polyline>
-                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                            <line x1="10" y1="11" x2="10" y2="17"></line>
-                            <line x1="14" y1="11" x2="14" y2="17"></line>
-                        </svg>
-                        <span>Hapus</span>
-                    </button>
+                    <div style="display: inline-flex; align-items: center; gap: 6px;">
+                        <button type="button" 
+                            onclick="openAddSplEmpModal('${item.id}', '${item.splNo}')" 
+                            title="Tambah karyawan baru ke dokumen SPL ini" 
+                            style="background: #eff6ff; border: 1px solid #bfdbfe; color: #1d4ed8; border-radius: 8px; padding: 6px 9px; cursor: pointer; font-size: 12px; font-weight: 600; display: inline-flex; align-items: center; gap: 4px; transition: all 0.15s;"
+                            onmouseover="this.style.background='#dbeafe'; this.style.borderColor='#3b82f6';"
+                            onmouseout="this.style.background='#eff6ff'; this.style.borderColor='#bfdbfe';">
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="12" y1="5" x2="12" y2="19"></line>
+                                <line x1="5" y1="12" x2="19" y2="12"></line>
+                            </svg>
+                            <span>Tambah</span>
+                        </button>
+
+                        <button type="button" 
+                            onclick="deleteSplReportRow('${item.id}', ${empIdx}, '${(e.name || '').replace(/'/g, "\\'")}')" 
+                            title="Hapus baris lembur ini" 
+                            style="background: #fee2e2; border: 1px solid #fca5a5; color: #dc2626; border-radius: 8px; padding: 6px 9px; cursor: pointer; font-size: 12px; font-weight: 600; display: inline-flex; align-items: center; gap: 4px; transition: all 0.15s;"
+                            onmouseover="this.style.background='#fecaca'; this.style.borderColor='#ef4444';"
+                            onmouseout="this.style.background='#fee2e2'; this.style.borderColor='#fca5a5';">
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="3 6 5 6 21 6"></polyline>
+                                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                <line x1="10" y1="11" x2="10" y2="17"></line>
+                                <line x1="14" y1="11" x2="14" y2="17"></line>
+                            </svg>
+                            <span>Hapus</span>
+                        </button>
+                    </div>
                 </td>
             </tr>
         `;
@@ -887,6 +902,157 @@ window.deleteSplReportRow = function(splId, empIdx, empName) {
     // Refresh render slide Report Overtime dan history
     renderSplReportSlide();
     if (typeof renderSplHistoryList === 'function') renderSplHistoryList();
+};
+
+// ========================================================
+// LOGIKA TAMBAH KARYAWAN KE DOKUMEN SPL YANG SUDAH ADA
+// ========================================================
+window.openAddSplEmpModal = function(splId, splNo) {
+    const modal = document.getElementById('modal-add-spl-emp');
+    const select = document.getElementById('add-spl-select-emp');
+    const targetIdInput = document.getElementById('add-spl-target-id');
+    const targetNoLabel = document.getElementById('modal-add-spl-target-no');
+    const startInput = document.getElementById('add-spl-start-time');
+    const endInput = document.getElementById('add-spl-end-time');
+    const durInput = document.getElementById('add-spl-duration');
+    const reasonInput = document.getElementById('add-spl-reason');
+
+    if (!modal || !select) return;
+
+    let list = (typeof getStoredSplList === 'function') ? getStoredSplList() : [];
+    const item = list.find(s => s.id === splId);
+    if (!item) return;
+
+    targetIdInput.value = splId;
+    if (targetNoLabel) targetNoLabel.textContent = `No. SPL: ${splNo || item.splNo} (${item.area || 'All'})`;
+
+    // Ambil default jam dan alasan dari baris pertama SPL
+    const firstEmp = (Array.isArray(item.employees) && item.employees[0]) ? item.employees[0] : null;
+    startInput.value = (firstEmp && firstEmp.startTime) ? firstEmp.startTime : (item.startTime || '17:00');
+    endInput.value = (firstEmp && firstEmp.endTime) ? firstEmp.endTime : (item.endTime || '21:00');
+    durInput.value = (firstEmp && firstEmp.duration) ? firstEmp.duration : (item.duration || 4);
+    reasonInput.value = (firstEmp && firstEmp.reason) ? firstEmp.reason : (item.reason || '');
+
+    // Kumpulkan daftar karyawan dari Master Employee sesuai Area SPL
+    const masterList = (typeof SPL_MASTER_DATA !== 'undefined' && Array.isArray(SPL_MASTER_DATA)) ? SPL_MASTER_DATA : [];
+    
+    // Filter master employee berdasarkan area dokumen SPL (atau semua jika tidak spesifik)
+    let availableEmployees = masterList;
+    if (item.area) {
+        const areaFiltered = masterList.filter(m => (m.area || '').toLowerCase().trim() === item.area.toLowerCase().trim());
+        if (areaFiltered.length > 0) availableEmployees = areaFiltered;
+    }
+
+    // Ambil NIK yang SUDAH ADA di SPL ini agar tidak duplikat
+    const existingPersNos = new Set((item.employees || []).map(e => String(e.persNo || '').trim()));
+
+    // Render pilihan dropdown
+    let html = '<option value="">-- Pilih Karyawan --</option>';
+    availableEmployees.forEach(m => {
+        const pNo = String(m.persNo || '').trim();
+        const isAlreadyIn = existingPersNos.has(pNo);
+        const disabledAttr = isAlreadyIn ? 'disabled style="color: #94a3b8;"' : '';
+        const tag = isAlreadyIn ? ' (Sudah ada di SPL)' : '';
+        html += `<option value="${pNo}" data-name="${m.name || ''}" ${disabledAttr}>${m.name || '-'} [NIK: ${pNo}]${tag}</option>`;
+    });
+
+    select.innerHTML = html;
+    modal.style.display = 'flex';
+};
+
+window.closeAddSplEmpModal = function() {
+    const modal = document.getElementById('modal-add-spl-emp');
+    if (modal) modal.style.display = 'none';
+};
+
+window.onSelectAddSplEmp = function(persNo) {
+    // Bisa digunakan untuk auto-lookup jika perlu
+};
+
+window.calculateAddSplDuration = function() {
+    const start = document.getElementById('add-spl-start-time')?.value;
+    const end = document.getElementById('add-spl-end-time')?.value;
+    const durInput = document.getElementById('add-spl-duration');
+    if (!start || !end || !durInput) return;
+
+    const [sh, sm] = start.split(':').map(Number);
+    const [eh, em] = end.split(':').map(Number);
+
+    let startMins = sh * 60 + sm;
+    let endMins = eh * 60 + em;
+    if (endMins < startMins) {
+        endMins += 24 * 60; // Lewat tengah malam
+    }
+
+    let diffHours = (endMins - startMins) / 60;
+    if (diffHours < 0) diffHours = 0;
+    durInput.value = parseFloat(diffHours.toFixed(1));
+};
+
+window.submitAddSplEmp = function(e) {
+    e.preventDefault();
+    const splId = document.getElementById('add-spl-target-id').value;
+    const select = document.getElementById('add-spl-select-emp');
+    const persNo = select ? select.value : '';
+    const selectedOpt = select ? select.options[select.selectedIndex] : null;
+    const empName = selectedOpt ? selectedOpt.getAttribute('data-name') : '';
+    const start = document.getElementById('add-spl-start-time').value;
+    const end = document.getElementById('add-spl-end-time').value;
+    const duration = parseFloat(document.getElementById('add-spl-duration').value) || 0;
+    const reason = document.getElementById('add-spl-reason').value.trim();
+
+    if (!splId || !persNo) {
+        alert('Mohon pilih karyawan yang ingin ditambahkan!');
+        return;
+    }
+
+    let list = (typeof getStoredSplList === 'function') ? getStoredSplList() : [];
+    const item = list.find(s => s.id === splId);
+    if (!item) {
+        alert('Dokumen SPL tidak ditemukan!');
+        return;
+    }
+
+    if (!Array.isArray(item.employees)) {
+        item.employees = [];
+    }
+
+    // Tambah karyawan baru ke list employees dokumen SPL
+    const newEmployeeRecord = {
+        persNo: persNo,
+        name: empName || 'Karyawan (' + persNo + ')',
+        startTime: start,
+        endTime: end,
+        duration: duration,
+        reason: reason,
+        sapStatus: '' // Status SAP kosong saat baru ditambahkan
+    };
+
+    item.employees.push(newEmployeeRecord);
+
+    // Simpan ke LocalStorage
+    if (typeof saveSplList === 'function') {
+        saveSplList(list);
+    } else {
+        localStorage.setItem('DIGITAL_SPL_DATA', JSON.stringify(list));
+    }
+
+    // Sinkronisasi ke Supabase jika terhubung
+    if (window.supabaseClient) {
+        window.supabaseClient.from('digital_spl').upsert({
+            id: item.id,
+            spl_no: item.splNo,
+            data: item,
+            final_status: item.finalStatus,
+            updated_at: new Date().toISOString()
+        }).then(() => {}).catch(() => {});
+    }
+
+    closeAddSplEmpModal();
+    renderSplReportSlide();
+    if (typeof renderSplHistoryList === 'function') renderSplHistoryList();
+
+    alert(`✅ Berhasil menambahkan ${empName || persNo} ke dokumen SPL ${item.splNo}!`);
 };
 
 // Inisialisasi Filter Tanggal (Flatpickr Blue Pill Range / Single Date)
