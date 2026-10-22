@@ -3243,6 +3243,9 @@ document.addEventListener("DOMContentLoaded", function() {
 
                 <div>
                     <label style="display: block; font-size: 0.82rem; font-weight: 700; color: #334155; margin-bottom: 6px;">Pilih Karyawan <span style="color:#ef4444;">*</span></label>
+                    <div style="position: relative; margin-bottom: 6px;">
+                        <input type="text" id="add-spl-search-emp" placeholder="🔍 Cari nama atau NIK karyawan..." oninput="filterAddSplEmpOptions(this.value)" style="width: 100%; height: 38px; background: #ffffff; border: 1.5px solid #cbd5e1; border-radius: 8px; padding: 0 12px; font-size: 0.85rem; font-family: inherit; color: #0f172a; outline: none; transition: border-color 0.2s;" onfocus="this.style.borderColor='#2563eb';" onblur="this.style.borderColor='#cbd5e1';">
+                    </div>
                     <select id="add-spl-select-emp" required onchange="onSelectAddSplEmp(this.value)" style="width: 100%; height: 42px; background: #f8fafc; border: 1.5px solid #cbd5e1; border-radius: 10px; padding: 0 12px; font-size: 0.88rem; font-family: inherit; color: #0f172a; outline: none; cursor: pointer;">
                         <!-- Dinamis -->
                     </select>

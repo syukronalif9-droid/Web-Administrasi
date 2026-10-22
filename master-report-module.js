@@ -946,18 +946,50 @@ window.openAddSplEmpModal = function(splId, splNo) {
     // Ambil NIK yang SUDAH ADA di SPL ini agar tidak duplikat
     const existingPersNos = new Set((item.employees || []).map(e => String(e.persNo || '').trim()));
 
-    // Render pilihan dropdown
-    let html = '<option value="">-- Pilih Karyawan --</option>';
-    availableEmployees.forEach(m => {
+    // Simpan data karyawan untuk pencarian real-time
+    window._currentAvailableEmployeesForSpl = availableEmployees.map(m => {
         const pNo = String(m.persNo || '').trim();
         const isAlreadyIn = existingPersNos.has(pNo);
-        const disabledAttr = isAlreadyIn ? 'disabled style="color: #94a3b8;"' : '';
-        const tag = isAlreadyIn ? ' (Sudah ada di SPL)' : '';
-        html += `<option value="${pNo}" data-name="${m.name || ''}" ${disabledAttr}>${m.name || '-'} [NIK: ${pNo}]${tag}</option>`;
+        return {
+            persNo: pNo,
+            name: m.name || '-',
+            isAlreadyIn: isAlreadyIn
+        };
     });
 
-    select.innerHTML = html;
+    // Reset input search
+    const searchInput = document.getElementById('add-spl-search-emp');
+    if (searchInput) searchInput.value = '';
+
+    window.filterAddSplEmpOptions('');
     modal.style.display = 'flex';
+    if (searchInput) setTimeout(() => searchInput.focus(), 100);
+};
+
+window.filterAddSplEmpOptions = function(query) {
+    const select = document.getElementById('add-spl-select-emp');
+    if (!select) return;
+
+    const list = window._currentAvailableEmployeesForSpl || [];
+    const q = (query || '').toLowerCase().trim();
+
+    const filtered = list.filter(m => {
+        if (!q) return true;
+        return m.name.toLowerCase().includes(q) || m.persNo.toLowerCase().includes(q);
+    });
+
+    let html = '<option value="">-- Pilih Karyawan --</option>';
+    if (filtered.length === 0) {
+        html += '<option value="" disabled style="color: #ef4444;">(Karyawan tidak ditemukan)</option>';
+    } else {
+        filtered.forEach(m => {
+            const disabledAttr = m.isAlreadyIn ? 'disabled style="color: #94a3b8;"' : '';
+            const tag = m.isAlreadyIn ? ' (Sudah ada di SPL)' : '';
+            html += `<option value="${m.persNo}" data-name="${m.name}" ${disabledAttr}>${m.name} [NIK: ${m.persNo}]${tag}</option>`;
+        });
+    }
+
+    select.innerHTML = html;
 };
 
 window.closeAddSplEmpModal = function() {
