@@ -374,15 +374,24 @@ async function syncSplFromCloud() {
                 if (!remote) return;
                 const remoteDoc = remote.data || {
                     id: remote.id,
-                    splNo: remote.spl_no,
-                    finalStatus: remote.final_status
+                    splNo: remote.spl_no
                 };
+
+                // Pastikan status approval terbaru dari database selalu dipakai
+                if (remote.final_status) remoteDoc.finalStatus = remote.final_status;
+                if (remote.kabag) remoteDoc.kabag = remote.kabag;
+                if (remote.manager) remoteDoc.manager = remote.manager;
 
                 const idx = localList.findIndex(l => l.id === remote.id || l.splNo === remote.spl_no);
                 if (idx >= 0) {
-                    // Update jika ada perubahan status atau karyawan
-                    if (JSON.stringify(localList[idx]) !== JSON.stringify(remoteDoc)) {
-                        localList[idx] = { ...localList[idx], ...remoteDoc };
+                    const local = localList[idx];
+                    if (
+                        local.finalStatus !== remoteDoc.finalStatus ||
+                        JSON.stringify(local.kabag) !== JSON.stringify(remoteDoc.kabag) ||
+                        JSON.stringify(local.manager) !== JSON.stringify(remoteDoc.manager) ||
+                        JSON.stringify(local.employees) !== JSON.stringify(remoteDoc.employees)
+                    ) {
+                        localList[idx] = { ...local, ...remoteDoc };
                         changed = true;
                     }
                 } else {
