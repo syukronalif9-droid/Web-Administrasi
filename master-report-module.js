@@ -545,8 +545,16 @@ function renderSplReportSlide() {
                 <td style="padding: 12px 16px; white-space: nowrap; text-align: left;">
                     <span style="font-weight: 700; color: #000000; font-size: 0.88rem; font-family: monospace;">${item.splNo}</span>
                 </td>
+                <!-- Kolom Tanggal (Editable) -->
                 <td style="padding: 12px 16px; white-space: nowrap; text-align: left;">
-                    <span style="font-weight: 600; color: #000000; font-size: 0.85rem;">${item.date || '-'}</span>
+                    <span class="mr-editable-cell" 
+                        contenteditable="true" 
+                        onblur="saveSplReportInlineEdit('${item.id}', ${empIdx}, 'date', this.innerText)" 
+                        onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();}" 
+                        title="Klik untuk mengedit Tanggal"
+                        style="display: inline-block; font-weight: 600; color: #000000; font-size: 0.85rem; padding: 2px 6px; border-radius: 4px; border: 1px dashed transparent; outline: none; cursor: text; transition: all 0.2s;" 
+                        onfocus="this.style.background='#fef08a'; this.style.borderColor='#eab308';" 
+                        onblur="this.style.background='transparent'; this.style.borderColor='transparent';">${item.date || '-'}</span>
                 </td>
                 <td style="padding: 12px 16px; white-space: nowrap; text-align: left;">
                     <span style="font-weight: 600; color: #000000; font-size: 0.85rem;">${item.area || '-'}</span>
@@ -561,13 +569,27 @@ function renderSplReportSlide() {
                 <td style="padding: 12px 16px; white-space: nowrap; text-align: left;">
                     <div style="font-weight: 700; color: #000000; font-size: 0.88rem;">👤 ${e.name || '-'}</div>
                 </td>
+                <!-- Kolom Waktu Lembur (Editable) -->
                 <td style="padding: 12px 16px; text-align: left; white-space: nowrap;">
-                    <div style="font-weight: 600; color: #000000; font-size: 0.85rem;">${startTime} - ${endTime}</div>
+                    <span class="mr-editable-cell" 
+                        contenteditable="true" 
+                        onblur="saveSplReportInlineEdit('${item.id}', ${empIdx}, 'time', this.innerText)" 
+                        onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();}" 
+                        title="Klik untuk mengedit Waktu Lembur (contoh: 17:00 - 21:00)"
+                        style="display: inline-block; font-weight: 600; color: #000000; font-size: 0.85rem; padding: 2px 6px; border-radius: 4px; border: 1px dashed transparent; outline: none; cursor: text; transition: all 0.2s;" 
+                        onfocus="this.style.background='#fef08a'; this.style.borderColor='#eab308';" 
+                        onblur="this.style.background='transparent'; this.style.borderColor='transparent';">${startTime} - ${endTime}</span>
                 </td>
+                <!-- Kolom Durasi (Editable) -->
                 <td style="padding: 12px 16px; text-align: left; white-space: nowrap;">
-                    <span style="font-weight: 600; color: #000000; font-size: 0.85rem;">
-                        ${duration} Jam
-                    </span>
+                    <span class="mr-editable-cell" 
+                        contenteditable="true" 
+                        onblur="saveSplReportInlineEdit('${item.id}', ${empIdx}, 'duration', this.innerText)" 
+                        onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();}" 
+                        title="Klik untuk mengedit Durasi (contoh: 4)"
+                        style="display: inline-block; font-weight: 600; color: #000000; font-size: 0.85rem; padding: 2px 6px; border-radius: 4px; border: 1px dashed transparent; outline: none; cursor: text; transition: all 0.2s;" 
+                        onfocus="this.style.background='#fef08a'; this.style.borderColor='#eab308';" 
+                        onblur="this.style.background='transparent'; this.style.borderColor='transparent';">${duration} Jam</span>
                 </td>
                 <td style="padding: 12px 16px; text-align: left; white-space: nowrap;">
                     <span style="
@@ -651,11 +673,32 @@ function renderSplReportSlide() {
                         <span>Print</span>
                     </button>
                 </td>
-                <!-- Kolom Uraian / Pekerjaan di paling akhir agar muat luas dan tidak terpotong -->
+                <!-- Kolom Uraian / Pekerjaan (Editable) -->
                 <td style="padding: 12px 16px; min-width: 240px; max-width: 450px; text-align: left; white-space: normal; word-break: break-word;">
-                    <div style="font-size: 0.85rem; color: #000000; font-weight: 500; line-height: 1.45;">
-                        ${reason}
-                    </div>
+                    <div class="mr-editable-cell" 
+                        contenteditable="true" 
+                        onblur="saveSplReportInlineEdit('${item.id}', ${empIdx}, 'reason', this.innerText)" 
+                        title="Klik untuk mengedit Uraian / Pekerjaan"
+                        style="display: block; font-size: 0.85rem; color: #000000; font-weight: 500; line-height: 1.45; padding: 3px 6px; border-radius: 4px; border: 1px dashed transparent; outline: none; cursor: text; transition: all 0.2s;" 
+                        onfocus="this.style.background='#fef08a'; this.style.borderColor='#eab308';" 
+                        onblur="this.style.background='transparent'; this.style.borderColor='transparent';">${reason}</div>
+                </td>
+                <!-- Kolom Aksi Hapus Baris -->
+                <td style="padding: 12px 16px; text-align: center; vertical-align: middle; white-space: nowrap;">
+                    <button type="button" 
+                        onclick="deleteSplReportRow('${item.id}', ${empIdx}, '${(e.name || '').replace(/'/g, "\\'")}')" 
+                        title="Hapus baris lembur ini" 
+                        style="background: #fee2e2; border: 1px solid #fca5a5; color: #dc2626; border-radius: 8px; padding: 6px 10px; cursor: pointer; font-size: 12px; font-weight: 600; display: inline-flex; align-items: center; gap: 4px; transition: all 0.15s;"
+                        onmouseover="this.style.background='#fecaca'; this.style.borderColor='#ef4444';"
+                        onmouseout="this.style.background='#fee2e2'; this.style.borderColor='#fca5a5';">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="3 6 5 6 21 6"></polyline>
+                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                            <line x1="10" y1="11" x2="10" y2="17"></line>
+                            <line x1="14" y1="11" x2="14" y2="17"></line>
+                        </svg>
+                        <span>Hapus</span>
+                    </button>
                 </td>
             </tr>
         `;
@@ -715,6 +758,135 @@ window.updateSapStatus = function(splId, empIdx, newStatus) {
     }
 
     renderSplReportSlide();
+};
+
+// ========================================================
+// EDIT MANUAL DATA REPORT OVERTIME (TANGGAL, WAKTU, DURASI, URAIAN)
+// ========================================================
+window.saveSplReportInlineEdit = function(splId, empIdx, field, rawValue) {
+    const value = String(rawValue || '').trim();
+    let list = (typeof getStoredSplList === 'function') ? getStoredSplList() : [];
+    const item = list.find(s => s.id === splId);
+    if (!item) return;
+
+    let hasChange = false;
+
+    if (field === 'date') {
+        if (item.date !== value) {
+            item.date = value;
+            hasChange = true;
+        }
+    } else if (field === 'time') {
+        // Format diharapkan: '17:00 - 21:00' atau sejenisnya
+        const parts = value.split('-').map(p => p.trim());
+        const start = parts[0] || '';
+        const end = parts[1] || '';
+        if (Array.isArray(item.employees) && item.employees[empIdx]) {
+            item.employees[empIdx].startTime = start;
+            item.employees[empIdx].endTime = end;
+        }
+        if (empIdx === 0) {
+            item.startTime = start;
+            item.endTime = end;
+        }
+        hasChange = true;
+    } else if (field === 'duration') {
+        // Ambil angka saja (misal "4 Jam" -> 4)
+        const match = value.match(/[\d.]+/);
+        const durNum = match ? parseFloat(match[0]) : 0;
+        if (Array.isArray(item.employees) && item.employees[empIdx]) {
+            item.employees[empIdx].duration = durNum;
+        }
+        if (empIdx === 0) {
+            item.duration = durNum;
+        }
+        hasChange = true;
+    } else if (field === 'reason') {
+        if (Array.isArray(item.employees) && item.employees[empIdx]) {
+            item.employees[empIdx].reason = value;
+        }
+        if (empIdx === 0) {
+            item.reason = value;
+        }
+        hasChange = true;
+    }
+
+    if (hasChange) {
+        if (typeof saveSplList === 'function') {
+            saveSplList(list);
+        } else {
+            localStorage.setItem('DIGITAL_SPL_DATA', JSON.stringify(list));
+        }
+
+        if (window.supabaseClient) {
+            window.supabaseClient.from('digital_spl').upsert({
+                id: item.id,
+                spl_no: item.splNo,
+                data: item,
+                final_status: item.finalStatus,
+                updated_at: new Date().toISOString()
+            }).then(() => {}).catch(() => {});
+        }
+
+        // Render ulang untuk memperbarui total KPI man hours / tampilan
+        renderSplReportSlide();
+    }
+};
+
+// ========================================================
+// HAPUS BARIS DATA LEMBUR KARYAWAN PER BARIS
+// ========================================================
+window.deleteSplReportRow = function(splId, empIdx, empName) {
+    const displayName = empName ? `Karyawan "${empName}"` : 'baris lembur ini';
+    const confirmDelete = confirm(`Apakah Anda yakin ingin menghapus data ${displayName} dari laporan lembur?\n\nTindakan ini tidak dapat dibatalkan.`);
+    if (!confirmDelete) return;
+
+    let list = (typeof getStoredSplList === 'function') ? getStoredSplList() : [];
+    const itemIndex = list.findIndex(s => s.id === splId);
+    if (itemIndex === -1) return;
+
+    const item = list[itemIndex];
+    let shouldDeleteWholeSpl = false;
+
+    if (Array.isArray(item.employees) && item.employees.length > 0) {
+        // Hapus 1 karyawan dari daftar employees
+        item.employees.splice(empIdx, 1);
+        // Jika sudah tidak ada karyawan sama sekali dalam SPL ini, hapus seluruh dokumen SPL
+        if (item.employees.length === 0) {
+            shouldDeleteWholeSpl = true;
+        }
+    } else {
+        shouldDeleteWholeSpl = true;
+    }
+
+    if (shouldDeleteWholeSpl) {
+        list.splice(itemIndex, 1);
+        // Hapus juga dari Supabase jika ada
+        if (window.supabaseClient) {
+            window.supabaseClient.from('digital_spl').delete().eq('id', splId).then(() => {}).catch(() => {});
+        }
+    } else {
+        // Perbarui data SPL di Supabase jika masih ada karyawan lain
+        if (window.supabaseClient) {
+            window.supabaseClient.from('digital_spl').upsert({
+                id: item.id,
+                spl_no: item.splNo,
+                data: item,
+                final_status: item.finalStatus,
+                updated_at: new Date().toISOString()
+            }).then(() => {}).catch(() => {});
+        }
+    }
+
+    if (typeof saveSplList === 'function') {
+        saveSplList(list);
+    } else {
+        localStorage.setItem('DIGITAL_SPL_DATA', JSON.stringify(list));
+    }
+
+    // Refresh render slide Report Overtime dan history
+    renderSplReportSlide();
+    if (typeof renderSplHistoryList === 'function') renderSplHistoryList();
 };
 
 // Inisialisasi Filter Tanggal (Flatpickr Blue Pill Range / Single Date)
