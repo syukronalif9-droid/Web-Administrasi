@@ -857,6 +857,21 @@
                 }
             }
             if (hint) hint.style.display = 'none';
+
+            // Cek langsung apakah NIK sudah punya akun di database
+            if (window.supabaseClient) {
+                window.supabaseClient
+                    .from('app_users')
+                    .select('username')
+                    .eq('pers_no', nik)
+                    .then(({ data }) => {
+                        if (data && data.length > 0 && hint) {
+                            hint.textContent = `⚠️ NIK ini sudah terdaftar dengan username: ${data[0].username} (1 NIK hanya boleh 1 akun)`;
+                            hint.style.color = '#ef4444';
+                            hint.style.display = 'block';
+                        }
+                    });
+            }
         }
 
         async function handleUserRegistration(e) {
@@ -880,7 +895,52 @@
             submitBtn.textContent = 'Mendaftarkan...';
 
             try {
-                // Simpan akun ke tabel app_users di Supabase
+                // 1. Validasi Ketat: 1 NIK hanya boleh punya 1 Akun
+                // Cek ke tabel app_users di Supabase
+                if (window.supabaseClient) {
+                    const { data: existingByNik, error: checkNikErr } = await window.supabaseClient
+                        .from('app_users')
+                        .select('pers_no, username, name')
+                        .eq('pers_no', persNo);
+
+                    if (!checkNikErr && Array.isArray(existingByNik) && existingByNik.length > 0) {
+                        const existing = existingByNik[0];
+                        alert(`❌ Pendaftaran Ditolak!\n\nNIK "${persNo}" sudah terdaftar dengan username "${existing.username}" (${existing.name || 'User'}).\n\nKetentuan: 1 NIK hanya dapat memiliki 1 akun.`);
+                        return;
+                    }
+
+                    // Cek juga apakah username sudah dipakai
+                    const { data: existingByUser, error: checkUserErr } = await window.supabaseClient
+                        .from('app_users')
+                        .select('username')
+                        .ilike('username', username);
+
+                    if (!checkUserErr && Array.isArray(existingByUser) && existingByUser.length > 0) {
+                        alert(`❌ Username/Email "${username}" sudah digunakan. Silakan gunakan username lain.`);
+                        return;
+                    }
+                }
+
+                // Cek juga ke cache lokal
+                try {
+                    const raw = localStorage.getItem('AOT_REGISTERED_USERS');
+                    if (raw) {
+                        const localUsers = JSON.parse(raw) || [];
+                        const nikMatch = localUsers.find(u => String(u.pers_no).trim() === persNo);
+                        if (nikMatch) {
+                            alert(`❌ Pendaftaran Ditolak!\n\nNIK "${persNo}" sudah terdaftar di sistem dengan username "${nikMatch.username}".\n\n1 NIK hanya dapat didaftarkan untuk 1 akun.`);
+                            return;
+                        }
+
+                        const userMatch = localUsers.find(u => (u.username || '').toLowerCase() === username.toLowerCase());
+                        if (userMatch) {
+                            alert(`❌ Username/Email "${username}" sudah digunakan.`);
+                            return;
+                        }
+                    }
+                } catch (e) {}
+
+                // 2. Simpan akun ke tabel app_users di Supabase
                 const newAccount = {
                     username: username,
                     password: password,
@@ -892,7 +952,7 @@
 
                 let savedToCloud = false;
                 if (window.supabaseClient) {
-                    const { error } = await window.supabaseClient.from('app_users').upsert([newAccount]);
+                    const { error } = await window.supabaseClient.from('app_users').insert([newAccount]);
                     if (!error) {
                         savedToCloud = true;
                     } else {
@@ -905,9 +965,7 @@
                     let localUsers = [];
                     const raw = localStorage.getItem('AOT_REGISTERED_USERS');
                     if (raw) localUsers = JSON.parse(raw) || [];
-                    const idx = localUsers.findIndex(u => u.username.toLowerCase() === username.toLowerCase());
-                    if (idx >= 0) localUsers[idx] = newAccount;
-                    else localUsers.push(newAccount);
+                    localUsers.push(newAccount);
                     localStorage.setItem('AOT_REGISTERED_USERS', JSON.stringify(localUsers));
                 } catch (e) {}
 
