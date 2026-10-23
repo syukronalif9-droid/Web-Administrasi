@@ -644,7 +644,7 @@ function renderSplReportSlide(skipCloudSync = false) {
                         title="Klik untuk mengedit Durasi (contoh: 4)"
                         style="display: inline-block; font-weight: 600; color: #000000; font-size: 0.85rem; padding: 2px 6px; border-radius: 4px; border: 1px dashed transparent; outline: none; cursor: text; transition: all 0.2s;" 
                         onfocus="this.style.background='#fef08a'; this.style.borderColor='#eab308';" 
-                        onblur="this.style.background='transparent'; this.style.borderColor='transparent';">${duration} Jam</span>
+                        onblur="this.style.background='transparent'; this.style.borderColor='transparent';">${duration} ${parseFloat(duration) <= 1 ? 'Hour' : 'Hours'}</span>
                 </td>
                 <td style="padding: 12px 16px; text-align: left; white-space: nowrap;">
                     <span style="
