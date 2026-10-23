@@ -962,14 +962,22 @@ async function dispatchSplEmailNotification(spl) {
     const mgrApproveUrl = `${baseUrl}approve.html?id=${encodeURIComponent(spl.id)}&spl_no=${encodedNo}&approver=${encodedMgr}&area=${encodedArea}&role=manager&action=approve`;
     const mgrRejectUrl = `${baseUrl}approve.html?id=${encodeURIComponent(spl.id)}&spl_no=${encodedNo}&approver=${encodedMgr}&area=${encodedArea}&role=manager&action=reject`;
 
+    const isKabagAuthor = spl.creatorRole === 'KABAG';
+    // Jika SPL dibuat oleh Kabag, status Kabag sudah otomatis Disetujui (Approved),
+    // sehingga email hanya ditujukan ke Manager (Kabag tidak perlu menerima email permohonan approval).
+    const effectiveKabagEmail = isKabagAuthor ? '' : kabagEmail;
+
     const emailParams = {
         spl_no: spl.splNo,
-        to_kabag_name: spl.kabag.name,
-        to_kabag_email: kabagEmail,
+        to_kabag_name: isKabagAuthor ? '-' : spl.kabag.name,
+        to_kabag_email: effectiveKabagEmail,
         to_manager_name: spl.manager.name,
         to_manager_email: mgrEmail,
+        // Fallback email agar template yang memakai {{to_email}} tetap terkirim ke Manager
+        to_email: mgrEmail,
         creator_name: spl.kasie.name,
         creator_nik: spl.kasie.no,
+        creator_role: spl.creatorRole || 'KASIE',
         wh_area: spl.area,
         bagian: spl.area,
         wh_location: spl.location,
@@ -996,8 +1004,8 @@ async function dispatchSplEmailNotification(spl) {
         url_tolak: universalRejectUrl,
 
         // Parameter Khusus Role (Untuk kompatibilitas template lama)
-        kabag_approve_url: kabagApproveUrl,
-        kabag_reject_url: kabagRejectUrl,
+        kabag_approve_url: isKabagAuthor ? '#' : kabagApproveUrl,
+        kabag_reject_url: isKabagAuthor ? '#' : kabagRejectUrl,
         manager_approve_url: mgrApproveUrl,
         manager_reject_url: mgrRejectUrl,
 
@@ -1005,7 +1013,9 @@ async function dispatchSplEmailNotification(spl) {
         approve_url_raw: universalApproveUrl.replace(/^https?:\/\//, ''),
         reject_url_raw: universalRejectUrl.replace(/^https?:\/\//, ''),
 
-        email_subject: `[Pengajuan SPL Baru] ${spl.splNo} - Bagian: ${spl.area}`,
+        email_subject: isKabagAuthor 
+            ? `[Pengajuan SPL Baru - Disetujui Kabag] ${spl.splNo} - Bagian: ${spl.area}`
+            : `[Pengajuan SPL Baru] ${spl.splNo} - Bagian: ${spl.area}`,
         clean_spl_no: spl.splNo
     };
 
@@ -1026,14 +1036,18 @@ async function dispatchSplEmailNotification(spl) {
         alert('⚠️ Perhatian: Public Key EmailJS belum tersimpan di browser Anda.\nSilakan buka tab "Slide 2" -> "Tes & Pengaturan Email" untuk menyimpan Public Key Anda.');
     }
 
+    const recipientsList = isKabagAuthor 
+        ? [ { role: 'Approver Final (Manager)', name: spl.manager.name, email: mgrEmail } ]
+        : [
+            { role: 'Approver 1 (Kabag)', name: spl.kabag.name, email: kabagEmail },
+            { role: 'Approver 2 (Manager)', name: spl.manager.name, email: mgrEmail }
+        ];
+
     return {
         sentAt: new Date().toLocaleString('id-ID'),
         status: apiStatus,
-        subject: `[Pengajuan SPL Baru] ${spl.splNo} - ${spl.area}`,
-        recipients: [
-            { role: 'Approver 1 (Kabag)', name: spl.kabag.name, email: kabagEmail },
-            { role: 'Approver 2 (Manager)', name: spl.manager.name, email: mgrEmail }
-        ]
+        subject: emailParams.email_subject,
+        recipients: recipientsList
     };
 }
 
