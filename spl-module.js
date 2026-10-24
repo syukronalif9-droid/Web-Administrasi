@@ -241,6 +241,30 @@ function syncEmployeeToSplMaster(emp) {
 window.syncEmployeeToSplMaster = syncEmployeeToSplMaster;
 window.SPL_MASTER_DATA = SPL_MASTER_DATA;
 
+function normalizeSplAreaName(a) {
+    if (!a) return a;
+    const str = String(a).trim();
+    if (str === 'Traffic' || str === 'WH Traffic') return 'WH Traffic';
+    if (str === 'Gen. Adm' || str === 'General Administration') return 'General Administration';
+    if (str === 'Inv. Control' || str === 'Inventory Control') return 'Inventory Control';
+    if (str === 'Sppt, Lubr & Other M' || str === 'Sppt, Lubr' || str === 'WH Sparepart Central') return 'WH Sparepart Central';
+    if (str === 'PG1' || str === 'WH Major & PG1') return 'WH Major & PG1';
+    if (str === 'PG2' || str === 'WH PG2') return 'WH PG2';
+    if (str === 'PG3' || str === 'WH PG3') return 'WH PG3';
+    if (str === 'PG4' || str === 'WH PG4') return 'WH PG4';
+    return str;
+}
+window.normalizeSplAreaName = normalizeSplAreaName;
+
+// Automatically normalize area names inside SPL_MASTER_DATA
+if (Array.isArray(SPL_MASTER_DATA)) {
+    SPL_MASTER_DATA.forEach(row => {
+        if (row && row.area) {
+            row.area = normalizeSplAreaName(row.area);
+        }
+    });
+}
+
 // Initialize default sample SPL if empty
 function getStoredSplList() {
     const raw = localStorage.getItem('DIGITAL_SPL_DATA');
@@ -253,7 +277,7 @@ function getStoredSplList() {
                 startTime: '17:00',
                 endTime: '21:00',
                 duration: 4,
-                area: 'Traffic',
+                area: 'WH Traffic',
                 location: 'Way Lunik',
                 employees: [{ persNo: '7339', name: 'Sakri' }, { persNo: '10041846', name: 'Fedriyan Hertanto' }],
                 reason: 'Loading kontainer ekspor mendesak kapal malam',
@@ -269,7 +293,7 @@ function getStoredSplList() {
                 startTime: '16:30',
                 endTime: '19:30',
                 duration: 3,
-                area: 'Inv. Control',
+                area: 'Inventory Control',
                 location: 'Central',
                 employees: [{ persNo: '90101544', name: 'Bibit Pranoto' }],
                 reason: 'Stock opname akhir pekan material high-turnover',
@@ -287,6 +311,13 @@ function getStoredSplList() {
         if (Array.isArray(parsed)) {
             let modified = false;
             parsed.forEach(item => {
+                if (item && item.area) {
+                    const normArea = normalizeSplAreaName(item.area);
+                    if (normArea !== item.area) {
+                        item.area = normArea;
+                        modified = true;
+                    }
+                }
                 if (item && item.kasie && (String(item.kasie.no).trim() === '5078' || (item.kasie.name && item.kasie.name.includes('Wawan')))) {
                     if (item.kabag && (String(item.kabag.no).trim() === '5078' || item.kabag.name.includes('Wawan'))) {
                         item.creatorRole = 'MANAGER';

@@ -612,7 +612,7 @@ function renderSplReportSlide(skipCloudSync = false) {
                         onblur="this.style.background='transparent'; this.style.borderColor='transparent';">${item.date || '-'}</span>
                 </td>
                 <td style="padding: 12px 16px; white-space: nowrap; text-align: left;">
-                    <span style="font-weight: 600; color: #000000; font-size: 0.85rem;">${item.area || '-'}</span>
+                    <span style="font-weight: 600; color: #000000; font-size: 0.85rem;">${(typeof normalizeSplAreaName === 'function' ? normalizeSplAreaName(item.area) : item.area) || '-'}</span>
                 </td>
                 <td style="padding: 12px 16px; white-space: nowrap; text-align: left;">
                     <span style="color: #000000; font-size: 0.85rem;">${item.location || '-'}</span>
