@@ -1526,6 +1526,13 @@ function renderSummary() {
             }
         }
         
+        // Normalisasi nama WH Area jika tersedia fungsi normalisasi
+        if (typeof window.normalizeDepartmentName === 'function') {
+            whArea = window.normalizeDepartmentName(whArea);
+        } else if (typeof normalizeSplAreaName === 'function') {
+            whArea = normalizeSplAreaName(whArea);
+        }
+        
         // Jika whArea masih kosong setelah VLOOKUP, biarkan kosong atau beri tanda strip
         if (!whArea || whArea.trim() === '') {
             whArea = '-'; // Tampilan lebih rapi daripada "Not Found in DB"

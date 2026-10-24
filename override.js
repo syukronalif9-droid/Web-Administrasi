@@ -3,6 +3,25 @@ console.log("Loading Attendance Override...");
 
 window.uploadedData = window.uploadedData || { ZMM_LTO: [], mb51: [], stock: [] };
 
+// Normalisasi Nama Area & Bagian ke format standar terbaru di semua slide
+function normalizeDepartmentName(str) {
+    if (!str || typeof str !== 'string') return str;
+    const trimmed = str.trim();
+    if (/^traffic$/i.test(trimmed) || /^wh\s*traffic$/i.test(trimmed)) return 'WH Traffic';
+    if (/^gen\.?\s*adm\.?$/i.test(trimmed) || /^general\s*administration$/i.test(trimmed)) return 'General Administration';
+    if (/^inv\.?\s*control$/i.test(trimmed) || /^inventory\s*control$/i.test(trimmed)) return 'Inventory Control';
+    if (/^sppt/i.test(trimmed) || /sparepart/i.test(trimmed)) return 'WH Sparepart Central';
+    if (/^(wh\s*)?pg1$/i.test(trimmed) || /^wh\s*major\s*&\s*pg1$/i.test(trimmed)) return 'WH Major & PG1';
+    if (/^(wh\s*)?pg2$/i.test(trimmed)) return 'WH PG2';
+    if (/^(wh\s*)?pg3$/i.test(trimmed)) return 'WH PG3';
+    if (/^(wh\s*)?pg4$/i.test(trimmed)) return 'WH PG4';
+    if (/^initiator$/i.test(trimmed)) return 'Submit by';
+    return str;
+}
+window.normalizeDepartmentName = normalizeDepartmentName;
+window.normalizeAreaName = normalizeDepartmentName;
+window.normalizeSplAreaName = normalizeDepartmentName;
+
 // IndexedDB Helper
 const DB_NAME = 'OfflineAttendanceDB';
 const STORE_NAME = 'files';
@@ -93,6 +112,7 @@ async function fetchFromSupabase(tableName) {
         all.forEach(row => {
             if (row['WH Area'] === undefined) row['WH Area'] = row['Area'] || '';
             if (row['Work Contract'] === undefined) row['Work Contract'] = row['Bagian'] || '';
+            if (row['WH Area']) row['WH Area'] = normalizeDepartmentName(row['WH Area']);
         });
     }
     return all;
@@ -105,7 +125,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     const savedStock = await loadFromDB('stock');
     if (savedZmm && savedZmm.length) window.uploadedData['ZMM_LTO'] = savedZmm;
     if (savedMb51 && savedMb51.length) window.uploadedData['mb51'] = savedMb51;
-    if (savedStock && savedStock.length) window.uploadedData['stock'] = savedStock;
+    if (savedStock && savedStock.length) {
+        savedStock.forEach(r => {
+            if (r['WH Area']) r['WH Area'] = normalizeDepartmentName(r['WH Area']);
+            if (r['Area']) r['Area'] = normalizeDepartmentName(r['Area']);
+        });
+        window.uploadedData['stock'] = savedStock;
+    }
 
     const isEmpty = (key) => !window.uploadedData[key] || window.uploadedData[key].length === 0;
 
@@ -216,8 +242,8 @@ function renderMb51() {
         const persNo = row['Pers.No.'] || '';
         if (persNo) {
             masterMap[persNo.toString().trim()] = {
-                area: row['Area'] || row['WH Area'] || '',
-                bagian: row['Bagian'] || '',
+                area: normalizeDepartmentName(row['Area'] || row['WH Area'] || ''),
+                bagian: normalizeDepartmentName(row['Bagian'] || row['WH Area'] || ''),
                 workContract: row['Work Contract'] || '',
                 employeeSubgroup: row['Employee Subgroup'] || '',
                 costCenter: row['Cost Ctr'] || row['Cost Center'] || ''
@@ -238,11 +264,14 @@ function renderMb51() {
         
         let tempRow = { ...row };
         if (match) {
-            tempRow['Area'] = match.area || '';
-            tempRow['Bagian'] = match.area || '';
+            tempRow['Area'] = normalizeDepartmentName(match.area || tempRow['Area'] || '');
+            tempRow['Bagian'] = normalizeDepartmentName(match.bagian || tempRow['Bagian'] || '');
             tempRow['Work Contract'] = match.workContract || '';
             tempRow['Employee Subgroup'] = match.employeeSubgroup || '';
             tempRow['Cost Center'] = match.costCenter || '';
+        } else {
+            if (tempRow['Area']) tempRow['Area'] = normalizeDepartmentName(tempRow['Area']);
+            if (tempRow['Bagian']) tempRow['Bagian'] = normalizeDepartmentName(tempRow['Bagian']);
         }
 
         // Menyusun ulang kunci object agar urutan kolom dari kiri ke kanan 100% pas
@@ -266,7 +295,7 @@ function renderZmmLto() {
         const persNo = row['Pers.No.'] || '';
         if (persNo) {
             masterMap[persNo.toString().trim()] = {
-                area: row['Area'] || row['WH Area'] || ''
+                area: normalizeDepartmentName(row['Area'] || row['WH Area'] || '')
             };
         }
     });
@@ -282,7 +311,7 @@ function renderZmmLto() {
         let tempRow = { ...row };
         
         // 1. VLOOKUP WH Area
-        tempRow['WH Area'] = match ? match.area : '';
+        tempRow['WH Area'] = normalizeDepartmentName(match ? match.area : (tempRow['WH Area'] || ''));
         
         // 2. Buat otomatis Hari dari Date Shift
         let hari = '';
@@ -424,13 +453,16 @@ function renderZmmLto() {
 function renderStock() {
     let data = (window.uploadedData['stock'] && window.uploadedData['stock'].length > 0) ? window.uploadedData['stock'] : (window.globalStockData || []);
     
-    // Hapus kolom Double Check dan >1 Name jika ada dari data aslinya
+    // Hapus kolom Double Check dan >1 Name jika ada dari data aslinya & normalisasi nama area
     data = data.map(row => {
         const newRow = { ...row };
         delete newRow['Double Check'];
         delete newRow['>1 Name'];
         delete newRow['Area'];
         delete newRow['Bagian'];
+        if (newRow['WH Area']) {
+            newRow['WH Area'] = normalizeDepartmentName(newRow['WH Area']);
+        }
         return newRow;
     });
 
@@ -565,7 +597,9 @@ window.renderTable = function(tableId, data) {
         const style = freezeObj.style;
         let thStyle = style ? style + (freezeObj.isSticky ? ' z-index: 3; background-color: #F1F5F9; font-weight: 700; color: #1E293B;' : '') : '';
         thStyle += ' text-align: left; padding-left: 12px; color: #1E293B; font-weight: 700;'; // Terapkan rata kiri & hitam ke SEMUA header
-        return `<th style="${thStyle}">${h}</th>`;
+        let displayHeader = h;
+        if (/^initiator$/i.test(displayHeader.trim())) displayHeader = 'Submit by';
+        return `<th style="${thStyle}">${displayHeader}</th>`;
     }).join('')}${isStock ? '<th style="text-align: center; width: 80px; min-width: 80px; color: #1E293B; font-weight: 700;">Aksi</th>' : ''}</tr></thead>`;
     
     // Batasi hanya 100 baris pertama supaya super cepat (no lag)
@@ -598,6 +632,13 @@ window.renderTable = function(tableId, data) {
                 if (!isNaN(mNum) && mNum >= 1 && mNum <= 12) {
                     cellValue = monthNames[mNum - 1];
                 }
+            }
+
+            // Normalisasi nama WH Area / Bagian / Department di SEMUA tabel
+            if (h === 'WH Area' || h === 'Area' || h === 'Department' || h === 'Bagian') {
+                cellValue = normalizeDepartmentName(cellValue);
+            } else if (typeof cellValue === 'string' && /^(Traffic|Gen\. Adm|Inv\. Control|Sppt, Lubr|PG1|PG2|PG3|PG4|Initiator)$/i.test(cellValue.trim())) {
+                cellValue = normalizeDepartmentName(cellValue);
             }
 
             return `<td${editAttr} style="${finalStyle}">${cellValue}</td>`;

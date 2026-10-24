@@ -244,17 +244,20 @@ window.SPL_MASTER_DATA = SPL_MASTER_DATA;
 function normalizeSplAreaName(a) {
     if (!a) return a;
     const str = String(a).trim();
-    if (str === 'Traffic' || str === 'WH Traffic') return 'WH Traffic';
-    if (str === 'Gen. Adm' || str === 'General Administration') return 'General Administration';
-    if (str === 'Inv. Control' || str === 'Inventory Control') return 'Inventory Control';
-    if (str === 'Sppt, Lubr & Other M' || str === 'Sppt, Lubr' || str === 'WH Sparepart Central') return 'WH Sparepart Central';
-    if (str === 'PG1' || str === 'WH Major & PG1') return 'WH Major & PG1';
-    if (str === 'PG2' || str === 'WH PG2') return 'WH PG2';
-    if (str === 'PG3' || str === 'WH PG3') return 'WH PG3';
-    if (str === 'PG4' || str === 'WH PG4') return 'WH PG4';
+    if (/^traffic$/i.test(str) || /^wh\s*traffic$/i.test(str)) return 'WH Traffic';
+    if (/^gen\.?\s*adm\.?$/i.test(str) || /^general\s*administration$/i.test(str)) return 'General Administration';
+    if (/^inv\.?\s*control$/i.test(str) || /^inventory\s*control$/i.test(str)) return 'Inventory Control';
+    if (/^sppt/i.test(str) || /sparepart/i.test(str)) return 'WH Sparepart Central';
+    if (/^(wh\s*)?pg1$/i.test(str) || /^wh\s*major\s*&\s*pg1$/i.test(str)) return 'WH Major & PG1';
+    if (/^(wh\s*)?pg2$/i.test(str)) return 'WH PG2';
+    if (/^(wh\s*)?pg3$/i.test(str)) return 'WH PG3';
+    if (/^(wh\s*)?pg4$/i.test(str)) return 'WH PG4';
+    if (/^initiator$/i.test(str)) return 'Submit by';
     return str;
 }
 window.normalizeSplAreaName = normalizeSplAreaName;
+window.normalizeDepartmentName = normalizeSplAreaName;
+window.normalizeAreaName = normalizeSplAreaName;
 
 // Automatically normalize area names inside SPL_MASTER_DATA
 if (Array.isArray(SPL_MASTER_DATA)) {
@@ -420,7 +423,7 @@ function getEmployeeRoleByPersNo(inputPersNo) {
             canCreateSpl: true,
             canApproveSpl: true,
             approvalLevel: 1,
-            area: 'Gen. Adm',
+            area: 'General Administration',
             location: 'Central'
         };
     }

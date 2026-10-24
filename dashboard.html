@@ -136,8 +136,8 @@
         document.addEventListener('DOMContentLoaded', applyUserRolePermissions);
     </script>
     <script src="worksheetData.js"></script>
-    <script src="spl-module.js?v=57"></script>
-    <script src="master-report-module.js?v=8"></script>
+    <script src="spl-module.js?v=58"></script>
+    <script src="master-report-module.js?v=9"></script>
 </head>
 
 <body>
@@ -1904,8 +1904,8 @@ document.addEventListener("DOMContentLoaded", function() {
             </section>
         </main>
     </div>
-    <script src="script.js?v=26"></script>
-    <script src="override.js?v=26"></script>
+    <script src="script.js?v=27"></script>
+    <script src="override.js?v=27"></script>
 
     <!-- Modal Hapus Data -->
     <div id="modal-hapus"
@@ -3377,13 +3377,15 @@ document.addEventListener("DOMContentLoaded", function() {
                         </label>
                         <select id="manual-emp-area" required onchange="onManualEmpAreaChange()"
                             style="width: 100%; box-sizing: border-box; padding: 10px 14px; border-radius: 10px; border: 1.5px solid #cbd5e1; font-size: 0.9rem; font-weight: 600; color: #0f172a; outline: none; background: #ffffff; cursor: pointer;">
-                            <option value="Traffic">Traffic</option>
-                            <option value="Gen. Adm">Gen. Adm</option>
-                            <option value="Inv. Control">Inv. Control</option>
-                            <option value="Sppt, Lubr & Other M">Sppt, Lubr & Other M</option>
+                            <option value="WH Traffic">WH Traffic</option>
+                            <option value="General Administration">General Administration</option>
+                            <option value="Inventory Control">Inventory Control</option>
+                            <option value="WH Sparepart Central">WH Sparepart Central</option>
+                            <option value="WH Major & PG1">WH Major & PG1</option>
+                            <option value="WH PG2">WH PG2</option>
+                            <option value="WH PG3">WH PG3</option>
+                            <option value="WH PG4">WH PG4</option>
                             <option value="Central">Central</option>
-                            <option value="PG3">PG3</option>
-                            <option value="PG4">PG4</option>
                             <option value="Finished Goods">Finished Goods</option>
                             <option value="Raw Material">Raw Material</option>
                         </select>
@@ -3400,12 +3402,12 @@ document.addEventListener("DOMContentLoaded", function() {
                             <option value="Central">
                             <option value="Tangerang">
                             <option value="Terbanggi">
-                            <option value="PG3">
-                            <option value="PG4">
                             <option value="Packaging Material">
                             <option value="Sparepart">
                             <option value="Support Material">
-                            <option value="FM5, FM6">
+                            <option value="FM1A, FM1B, FM2">
+                            <option value="FM3A, FM3B, FM4, OP1">
+                            <option value="AGR1, AGR2, AGR3, GDP3, FM5, FM6">
                         </datalist>
                     </div>
                 </div>
@@ -3541,7 +3543,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
         function onManualEmpAreaChange() {
             const areaEl = document.getElementById('manual-emp-area');
-            const area = areaEl ? areaEl.value : 'Traffic';
+            const area = areaEl ? (typeof window.normalizeDepartmentName === 'function' ? window.normalizeDepartmentName(areaEl.value) : areaEl.value) : 'WH Traffic';
             const locInput = document.getElementById('manual-emp-location');
             const kasieInput = document.getElementById('manual-emp-kasie');
             const kabagInput = document.getElementById('manual-emp-kabag');
@@ -3581,7 +3583,8 @@ document.addEventListener("DOMContentLoaded", function() {
         function saveManualEmployee() {
             const nik = (document.getElementById('manual-emp-nik')?.value || '').trim();
             const name = (document.getElementById('manual-emp-name')?.value || '').trim();
-            const area = (document.getElementById('manual-emp-area')?.value || 'Central').trim();
+            let rawArea = (document.getElementById('manual-emp-area')?.value || 'WH Traffic').trim();
+            const area = (typeof window.normalizeDepartmentName === 'function' ? window.normalizeDepartmentName(rawArea) : rawArea);
             const location = (document.getElementById('manual-emp-location')?.value || 'Central').trim();
             const subgroup = (document.getElementById('manual-emp-subgroup')?.value || 'Pelaksana').trim();
             const contract = (document.getElementById('manual-emp-contract')?.value || 'Permanent').trim();
@@ -3785,7 +3788,7 @@ document.addEventListener("DOMContentLoaded", function() {
                         'Employee Subgroup': subgroup || 'Pelaksana',
                         'Work Contract': contract || 'Permanent',
                         'Cost Ctr': costCenter || '',
-                        'WH Area': area || 'Central',
+                        'WH Area': (typeof window.normalizeDepartmentName === 'function' ? window.normalizeDepartmentName(area) : area) || 'WH Traffic',
                         'Location': location || 'Central',
                         'Remarks': remarks || ''
                     };
