@@ -2565,7 +2565,8 @@ document.addEventListener("DOMContentLoaded", function() {
                         btnHigh.style.color = '#a1a1aa';
                         btnHigh.style.boxShadow = 'none';
                     }
-                }
+                };
+
                 window.selectMonth = function(btn) {
                     const card = btn.closest('.card');
                     const btns = card.querySelectorAll('.month-btn');
@@ -2607,12 +2608,10 @@ document.addEventListener("DOMContentLoaded", function() {
                         }
                     });
                 }
-            };
-            
-            // Initial render
-            window.applyFilters();
-        }
-
+                
+                // Initial render
+                window.applyFilters();
+            }
         });
 
         // ==========================================
