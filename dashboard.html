@@ -2179,6 +2179,7 @@ document.addEventListener("DOMContentLoaded", function() {
                     const cols = line.split(';');
                     if (cols.length >= 44) {
                         const status = cols[1] ? cols[1].trim() : '';
+                        const name = cols[4] ? cols[4].trim() : '';
                         let rawBagian = cols[2] ? cols[2].trim() : '';
                         const mapBagianName = (b) => {
                             if (b === 'Traffic') return 'WH Traffic';
