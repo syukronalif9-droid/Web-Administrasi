@@ -662,14 +662,14 @@
                                     window.disciplineDonutChart = myChart;
 
                                     var disciplineData = [
-                                        { value: 99.3, name: 'Traffic',              color: '#3b82f6' },
-                                        { value: 98.5, name: 'Gen. Adm',             color: '#6366f1' },
-                                        { value: 97.9, name: 'PG4',                  color: '#8b5cf6' },
-                                        { value: 94.8, name: 'PG1',                  color: '#f97316' },
-                                        { value: 92.0, name: 'Sppt, Lubr & Other M', color: '#ec4899' },
-                                        { value: 87.9, name: 'PG3',                  color: '#ef4444' },
-                                        { value: 79.3, name: 'PG2',                  color: '#f43f5e' },
-                                        { value: 74.6, name: 'Inv. Control',         color: '#fb923c' }
+                                        { value: 99.3, name: 'WH Traffic',           color: '#3b82f6' },
+                                        { value: 98.5, name: 'General Administration', color: '#6366f1' },
+                                        { value: 97.9, name: 'WH PG4',               color: '#8b5cf6' },
+                                        { value: 94.8, name: 'WH Major & PG1',       color: '#f97316' },
+                                        { value: 92.0, name: 'WH Sparepart Central', color: '#ec4899' },
+                                        { value: 87.9, name: 'WH PG3',               color: '#ef4444' },
+                                        { value: 79.3, name: 'WH PG2',               color: '#f43f5e' },
+                                        { value: 74.6, name: 'Inventory Control',    color: '#fb923c' }
                                     ];
 
                                     var option = {
@@ -1150,7 +1150,7 @@ document.addEventListener("DOMContentLoaded", function() {
         var chartBagian = echarts.init(domBagian);
         window.attendanceBagianChart = chartBagian;
         
-        var labelsBagian = ['Gen. Adm', 'Inv. Control', 'Sppt, Lubr', 'Traffic', 'PG1', 'PG2', 'PG3', 'PG4'];
+        var labelsBagian = ['General Administration', 'Inventory Control', 'WH Sparepart Central', 'WH Traffic', 'WH Major & PG1', 'WH PG2', 'WH PG3', 'WH PG4'];
         var workingBagian = [1632, 2297, 2995, 7432, 9802, 7344, 10342, 8450];
         var attendanceBagian = [1608, 1713, 2754, 7379, 9291, 5827, 9094, 8269];
         
@@ -1883,7 +1883,7 @@ document.addEventListener("DOMContentLoaded", function() {
                                         <th>Date</th>
                                         <th>Department</th>
                                         <th>Location</th>
-                                        <th>Initiator</th>
+                                        <th>Submit by</th>
                                         <th>Employee</th>
                                         <th>Overtime Hours</th>
                                         <th>Duration</th>
@@ -2085,13 +2085,13 @@ document.addEventListener("DOMContentLoaded", function() {
 
                         const tbody = document.getElementById('absensi-table-body');
                         const mockData = [
-                            { area: 'Gen. Adm', wd: 1632, att: 1608, pct: '98.5%' },
-                            { area: 'Inv. Control', wd: 2297, att: 1713, pct: '74.6%' },
-                            { area: 'Traffic', wd: 7610, att: 7544, pct: '99.1%' },
-                            { area: 'PG1', wd: 9802, att: 9291, pct: '94.8%' },
-                            { area: 'PG2', wd: 7344, att: 5827, pct: '79.3%' },
-                            { area: 'PG3', wd: 10342, att: 9094, pct: '87.9%' },
-                            { area: 'PG4', wd: 8450, att: 8269, pct: '97.9%' },
+                            { area: 'General Administration', wd: 1632, att: 1608, pct: '98.5%' },
+                            { area: 'Inventory Control', wd: 2297, att: 1713, pct: '74.6%' },
+                            { area: 'WH Traffic', wd: 7610, att: 7544, pct: '99.1%' },
+                            { area: 'WH Major & PG1', wd: 9802, att: 9291, pct: '94.8%' },
+                            { area: 'WH PG2', wd: 7344, att: 5827, pct: '79.3%' },
+                            { area: 'WH PG3', wd: 10342, att: 9094, pct: '87.9%' },
+                            { area: 'WH PG4', wd: 8450, att: 8269, pct: '97.9%' },
                             { area: '<b>Total</b>', wd: 50471, att: 46098, pct: '91.3%' }
                         ];
 
@@ -2179,8 +2179,19 @@ document.addEventListener("DOMContentLoaded", function() {
                     const cols = line.split(';');
                     if (cols.length >= 44) {
                         const status = cols[1] ? cols[1].trim() : '';
-                        const name = cols[4] ? cols[4].trim() : '';
-                        const bagian = cols[2] ? cols[2].trim() : '';
+                        let rawBagian = cols[2] ? cols[2].trim() : '';
+                        const mapBagianName = (b) => {
+                            if (b === 'Traffic') return 'WH Traffic';
+                            if (b === 'Gen. Adm') return 'General Administration';
+                            if (b === 'Inv. Control') return 'Inventory Control';
+                            if (b === 'Sppt, Lubr & Other M' || b === 'Sppt, Lubr') return 'WH Sparepart Central';
+                            if (b === 'PG1') return 'WH Major & PG1';
+                            if (b === 'PG2') return 'WH PG2';
+                            if (b === 'PG3') return 'WH PG3';
+                            if (b === 'PG4') return 'WH PG4';
+                            return b;
+                        };
+                        const bagian = mapBagianName(rawBagian);
                         
                         const getVal = (idx) => {
                             let str = cols[idx] ? cols[idx].trim() : '';
@@ -2381,14 +2392,14 @@ document.addEventListener("DOMContentLoaded", function() {
                     // 4. Update Discipline Donut Chart (Per Bagian, for active period & status)
                     if (window.disciplineDonutChart) {
                         const bagianList = [
-                            { key: 'Traffic', color: '#3b82f6' },
-                            { key: 'Gen. Adm', color: '#6366f1' },
-                            { key: 'PG4', color: '#8b5cf6' },
-                            { key: 'PG1', color: '#f97316' },
-                            { key: 'Sppt, Lubr & Other M', color: '#ec4899' },
-                            { key: 'PG3', color: '#ef4444' },
-                            { key: 'PG2', color: '#f43f5e' },
-                            { key: 'Inv. Control', color: '#fb923c' }
+                            { key: 'WH Traffic', color: '#3b82f6' },
+                            { key: 'General Administration', color: '#6366f1' },
+                            { key: 'WH PG4', color: '#8b5cf6' },
+                            { key: 'WH Major & PG1', color: '#f97316' },
+                            { key: 'WH Sparepart Central', color: '#ec4899' },
+                            { key: 'WH PG3', color: '#ef4444' },
+                            { key: 'WH PG2', color: '#f43f5e' },
+                            { key: 'Inventory Control', color: '#fb923c' }
                         ];
 
                         const donutData = bagianList.map(b => {
@@ -2446,8 +2457,8 @@ document.addEventListener("DOMContentLoaded", function() {
 
                     // 6. Update Attendance Per Bagian Chart (Working Days & Attendance per Bagian for active period & status)
                     if (window.attendanceBagianChart) {
-                        const standardBagians = ['Gen. Adm', 'Inv. Control', 'Sppt, Lubr & Other M', 'Traffic', 'PG1', 'PG2', 'PG3', 'PG4'];
-                        const displayBagians = ['Gen. Adm', 'Inv. Control', 'Sppt, Lubr', 'Traffic', 'PG1', 'PG2', 'PG3', 'PG4'];
+                        const standardBagians = ['General Administration', 'Inventory Control', 'WH Sparepart Central', 'WH Traffic', 'WH Major & PG1', 'WH PG2', 'WH PG3', 'WH PG4'];
+                        const displayBagians = ['General Administration', 'Inventory Control', 'WH Sparepart Central', 'WH Traffic', 'WH Major & PG1', 'WH PG2', 'WH PG3', 'WH PG4'];
                         const bagianWd = [];
                         const bagianAtt = [];
 
@@ -2787,7 +2798,7 @@ document.addEventListener("DOMContentLoaded", function() {
                         }
 
                         // Fallback jika modul utama belum selesai dimuat
-                        let name = 'Karyawan', role = 'Pejabat', area = 'Gen. Adm', location = 'Central';
+                        let name = 'Karyawan', role = 'Pejabat', area = 'General Administration', location = 'Central';
                         let subordinates = [];
                         let kasieInfo = { name: '-', no: '' };
                         let kabagInfo = { name: '-', no: '' };
@@ -2796,7 +2807,7 @@ document.addEventListener("DOMContentLoaded", function() {
                         if (nik === '3152137') {
                             name = 'Setiawan';
                             role = 'Kepala Bagian (Kabag)';
-                            area = 'Gen. Adm';
+                            area = 'General Administration';
                             location = 'Central';
                             subordinates = [
                                 { persNo: '3152137', name: 'Setiawan', roleBadge: 'Kabag' },
@@ -2813,7 +2824,7 @@ document.addEventListener("DOMContentLoaded", function() {
                         } else if (nik === '209113') {
                             name = 'Nur Tri Ayatullah, S.T';
                             role = 'Kepala Seksi (Kasie)';
-                            area = 'Traffic';
+                            area = 'WH Traffic';
                             location = 'Way Lunik';
                             subordinates = [
                                 { persNo: '209113', name: 'Nur Tri Ayatullah, S.T', roleBadge: 'Kasie' },
