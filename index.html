@@ -732,24 +732,10 @@
                     }
                 }
 
-                // 3. Fallback akun default dan cache registrasi lokal
-                if (!userFound) {
-                    try {
-                        const rawReg = localStorage.getItem('AOT_REGISTERED_USERS');
-                        if (rawReg) {
-                            const regUsers = JSON.parse(rawReg) || [];
-                            const match = regUsers.find(u => u.username.toLowerCase() === username.toLowerCase());
-                            if (match) {
-                                if (match.password.trim() === password.trim()) {
-                                    userFound = match;
-                                } else {
-                                    alert(`Password untuk "${username}" salah!`);
-                                    return;
-                                }
-                            }
-                        }
-                    } catch (e) {}
-                }
+                // Bersihkan cache lokal jika masih ada
+                try {
+                    localStorage.removeItem('AOT_REGISTERED_USERS');
+                } catch (e) {}
 
                 if (!userFound) {
                     const inputUser = username.toLowerCase().trim();
@@ -950,26 +936,24 @@
                     area: area
                 };
 
-                let savedToCloud = false;
-                if (window.supabaseClient) {
-                    const { error } = await window.supabaseClient.from('app_users').insert([newAccount]);
-                    if (!error) {
-                        savedToCloud = true;
-                    } else {
-                        console.warn('Gagal simpan ke Supabase app_users:', error);
-                    }
+                if (!window.supabaseClient) {
+                    alert('Koneksi ke Supabase belum siap. Silakan refresh halaman dan coba kembali.');
+                    return;
                 }
 
-                // Simpan juga ke cache lokal agar bisa langsung dipakai
+                const { error: insertErr } = await window.supabaseClient.from('app_users').insert([newAccount]);
+                if (insertErr) {
+                    console.error('Gagal simpan ke Supabase app_users:', insertErr);
+                    alert(`❌ Pendaftaran Gagal!\nDatabase Supabase menolak data: ${insertErr.message || 'Error tidak diketahui'}`);
+                    return;
+                }
+
+                // Bersihkan cache lokal lama jika pernah ada
                 try {
-                    let localUsers = [];
-                    const raw = localStorage.getItem('AOT_REGISTERED_USERS');
-                    if (raw) localUsers = JSON.parse(raw) || [];
-                    localUsers.push(newAccount);
-                    localStorage.setItem('AOT_REGISTERED_USERS', JSON.stringify(localUsers));
+                    localStorage.removeItem('AOT_REGISTERED_USERS');
                 } catch (e) {}
 
-                alert(`🎉 Pendaftaran Berhasil!\n\nAkun untuk ${fullName} (${role.toUpperCase()} ${area}) telah aktif.\nSilakan login menggunakan username dan password yang baru Anda buat.`);
+                alert(`🎉 Pendaftaran Berhasil!\n\nAkun untuk ${fullName} (${role.toUpperCase()} ${area}) telah tersimpan di Supabase.\nSilakan login menggunakan username dan password yang baru Anda buat.`);
                 closeRegisterModal();
 
                 // Isi otomatis username ke form login
